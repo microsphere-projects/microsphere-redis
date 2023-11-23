@@ -43,9 +43,11 @@
     </properties>
 
     <modules>
-        <module>microsphere-redis-commons</module>
         <module>microsphere-redis-parent</module>
         <module>microsphere-redis-dependencies</module>
+        <module>microsphere-redis-commons</module>
+        <module>microsphere-redis-spring</module>
+        <module>microsphere-redis-replicator-spring</module>
     </modules>
 
 </project>
