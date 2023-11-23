@@ -1,4 +1,4 @@
-io.microsphere.redis.context.spring.RedisModuleInitializer=\
+io.microsphere.redis.spring.context.RedisModuleInitializer=\
 io.microsphere.redis.replicator.spring.RedisReplicatorInitializer
 
 io.microsphere.redis.replicator.spring.RedisReplicatorModuleInitializer=\
