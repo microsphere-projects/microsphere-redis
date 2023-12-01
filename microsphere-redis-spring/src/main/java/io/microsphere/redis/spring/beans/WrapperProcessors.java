@@ -71,7 +71,7 @@ public class WrapperProcessors implements InitializingBean, BeanFactoryAware {
             BeanDefinition beanDefinition = beanFactory.getMergedBeanDefinition(beanName);
             ResolvableType resolvableType = beanDefinition.getResolvableType();
             Class<?> beanClass = resolvableType.getRawClass();
-            if (WrapperProcessor.class.isAssignableFrom(beanClass)) {
+            if (beanClass != null && WrapperProcessor.class.isAssignableFrom(beanClass)) {
                 Class<?> redisTemplateClass = resolvableType.as(WrapperProcessor.class).getGeneric(0).getRawClass();
                 wrapperHandlersMap.computeIfAbsent(redisTemplateClass, type -> beanFactory.getBeanProvider(resolvableType));
             }
