@@ -8,10 +8,12 @@ import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigRegistry;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
+import org.springframework.core.env.ConfigurableEnvironment;
 
 import java.util.List;
 
 import static io.microsphere.redis.spring.config.RedisConfiguration.isEnabled;
+import static io.microsphere.spring.util.PropertySourcesUtils.containsBootstrapPropertySource;
 import static org.springframework.core.io.support.SpringFactoriesLoader.loadFactories;
 
 /**
@@ -54,6 +56,14 @@ public class RedisInitializer implements ApplicationContextInitializer<Configura
         if (!isEnabled(context)) {
             return false;
         }
+        if (isBootstrapContext(context)) {
+            return false;
+        }
         return true;
+    }
+
+    private boolean isBootstrapContext(ConfigurableApplicationContext context) {
+        ConfigurableEnvironment environment = context.getEnvironment();
+        return containsBootstrapPropertySource(environment);
     }
 }
