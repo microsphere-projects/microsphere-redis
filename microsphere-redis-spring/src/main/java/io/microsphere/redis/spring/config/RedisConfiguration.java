@@ -28,10 +28,9 @@ public class RedisConfiguration implements ApplicationListener<RedisConfiguratio
     private static final Logger logger = LoggerFactory.getLogger(RedisConfiguration.class);
 
     /**
-     * RedisConfiguration
      * {@link RedisConfiguration} Bean Name
      */
-    public static final String BEAN_NAME = "redisConfiguration";
+    public static final String BEAN_NAME = "microsphere:redisConfiguration";
 
     protected ConfigurableApplicationContext context;
 
