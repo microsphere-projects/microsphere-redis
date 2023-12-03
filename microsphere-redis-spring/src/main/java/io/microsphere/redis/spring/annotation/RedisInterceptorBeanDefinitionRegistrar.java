@@ -16,12 +16,13 @@
  */
 package io.microsphere.redis.spring.annotation;
 
-import io.microsphere.redis.spring.beans.RedisConnectionFactoryWrapperBeanPostProcessor;
+import io.microsphere.redis.spring.beans.RedisConnectionFactoryProxyBeanPostProcessor;
 import io.microsphere.redis.spring.beans.RedisTemplateWrapperBeanPostProcessor;
 import io.microsphere.redis.spring.beans.WrapperProcessors;
 import io.microsphere.redis.spring.interceptor.EventPublishingRedisCommandInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.EnvironmentAware;
@@ -34,6 +35,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static io.microsphere.spring.util.BeanFactoryUtils.asConfigurableBeanFactory;
 import static java.util.Arrays.asList;
 import static org.springframework.beans.factory.support.BeanDefinitionBuilder.genericBeanDefinition;
 import static org.springframework.util.CollectionUtils.isEmpty;
@@ -70,7 +72,7 @@ public class RedisInterceptorBeanDefinitionRegistrar implements ImportBeanDefini
     public void registerBeanDefinitions(Set<String> wrappedRedisTemplateBeanNames, boolean exposedCommandEvent, BeanDefinitionRegistry registry) {
 
         if (isEmpty(wrappedRedisTemplateBeanNames)) {
-            registerRedisConnectionFactoryWrapperBeanPostProcessor(registry);
+            addRedisConnectionFactoryProxyBeanPostProcessor(registry);
         } else {
             registerRedisTemplateWrapperBeanPostProcessor(wrappedRedisTemplateBeanNames, registry);
         }
@@ -84,7 +86,6 @@ public class RedisInterceptorBeanDefinitionRegistrar implements ImportBeanDefini
 
     private void registerRedisTemplateWrapperBeanPostProcessor(Set<String> wrappedRedisTemplateBeanNames, BeanDefinitionRegistry registry) {
         registerBeanDefinition(registry, RedisTemplateWrapperBeanPostProcessor.BEAN_NAME, RedisTemplateWrapperBeanPostProcessor.class, wrappedRedisTemplateBeanNames);
-
     }
 
     private Set<String> resolveWrappedRedisTemplateBeanNames(String[] wrapRedisTemplates) {
@@ -102,16 +103,17 @@ public class RedisInterceptorBeanDefinitionRegistrar implements ImportBeanDefini
         return wrappedRedisTemplateBeanNames;
     }
 
-    private void registerWrapperProcessors(BeanDefinitionRegistry registry) {
-        registerBeanDefinition(registry, WrapperProcessors.BEAN_NAME, WrapperProcessors.class);
-    }
-
-    private void registerRedisConnectionFactoryWrapperBeanPostProcessor(BeanDefinitionRegistry registry) {
-        registerBeanDefinition(registry, RedisConnectionFactoryWrapperBeanPostProcessor.BEAN_NAME, RedisConnectionFactoryWrapperBeanPostProcessor.class);
+    private void addRedisConnectionFactoryProxyBeanPostProcessor(BeanDefinitionRegistry registry) {
+        ConfigurableBeanFactory beanFactory = asConfigurableBeanFactory(registry);
+        beanFactory.addBeanPostProcessor(new RedisConnectionFactoryProxyBeanPostProcessor(beanFactory));
     }
 
     private void registerEventPublishingRedisCommendInterceptor(BeanDefinitionRegistry registry) {
         registerBeanDefinition(registry, EventPublishingRedisCommandInterceptor.BEAN_NAME, EventPublishingRedisCommandInterceptor.class);
+    }
+
+    private void registerWrapperProcessors(BeanDefinitionRegistry registry) {
+        registerBeanDefinition(registry, WrapperProcessors.BEAN_NAME, WrapperProcessors.class);
     }
 
     private void registerBeanDefinition(BeanDefinitionRegistry registry, String beanName, Class<?>
