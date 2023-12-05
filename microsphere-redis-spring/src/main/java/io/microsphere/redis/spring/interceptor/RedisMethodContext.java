@@ -37,6 +37,8 @@ import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
+import static io.microsphere.util.ArrayUtils.length;
+import static io.microsphere.util.ArrayUtils.size;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableMap;
 
@@ -115,7 +117,7 @@ public class RedisMethodContext<T> {
     }
 
     private void initParameters() {
-        int size = args.length;
+        int size = length(args);
         final Parameter[] parameters;
         final Map<Object, Parameter> parametersMap;
         final boolean write;
