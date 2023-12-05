@@ -65,7 +65,7 @@ public class RedisConnectionFactoryProxyBeanPostProcessor extends GenericBeanPos
                 method.setAccessible(true);
                 String methodName = method.getName();
                 Object result = invocation.proceed();
-                if ("getConnection()".equals(methodName) && result instanceof RedisConnection) {
+                if ("getConnection".equals(methodName) && result instanceof RedisConnection) {
                     RedisContext redisContext = RedisContext.get(beanFactory);
                     if (redisContext.isEnabled()) {
                         result = newProxyRedisConnection((RedisConnection) result, redisContext, beanName);

@@ -107,7 +107,7 @@ public class InterceptingRedisConnectionInvocationHandler implements InvocationH
                     interceptor.beforeExecute(redisMethodContext);
                 } catch (Throwable e) {
                     interceptor.handleError(redisMethodContext, true, null, null, e);
-                    logger.error("The execution of RedisMethodInterceptor[class : '{}'] afterExecute method is failed, context : {}", interceptor.getClass().getName(), redisMethodContext);
+                    logger.error("The execution of RedisMethodInterceptor[class : '{}'] beforeExecute method is failed, context : {}", interceptor.getClass().getName(), redisMethodContext);
                 }
             }
         }
