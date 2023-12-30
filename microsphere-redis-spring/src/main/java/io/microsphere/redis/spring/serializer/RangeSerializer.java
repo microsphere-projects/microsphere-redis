@@ -7,8 +7,6 @@ import org.springframework.data.redis.serializer.SerializationException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.microsphere.redis.spring.serializer.Serializers.defaultSerialize;
-
 
 /**
  * {@link RedisZSetCommands.Range} {@link RedisSerializer} Class

@@ -30,7 +30,6 @@ import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.findWriteCommandMethod;
 import static io.microsphere.redis.spring.serializer.RedisCommandEventSerializer.VersionedRedisSerializer.valueOf;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.resolveInterfaceName;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.resolveSimpleInterfaceName;
