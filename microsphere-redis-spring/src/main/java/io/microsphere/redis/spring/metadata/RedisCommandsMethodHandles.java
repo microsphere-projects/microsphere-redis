@@ -3,6 +3,8 @@ package io.microsphere.redis.spring.metadata;
 import org.jboss.jandex.Index;
 import org.jboss.jandex.MethodInfo;
 import org.jboss.jandex.MethodParameterInfo;
+import org.jboss.jandex.PrimitiveType;
+import org.jboss.jandex.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.connection.RedisCommands;
@@ -27,6 +29,8 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -106,6 +110,13 @@ public class RedisCommandsMethodHandles {
         }
     }
 
+    static Class<?> getClassBy(Type type) {
+        if (type instanceof PrimitiveType) {
+            return TypeHelper.PRIMITIVE_TYPE_CLASS_TABLE.get(type.asPrimitiveType().primitive());
+        }
+        return null;
+    }
+
     static {
         TARGET_CLASSES = new ArrayList<>();
         TARGET_CLASSES.add(RedisCommands.class);
@@ -144,5 +155,23 @@ public class RedisCommandsMethodHandles {
         public MethodHandle methodHandle() {
             return methodHandle;
         }
+    }
+
+    static class TypeHelper {
+        private static final EnumMap<PrimitiveType.Primitive, Class<?>> PRIMITIVE_TYPE_CLASS_TABLE;
+
+        static {
+            Map<PrimitiveType.Primitive, Class<?>> tmp = new HashMap<>();
+            tmp.put(PrimitiveType.Primitive.BOOLEAN, boolean.class);
+            tmp.put(PrimitiveType.Primitive.BYTE, byte.class);
+            tmp.put(PrimitiveType.Primitive.SHORT, short.class);
+            tmp.put(PrimitiveType.Primitive.INT, int.class);
+            tmp.put(PrimitiveType.Primitive.LONG, long.class);
+            tmp.put(PrimitiveType.Primitive.FLOAT, float.class);
+            tmp.put(PrimitiveType.Primitive.DOUBLE, double.class);
+            tmp.put(PrimitiveType.Primitive.CHAR, char.class);
+            PRIMITIVE_TYPE_CLASS_TABLE = new EnumMap<>(tmp);
+        }
+
     }
 }
