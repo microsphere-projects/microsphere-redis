@@ -69,7 +69,6 @@
         <dependency>
             <groupId>io.smallrye</groupId>
             <artifactId>jandex</artifactId>
-            <optional>true</optional>
         </dependency>
         <!-- Testing -->
         <dependency>
