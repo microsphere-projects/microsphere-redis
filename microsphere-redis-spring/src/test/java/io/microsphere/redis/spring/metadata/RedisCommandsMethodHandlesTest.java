@@ -84,7 +84,8 @@ class RedisCommandsMethodHandlesTest {
                 MethodHandleNotFoundException.class);
 
         assertThat(missingMethodSignature)
-                .hasMessage("can't find MethodHandle from RedisCommands");
+                .hasMessageContaining("can't find MethodHandle from RedisCommands")
+                .hasMessageContaining("methodSignature");
         assertThat(missingMethodSignature.getMethodSignature())
                 .isEqualTo("MissingMethodSignature");
     }
