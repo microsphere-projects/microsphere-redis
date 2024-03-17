@@ -2,6 +2,7 @@ package io.microsphere.redis.spring.metadata;
 
 import org.jboss.jandex.Index;
 import org.jboss.jandex.MethodInfo;
+import org.jboss.jandex.MethodParameterInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.connection.RedisCommands;
@@ -22,14 +23,24 @@ import org.springframework.data.redis.connection.RedisZSetCommands;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static io.microsphere.util.ClassLoaderUtils.*;
+
 public class RedisCommandsMethodHandles {
+
     private static final Logger logger = LoggerFactory.getLogger(RedisCommandsMethodHandles.class);
+
+    private static final MethodHandles.Lookup PUBLIC_LOOKUP = MethodHandles.publicLookup();
+
+    private static final ClassLoader CURRENT_CLASS_LOADER = RedisCommandsMethodHandles.class.getClassLoader();
+
     private static List<Class<?>> TARGET_CLASSES;
 
     /**
@@ -66,10 +77,52 @@ public class RedisCommandsMethodHandles {
         return methods.stream()
                 .map(methodInfo -> {
                     String methodSignature = methodInfo.toString();
-                    MethodHandle methodHandle = generateMethodHandle(methodInfo);
+                    MethodHandle methodHandle = findMethodHandle(methodInfo);
                     return new MethodRecord(methodSignature, methodHandle);
                 })
                 .collect(Collectors.toMap(MethodRecord::methodSignature, MethodRecord::methodHandle));
+    }
+
+
+    static MethodHandle findMethodHandle(MethodInfo methodInfo) {
+        try {
+            Class<?> klass = loadClass(methodInfo.declaringClass().name().toString(), CURRENT_CLASS_LOADER);
+
+            String methodName = methodInfo.name();
+
+            Class<?> returnTypeKlass = loadClass(methodInfo.returnType().toString(), CURRENT_CLASS_LOADER);
+
+            MethodParameterInfo[] array = methodInfo.parameters().toArray(new MethodParameterInfo[]{});
+            Class<?>[] parameterKlass = new Class<?>[array.length];
+            for (int i = 0; i < array.length; i++) {
+                parameterKlass[i] = loadClass(array[i].type().toString(), CURRENT_CLASS_LOADER);
+            }
+            MethodType methodType = MethodType.methodType(returnTypeKlass, parameterKlass);
+
+            return RedisCommandsMethodHandles.PUBLIC_LOOKUP.findVirtual(klass, methodName, methodType);
+        } catch (NoSuchMethodException | IllegalAccessException e) {
+            logger.error("Error occurred when find MethodHandle.\n methodInfo:{}", methodInfo, e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    static {
+        TARGET_CLASSES = new ArrayList<>();
+        TARGET_CLASSES.add(RedisCommands.class);
+        TARGET_CLASSES.add(RedisKeyCommands.class);
+        TARGET_CLASSES.add(RedisStringCommands.class);
+        TARGET_CLASSES.add(RedisListCommands.class);
+        TARGET_CLASSES.add(RedisSetCommands.class);
+        TARGET_CLASSES.add(RedisZSetCommands.class);
+        TARGET_CLASSES.add(RedisHashCommands.class);
+        TARGET_CLASSES.add(RedisTxCommands.class);
+        TARGET_CLASSES.add(RedisPubSubCommands.class);
+        TARGET_CLASSES.add(RedisConnectionCommands.class);
+        TARGET_CLASSES.add(RedisServerCommands.class);
+        TARGET_CLASSES.add(RedisStreamCommands.class);
+        TARGET_CLASSES.add(RedisScriptingCommands.class);
+        TARGET_CLASSES.add(RedisGeoCommands.class);
+        TARGET_CLASSES.add(RedisHyperLogLogCommands.class);
     }
 
     /**
@@ -91,28 +144,5 @@ public class RedisCommandsMethodHandles {
         public MethodHandle methodHandle() {
             return methodHandle;
         }
-    }
-
-    static MethodHandle generateMethodHandle(MethodInfo methodInfo) {
-        return null;
-    }
-
-    static {
-        TARGET_CLASSES = new ArrayList<>();
-        TARGET_CLASSES.add(RedisCommands.class);
-        TARGET_CLASSES.add(RedisKeyCommands.class);
-        TARGET_CLASSES.add(RedisStringCommands.class);
-        TARGET_CLASSES.add(RedisListCommands.class);
-        TARGET_CLASSES.add(RedisSetCommands.class);
-        TARGET_CLASSES.add(RedisZSetCommands.class);
-        TARGET_CLASSES.add(RedisHashCommands.class);
-        TARGET_CLASSES.add(RedisTxCommands.class);
-        TARGET_CLASSES.add(RedisPubSubCommands.class);
-        TARGET_CLASSES.add(RedisConnectionCommands.class);
-        TARGET_CLASSES.add(RedisServerCommands.class);
-        TARGET_CLASSES.add(RedisStreamCommands.class);
-        TARGET_CLASSES.add(RedisScriptingCommands.class);
-        TARGET_CLASSES.add(RedisGeoCommands.class);
-        TARGET_CLASSES.add(RedisHyperLogLogCommands.class);
     }
 }
