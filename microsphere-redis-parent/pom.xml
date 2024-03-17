@@ -29,6 +29,7 @@
         <spring-cloud-alibaba.version>2021.0.5.0</spring-cloud-alibaba.version>
         <spring-cloud-dependencies.version>2021.0.7</spring-cloud-dependencies.version>
         <jandex.version>3.1.6</jandex.version>
+        <testcontainers.version>1.19.5</testcontainers.version>
     </properties>
 
     <dependencyManagement>
@@ -113,6 +114,15 @@
                 <groupId>io.smallrye</groupId>
                 <artifactId>jandex</artifactId>
                 <version>${jandex.version}</version>
+            </dependency>
+
+            <!-- testcontainers Dependencies -->
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>${testcontainers.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
