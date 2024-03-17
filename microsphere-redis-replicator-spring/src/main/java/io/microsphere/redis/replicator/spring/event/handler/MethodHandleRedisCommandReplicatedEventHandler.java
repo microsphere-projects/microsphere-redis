@@ -13,7 +13,7 @@ public class MethodHandleRedisCommandReplicatedEventHandler implements RedisComm
         String methodSignature = transferMethodToMethodSignature(method);
         int length = args.length;
         Object[] arguments = new Object[1 + args.length];
-        args[0] = redisCommandObject;
+        arguments[0] = redisCommandObject;
         for (int i = 0; i < length; i++) {
             arguments[i + 1] = args[i];
         }
