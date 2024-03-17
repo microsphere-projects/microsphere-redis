@@ -66,7 +66,7 @@ public class RedisCommandsMethodHandles {
         return methods.stream()
                 .map(methodInfo -> {
                     String methodSignature = methodInfo.toString();
-                    MethodHandle methodHandle = generateMethodHandle();
+                    MethodHandle methodHandle = generateMethodHandle(methodInfo);
                     return new MethodRecord(methodSignature, methodHandle);
                 })
                 .collect(Collectors.toMap(MethodRecord::methodSignature, MethodRecord::methodHandle));
@@ -93,7 +93,7 @@ public class RedisCommandsMethodHandles {
         }
     }
 
-    static MethodHandle generateMethodHandle() {
+    static MethodHandle generateMethodHandle(MethodInfo methodInfo) {
         return null;
     }
 
