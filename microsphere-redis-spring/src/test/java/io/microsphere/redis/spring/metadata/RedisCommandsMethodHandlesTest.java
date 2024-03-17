@@ -20,6 +20,7 @@ import org.springframework.data.redis.connection.stream.StreamOffset;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -30,6 +31,7 @@ import static io.microsphere.redis.spring.metadata.RedisCommandsMethodHandles.ge
 import static io.microsphere.redis.spring.metadata.RedisCommandsMethodHandles.getClassBy;
 import static io.microsphere.redis.spring.metadata.RedisCommandsMethodHandles.getMethodHandleBy;
 import static io.microsphere.redis.spring.metadata.RedisCommandsMethodHandles.initRedisCommandMethodHandle;
+import static io.microsphere.redis.spring.metadata.RedisCommandsMethodHandles.transferMethodToMethodSignature;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.jboss.jandex.ArrayType.builder;
@@ -88,6 +90,16 @@ class RedisCommandsMethodHandlesTest {
                 .hasMessageContaining("methodSignature");
         assertThat(missingMethodSignature.getMethodSignature())
                 .isEqualTo("MissingMethodSignature");
+    }
+
+    @Test
+    void shouldTransferMethodToMethodHandleSignature() throws NoSuchMethodException {
+        MethodInfo methodInfo = getMethodInfo();
+        Method setMethod = RedisStringCommands.class.getMethod("set", byte[].class, byte[].class);
+
+        String signature = transferMethodToMethodSignature(setMethod);
+        assertThat(signature)
+                .isEqualTo(methodInfo.toString());
     }
 
     @ParameterizedTest(name = "test: {0}")

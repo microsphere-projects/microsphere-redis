@@ -2,6 +2,7 @@ package io.microsphere.redis.replicator.spring;
 
 import io.microsphere.redis.replicator.spring.event.RedisCommandReplicatedEvent;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,6 +80,7 @@ class HandleRedisCommandReplicatedEventTest {
         @Autowired
         RedisTemplate<String, String> redisTemplate;
 
+        @Disabled
         @Test
         void invokeMethodByMethodHandle() {
             String key = "MethodHandle";

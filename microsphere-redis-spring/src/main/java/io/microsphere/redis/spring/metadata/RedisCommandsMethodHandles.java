@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -191,6 +192,13 @@ public class RedisCommandsMethodHandles {
         TARGET_CLASSES.add(RedisHyperLogLogCommands.class);
 
         METHOD_HANDLE_MAP = initRedisCommandMethodHandle();
+    }
+
+    public static String transferMethodToMethodSignature(Method method) {
+        // TODO 我写不出来了
+        // example RedisStringCommands#set()的方法签名:
+        // target java.lang.Boolean set(byte[] key, byte[] value);
+        return "";
     }
 
     /**
