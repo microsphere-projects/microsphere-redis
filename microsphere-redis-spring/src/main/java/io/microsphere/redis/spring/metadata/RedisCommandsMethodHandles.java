@@ -1,5 +1,6 @@
 package io.microsphere.redis.spring.metadata;
 
+import io.microsphere.util.ClassLoaderUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jboss.jandex.ArrayType;
 import org.jboss.jandex.Index;
@@ -39,10 +40,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static io.microsphere.util.ClassLoaderUtils.*;
+import static io.microsphere.util.ClassLoaderUtils.loadClass;
 
 public class RedisCommandsMethodHandles {
 
@@ -148,7 +148,8 @@ public class RedisCommandsMethodHandles {
             }
             return klass;
         }
-        return null;
+
+        return ClassLoaderUtils.loadClass(type.name().toString(), CURRENT_CLASS_LOADER);
     }
 
     static {

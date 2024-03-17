@@ -2,14 +2,13 @@ package io.microsphere.redis.spring.metadata;
 
 import org.jboss.jandex.ArrayType;
 import org.jboss.jandex.ClassInfo;
-import org.jboss.jandex.DotName;
+import org.jboss.jandex.ClassType;
 import org.jboss.jandex.Index;
 import org.jboss.jandex.MethodInfo;
+import org.jboss.jandex.ParameterizedType;
 import org.jboss.jandex.PrimitiveType;
-import org.jboss.jandex.Type;
 import org.jboss.jandex.VoidType;
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -83,12 +82,12 @@ class RedisCommandsMethodHandlesTest {
 
     @ParameterizedTest(name = "test: {0}")
     @MethodSource
-    void shouldLoadPrimitiveClass(PrimitiveType primitiveType, Class<?> expected) {
+    void shouldGetClassWhenTypeIsPrimitiveClass(PrimitiveType primitiveType, Class<?> expected) {
         Class<?> klass = getClassBy(primitiveType);
         assertThat(klass).isEqualTo(expected);
     }
 
-    static Stream<Arguments> shouldLoadPrimitiveClass() {
+    static Stream<Arguments> shouldGetClassWhenTypeIsPrimitiveClass() {
         return Stream.of(
                 arguments(named("boolean", PrimitiveType.BOOLEAN), boolean.class),
                 arguments(named("byte", PrimitiveType.BYTE), byte.class),
@@ -103,12 +102,12 @@ class RedisCommandsMethodHandlesTest {
 
     @ParameterizedTest(name = "test: {0}")
     @MethodSource
-    void shouldLoadArrayClass(ArrayType arrayType, Class<?> expected) {
+    void shouldGetClassWhenTypeIsArrayClass(ArrayType arrayType, Class<?> expected) {
         Class<?> klass = getClassBy(arrayType);
         assertThat(klass).isEqualTo(expected);
     }
 
-    static Stream<Arguments> shouldLoadArrayClass() {
+    static Stream<Arguments> shouldGetClassWhenTypeIsArrayClass() {
         return Stream.of(
                 arguments(named("byte[]", builder(PrimitiveType.BYTE, 1).build()), byte[].class),
                 arguments(named("byte[][]", builder(PrimitiveType.BYTE, 2).build()), byte[][].class),
@@ -120,9 +119,23 @@ class RedisCommandsMethodHandlesTest {
     }
 
     @Test
-    void shouldVoidClass() {
+    void shouldGetVoidClass() {
         Class<?> klass = getClassBy(VoidType.VOID);
         assertThat(klass).isEqualTo(void.class);
+    }
+
+    @Test
+    void shouldGetClassWhenTypeIsParameterizedType() {
+        ParameterizedType parameterizedType = ParameterizedType.builder(List.class).addArgument(ClassType.create(String.class)).build();
+        Class<?> klass = getClassBy(parameterizedType);
+        assertThat(klass).isEqualTo(List.class);
+    }
+
+    @Test
+    void shouldGetClassWhenTypeIsClassType() {
+        ClassType classType = ClassType.create(Object.class);
+        Class<?> klass = getClassBy(classType);
+        assertThat(klass).isEqualTo(Object.class);
     }
 
     private static MethodInfo getMethodInfo() {
