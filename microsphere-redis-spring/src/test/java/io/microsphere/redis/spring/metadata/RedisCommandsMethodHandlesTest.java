@@ -70,7 +70,6 @@ class RedisCommandsMethodHandlesTest {
         }
     }
 
-    @Disabled
     @Test
     void shouldNewMethodHandleInstanceByMethodInfo() {
         MethodInfo methodInfo = getMethodInfo();

@@ -3,6 +3,7 @@ package io.microsphere.redis.spring.metadata;
 import io.microsphere.util.ClassLoaderUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jboss.jandex.ArrayType;
+import org.jboss.jandex.ClassType;
 import org.jboss.jandex.Index;
 import org.jboss.jandex.MethodInfo;
 import org.jboss.jandex.MethodParameterInfo;
@@ -97,16 +98,16 @@ public class RedisCommandsMethodHandles {
 
     static MethodHandle findMethodHandle(MethodInfo methodInfo) {
         try {
-            Class<?> klass = loadClass(methodInfo.declaringClass().name().toString(), CURRENT_CLASS_LOADER);
+            Class<?> klass = getClassBy(ClassType.create(methodInfo.declaringClass().name()));
 
             String methodName = methodInfo.name();
 
-            Class<?> returnTypeKlass = loadClass(methodInfo.returnType().toString(), CURRENT_CLASS_LOADER);
+            Class<?> returnTypeKlass = getClassBy(methodInfo.returnType());
 
             MethodParameterInfo[] array = methodInfo.parameters().toArray(new MethodParameterInfo[]{});
             Class<?>[] parameterKlass = new Class<?>[array.length];
             for (int i = 0; i < array.length; i++) {
-                parameterKlass[i] = loadClass(array[i].type().toString(), CURRENT_CLASS_LOADER);
+                parameterKlass[i] = getClassBy(array[i].type());
             }
             MethodType methodType = MethodType.methodType(returnTypeKlass, parameterKlass);
 
