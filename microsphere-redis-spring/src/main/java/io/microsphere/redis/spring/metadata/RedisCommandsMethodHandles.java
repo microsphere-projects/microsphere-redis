@@ -1,5 +1,6 @@
 package io.microsphere.redis.spring.metadata;
 
+import io.microsphere.redis.spring.metadata.exception.MethodHandleNotFoundException;
 import io.microsphere.util.ClassLoaderUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jboss.jandex.ArrayType;
@@ -43,8 +44,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static io.microsphere.util.ClassLoaderUtils.loadClass;
-
 public class RedisCommandsMethodHandles {
 
     private static final Logger logger = LoggerFactory.getLogger(RedisCommandsMethodHandles.class);
@@ -53,7 +52,27 @@ public class RedisCommandsMethodHandles {
 
     private static final ClassLoader CURRENT_CLASS_LOADER = RedisCommandsMethodHandles.class.getClassLoader();
 
-    private static List<Class<?>> TARGET_CLASSES;
+    private static final List<Class<?>> TARGET_CLASSES;
+    private static final Map<String, MethodHandle> METHOD_HANDLE_MAP;
+
+    private RedisCommandsMethodHandles() {
+    }
+
+    /**
+     * find MethodHandle from METHOD_HANDLE_MAP
+     *
+     * @param methodSignature {@link MethodInfo#toString()}
+     * @return a MethodHandle
+     * @throws MethodHandleNotFoundException
+     */
+    public static MethodHandle getMethodHandleBy(String methodSignature) throws MethodHandleNotFoundException {
+        MethodHandle methodHandle = METHOD_HANDLE_MAP.get(methodSignature);
+        if (Objects.isNull(methodHandle)) {
+            logger.error("can't find MethodHandle from RedisCommands methodSignature:{}", methodSignature);
+            throw new MethodHandleNotFoundException("can't find MethodHandle from RedisCommands", methodSignature);
+        }
+        return methodHandle;
+    }
 
     /**
      * get all public methods from {@link RedisCommands} <br />
@@ -62,7 +81,7 @@ public class RedisCommandsMethodHandles {
      * <li>lambda$xDel$1</li>
      * <li>lambda$xAck$0</li>
      *
-     * @return
+     * @return List of  RedisCommands all MethodInfo(include super interface)
      */
     static List<MethodInfo> getAllRedisCommandMethods() {
         try {
@@ -91,7 +110,6 @@ public class RedisCommandsMethodHandles {
                 .collect(Collectors.toMap(MethodRecord::methodSignature, MethodRecord::methodHandle));
     }
 
-
     static MethodHandle findMethodHandle(MethodInfo methodInfo) {
         Class<?> klass = getClassBy(ClassType.create(methodInfo.declaringClass().name()));
 
@@ -115,8 +133,7 @@ public class RedisCommandsMethodHandles {
             parameterKlass[i] = getClassBy(array[i].type());
         }
 
-        MethodType methodType = MethodType.methodType(returnTypeKlass, parameterKlass);
-        return methodType;
+        return MethodType.methodType(returnTypeKlass, parameterKlass);
     }
 
     static Class<?> getClassBy(Type type) {
@@ -155,6 +172,7 @@ public class RedisCommandsMethodHandles {
     }
 
     static {
+        // NOTE: use List.of() to simplify the initial logic
         TARGET_CLASSES = new ArrayList<>();
         TARGET_CLASSES.add(RedisCommands.class);
         TARGET_CLASSES.add(RedisKeyCommands.class);
@@ -171,6 +189,8 @@ public class RedisCommandsMethodHandles {
         TARGET_CLASSES.add(RedisScriptingCommands.class);
         TARGET_CLASSES.add(RedisGeoCommands.class);
         TARGET_CLASSES.add(RedisHyperLogLogCommands.class);
+
+        METHOD_HANDLE_MAP = initRedisCommandMethodHandle();
     }
 
     /**

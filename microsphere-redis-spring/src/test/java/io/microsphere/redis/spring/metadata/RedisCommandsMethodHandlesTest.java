@@ -1,5 +1,6 @@
 package io.microsphere.redis.spring.metadata;
 
+import io.microsphere.redis.spring.metadata.exception.MethodHandleNotFoundException;
 import org.jboss.jandex.ArrayType;
 import org.jboss.jandex.ClassInfo;
 import org.jboss.jandex.ClassType;
@@ -8,12 +9,10 @@ import org.jboss.jandex.MethodInfo;
 import org.jboss.jandex.ParameterizedType;
 import org.jboss.jandex.PrimitiveType;
 import org.jboss.jandex.VoidType;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.MockedStatic;
 import org.springframework.data.redis.connection.RedisCommands;
 import org.springframework.data.redis.connection.RedisStringCommands;
 import org.springframework.data.redis.connection.stream.RecordId;
@@ -29,17 +28,16 @@ import java.util.stream.Stream;
 import static io.microsphere.redis.spring.metadata.RedisCommandsMethodHandles.findMethodHandle;
 import static io.microsphere.redis.spring.metadata.RedisCommandsMethodHandles.getAllRedisCommandMethods;
 import static io.microsphere.redis.spring.metadata.RedisCommandsMethodHandles.getClassBy;
+import static io.microsphere.redis.spring.metadata.RedisCommandsMethodHandles.getMethodHandleBy;
 import static io.microsphere.redis.spring.metadata.RedisCommandsMethodHandles.initRedisCommandMethodHandle;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.jboss.jandex.ArrayType.builder;
 import static org.jboss.jandex.DotName.createSimple;
 import static org.jboss.jandex.Type.Kind.CLASS;
 import static org.jboss.jandex.Type.create;
 import static org.junit.jupiter.api.Named.named;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
 
 class RedisCommandsMethodHandlesTest {
 
@@ -56,19 +54,6 @@ class RedisCommandsMethodHandlesTest {
 
     @Test
     void shouldGetMethodHandleMapFromMethodInfo() {
-        /*
-        try (MockedStatic<RedisCommandsMethodHandles> mockStatic = mockStatic(RedisCommandsMethodHandles.class)) {
-            mockStatic.when(RedisCommandsMethodHandles::getAllRedisCommandMethods).thenCallRealMethod();
-            mockStatic.when(RedisCommandsMethodHandles::initRedisCommandMethodHandle).thenCallRealMethod();
-
-            MethodHandle mockMethodHandle = mock(MethodHandle.class);
-            mockStatic.when(() -> findMethodHandle(any(MethodInfo.class))).thenReturn(mockMethodHandle);
-
-            Map<String, MethodHandle> map = initRedisCommandMethodHandle();
-            assertThat(map)
-                    .isNotNull()
-                    .hasSize(methodCount);
-        }*/
         Map<String, MethodHandle> map = initRedisCommandMethodHandle();
         assertThat(map)
                 .isNotNull()
@@ -82,6 +67,26 @@ class RedisCommandsMethodHandlesTest {
         MethodHandle methodHandle = findMethodHandle(methodInfo);
         assertThat(methodHandle)
                 .isNotNull();
+    }
+
+    @Test
+    void shouldGetMethodHandleByMethodSignature() {
+        String methodSignature = getMethodInfo().toString();
+        MethodHandle methodHandle = getMethodHandleBy(methodSignature);
+        assertThat(methodHandle)
+                .isNotNull();
+    }
+
+    @Test
+    void shouldThrowMethodHandleNotFoundExceptionWhenMiss() {
+        MethodHandleNotFoundException missingMethodSignature = catchThrowableOfType(
+                () -> getMethodHandleBy("MissingMethodSignature"),
+                MethodHandleNotFoundException.class);
+
+        assertThat(missingMethodSignature)
+                .hasMessage("can't find MethodHandle from RedisCommands");
+        assertThat(missingMethodSignature.getMethodSignature())
+                .isEqualTo("MissingMethodSignature");
     }
 
     @ParameterizedTest(name = "test: {0}")
