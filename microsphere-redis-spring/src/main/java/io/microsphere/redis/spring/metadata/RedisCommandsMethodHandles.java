@@ -130,8 +130,8 @@ public class RedisCommandsMethodHandles {
             ArrayType arrayType = type.asArrayType();
             // NOTE: arrayType.elementType().name()
             // example java.lang.String
-            // when use jdk21 local() value is "String" prefix is "java.lang"
-            // when use jdk8 local() value is "java.lang.String" prefix is null
+            // when use jdk21 local() value is "String" prefix() is "java.lang"
+            // when use jdk8 local() value is "java.lang.String" prefix() is null
             String local = arrayType.elementType().name().local();
             String elementType;
             if (local.lastIndexOf(".") != -1) {
@@ -196,7 +196,7 @@ public class RedisCommandsMethodHandles {
         private static final Map<String, Class<?>> ARRAY_TYPE_CLASS_TABLE = new HashMap<>();
 
         static {
-            // NOTE: use new EnumMap(Map.of()) when use jdk11+
+            // NOTE: use new EnumMap(Map.of()) to simplify the code when use jdk11+
             PRIMITIVE_TYPE_CLASS_TABLE.put(PrimitiveType.Primitive.BOOLEAN, boolean.class);
             PRIMITIVE_TYPE_CLASS_TABLE.put(PrimitiveType.Primitive.BYTE, byte.class);
             PRIMITIVE_TYPE_CLASS_TABLE.put(PrimitiveType.Primitive.SHORT, short.class);
