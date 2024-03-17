@@ -1,10 +1,13 @@
 package io.microsphere.redis.spring.metadata;
 
+import org.apache.commons.lang3.StringUtils;
+import org.jboss.jandex.ArrayType;
 import org.jboss.jandex.Index;
 import org.jboss.jandex.MethodInfo;
 import org.jboss.jandex.MethodParameterInfo;
 import org.jboss.jandex.PrimitiveType;
 import org.jboss.jandex.Type;
+import org.jboss.jandex.VoidType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.connection.RedisCommands;
@@ -22,6 +25,8 @@ import org.springframework.data.redis.connection.RedisStreamCommands;
 import org.springframework.data.redis.connection.RedisStringCommands;
 import org.springframework.data.redis.connection.RedisTxCommands;
 import org.springframework.data.redis.connection.RedisZSetCommands;
+import org.springframework.data.redis.connection.stream.RecordId;
+import org.springframework.data.redis.connection.stream.StreamOffset;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
@@ -33,6 +38,8 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.microsphere.util.ClassLoaderUtils.*;
@@ -111,8 +118,35 @@ public class RedisCommandsMethodHandles {
     }
 
     static Class<?> getClassBy(Type type) {
+        if (type instanceof VoidType) {
+            return void.class;
+        }
+
         if (type instanceof PrimitiveType) {
             return TypeHelper.PRIMITIVE_TYPE_CLASS_TABLE.get(type.asPrimitiveType().primitive());
+        }
+
+        if (type instanceof ArrayType) {
+            ArrayType arrayType = type.asArrayType();
+            // NOTE: arrayType.elementType().name()
+            // example java.lang.String
+            // when use jdk21 local() value is "String" prefix is "java.lang"
+            // when use jdk8 local() value is "java.lang.String" prefix is null
+            String local = arrayType.elementType().name().local();
+            String elementType;
+            if (local.lastIndexOf(".") != -1) {
+                elementType = local.substring(local.lastIndexOf(".") + 1);
+            } else {
+                elementType = local;
+            }
+            // NOTE: use String.repeat() when use jdk11+ and remove Apache commons lang3 StringUtils dependency
+            String repeat = StringUtils.repeat("[]", arrayType.dimensions());
+            Class<?> klass = TypeHelper.ARRAY_TYPE_CLASS_TABLE.get(elementType + repeat);
+
+            if (Objects.isNull(klass)) {
+                throw new RuntimeException("need to add Class");
+            }
+            return klass;
         }
         return null;
     }
@@ -137,7 +171,7 @@ public class RedisCommandsMethodHandles {
     }
 
     /**
-     * Use Record Class when use jdk 17+
+     * NOTE: Use Record Class when use jdk 17+
      */
     static class MethodRecord {
         String methodSignature;
@@ -158,19 +192,26 @@ public class RedisCommandsMethodHandles {
     }
 
     static class TypeHelper {
-        private static final EnumMap<PrimitiveType.Primitive, Class<?>> PRIMITIVE_TYPE_CLASS_TABLE;
+        private static final EnumMap<PrimitiveType.Primitive, Class<?>> PRIMITIVE_TYPE_CLASS_TABLE = new EnumMap<>(PrimitiveType.Primitive.class);
+        private static final Map<String, Class<?>> ARRAY_TYPE_CLASS_TABLE = new HashMap<>();
 
         static {
-            Map<PrimitiveType.Primitive, Class<?>> tmp = new HashMap<>();
-            tmp.put(PrimitiveType.Primitive.BOOLEAN, boolean.class);
-            tmp.put(PrimitiveType.Primitive.BYTE, byte.class);
-            tmp.put(PrimitiveType.Primitive.SHORT, short.class);
-            tmp.put(PrimitiveType.Primitive.INT, int.class);
-            tmp.put(PrimitiveType.Primitive.LONG, long.class);
-            tmp.put(PrimitiveType.Primitive.FLOAT, float.class);
-            tmp.put(PrimitiveType.Primitive.DOUBLE, double.class);
-            tmp.put(PrimitiveType.Primitive.CHAR, char.class);
-            PRIMITIVE_TYPE_CLASS_TABLE = new EnumMap<>(tmp);
+            // NOTE: use new EnumMap(Map.of()) when use jdk11+
+            PRIMITIVE_TYPE_CLASS_TABLE.put(PrimitiveType.Primitive.BOOLEAN, boolean.class);
+            PRIMITIVE_TYPE_CLASS_TABLE.put(PrimitiveType.Primitive.BYTE, byte.class);
+            PRIMITIVE_TYPE_CLASS_TABLE.put(PrimitiveType.Primitive.SHORT, short.class);
+            PRIMITIVE_TYPE_CLASS_TABLE.put(PrimitiveType.Primitive.INT, int.class);
+            PRIMITIVE_TYPE_CLASS_TABLE.put(PrimitiveType.Primitive.LONG, long.class);
+            PRIMITIVE_TYPE_CLASS_TABLE.put(PrimitiveType.Primitive.FLOAT, float.class);
+            PRIMITIVE_TYPE_CLASS_TABLE.put(PrimitiveType.Primitive.DOUBLE, double.class);
+            PRIMITIVE_TYPE_CLASS_TABLE.put(PrimitiveType.Primitive.CHAR, char.class);
+
+            ARRAY_TYPE_CLASS_TABLE.put("byte[]", byte[].class);
+            ARRAY_TYPE_CLASS_TABLE.put("byte[][]", byte[][].class);
+            ARRAY_TYPE_CLASS_TABLE.put("int[]", int[].class);
+            ARRAY_TYPE_CLASS_TABLE.put("String[]", String[].class);
+            ARRAY_TYPE_CLASS_TABLE.put("RecordId[]", RecordId[].class);
+            ARRAY_TYPE_CLASS_TABLE.put("StreamOffset[]", StreamOffset[].class);
         }
 
     }

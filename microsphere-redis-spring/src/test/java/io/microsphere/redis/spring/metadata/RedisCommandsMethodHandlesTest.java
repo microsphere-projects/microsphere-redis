@@ -1,9 +1,13 @@
 package io.microsphere.redis.spring.metadata;
 
+import org.jboss.jandex.ArrayType;
 import org.jboss.jandex.ClassInfo;
+import org.jboss.jandex.DotName;
 import org.jboss.jandex.Index;
 import org.jboss.jandex.MethodInfo;
 import org.jboss.jandex.PrimitiveType;
+import org.jboss.jandex.Type;
+import org.jboss.jandex.VoidType;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Test;
@@ -13,6 +17,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.MockedStatic;
 import org.springframework.data.redis.connection.RedisCommands;
 import org.springframework.data.redis.connection.RedisStringCommands;
+import org.springframework.data.redis.connection.stream.RecordId;
+import org.springframework.data.redis.connection.stream.StreamOffset;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
@@ -26,6 +32,10 @@ import static io.microsphere.redis.spring.metadata.RedisCommandsMethodHandles.ge
 import static io.microsphere.redis.spring.metadata.RedisCommandsMethodHandles.getClassBy;
 import static io.microsphere.redis.spring.metadata.RedisCommandsMethodHandles.initRedisCommandMethodHandle;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.jandex.ArrayType.builder;
+import static org.jboss.jandex.DotName.createSimple;
+import static org.jboss.jandex.Type.Kind.CLASS;
+import static org.jboss.jandex.Type.create;
 import static org.junit.jupiter.api.Named.named;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
@@ -74,7 +84,7 @@ class RedisCommandsMethodHandlesTest {
     @ParameterizedTest(name = "test: {0}")
     @MethodSource
     void shouldLoadPrimitiveClass(PrimitiveType primitiveType, Class<?> expected) {
-        Class<?> klass = getClassBy(primitiveType.asPrimitiveType());
+        Class<?> klass = getClassBy(primitiveType);
         assertThat(klass).isEqualTo(expected);
     }
 
@@ -91,9 +101,28 @@ class RedisCommandsMethodHandlesTest {
         );
     }
 
-    @Test
-    void shouldLoadArrayClass() {
+    @ParameterizedTest(name = "test: {0}")
+    @MethodSource
+    void shouldLoadArrayClass(ArrayType arrayType, Class<?> expected) {
+        Class<?> klass = getClassBy(arrayType);
+        assertThat(klass).isEqualTo(expected);
+    }
 
+    static Stream<Arguments> shouldLoadArrayClass() {
+        return Stream.of(
+                arguments(named("byte[]", builder(PrimitiveType.BYTE, 1).build()), byte[].class),
+                arguments(named("byte[][]", builder(PrimitiveType.BYTE, 2).build()), byte[][].class),
+                arguments(named("int[]", builder(PrimitiveType.INT, 1).build()), int[].class),
+                arguments(named("String[]", builder(create(createSimple(String.class), CLASS), 1).build()), String[].class),
+                arguments(named("RecordId[]", builder(create(createSimple(RecordId.class), CLASS), 1).build()), RecordId[].class),
+                arguments(named("StreamOffset[]", builder(create(createSimple(StreamOffset.class), CLASS), 1).build()), StreamOffset[].class)
+        );
+    }
+
+    @Test
+    void shouldVoidClass() {
+        Class<?> klass = getClassBy(VoidType.VOID);
+        assertThat(klass).isEqualTo(void.class);
     }
 
     private static MethodInfo getMethodInfo() {
