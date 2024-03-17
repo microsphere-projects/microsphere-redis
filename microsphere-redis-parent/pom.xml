@@ -28,6 +28,7 @@
         <spring-cloud.version>3.1.6</spring-cloud.version>
         <spring-cloud-alibaba.version>2021.0.5.0</spring-cloud-alibaba.version>
         <spring-cloud-dependencies.version>2021.0.7</spring-cloud-dependencies.version>
+        <jandex.version>3.1.6</jandex.version>
     </properties>
 
     <dependencyManagement>
@@ -107,6 +108,12 @@
                 <scope>import</scope>
             </dependency>
 
+            <!-- jandex Dependencies -->
+            <dependency>
+                <groupId>io.smallrye</groupId>
+                <artifactId>jandex</artifactId>
+                <version>${jandex.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
