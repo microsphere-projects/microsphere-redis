@@ -59,7 +59,41 @@ public class RedisCommandsMethodHandles {
             throw new RuntimeException("Can't get RedisCommands Methods");
         }
     }
-    static Map<String, MethodHandle>  initRedisCommandMethodHandle() {
+
+    static Map<String, MethodHandle> initRedisCommandMethodHandle() {
+        List<MethodInfo> methods = getAllRedisCommandMethods();
+
+        return methods.stream()
+                .map(methodInfo -> {
+                    String methodSignature = methodInfo.toString();
+                    MethodHandle methodHandle = generateMethodHandle();
+                    return new MethodRecord(methodSignature, methodHandle);
+                })
+                .collect(Collectors.toMap(MethodRecord::methodSignature, MethodRecord::methodHandle));
+    }
+
+    /**
+     * Use Record Class when use jdk 17+
+     */
+    static class MethodRecord {
+        String methodSignature;
+        MethodHandle methodHandle;
+
+        public MethodRecord(String methodSignature, MethodHandle methodHandle) {
+            this.methodSignature = methodSignature;
+            this.methodHandle = methodHandle;
+        }
+
+        public String methodSignature() {
+            return methodSignature;
+        }
+
+        public MethodHandle methodHandle() {
+            return methodHandle;
+        }
+    }
+
+    static MethodHandle generateMethodHandle() {
         return null;
     }
 
