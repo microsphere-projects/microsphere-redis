@@ -84,38 +84,39 @@ public class RedisCommandsMethodHandles {
     }
 
     static Map<String, MethodHandle> initRedisCommandMethodHandle() {
-        List<MethodInfo> methods = getAllRedisCommandMethods();
 
-        return methods.stream()
-                .map(methodInfo -> {
-                    String methodSignature = methodInfo.toString();
-                    MethodHandle methodHandle = findMethodHandle(methodInfo);
-                    return new MethodRecord(methodSignature, methodHandle);
-                })
+        return getAllRedisCommandMethods()
+                .stream()
+                .map(methodInfo -> new MethodRecord(methodInfo.toString(), findMethodHandle(methodInfo)))
                 .collect(Collectors.toMap(MethodRecord::methodSignature, MethodRecord::methodHandle));
     }
 
 
     static MethodHandle findMethodHandle(MethodInfo methodInfo) {
+        Class<?> klass = getClassBy(ClassType.create(methodInfo.declaringClass().name()));
+
+        String methodName = methodInfo.name();
+
+        MethodType methodType = getMethodType(methodInfo);
         try {
-            Class<?> klass = getClassBy(ClassType.create(methodInfo.declaringClass().name()));
-
-            String methodName = methodInfo.name();
-
-            Class<?> returnTypeKlass = getClassBy(methodInfo.returnType());
-
-            MethodParameterInfo[] array = methodInfo.parameters().toArray(new MethodParameterInfo[]{});
-            Class<?>[] parameterKlass = new Class<?>[array.length];
-            for (int i = 0; i < array.length; i++) {
-                parameterKlass[i] = getClassBy(array[i].type());
-            }
-            MethodType methodType = MethodType.methodType(returnTypeKlass, parameterKlass);
-
             return RedisCommandsMethodHandles.PUBLIC_LOOKUP.findVirtual(klass, methodName, methodType);
         } catch (NoSuchMethodException | IllegalAccessException e) {
             logger.error("Error occurred when find MethodHandle.\n methodInfo:{}", methodInfo, e);
             throw new RuntimeException(e);
         }
+    }
+
+    private static MethodType getMethodType(MethodInfo methodInfo) {
+        Class<?> returnTypeKlass = getClassBy(methodInfo.returnType());
+
+        MethodParameterInfo[] array = methodInfo.parameters().toArray(new MethodParameterInfo[]{});
+        Class<?>[] parameterKlass = new Class<?>[array.length];
+        for (int i = 0; i < array.length; i++) {
+            parameterKlass[i] = getClassBy(array[i].type());
+        }
+
+        MethodType methodType = MethodType.methodType(returnTypeKlass, parameterKlass);
+        return methodType;
     }
 
     static Class<?> getClassBy(Type type) {
@@ -196,6 +197,9 @@ public class RedisCommandsMethodHandles {
     static class TypeHelper {
         private static final EnumMap<PrimitiveType.Primitive, Class<?>> PRIMITIVE_TYPE_CLASS_TABLE = new EnumMap<>(PrimitiveType.Primitive.class);
         private static final Map<String, Class<?>> ARRAY_TYPE_CLASS_TABLE = new HashMap<>();
+
+        private TypeHelper() {
+        }
 
         static {
             // NOTE: use new EnumMap(Map.of()) to simplify the code when use jdk11+

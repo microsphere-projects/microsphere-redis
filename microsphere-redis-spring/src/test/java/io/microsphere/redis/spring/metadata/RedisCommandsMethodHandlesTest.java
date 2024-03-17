@@ -56,6 +56,7 @@ class RedisCommandsMethodHandlesTest {
 
     @Test
     void shouldGetMethodHandleMapFromMethodInfo() {
+        /*
         try (MockedStatic<RedisCommandsMethodHandles> mockStatic = mockStatic(RedisCommandsMethodHandles.class)) {
             mockStatic.when(RedisCommandsMethodHandles::getAllRedisCommandMethods).thenCallRealMethod();
             mockStatic.when(RedisCommandsMethodHandles::initRedisCommandMethodHandle).thenCallRealMethod();
@@ -67,7 +68,11 @@ class RedisCommandsMethodHandlesTest {
             assertThat(map)
                     .isNotNull()
                     .hasSize(methodCount);
-        }
+        }*/
+        Map<String, MethodHandle> map = initRedisCommandMethodHandle();
+        assertThat(map)
+                .isNotNull()
+                .hasSize(methodCount);
     }
 
     @Test
