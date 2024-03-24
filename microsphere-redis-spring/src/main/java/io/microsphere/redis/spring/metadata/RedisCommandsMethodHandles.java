@@ -5,6 +5,7 @@ import io.microsphere.util.ClassLoaderUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jboss.jandex.ArrayType;
 import org.jboss.jandex.ClassType;
+import org.jboss.jandex.DotName;
 import org.jboss.jandex.Index;
 import org.jboss.jandex.MethodInfo;
 import org.jboss.jandex.MethodParameterInfo;
@@ -38,12 +39,17 @@ import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.redisCommandMethodsCache;
+import static java.util.stream.Collectors.toMap;
 
 public class RedisCommandsMethodHandles {
 
@@ -54,7 +60,9 @@ public class RedisCommandsMethodHandles {
     private static final ClassLoader CURRENT_CLASS_LOADER = RedisCommandsMethodHandles.class.getClassLoader();
 
     private static final List<Class<?>> TARGET_CLASSES;
+    private static final Index index;
     private static final Map<String, MethodHandle> METHOD_HANDLE_MAP;
+    private static final Map<Method, MethodInfo> METHOD_MAP;
 
     private RedisCommandsMethodHandles() {
     }
@@ -75,6 +83,14 @@ public class RedisCommandsMethodHandles {
         return methodHandle;
     }
 
+    public static String transferMethodToMethodSignature(Method method) {
+        MethodInfo methodInfo = METHOD_MAP.get(method);
+        if (Objects.isNull(methodInfo)) {
+            throw new IllegalArgumentException();
+        }
+        return methodInfo.toString();
+    }
+
     /**
      * get all public methods from {@link RedisCommands} <br />
      * exclude {@link RedisCommands#execute} <br />
@@ -85,30 +101,27 @@ public class RedisCommandsMethodHandles {
      * @return List of  RedisCommands all MethodInfo(include super interface)
      */
     static List<MethodInfo> getAllRedisCommandMethods() {
+        Index index;
         try {
-            Index index = Index.of(TARGET_CLASSES);
-
-            return index.getClassByName(RedisCommands.class)
-                    .interfaceNames()
-                    .stream()
-                    .map(index::getClassByName)
-                    .flatMap(classInfo -> classInfo.methods().stream())
-                    .filter(methodInfo -> Modifier.isPublic(methodInfo.flags()))
-                    .collect(Collectors.toList());
+            index = Index.of(TARGET_CLASSES);
         } catch (IOException e) {
-
             logger.error("Can't get RedisCommands Methods", e);
-
             throw new RuntimeException("Can't get RedisCommands Methods");
         }
+        return index.getClassByName(RedisCommands.class)
+                .interfaceNames()
+                .stream()
+                .map(index::getClassByName)
+                .flatMap(classInfo -> classInfo.methods().stream())
+                .filter(methodInfo -> Modifier.isPublic(methodInfo.flags()))
+                .collect(Collectors.toList());
     }
 
     static Map<String, MethodHandle> initRedisCommandMethodHandle() {
-
         return getAllRedisCommandMethods()
                 .stream()
                 .map(methodInfo -> new MethodRecord(methodInfo.toString(), findMethodHandle(methodInfo)))
-                .collect(Collectors.toMap(MethodRecord::methodSignature, MethodRecord::methodHandle));
+                .collect(toMap(MethodRecord::methodSignature, MethodRecord::methodHandle));
     }
 
     static MethodHandle findMethodHandle(MethodInfo methodInfo) {
@@ -172,6 +185,26 @@ public class RedisCommandsMethodHandles {
         return ClassLoaderUtils.loadClass(type.name().toString(), CURRENT_CLASS_LOADER);
     }
 
+    static Map<Method, MethodInfo> initRedisCommandMethodInfo() {
+        return redisCommandMethodsCache.values()
+                .stream()
+                .collect(toMap(
+                        Function.identity(),
+                        method -> index.getClassByName(method.getDeclaringClass())
+                                .method(method.getName(), getParameterTypes(method.getParameterTypes()))
+                ));
+    }
+
+    private static Type[] getParameterTypes(Class<?>[] parameterTypes) {
+        return Arrays.stream(parameterTypes)
+                .map(parameterType -> {
+                    if (parameterType.isArray()) {
+                        return Type.create(DotName.createSimple(parameterType), Type.Kind.ARRAY);
+                    } else {
+                        return Type.create(DotName.createSimple(parameterType), Type.Kind.CLASS);
+                    }
+                }).toArray(Type[]::new);
+    }
     static {
         // NOTE: use List.of() to simplify the initial logic
         TARGET_CLASSES = new ArrayList<>();
@@ -191,14 +224,13 @@ public class RedisCommandsMethodHandles {
         TARGET_CLASSES.add(RedisGeoCommands.class);
         TARGET_CLASSES.add(RedisHyperLogLogCommands.class);
 
+        try {
+            index = Index.of(TARGET_CLASSES);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         METHOD_HANDLE_MAP = initRedisCommandMethodHandle();
-    }
-
-    public static String transferMethodToMethodSignature(Method method) {
-        // TODO 我写不出来了
-        // example RedisStringCommands#set()的方法签名:
-        // target java.lang.Boolean set(byte[] key, byte[] value);
-        return "";
+        METHOD_MAP = initRedisCommandMethodInfo();
     }
 
     /**

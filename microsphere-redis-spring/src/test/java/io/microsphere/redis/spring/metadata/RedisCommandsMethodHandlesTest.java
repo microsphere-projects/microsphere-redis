@@ -31,7 +31,9 @@ import static io.microsphere.redis.spring.metadata.RedisCommandsMethodHandles.ge
 import static io.microsphere.redis.spring.metadata.RedisCommandsMethodHandles.getClassBy;
 import static io.microsphere.redis.spring.metadata.RedisCommandsMethodHandles.getMethodHandleBy;
 import static io.microsphere.redis.spring.metadata.RedisCommandsMethodHandles.initRedisCommandMethodHandle;
+import static io.microsphere.redis.spring.metadata.RedisCommandsMethodHandles.initRedisCommandMethodInfo;
 import static io.microsphere.redis.spring.metadata.RedisCommandsMethodHandles.transferMethodToMethodSignature;
+import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.redisCommandMethodsCache;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.jboss.jandex.ArrayType.builder;
@@ -93,7 +95,16 @@ class RedisCommandsMethodHandlesTest {
     }
 
     @Test
-    void shouldTransferMethodToMethodHandleSignature() throws NoSuchMethodException {
+    void shouldGetAllMethodInfoFromRedisCommandMethodsCache() {
+        Map<Method, MethodInfo> map = initRedisCommandMethodInfo();
+        assertThat(map)
+                .isNotNull()
+                .hasSize(redisCommandMethodsCache.size());
+
+    }
+
+    @Test
+    void shouldTransferMethodToMethodHandleSignature() throws NoSuchMethodException, IOException {
         MethodInfo methodInfo = getMethodInfo();
         Method setMethod = RedisStringCommands.class.getMethod("set", byte[].class, byte[].class);
 
