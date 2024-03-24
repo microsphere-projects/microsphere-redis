@@ -11,9 +11,7 @@ public class MethodHandleRedisCommandReplicatedEventHandler implements RedisComm
         int length = args.length;
         Object[] arguments = new Object[1 + args.length];
         arguments[0] = redisCommandObject;
-        for (int i = 0; i < length; i++) {
-            arguments[i + 1] = args[i];
-        }
+        System.arraycopy(args, 0, arguments, 1, length);
         getMethodHandleBy(method).invokeWithArguments(arguments);
     }
 

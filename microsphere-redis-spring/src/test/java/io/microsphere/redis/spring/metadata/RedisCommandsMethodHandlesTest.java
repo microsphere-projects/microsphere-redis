@@ -104,7 +104,7 @@ class RedisCommandsMethodHandlesTest {
     }
 
     @Test
-    void shouldTransferMethodToMethodHandleSignature() throws NoSuchMethodException, IOException {
+    void shouldTransferMethodToMethodHandleSignature() throws NoSuchMethodException {
         MethodInfo methodInfo = getMethodInfo();
         Method setMethod = RedisStringCommands.class.getMethod("set", byte[].class, byte[].class);
 
