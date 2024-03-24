@@ -88,30 +88,18 @@ class HandleRedisCommandReplicatedEventTest {
         @Autowired
         RedisTemplate<String, String> redisTemplate;
 
-        @Disabled
+
         @Test
         void invokeMethodByMethodHandle() {
-            try (MockedStatic<RedisCommandsMethodHandles> mock = mockStatic(RedisCommandsMethodHandles.class)) {
-                Method set = RedisStringCommands.class.getMethod("set", byte[].class, byte[].class);
-                mock.when(() -> transferMethodToMethodSignature(eq(set)))
-                        .thenReturn("java.lang.Boolean set(byte[] key, byte[] value)");
-                mock.when(() -> getMethodHandleBy(eq("java.lang.Boolean set(byte[] key, byte[] value)")))
-                        .thenCallRealMethod();
-
-                String key = "MethodHandle";
-                String expected = "MethodHandle";
-                RedisCommandReplicatedEvent redisCommandReplicatedEvent = getRedisCommandReplicatedEvent(key, expected);
-                applicationContext.publishEvent(redisCommandReplicatedEvent);
+            String key = "MethodHandle";
+            String expected = "MethodHandle";
+            RedisCommandReplicatedEvent redisCommandReplicatedEvent = getRedisCommandReplicatedEvent(key, expected);
+            applicationContext.publishEvent(redisCommandReplicatedEvent);
 
 
-                String value = redisTemplate.opsForValue().get(key);
-                assertThat(value).isEqualTo(expected);
-            } catch (NoSuchMethodException e) {
-
-            }
+            String value = redisTemplate.opsForValue().get(key);
+            assertThat(value).isEqualTo(expected);
         }
-
-
     }
 
 
