@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static io.microsphere.redis.spring.metadata.RedisCommandsMethodHandles.findMethodHandle;
+import static io.microsphere.redis.spring.metadata.RedisCommandsMethodHandles.findMethodHandleBy;
 import static io.microsphere.redis.spring.metadata.RedisCommandsMethodHandles.getAllRedisCommandMethods;
 import static io.microsphere.redis.spring.metadata.RedisCommandsMethodHandles.getClassBy;
 import static io.microsphere.redis.spring.metadata.RedisCommandsMethodHandles.getMethodHandleBy;
@@ -68,7 +68,7 @@ class RedisCommandsMethodHandlesTest {
     void shouldNewMethodHandleInstanceByMethodInfo() {
         MethodInfo methodInfo = getMethodInfo();
 
-        MethodHandle methodHandle = findMethodHandle(methodInfo);
+        MethodHandle methodHandle = findMethodHandleBy(methodInfo);
         assertThat(methodHandle)
                 .isNotNull();
     }

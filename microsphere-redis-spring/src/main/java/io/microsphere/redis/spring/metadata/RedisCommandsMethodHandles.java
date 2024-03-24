@@ -60,9 +60,10 @@ public class RedisCommandsMethodHandles {
     private static final ClassLoader CURRENT_CLASS_LOADER = RedisCommandsMethodHandles.class.getClassLoader();
 
     private static final List<Class<?>> TARGET_CLASSES;
-    private static final Index index;
+    private static final Index REDIS_COMMANDS_INDEX;
     private static final Map<String, MethodHandle> METHOD_HANDLE_MAP;
-    private static final Map<Method, MethodInfo> METHOD_MAP;
+    private static final Map<Method, MethodInfo> METHOD_METHOD_INFO_MAP;
+    private static final Map<Method, MethodHandle> METHOD_METHOD_HANDLE_MAP;
 
     private RedisCommandsMethodHandles() {
     }
@@ -83,8 +84,23 @@ public class RedisCommandsMethodHandles {
         return methodHandle;
     }
 
+    public static MethodHandle getMethodHandleBy(Method method) throws MethodHandleNotFoundException {
+        MethodHandle methodHandle = METHOD_METHOD_HANDLE_MAP.get(method);
+        if (Objects.isNull(methodHandle)) {
+            logger.error("can't find MethodHandle from RedisCommands methodSignature:{}", method.getName());
+            throw new MethodHandleNotFoundException("can't find MethodHandle from RedisCommands", method.toString());
+        }
+        return methodHandle;
+    }
+
+    /**
+     * find MethodInfo from METHOD_MAP
+     *
+     * @param method
+     * @return {@link MethodInfo#toString()}
+     */
     public static String transferMethodToMethodSignature(Method method) {
-        MethodInfo methodInfo = METHOD_MAP.get(method);
+        MethodInfo methodInfo = METHOD_METHOD_INFO_MAP.get(method);
         if (Objects.isNull(methodInfo)) {
             throw new IllegalArgumentException();
         }
@@ -101,17 +117,10 @@ public class RedisCommandsMethodHandles {
      * @return List of  RedisCommands all MethodInfo(include super interface)
      */
     static List<MethodInfo> getAllRedisCommandMethods() {
-        Index index;
-        try {
-            index = Index.of(TARGET_CLASSES);
-        } catch (IOException e) {
-            logger.error("Can't get RedisCommands Methods", e);
-            throw new RuntimeException("Can't get RedisCommands Methods");
-        }
-        return index.getClassByName(RedisCommands.class)
+        return REDIS_COMMANDS_INDEX.getClassByName(RedisCommands.class)
                 .interfaceNames()
                 .stream()
-                .map(index::getClassByName)
+                .map(REDIS_COMMANDS_INDEX::getClassByName)
                 .flatMap(classInfo -> classInfo.methods().stream())
                 .filter(methodInfo -> Modifier.isPublic(methodInfo.flags()))
                 .collect(Collectors.toList());
@@ -120,11 +129,11 @@ public class RedisCommandsMethodHandles {
     static Map<String, MethodHandle> initRedisCommandMethodHandle() {
         return getAllRedisCommandMethods()
                 .stream()
-                .map(methodInfo -> new MethodRecord(methodInfo.toString(), findMethodHandle(methodInfo)))
+                .map(methodInfo -> new MethodRecord(methodInfo.toString(), findMethodHandleBy(methodInfo)))
                 .collect(toMap(MethodRecord::methodSignature, MethodRecord::methodHandle));
     }
 
-    static MethodHandle findMethodHandle(MethodInfo methodInfo) {
+    static MethodHandle findMethodHandleBy(MethodInfo methodInfo) {
         Class<?> klass = getClassBy(ClassType.create(methodInfo.declaringClass().name()));
 
         String methodName = methodInfo.name();
@@ -190,7 +199,7 @@ public class RedisCommandsMethodHandles {
                 .stream()
                 .collect(toMap(
                         Function.identity(),
-                        method -> index.getClassByName(method.getDeclaringClass())
+                        method -> REDIS_COMMANDS_INDEX.getClassByName(method.getDeclaringClass())
                                 .method(method.getName(), getParameterTypes(method.getParameterTypes()))
                 ));
     }
@@ -205,6 +214,7 @@ public class RedisCommandsMethodHandles {
                     }
                 }).toArray(Type[]::new);
     }
+
     static {
         // NOTE: use List.of() to simplify the initial logic
         TARGET_CLASSES = new ArrayList<>();
@@ -225,12 +235,16 @@ public class RedisCommandsMethodHandles {
         TARGET_CLASSES.add(RedisHyperLogLogCommands.class);
 
         try {
-            index = Index.of(TARGET_CLASSES);
+            REDIS_COMMANDS_INDEX = Index.of(TARGET_CLASSES);
         } catch (IOException e) {
+            logger.error("Index RedisCommands Error", e);
             throw new RuntimeException(e);
         }
         METHOD_HANDLE_MAP = initRedisCommandMethodHandle();
-        METHOD_MAP = initRedisCommandMethodInfo();
+        METHOD_METHOD_INFO_MAP = initRedisCommandMethodInfo();
+        METHOD_METHOD_HANDLE_MAP = METHOD_METHOD_INFO_MAP.keySet()
+                .stream()
+                .collect(toMap(Function.identity(), key -> METHOD_HANDLE_MAP.get(METHOD_METHOD_INFO_MAP.get(key).toString())));
     }
 
     /**
