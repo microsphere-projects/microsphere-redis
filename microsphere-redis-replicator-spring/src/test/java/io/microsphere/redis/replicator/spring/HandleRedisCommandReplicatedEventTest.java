@@ -1,6 +1,7 @@
 package io.microsphere.redis.replicator.spring;
 
 import io.microsphere.redis.replicator.spring.event.RedisCommandReplicatedEvent;
+import io.microsphere.redis.replicator.spring.event.handler.RedisCommandReplicatedEventHandler;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -49,6 +50,9 @@ class HandleRedisCommandReplicatedEventTest {
         @Autowired
         RedisTemplate<String, String> redisTemplate;
 
+        @Autowired
+        RedisCommandReplicator redisCommandReplicator;
+
         @Test
         void invokeMethodByReflect() {
             String key = "Reflect";
@@ -56,6 +60,8 @@ class HandleRedisCommandReplicatedEventTest {
             RedisCommandReplicatedEvent redisCommandReplicatedEvent = getRedisCommandReplicatedEvent(key, expected);
             applicationContext.publishEvent(redisCommandReplicatedEvent);
 
+            assertThat(redisCommandReplicator.eventHandler.name())
+                    .isEqualTo(RedisCommandReplicatedEventHandler.EventHandleName.REFLECT.name());
             String value = redisTemplate.opsForValue().get(key);
             assertThat(value).isEqualTo(expected);
         }
@@ -77,6 +83,8 @@ class HandleRedisCommandReplicatedEventTest {
         @Autowired
         RedisTemplate<String, String> redisTemplate;
 
+        @Autowired
+        RedisCommandReplicator redisCommandReplicator;
 
         @Test
         void invokeMethodByMethodHandle() {
@@ -85,7 +93,8 @@ class HandleRedisCommandReplicatedEventTest {
             RedisCommandReplicatedEvent redisCommandReplicatedEvent = getRedisCommandReplicatedEvent(key, expected);
             applicationContext.publishEvent(redisCommandReplicatedEvent);
 
-
+            assertThat(redisCommandReplicator.eventHandler.name())
+                    .isEqualTo(RedisCommandReplicatedEventHandler.EventHandleName.METHOD_HANDLE.name());
             String value = redisTemplate.opsForValue().get(key);
             assertThat(value).isEqualTo(expected);
         }
