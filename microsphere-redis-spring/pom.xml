@@ -18,10 +18,6 @@
     <name>Microsphere :: Redis :: Spring</name>
     <description>Microsphere Redis for Spring</description>
 
-    <properties>
-        <spring-cloud-context.version>1.0.1.RELEASE</spring-cloud-context.version>
-    </properties>
-
     <dependencies>
 
         <!-- Servlet API -->
@@ -31,11 +27,16 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Microsphere Spring Context -->
+        <!-- Microsphere -->
+        <dependency>
+            <groupId>io.github.microsphere-projects</groupId>
+            <artifactId>microsphere-redis-core</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
         <dependency>
             <groupId>io.github.microsphere-projects</groupId>
             <artifactId>microsphere-spring-context</artifactId>
-            <version>${revision}</version>
         </dependency>
 
         <!-- Redis -->
@@ -49,7 +50,6 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-context</artifactId>
-            <version>${spring-cloud-context.version}</version>
             <optional>true</optional>
         </dependency>
 

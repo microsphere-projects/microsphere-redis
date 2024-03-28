@@ -6,7 +6,7 @@
     <parent>
         <groupId>io.github.microsphere-projects</groupId>
         <artifactId>microsphere-build</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>0.0.1</version>
     </parent>
 
     <groupId>io.github.microsphere-projects</groupId>
@@ -16,13 +16,20 @@
 
     <name>Microsphere :: Redis</name>
     <description>Microsphere Projects for Redis</description>
+    <url>https://github.com/microsphere-projects/microsphere-redis</url>
 
-    <scm>
-        <url>https://github.com/microsphere-projects/microsphere-redis</url>
-        <connection>scm:git:git://github.com/microsphere-projects/microsphere-redis.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/microsphere-projects/microsphere-redis.git
-        </developerConnection>
-    </scm>
+    <organization>
+        <name>Microsphere</name>
+        <url>https://github.com/microsphere-projects</url>
+    </organization>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
     <developers>
         <developer>
@@ -38,6 +45,13 @@
         </developer>
     </developers>
 
+    <scm>
+        <url>https://github.com/microsphere-projects/microsphere-redis</url>
+        <connection>scm:git:git://github.com/microsphere-projects/microsphere-redis.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/microsphere-projects/microsphere-redis.git
+        </developerConnection>
+    </scm>
+
     <properties>
         <revision>0.0.1-SNAPSHOT</revision>
     </properties>
@@ -45,7 +59,7 @@
     <modules>
         <module>microsphere-redis-parent</module>
         <module>microsphere-redis-dependencies</module>
-        <module>microsphere-redis-commons</module>
+        <module>microsphere-redis-core</module>
         <module>microsphere-redis-spring</module>
         <module>microsphere-redis-replicator-spring</module>
     </modules>
