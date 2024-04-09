@@ -28,9 +28,9 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
@@ -60,7 +60,7 @@ public class RedisConnectionFactoryProxyBeanPostProcessor extends GenericBeanPos
         proxyFactory.addAdvice(new MethodInterceptor() {
             @Nullable
             @Override
-            public Object invoke(@Nonnull MethodInvocation invocation) throws Throwable {
+            public Object invoke(@NonNull MethodInvocation invocation) throws Throwable {
                 Method method = invocation.getMethod();
                 method.setAccessible(true);
                 String methodName = method.getName();
