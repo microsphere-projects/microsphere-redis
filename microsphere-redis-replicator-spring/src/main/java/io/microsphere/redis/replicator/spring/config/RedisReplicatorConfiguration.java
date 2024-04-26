@@ -63,10 +63,11 @@ public class RedisReplicatorConfiguration implements ApplicationListener<RedisCo
 
     public static final String CONSUMER_ENABLED_PROPERTY_NAME = CONSUMER_PROPERTY_NAME_PREFIX + "enabled";
 
+    public static final String CONSUMER_EVENT_HANDLE_PROPERTY_NAME = CONSUMER_PROPERTY_NAME_PREFIX + "event.handler";
+
     public static final boolean DEFAULT_ENABLED = true;
 
     public static final boolean DEFAULT_CONSUMER_ENABLED = Boolean.getBoolean(CONSUMER_ENABLED_PROPERTY_NAME);
-
     /**
      * Business Domains
      */

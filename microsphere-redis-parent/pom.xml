@@ -20,6 +20,8 @@
 
     <properties>
         <microsphere-spring-cloud.version>${revision}</microsphere-spring-cloud.version>
+        <jandex.version>3.1.7</jandex.version>
+        <testcontainers.version>1.19.5</testcontainers.version>
     </properties>
 
     <dependencyManagement>
@@ -34,6 +36,21 @@
                 <scope>import</scope>
             </dependency>
 
+            <!-- jandex Dependencies -->
+            <dependency>
+                <groupId>io.smallrye</groupId>
+                <artifactId>jandex</artifactId>
+                <version>${jandex.version}</version>
+            </dependency>
+
+            <!-- testcontainers Dependencies -->
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>${testcontainers.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

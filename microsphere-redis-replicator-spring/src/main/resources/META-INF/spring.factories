@@ -3,3 +3,7 @@ io.microsphere.redis.replicator.spring.RedisReplicatorInitializer
 
 io.microsphere.redis.replicator.spring.RedisReplicatorModuleInitializer=\
 io.microsphere.redis.replicator.spring.kafka.KafkaRedisReplicatorModuleInitializer
+
+io.microsphere.redis.replicator.spring.event.handler.RedisCommandReplicatedEventHandler=\
+io.microsphere.redis.replicator.spring.event.handler.ReflectRedisCommandReplicatedEventHandler,\
+io.microsphere.redis.replicator.spring.event.handler.MethodHandleRedisCommandReplicatedEventHandler
