@@ -2,8 +2,8 @@ package io.microsphere.redis.spring.serializer;
 
 import io.microsphere.redis.spring.event.RedisCommandEvent;
 import io.microsphere.redis.spring.metadata.Parameter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.microsphere.logging.Logger;
+import io.microsphere.logging.LoggerFactory;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.data.geo.Point;

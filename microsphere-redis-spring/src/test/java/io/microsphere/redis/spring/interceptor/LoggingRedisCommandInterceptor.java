@@ -16,8 +16,8 @@
  */
 package io.microsphere.redis.spring.interceptor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.microsphere.logging.Logger;
+import io.microsphere.logging.LoggerFactory;
 
 /**
  * Logging

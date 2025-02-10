@@ -1,8 +1,8 @@
 package io.microsphere.redis.spring.metadata;
 
 import io.microsphere.redis.spring.event.RedisCommandEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.microsphere.logging.Logger;
+import io.microsphere.logging.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;

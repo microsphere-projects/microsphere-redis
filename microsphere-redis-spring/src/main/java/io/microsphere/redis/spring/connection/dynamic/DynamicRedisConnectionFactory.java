@@ -1,8 +1,8 @@
 package io.microsphere.redis.spring.connection.dynamic;
 
 import io.microsphere.text.FormatUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.microsphere.logging.Logger;
+import io.microsphere.logging.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.SmartInitializingSingleton;

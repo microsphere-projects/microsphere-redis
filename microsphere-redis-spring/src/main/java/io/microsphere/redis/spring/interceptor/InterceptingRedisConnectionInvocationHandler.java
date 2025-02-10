@@ -1,8 +1,8 @@
 package io.microsphere.redis.spring.interceptor;
 
 import io.microsphere.redis.spring.context.RedisContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.microsphere.logging.Logger;
+import io.microsphere.logging.LoggerFactory;
 import org.springframework.data.redis.connection.RedisConnection;
 
 import java.lang.reflect.InvocationHandler;

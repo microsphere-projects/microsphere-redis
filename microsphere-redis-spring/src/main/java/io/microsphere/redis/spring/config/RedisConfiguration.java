@@ -1,8 +1,8 @@
 package io.microsphere.redis.spring.config;
 
 import io.microsphere.redis.spring.event.RedisConfigurationPropertyChangedEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.microsphere.logging.Logger;
+import io.microsphere.logging.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.ApplicationContext;
