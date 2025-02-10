@@ -23,7 +23,7 @@
 
             <dependency>
                 <groupId>io.github.microsphere-projects</groupId>
-                <artifactId>microsphere-redis-core</artifactId>
+                <artifactId>microsphere-redis-commons</artifactId>
                 <version>${revision}</version>
             </dependency>
 
