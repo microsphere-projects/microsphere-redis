@@ -1,7 +1,7 @@
 package io.microsphere.redis.replicator.spring;
 
-import io.microsphere.redis.spring.context.RedisModuleInitializer;
 import io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration;
+import io.microsphere.redis.spring.context.RedisModuleInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -10,7 +10,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.List;
 
-import static io.microsphere.spring.util.BeanRegistrar.registerBeanDefinition;
+import static io.microsphere.spring.beans.factory.support.BeanRegistrar.registerBeanDefinition;
 import static org.springframework.core.io.support.SpringFactoriesLoader.loadFactories;
 
 /**

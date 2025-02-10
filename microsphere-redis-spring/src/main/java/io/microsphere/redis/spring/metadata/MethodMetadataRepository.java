@@ -1,7 +1,6 @@
 package io.microsphere.redis.spring.metadata;
 
 import io.microsphere.redis.spring.event.RedisCommandEvent;
-import org.apache.commons.lang3.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -43,6 +42,7 @@ import static io.microsphere.redis.spring.util.RedisCommandsUtils.buildCommandMe
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.buildParameterMetadata;
 import static io.microsphere.redis.spring.util.RedisConstants.FAIL_FAST_ENABLED;
 import static io.microsphere.redis.spring.util.RedisConstants.FAIL_FAST_ENABLED_PROPERTY_NAME;
+import static io.microsphere.util.ClassUtils.getAllInterfaces;
 import static org.springframework.core.io.support.ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX;
 import static org.springframework.util.ClassUtils.forName;
 import static org.springframework.util.ReflectionUtils.findMethod;
@@ -200,7 +200,7 @@ public class MethodMetadataRepository {
 
     private static void initRedisMethodsAccessible() {
         initRedisMethodsAccessible(RedisConnection.class);
-        List<Class<?>> allInterfaces = ClassUtils.getAllInterfaces(RedisConnection.class);
+        Set<Class<?>> allInterfaces = getAllInterfaces(RedisConnection.class);
         for (Class<?> interfaceClass : allInterfaces) {
             initRedisMethodsAccessible(interfaceClass);
         }

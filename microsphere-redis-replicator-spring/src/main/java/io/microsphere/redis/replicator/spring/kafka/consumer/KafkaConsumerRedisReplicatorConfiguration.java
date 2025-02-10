@@ -1,9 +1,9 @@
 package io.microsphere.redis.replicator.spring.kafka.consumer;
 
-import io.microsphere.redis.spring.config.RedisConfiguration;
-import io.microsphere.redis.spring.event.RedisCommandEvent;
 import io.microsphere.redis.replicator.spring.event.RedisCommandReplicatedEvent;
 import io.microsphere.redis.replicator.spring.kafka.KafkaRedisReplicatorConfiguration;
+import io.microsphere.redis.spring.config.RedisConfiguration;
+import io.microsphere.redis.spring.event.RedisCommandEvent;
 import io.microsphere.redis.spring.serializer.Serializers;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static io.microsphere.redis.spring.config.RedisConfiguration.getBoolean;
-import static io.microsphere.spring.util.PropertySourcesUtils.getSubProperties;
+import static io.microsphere.spring.core.env.PropertySourcesUtils.getSubProperties;
 import static org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG;
 import static org.apache.kafka.clients.CommonClientConfigs.GROUP_ID_CONFIG;
 

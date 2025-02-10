@@ -28,8 +28,8 @@ import static io.microsphere.redis.spring.util.RedisCommandsUtils.buildParameter
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.loadParameterClasses;
 import static io.microsphere.redis.spring.util.RedisConstants.FAIL_FAST_ENABLED;
 import static io.microsphere.redis.spring.util.RedisConstants.FAIL_FAST_ENABLED_PROPERTY_NAME;
+import static io.microsphere.util.ClassUtils.getAllInterfaces;
 import static java.util.Collections.unmodifiableMap;
-import static org.apache.commons.lang3.ClassUtils.getAllInterfaces;
 import static org.springframework.core.io.support.ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX;
 import static org.springframework.util.ReflectionUtils.findMethod;
 
@@ -80,11 +80,9 @@ public class RedisMetadataRepository {
      * Caches the name of the {@link RedisCommands} command interface with the {@link Class} object cache
      */
     private static Map<String, Class<?>> initRedisCommandInterfacesCache() {
-        List<Class<?>> redisCommandInterfaceClasses = getAllInterfaces(RedisCommands.class);
-        int size = redisCommandInterfaceClasses.size();
-        Map<String, Class<?>> redisCommandInterfacesCache = new HashMap<>(size);
-        for (int i = 0; i < size; i++) {
-            Class<?> redisCommandInterfaceClass = redisCommandInterfaceClasses.get(i);
+        Set<Class<?>> redisCommandInterfaceClasses = getAllInterfaces(RedisCommands.class);
+        Map<String, Class<?>> redisCommandInterfacesCache = new HashMap<>(redisCommandInterfaceClasses.size());
+        for (Class<?> redisCommandInterfaceClass : redisCommandInterfaceClasses) {
             String interfaceName = redisCommandInterfaceClass.getName();
             redisCommandInterfacesCache.put(interfaceName, redisCommandInterfaceClass);
             logger.debug("Caches the Redis Command Interface : {}", interfaceName);

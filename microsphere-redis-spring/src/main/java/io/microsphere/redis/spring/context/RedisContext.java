@@ -40,8 +40,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static io.microsphere.spring.util.BeanUtils.getBeanNames;
-import static io.microsphere.spring.util.BeanUtils.getSortedBeans;
+import static io.microsphere.spring.beans.BeanUtils.getBeanNames;
+import static io.microsphere.spring.beans.BeanUtils.getSortedBeans;
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableSet;
 
