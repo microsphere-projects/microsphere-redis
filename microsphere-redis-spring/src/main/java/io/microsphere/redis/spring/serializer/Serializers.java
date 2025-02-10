@@ -1,9 +1,16 @@
 package io.microsphere.redis.spring.serializer;
 
-import io.microsphere.redis.spring.event.RedisCommandEvent;
-import io.microsphere.redis.spring.metadata.Parameter;
 import io.microsphere.logging.Logger;
 import io.microsphere.logging.LoggerFactory;
+import io.microsphere.redis.metadata.Parameter;
+import io.microsphere.redis.serializer.BooleanSerializer;
+import io.microsphere.redis.serializer.ByteArraySerializer;
+import io.microsphere.redis.serializer.DoubleSerializer;
+import io.microsphere.redis.serializer.EnumSerializer;
+import io.microsphere.redis.serializer.IntegerSerializer;
+import io.microsphere.redis.serializer.LongSerializer;
+import io.microsphere.redis.serializer.Serializer;
+import io.microsphere.redis.spring.event.RedisCommandEvent;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.data.geo.Point;
@@ -28,6 +35,8 @@ import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
+import static io.microsphere.redis.spring.serializer.DelegatingRedisSerializer.createDelegate;
 
 /**
  * {@link RedisSerializer} Utilities class, mainly used for Redis command method parameter type
@@ -266,17 +275,17 @@ public abstract class Serializers {
      * Initializes Parameterized Serializers
      */
     private static void initializeParameterizedSerializers() {
-        List<RedisSerializer> serializers = loadSerializers();
+        List<Serializer> serializers = loadSerializers();
         initializeParameterizedSerializers(serializers);
     }
 
-    private static void initializeParameterizedSerializers(List<RedisSerializer> serializers) {
-        for (RedisSerializer serializer : serializers) {
+    private static void initializeParameterizedSerializers(List<Serializer> serializers) {
+        for (Serializer serializer : serializers) {
             initializeParameterizedSerializer(serializer);
         }
     }
 
-    private static void initializeParameterizedSerializer(RedisSerializer serializer) {
+    private static void initializeParameterizedSerializer(Serializer serializer) {
         Class<?> parameterizedType = ResolvableType.forType(serializer.getClass()).as(RedisSerializer.class).getGeneric(0).resolve();
 
         if (parameterizedType != null) {
@@ -286,17 +295,22 @@ public abstract class Serializers {
         }
     }
 
-    private static List<RedisSerializer> loadSerializers() {
-        return SpringFactoriesLoader.loadFactories(RedisSerializer.class, classLoader);
+    private static List<Serializer> loadSerializers() {
+        return SpringFactoriesLoader.loadFactories(Serializer.class, classLoader);
     }
 
-    public static void register(Class<?> type, RedisSerializer<?> serializer) {
+    public static void register(Class<?> type, Serializer<?> serializer) {
+        RedisSerializer newSerializer = createDelegate(serializer);
+        register(type, newSerializer);
+    }
+
+    public static void register(Class<?> type, RedisSerializer newSerializer) {
         String typeName = type.getName();
-        RedisSerializer oldSerializer = typedSerializers.put(typeName, serializer);
-        logger.debug("The RedisSerializer[class : '{}' , target type : '{}'] for type['{}'] was registered", getTypeName(serializer), getTypeName(serializer.getTargetType()), getTypeName(type));
-        if (oldSerializer != null && !Objects.equals(oldSerializer, serializer)) {
+        RedisSerializer oldSerializer = typedSerializers.put(typeName, newSerializer);
+        logger.debug("The RedisSerializer[class : '{}' , target type : '{}'] for type['{}'] was registered", getTypeName(newSerializer), getTypeName(newSerializer.getTargetType()), getTypeName(type));
+        if (oldSerializer != null && !Objects.equals(oldSerializer, newSerializer)) {
             logger.warn("The RedisSerializer for type['{}'] has been replaced old [class : '{}' , target type : '{}'] -> new [class : '{}' , target type : '{}']",
-                    getTypeName(type), getTypeName(oldSerializer), getTypeName(oldSerializer.getTargetType()), getTypeName(serializer), getTypeName(serializer.getTargetType()));
+                    getTypeName(type), getTypeName(oldSerializer), getTypeName(oldSerializer.getTargetType()), getTypeName(newSerializer), getTypeName(newSerializer.getTargetType()));
         }
     }
 

@@ -1,10 +1,7 @@
-package io.microsphere.redis.spring.serializer;
-
-import org.springframework.data.redis.serializer.RedisSerializer;
-import org.springframework.data.redis.serializer.SerializationException;
+package io.microsphere.redis.serializer;
 
 /**
- * Java {@code boolean} or {@link Boolean} type {@link RedisSerializer} Class
+ * Java {@code boolean} or {@link Boolean} type {@link Serializer} Class
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @since 1.0.0
@@ -19,7 +16,7 @@ public class ShortSerializer extends AbstractSerializer<Short> {
     }
 
     @Override
-    protected byte[] doSerialize(Short aShort) throws SerializationException {
+    protected byte[] doSerialize(Short aShort) throws RuntimeException {
         short shortValue = aShort.shortValue();
         byte[] bytes = new byte[]{
                 (byte) (shortValue >>> 8),
@@ -28,7 +25,7 @@ public class ShortSerializer extends AbstractSerializer<Short> {
     }
 
     @Override
-    protected Short doDeserialize(byte[] bytes) throws SerializationException {
+    protected Short doDeserialize(byte[] bytes) throws RuntimeException {
         return (short) ((bytes[0] << 8) | (bytes[1] & 0xFF));
     }
 

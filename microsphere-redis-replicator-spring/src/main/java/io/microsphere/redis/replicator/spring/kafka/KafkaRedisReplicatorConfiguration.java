@@ -1,8 +1,8 @@
 package io.microsphere.redis.replicator.spring.kafka;
 
-import io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration;
 import io.microsphere.logging.Logger;
 import io.microsphere.logging.LoggerFactory;
+import io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;

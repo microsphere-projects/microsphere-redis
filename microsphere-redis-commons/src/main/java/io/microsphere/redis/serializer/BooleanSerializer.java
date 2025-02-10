@@ -1,10 +1,8 @@
-package io.microsphere.redis.spring.serializer;
+package io.microsphere.redis.serializer;
 
-import org.springframework.data.redis.serializer.RedisSerializer;
-import org.springframework.data.redis.serializer.SerializationException;
 
 /**
- * Java {@code boolean} or {@link Boolean} type {@link RedisSerializer} Class
+ * Java {@code boolean} or {@link Boolean} type {@link Serializer} Class
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @since 1.0.0
@@ -25,14 +23,14 @@ public final class BooleanSerializer extends AbstractSerializer<Boolean> {
     }
 
     @Override
-    protected byte[] doSerialize(Boolean booleanValue) throws SerializationException {
+    protected byte[] doSerialize(Boolean booleanValue) throws RuntimeException {
         byte byteValue = booleanValue == null ? NULL_VALUE : (booleanValue ? TRUE_VALUE : FALSE_VALUE);
         byte[] bytes = new byte[]{byteValue};
         return bytes;
     }
 
     @Override
-    protected Boolean doDeserialize(byte[] bytes) throws SerializationException {
+    protected Boolean doDeserialize(byte[] bytes) throws RuntimeException {
         Boolean booleanValue = null;
         byte byteValue = bytes[0];
         switch (byteValue) {

@@ -1,10 +1,7 @@
-package io.microsphere.redis.spring.serializer;
-
-import org.springframework.data.redis.serializer.RedisSerializer;
-import org.springframework.data.redis.serializer.SerializationException;
+package io.microsphere.redis.serializer;
 
 /**
- * Java {@code long} or {@link Long} type {@link RedisSerializer} Class
+ * Java {@code long} or {@link Long} type {@link Serializer} Class
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @since 1.0.0
@@ -19,7 +16,7 @@ public final class LongSerializer extends AbstractSerializer<Long> {
     }
 
     @Override
-    protected byte[] doSerialize(Long aLong) throws SerializationException {
+    protected byte[] doSerialize(Long aLong) throws RuntimeException {
         long longValue = aLong.longValue();
         byte[] bytes = new byte[]{
                 (byte) longValue,
@@ -35,7 +32,7 @@ public final class LongSerializer extends AbstractSerializer<Long> {
     }
 
     @Override
-    protected Long doDeserialize(byte[] bytes) throws SerializationException {
+    protected Long doDeserialize(byte[] bytes) throws RuntimeException {
         long longValue = ((long) bytes[7] << 56)
                 | ((long) bytes[6] & 0xff) << 48
                 | ((long) bytes[5] & 0xff) << 40

@@ -16,6 +16,8 @@
  */
 package io.microsphere.redis.spring.metadata;
 
+import io.microsphere.redis.metadata.MethodMetadata;
+import io.microsphere.redis.metadata.RedisMetadata;
 import org.apache.commons.lang3.ClassUtils;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;

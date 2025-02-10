@@ -16,6 +16,8 @@
  */
 package io.microsphere.redis.spring.serializer;
 
+import io.microsphere.redis.serializer.AbstractSerializer;
+import io.microsphere.redis.serializer.ShortSerializer;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
 import io.microsphere.redis.spring.metadata.RedisMetadataRepository;
 import org.springframework.data.redis.serializer.RedisSerializer;

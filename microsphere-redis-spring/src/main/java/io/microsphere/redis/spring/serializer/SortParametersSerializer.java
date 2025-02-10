@@ -1,5 +1,10 @@
 package io.microsphere.redis.spring.serializer;
 
+import io.microsphere.redis.serializer.AbstractSerializer;
+import io.microsphere.redis.serializer.BooleanSerializer;
+import io.microsphere.redis.serializer.ByteArraySerializer;
+import io.microsphere.redis.serializer.EnumSerializer;
+import io.microsphere.redis.serializer.LongSerializer;
 import org.springframework.data.redis.connection.DefaultSortParameters;
 import org.springframework.data.redis.connection.SortParameters;
 import org.springframework.data.redis.serializer.RedisSerializer;

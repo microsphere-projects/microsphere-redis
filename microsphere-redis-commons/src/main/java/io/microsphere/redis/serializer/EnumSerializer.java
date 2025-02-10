@@ -1,19 +1,19 @@
-package io.microsphere.redis.spring.serializer;
+package io.microsphere.redis.serializer;
 
-import org.springframework.data.redis.serializer.RedisSerializer;
-import org.springframework.data.redis.serializer.SerializationException;
-import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
 import java.util.Objects;
 
+import static io.microsphere.reflect.MethodUtils.findMethod;
+import static io.microsphere.reflect.MethodUtils.invokeStaticMethod;
+
 /**
- * {@link Enum} {@link RedisSerializer} Class
+ * {@link Enum} {@link Serializer} Class
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @since 1.0.0
  */
-public class EnumSerializer<E extends Enum> implements RedisSerializer<E> {
+public class EnumSerializer<E extends Enum> implements Serializer<E> {
 
     private static final String VALUES_METHOD_NAME = "values";
 
@@ -40,9 +40,7 @@ public class EnumSerializer<E extends Enum> implements RedisSerializer<E> {
     }
 
     private Method getValuesMethod(Class<E> enumType) {
-        Method valuesMethod = ReflectionUtils.findMethod(enumType, VALUES_METHOD_NAME);
-        ReflectionUtils.makeAccessible(valuesMethod);
-        return valuesMethod;
+        return findMethod(enumType, VALUES_METHOD_NAME);
     }
 
     private int calcBytesLength(E[] enums) {
@@ -57,17 +55,17 @@ public class EnumSerializer<E extends Enum> implements RedisSerializer<E> {
     }
 
     private E[] invokeValues(Method valuesMethod) {
-        return (E[]) ReflectionUtils.invokeMethod(valuesMethod, null);
+        return (E[]) invokeStaticMethod(valuesMethod);
     }
 
     @Override
-    public byte[] serialize(Enum e) throws SerializationException {
+    public byte[] serialize(Enum e) throws RuntimeException {
         // null compatible case
         if (e == null) {
             return null;
         }
 
-        // RedisSerializer<String> delegate = Serializers.stringSerializer;
+        // Serializer<String> delegate = Serializers.stringSerializer;
         // String name = e.name();
         // return delegate.serialize(name);
 
@@ -89,12 +87,12 @@ public class EnumSerializer<E extends Enum> implements RedisSerializer<E> {
     }
 
     @Override
-    public E deserialize(byte[] bytes) throws SerializationException {
+    public E deserialize(byte[] bytes) throws RuntimeException {
         // null compatible case
         if (bytes == null) {
             return null;
         }
-        // RedisSerializer<String> delegate = Serializers.stringSerializer;
+        // Serializer<String> delegate = Serializers.stringSerializer;
         // String name = delegate.deserialize(bytes);
         // return Enum.valueOf(enumType, name);
 

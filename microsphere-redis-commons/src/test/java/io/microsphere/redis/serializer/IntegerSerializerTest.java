@@ -1,6 +1,4 @@
-package io.microsphere.redis.spring.serializer;
-
-import org.springframework.data.redis.serializer.RedisSerializer;
+package io.microsphere.redis.serializer;
 
 /**
  * {@link IntegerSerializer} Test
@@ -11,7 +9,7 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 public class IntegerSerializerTest extends AbstractSerializerTest<Integer> {
 
     @Override
-    protected RedisSerializer<Integer> getSerializer() {
+    protected Serializer<Integer> getSerializer() {
         return IntegerSerializer.INSTANCE;
     }
 

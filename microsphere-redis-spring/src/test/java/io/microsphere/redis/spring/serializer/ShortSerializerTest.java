@@ -1,5 +1,6 @@
 package io.microsphere.redis.spring.serializer;
 
+import io.microsphere.redis.serializer.ShortSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 
 /**

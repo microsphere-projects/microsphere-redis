@@ -1,5 +1,6 @@
 package io.microsphere.redis.spring.serializer;
 
+import io.microsphere.redis.serializer.EnumSerializer;
 import org.springframework.data.redis.connection.RedisListCommands;
 import org.springframework.data.redis.serializer.RedisSerializer;
 

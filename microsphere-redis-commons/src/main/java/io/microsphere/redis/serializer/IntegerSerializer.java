@@ -1,10 +1,7 @@
-package io.microsphere.redis.spring.serializer;
-
-import org.springframework.data.redis.serializer.RedisSerializer;
-import org.springframework.data.redis.serializer.SerializationException;
+package io.microsphere.redis.serializer;
 
 /**
- * Java {@code int} or {@link Integer} type {@link RedisSerializer} Class
+ * Java {@code int} or {@link Integer} type {@link Serializer} Class
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @since 1.0.0
@@ -19,7 +16,7 @@ public class IntegerSerializer extends AbstractSerializer<Integer> {
     }
 
     @Override
-    protected byte[] doSerialize(Integer integer) throws SerializationException {
+    protected byte[] doSerialize(Integer integer) throws RuntimeException {
         int intValue = integer.intValue();
         byte[] bytes = new byte[]{
                 (byte) ((intValue >> 24) & 0xff),
@@ -31,7 +28,7 @@ public class IntegerSerializer extends AbstractSerializer<Integer> {
     }
 
     @Override
-    protected Integer doDeserialize(byte[] bytes) throws SerializationException {
+    protected Integer doDeserialize(byte[] bytes) throws RuntimeException {
         int intValue = (0xff & bytes[0]) << 24 |
                 (0xff & bytes[1]) << 16 |
                 (0xff & bytes[2]) << 8 |

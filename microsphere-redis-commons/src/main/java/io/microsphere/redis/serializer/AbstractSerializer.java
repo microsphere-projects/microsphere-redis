@@ -1,19 +1,18 @@
-package io.microsphere.redis.spring.serializer;
+package io.microsphere.redis.serializer;
 
-import org.springframework.core.ResolvableType;
-import org.springframework.data.redis.serializer.RedisSerializer;
-import org.springframework.data.redis.serializer.SerializationException;
 
-import static org.springframework.core.ResolvableType.forType;
+import io.microsphere.reflect.JavaType;
+
+import static io.microsphere.reflect.JavaType.from;
 
 /**
- * Abstract {@link RedisSerializer} Class
+ * Abstract {@link Serializer} Class
  *
  * @param <T> Serialized/Deserialized type
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @since 1.0.0
  */
-public abstract class AbstractSerializer<T> implements RedisSerializer<T> {
+public abstract class AbstractSerializer<T> implements Serializer<T> {
 
     public static final int UNBOUND_BYTES_LENGTH = -1;
 
@@ -31,20 +30,21 @@ public abstract class AbstractSerializer<T> implements RedisSerializer<T> {
 
     public static final int DOUBLE_BYTES_LENGTH = 8;
 
-    private final ResolvableType type;
-
     private final Class<T> targetType;
 
     private final int bytesLength;
 
     public AbstractSerializer() {
-        this.type = resolvableType();
-        this.targetType = (Class<T>) type.resolve();
+        this.targetType = resolveTargetType();
         this.bytesLength = calcBytesLength();
     }
 
+    protected Class<T> resolveTargetType() {
+        return resolveTargetType(this.getClass());
+    }
+
     @Override
-    public final byte[] serialize(T t) throws SerializationException {
+    public final byte[] serialize(T t) throws RuntimeException {
         // null compatible case
         if (t == null) {
             return null;
@@ -54,7 +54,7 @@ public abstract class AbstractSerializer<T> implements RedisSerializer<T> {
     }
 
     @Override
-    public final T deserialize(byte[] bytes) throws SerializationException {
+    public final T deserialize(byte[] bytes) throws RuntimeException {
         // null compatible case
         if (bytes == null) {
             return null;
@@ -73,10 +73,6 @@ public abstract class AbstractSerializer<T> implements RedisSerializer<T> {
         return targetType;
     }
 
-    public ResolvableType getParameterizedType() {
-        return type;
-    }
-
     public Class<T> getParameterizedClass() {
         return getTargetType();
     }
@@ -89,11 +85,14 @@ public abstract class AbstractSerializer<T> implements RedisSerializer<T> {
         return UNBOUND_BYTES_LENGTH;
     }
 
-    protected abstract byte[] doSerialize(T t) throws SerializationException;
+    protected abstract byte[] doSerialize(T t) throws RuntimeException;
 
-    protected abstract T doDeserialize(byte[] bytes) throws SerializationException;
+    protected abstract T doDeserialize(byte[] bytes) throws RuntimeException;
 
-    private ResolvableType resolvableType() {
-        return forType(getClass()).as(RedisSerializer.class).getGeneric(0);
+    public static <T> Class<T> resolveTargetType(Class<?> type) {
+        JavaType javaType = from(type)
+                .as(AbstractSerializer.class)
+                .getGenericType(0);
+        return javaType.toClass();
     }
 }

@@ -1,5 +1,8 @@
 package io.microsphere.redis.spring.serializer;
 
+import io.microsphere.redis.serializer.AbstractSerializer;
+import io.microsphere.redis.serializer.EnumSerializer;
+import io.microsphere.redis.serializer.LongSerializer;
 import org.springframework.data.redis.core.types.Expiration;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;

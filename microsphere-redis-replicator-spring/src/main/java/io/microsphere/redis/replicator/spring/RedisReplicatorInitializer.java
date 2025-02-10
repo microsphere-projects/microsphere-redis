@@ -1,9 +1,9 @@
 package io.microsphere.redis.replicator.spring;
 
-import io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration;
-import io.microsphere.redis.spring.context.RedisModuleInitializer;
 import io.microsphere.logging.Logger;
 import io.microsphere.logging.LoggerFactory;
+import io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration;
+import io.microsphere.redis.spring.context.RedisModuleInitializer;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ConfigurableApplicationContext;

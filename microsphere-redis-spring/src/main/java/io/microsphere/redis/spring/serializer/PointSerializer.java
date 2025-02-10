@@ -1,5 +1,7 @@
 package io.microsphere.redis.spring.serializer;
 
+import io.microsphere.redis.serializer.AbstractSerializer;
+import io.microsphere.redis.serializer.DoubleSerializer;
 import org.springframework.data.geo.Point;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;

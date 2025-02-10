@@ -1,5 +1,10 @@
 package io.microsphere.redis.spring.serializer;
 
+import io.microsphere.redis.serializer.BooleanSerializer;
+import io.microsphere.redis.serializer.DoubleSerializer;
+import io.microsphere.redis.serializer.EnumSerializer;
+import io.microsphere.redis.serializer.IntegerSerializer;
+import io.microsphere.redis.serializer.LongSerializer;
 import org.junit.Test;
 import org.springframework.data.geo.Point;
 import org.springframework.data.redis.connection.RedisGeoCommands;

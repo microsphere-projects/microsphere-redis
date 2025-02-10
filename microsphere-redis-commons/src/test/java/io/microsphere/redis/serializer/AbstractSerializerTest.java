@@ -1,17 +1,16 @@
-package io.microsphere.redis.spring.serializer;
+package io.microsphere.redis.serializer;
 
-import org.junit.Test;
-import org.springframework.data.redis.serializer.RedisSerializer;
+import org.junit.jupiter.api.Test;
 
 import java.util.function.Supplier;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.springframework.core.ResolvableType.forType;
+import static io.microsphere.redis.serializer.AbstractSerializer.resolveTargetType;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Abstract {@link RedisSerializer} Test
+ * Abstract {@link Serializer} Test
  *
  * @param <T> Serialization type
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
@@ -31,7 +30,7 @@ public abstract class AbstractSerializerTest<T> {
 
     public void test(Supplier<T> valueSupplier) {
         T value = valueSupplier.get();
-        RedisSerializer<T> serializer = getSerializer();
+        Serializer<T> serializer = getSerializer();
         byte[] bytes = serializer.serialize(value);
         T deserialized = serializer.deserialize(bytes);
         if (value != null && deserialized != null) {
@@ -41,7 +40,7 @@ public abstract class AbstractSerializerTest<T> {
         }
 
         Class<?> targetType = serializer.getTargetType();
-        Class<?> parameterType = forType(getClass()).getSuperType().getGeneric(0).resolve();
+        Class<?> parameterType = resolveTargetType(serializer.getClass());
         assertSame(targetType, parameterType);
         assertTrue(serializer.canSerialize(parameterType));
 
@@ -55,7 +54,7 @@ public abstract class AbstractSerializerTest<T> {
         return value;
     }
 
-    protected abstract RedisSerializer<T> getSerializer();
+    protected abstract Serializer<T> getSerializer();
 
     protected abstract T getValue();
 

@@ -1,8 +1,8 @@
 package io.microsphere.redis.spring.context;
 
-import io.microsphere.redis.spring.annotation.EnableRedisInterceptor;
 import io.microsphere.logging.Logger;
 import io.microsphere.logging.LoggerFactory;
+import io.microsphere.redis.spring.annotation.EnableRedisInterceptor;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotatedBeanDefinitionReader;

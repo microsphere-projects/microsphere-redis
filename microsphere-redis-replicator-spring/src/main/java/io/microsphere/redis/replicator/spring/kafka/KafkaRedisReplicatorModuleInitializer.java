@@ -1,11 +1,11 @@
 package io.microsphere.redis.replicator.spring.kafka;
 
+import io.microsphere.logging.Logger;
+import io.microsphere.logging.LoggerFactory;
 import io.microsphere.redis.replicator.spring.RedisReplicatorModuleInitializer;
 import io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration;
 import io.microsphere.redis.replicator.spring.kafka.producer.KafkaProducerRedisCommandEventListener;
 import io.microsphere.redis.replicator.spring.kafka.producer.KafkaProducerRedisReplicatorConfiguration;
-import io.microsphere.logging.Logger;
-import io.microsphere.logging.LoggerFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.Environment;

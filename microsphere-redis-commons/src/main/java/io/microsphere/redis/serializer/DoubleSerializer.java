@@ -1,10 +1,7 @@
-package io.microsphere.redis.spring.serializer;
-
-import org.springframework.data.redis.serializer.RedisSerializer;
-import org.springframework.data.redis.serializer.SerializationException;
+package io.microsphere.redis.serializer;
 
 /**
- * Java {@code double} or {@link Double} type {@link RedisSerializer} Class
+ * Java {@code double} or {@link Double} type {@link Serializer} Class
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @since 1.0.0
@@ -22,14 +19,14 @@ public final class DoubleSerializer extends AbstractSerializer<Double> {
     }
 
     @Override
-    protected byte[] doSerialize(Double aDouble) throws SerializationException {
+    protected byte[] doSerialize(Double aDouble) throws RuntimeException {
         double doubleValue = aDouble.doubleValue();
         long longValue = Double.doubleToLongBits(doubleValue);
         return longSerializer.serialize(longValue);
     }
 
     @Override
-    protected Double doDeserialize(byte[] bytes) throws SerializationException {
+    protected Double doDeserialize(byte[] bytes) throws RuntimeException {
         long longValue = longSerializer.deserialize(bytes);
         double doubleValue = Double.longBitsToDouble(longValue);
         return doubleValue;

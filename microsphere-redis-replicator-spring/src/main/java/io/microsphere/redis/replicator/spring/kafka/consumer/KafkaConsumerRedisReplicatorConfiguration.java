@@ -1,5 +1,7 @@
 package io.microsphere.redis.replicator.spring.kafka.consumer;
 
+import io.microsphere.logging.Logger;
+import io.microsphere.logging.LoggerFactory;
 import io.microsphere.redis.replicator.spring.event.RedisCommandReplicatedEvent;
 import io.microsphere.redis.replicator.spring.kafka.KafkaRedisReplicatorConfiguration;
 import io.microsphere.redis.spring.config.RedisConfiguration;
@@ -7,8 +9,6 @@ import io.microsphere.redis.spring.event.RedisCommandEvent;
 import io.microsphere.redis.spring.serializer.Serializers;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
-import io.microsphere.logging.Logger;
-import io.microsphere.logging.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
