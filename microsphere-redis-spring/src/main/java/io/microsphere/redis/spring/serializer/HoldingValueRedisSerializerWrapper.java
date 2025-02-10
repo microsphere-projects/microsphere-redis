@@ -17,7 +17,7 @@
 package io.microsphere.redis.spring.serializer;
 
 import io.microsphere.redis.spring.beans.DelegatingWrapper;
-import io.microsphere.redis.spring.util.ValueHolder;
+import io.microsphere.redis.util.ValueHolder;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
