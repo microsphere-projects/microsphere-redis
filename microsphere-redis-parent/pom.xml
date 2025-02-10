@@ -19,11 +19,18 @@
     <description>Microsphere Redis Parent</description>
 
     <properties>
+        <jedis.version>3.9.0</jedis.version>
         <microsphere-spring-cloud.version>0.1.0</microsphere-spring-cloud.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+
+            <dependency>
+                <groupId>redis.clients</groupId>
+                <artifactId>jedis</artifactId>
+                <version>${jedis.version}</version>
+            </dependency>
 
             <!-- Microsphere Spring Cloud Dependencies -->
             <dependency>
@@ -36,5 +43,17 @@
 
         </dependencies>
     </dependencyManagement>
+
+    <profiles>
+        <profile>
+            <id>jedis-3.9</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <version>${jedis.version}</version>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>
