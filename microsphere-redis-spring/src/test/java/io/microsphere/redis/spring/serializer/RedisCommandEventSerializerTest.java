@@ -31,7 +31,7 @@ import static io.microsphere.redis.spring.serializer.RedisCommandEventSerializer
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since
  */
-public class RedisCommandEventSerializerTest extends AbstractSerializerTest<RedisCommandEvent> {
+class RedisCommandEventSerializerTest extends AbstractSerializerTest<RedisCommandEvent> {
 
     @Override
     protected RedisSerializer<RedisCommandEvent> getSerializer() {

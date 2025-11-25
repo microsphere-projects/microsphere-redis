@@ -1,7 +1,7 @@
 package io.microsphere.redis.spring.serializer;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.data.redis.connection.RedisZSetCommands;
 import org.springframework.data.redis.serializer.RedisSerializer;
 
@@ -14,7 +14,7 @@ import static org.springframework.data.redis.connection.RedisZSetCommands.Range.
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @since 1.0.0
  */
-public class RangeSerializerTest extends AbstractSerializerTest<RedisZSetCommands.Range> {
+class RangeSerializerTest extends AbstractSerializerTest<RedisZSetCommands.Range> {
 
     @Override
     protected RedisSerializer<RedisZSetCommands.Range> getSerializer() {
@@ -37,14 +37,14 @@ public class RangeSerializerTest extends AbstractSerializerTest<RedisZSetCommand
     }
 
     @Test
-    public void testGte() {
+    void testGte() {
         test(() -> range().gte(1));
         test(() -> range().gte(1).lt(2));
         test(() -> range().gte(1).lte(2));
     }
 
     @Test
-    public void testGt() {
+    void testGt() {
         test(() -> range().gt(1));
         test(() -> range().gt(1).lt(2));
         test(() -> range().gt(1).lte(2));
@@ -52,21 +52,21 @@ public class RangeSerializerTest extends AbstractSerializerTest<RedisZSetCommand
 
 
     @Test
-    public void testLt() {
+    void testLt() {
         test(() -> range().lt(2));
         test(() -> range().lt(2).gt(1));
         test(() -> range().lt(2).gte(1));
     }
 
     @Test
-    public void testLte() {
+    void testLte() {
         test(() -> range().lte(2));
         test(() -> range().lte(2).gt(1));
         test(() -> range().lte(1).gt(1));
     }
 
     @Test
-    public void testUnbounded() {
+    void testUnbounded() {
         test(() -> unbounded());
     }
 

@@ -10,7 +10,7 @@ import org.springframework.data.redis.serializer.RedisSerializer;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @since 1.0.0
  */
-public class GeoLocationSerializerTest extends AbstractSerializerTest<RedisGeoCommands.GeoLocation> {
+class GeoLocationSerializerTest extends AbstractSerializerTest<RedisGeoCommands.GeoLocation> {
 
     @Override
     protected RedisSerializer<RedisGeoCommands.GeoLocation> getSerializer() {

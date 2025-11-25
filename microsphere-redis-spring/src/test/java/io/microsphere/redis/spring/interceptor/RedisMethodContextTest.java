@@ -16,12 +16,12 @@
  */
 package io.microsphere.redis.spring.interceptor;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * {@link RedisMethodContext} Test
@@ -29,12 +29,12 @@ import static org.junit.Assert.assertTrue;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
-public class RedisMethodContextTest {
+class RedisMethodContextTest {
 
     private RedisMethodContext context;
 
-    @Before
-    public void init() {
+    @BeforeEach
+    void init() {
         context = createRedisMethodContext();
     }
 
@@ -44,7 +44,7 @@ public class RedisMethodContextTest {
     }
 
     @Test
-    public void testAttributes() {
+    void testAttributes() {
         assertTrue(context.getAttributes().isEmpty());
         assertFalse(context.hasAttribute("a"));
 

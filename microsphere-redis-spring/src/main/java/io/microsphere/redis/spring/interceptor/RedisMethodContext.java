@@ -19,7 +19,6 @@ package io.microsphere.redis.spring.interceptor;
 import io.microsphere.redis.spring.config.RedisConfiguration;
 import io.microsphere.redis.spring.context.RedisContext;
 import io.microsphere.redis.spring.metadata.Parameter;
-import io.microsphere.redis.spring.metadata.RedisMetadataRepository;
 import io.microsphere.redis.spring.util.RedisCommandsUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +36,7 @@ import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
+import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.isWriteCommandMethod;
 import static io.microsphere.util.ArrayUtils.length;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableMap;
@@ -281,7 +281,7 @@ public class RedisMethodContext<T> {
         if (initializedParameters) {
             initParameters();
         } else {
-            this.write = RedisMetadataRepository.isWriteCommandMethod(method);
+            this.write = isWriteCommandMethod(method);
         }
         return this.write;
     }

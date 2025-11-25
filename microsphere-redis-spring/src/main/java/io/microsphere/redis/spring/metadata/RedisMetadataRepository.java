@@ -9,7 +9,6 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.data.redis.connection.RedisCommands;
 import org.springframework.data.redis.connection.RedisConnection;
-import org.springframework.util.ReflectionUtils;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.IOException;
@@ -28,10 +27,11 @@ import static io.microsphere.redis.spring.util.RedisCommandsUtils.buildParameter
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.loadParameterClasses;
 import static io.microsphere.redis.spring.util.RedisConstants.FAIL_FAST_ENABLED;
 import static io.microsphere.redis.spring.util.RedisConstants.FAIL_FAST_ENABLED_PROPERTY_NAME;
+import static io.microsphere.util.ClassUtils.getAllInterfaces;
 import static java.util.Collections.unmodifiableMap;
-import static org.apache.commons.lang3.ClassUtils.getAllInterfaces;
 import static org.springframework.core.io.support.ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX;
 import static org.springframework.util.ReflectionUtils.findMethod;
+import static org.springframework.util.ReflectionUtils.invokeMethod;
 
 /**
  * Redis Metadata Repository
@@ -256,7 +256,7 @@ public class RedisMetadataRepository {
         Class<?> returnType = redisCommandMethod.getReturnType();
         if (redisCommandInterfaceClass.equals(returnType) && redisCommandMethod.getParameterCount() < 1) {
             String interfaceName = redisCommandInterfaceClass.getName();
-            redisCommandBindings.put(interfaceName, redisConnection -> ReflectionUtils.invokeMethod(redisCommandMethod, redisConnection));
+            redisCommandBindings.put(interfaceName, redisConnection -> invokeMethod(redisCommandMethod, redisConnection));
             logger.debug("Redis command interface {} Bind RedisConnection command object method {}", interfaceName, redisCommandMethod);
         }
     }

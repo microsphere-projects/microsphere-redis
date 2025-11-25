@@ -1,10 +1,9 @@
 package io.microsphere.redis.spring.connection.dynamic.web;
 
 import io.microsphere.redis.spring.connection.dynamic.DynamicRedisConnectionFactory;
-
-import javax.servlet.ServletRequestEvent;
-import javax.servlet.ServletRequestListener;
-import javax.servlet.annotation.WebListener;
+import jakarta.servlet.ServletRequestEvent;
+import jakarta.servlet.ServletRequestListener;
+import jakarta.servlet.annotation.WebListener;
 
 /**
  * {@link DynamicRedisConnectionFactory} State cleaner

@@ -16,13 +16,13 @@
  */
 package io.microsphere.redis.spring.metadata;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.data.redis.connection.RedisConnection;
 
 import java.util.function.Function;
 
 import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.getRedisCommandBindingFunction;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * {@link RedisMetadataRepository} Test
@@ -30,10 +30,10 @@ import static org.junit.Assert.assertNotNull;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
-public class RedisMetadataRepositoryTest {
+class RedisMetadataRepositoryTest {
 
     @Test
-    public void testGetRedisCommandBindingFunction() {
+    void testGetRedisCommandBindingFunction() {
         Function<RedisConnection, Object> function = getRedisCommandBindingFunction(RedisConnection.class.getName());
         assertNotNull(function);
     }

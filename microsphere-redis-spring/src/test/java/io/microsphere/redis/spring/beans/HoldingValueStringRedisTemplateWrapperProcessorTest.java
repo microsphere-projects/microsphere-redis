@@ -30,5 +30,5 @@ import org.springframework.test.context.TestPropertySource;
 @ContextConfiguration(classes = {HoldingValueStringRedisTemplateWrapperProcessorTest.class, HoldingValueStringRedisTemplateWrapperProcessor.class})
 @TestPropertySource(properties = {"microsphere.redis.enabled=true"})
 @EnableRedisInterceptor(wrapRedisTemplates = {"redisTemplate", "stringRedisTemplate"})
-public class HoldingValueStringRedisTemplateWrapperProcessorTest extends AbstractRedisCommandEventTest {
+class HoldingValueStringRedisTemplateWrapperProcessorTest extends AbstractRedisCommandEventTest {
 }

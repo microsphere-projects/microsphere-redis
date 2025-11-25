@@ -13,7 +13,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import java.util.List;
 
 import static io.microsphere.redis.spring.config.RedisConfiguration.isEnabled;
-import static io.microsphere.spring.util.PropertySourcesUtils.containsBootstrapPropertySource;
+import static io.microsphere.spring.core.env.PropertySourcesUtils.containsBootstrapPropertySource;
 import static org.springframework.core.io.support.SpringFactoriesLoader.loadFactories;
 
 /**

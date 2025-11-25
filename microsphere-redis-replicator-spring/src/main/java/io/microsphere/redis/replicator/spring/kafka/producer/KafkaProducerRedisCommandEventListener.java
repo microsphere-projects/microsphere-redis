@@ -1,7 +1,7 @@
 package io.microsphere.redis.replicator.spring.kafka.producer;
 
-import io.microsphere.redis.spring.event.RedisCommandEvent;
 import io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration;
+import io.microsphere.redis.spring.event.RedisCommandEvent;
 import io.microsphere.redis.spring.serializer.Serializers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,10 +14,9 @@ import org.springframework.context.event.SmartApplicationListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
-import org.springframework.util.concurrent.ListenableFuture;
-import org.springframework.util.concurrent.ListenableFutureCallback;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -118,21 +117,17 @@ public class KafkaProducerRedisCommandEventListener implements SmartApplicationL
         Integer partition = calcPartition(event);
         // Use a timestamp of the event
         long timestamp = event.getTimestamp();
-        ListenableFuture<SendResult<byte[], byte[]>> future = redisReplicatorKafkaTemplate.send(topic, partition, timestamp, key, value);
-        future.addCallback(new ListenableFutureCallback<SendResult<byte[], byte[]>>() {
 
-            @Override
-            public void onSuccess(SendResult<byte[], byte[]> result) {
+        CompletableFuture<SendResult<byte[], byte[]>> future = redisReplicatorKafkaTemplate.send(topic, partition, timestamp, key, value);
+
+        future.whenComplete((result, failure) -> {
+            if (failure == null) {
                 logger.debug("[Redis-Replicator-Kafka-P-S] Kafka message sending operation succeeds. Topic: {}, key: {}, data size: {} bytes, event: {}",
                         topics, key, value.length, event);
-            }
-
-            @Override
-            public void onFailure(Throwable e) {
+            } else {
                 logger.warn("[Redis-Replicator-Kafka-P-F] Kafka message sending operation failed. Topic: {}, key: {}, data size: {} bytes",
-                        topics, key, value.length, e);
+                        topics, key, value.length, failure);
             }
-
         });
     }
 

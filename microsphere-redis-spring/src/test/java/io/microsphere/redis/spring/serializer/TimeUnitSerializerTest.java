@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @since 1.0.0
  */
-public class TimeUnitSerializerTest extends AbstractSerializerTest<TimeUnit> {
+class TimeUnitSerializerTest extends AbstractSerializerTest<TimeUnit> {
 
     @Override
     protected RedisSerializer<TimeUnit> getSerializer() {

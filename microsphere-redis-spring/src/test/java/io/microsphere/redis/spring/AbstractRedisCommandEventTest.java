@@ -24,13 +24,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.serializer.RedisSerializer;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Abstract {@link RedisCommandEvent} Test
@@ -51,8 +52,7 @@ public abstract class AbstractRedisCommandEventTest extends AbstractRedisTest {
     protected RedisContext redisContext;
 
     @Test
-    public void test() {
-
+    void test() {
         Map<Object, Object> data = new HashMap<>();
         context.addApplicationListener((ApplicationListener<RedisCommandEvent>) event -> {
             RedisSerializer keySerializer = stringRedisTemplate.getKeySerializer();
@@ -81,7 +81,15 @@ public abstract class AbstractRedisCommandEventTest extends AbstractRedisTest {
 
         });
 
-        stringRedisTemplate.opsForValue().set("Key-1", "Value-1");
-        assertEquals("Value-1", data.get("Key-1"));
+        ValueOperations<String, String> valueOperations = stringRedisTemplate.opsForValue();
+
+        String key = "Key-1";
+        String value = "Value-1";
+
+        valueOperations.set(key, value);
+
+        assertEquals(value, valueOperations.get(key));
+
+        assertEquals(value, data.get(key));
     }
 }

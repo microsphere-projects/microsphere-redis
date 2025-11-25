@@ -1,7 +1,6 @@
 package io.microsphere.redis.spring.metadata;
 
 import io.microsphere.redis.spring.event.RedisCommandEvent;
-import org.apache.commons.lang3.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -25,6 +24,8 @@ import org.springframework.data.redis.connection.RedisTxCommands;
 import org.springframework.data.redis.connection.RedisZSetCommands;
 import org.springframework.data.redis.connection.ReturnType;
 import org.springframework.data.redis.connection.SortParameters;
+import org.springframework.data.redis.connection.zset.Aggregate;
+import org.springframework.data.redis.connection.zset.Weights;
 import org.springframework.data.redis.core.types.Expiration;
 import org.springframework.util.ReflectionUtils;
 import org.yaml.snakeyaml.Yaml;
@@ -43,6 +44,7 @@ import static io.microsphere.redis.spring.util.RedisCommandsUtils.buildCommandMe
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.buildParameterMetadata;
 import static io.microsphere.redis.spring.util.RedisConstants.FAIL_FAST_ENABLED;
 import static io.microsphere.redis.spring.util.RedisConstants.FAIL_FAST_ENABLED_PROPERTY_NAME;
+import static io.microsphere.util.ClassUtils.getAllInterfaces;
 import static org.springframework.core.io.support.ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX;
 import static org.springframework.util.ClassUtils.forName;
 import static org.springframework.util.ReflectionUtils.findMethod;
@@ -200,7 +202,7 @@ public class MethodMetadataRepository {
 
     private static void initRedisMethodsAccessible() {
         initRedisMethodsAccessible(RedisConnection.class);
-        List<Class<?>> allInterfaces = ClassUtils.getAllInterfaces(RedisConnection.class);
+        List<Class<?>> allInterfaces = getAllInterfaces(RedisConnection.class);
         for (Class<?> interfaceClass : allInterfaces) {
             initRedisMethodsAccessible(interfaceClass);
         }
@@ -717,7 +719,7 @@ public class MethodMetadataRepository {
          * @see <a href="https://redis.io/commands/zunionstore">Redis Documentation: ZUNIONSTORE</a>
          * TODO Support {@link Aggregate}
          */
-        initWriteCommandMethod(RedisZSetCommands.class, "zUnionStore", byte[].class, RedisZSetCommands.Aggregate.class, int[].class, byte[][].class);
+        initWriteCommandMethod(RedisZSetCommands.class, "zUnionStore", byte[].class, Aggregate.class, int[].class, byte[][].class);
 
         /**
          * zInterStore(byte[], byte[]...)*
@@ -729,14 +731,13 @@ public class MethodMetadataRepository {
          * zInterStore(byte[], Aggregate, int[] weights, byte[]...)
          * @see <a href="https://redis.io/commands/zinterstore">Redis Documentation: ZINTERSTORE</a>
          */
-        initWriteCommandMethod(RedisZSetCommands.class, "zInterStore", byte[].class, RedisZSetCommands.Aggregate.class, int[].class, byte[][].class);
+        initWriteCommandMethod(RedisZSetCommands.class, "zInterStore", byte[].class, Aggregate.class, int[].class, byte[][].class);
 
         /**
-         * zInterStore(byte[], Aggregate, RedisZSetCommands.Weights, byte[]... sets)
+         * zInterStore(byte[], Aggregate, Weights, byte[]... sets)
          * @see <a href="https://redis.io/commands/zinterstore">Redis Documentation: ZINTERSTORE</a>
          */
-        initWriteCommandMethod(RedisZSetCommands.class, "zInterStore", byte[].class, RedisZSetCommands.Aggregate.class, RedisZSetCommands.Weights.class, byte[][].class);
-
+        initWriteCommandMethod(RedisZSetCommands.class, "zInterStore", byte[].class, Aggregate.class, Weights.class, byte[][].class);
     }
 
     /**

@@ -21,14 +21,16 @@ import io.microsphere.redis.spring.event.PropagatingRedisConfigurationPropertyCh
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.ClassUtils;
 
-import static io.microsphere.spring.util.BeanRegistrar.registerBeanDefinition;
+import static io.microsphere.redis.spring.config.RedisConfiguration.BEAN_NAME;
+import static io.microsphere.redis.spring.event.PropagatingRedisConfigurationPropertyChangedEventApplicationListener.ENVIRONMENT_CHANGE_EVENT_CLASS_NAME;
+import static io.microsphere.spring.beans.factory.support.BeanRegistrar.registerBeanDefinition;
 import static org.springframework.beans.factory.support.BeanDefinitionBuilder.genericBeanDefinition;
+import static org.springframework.beans.factory.support.BeanDefinitionReaderUtils.registerWithGeneratedName;
 
 /**
  * {@link RedisConfiguration} {@link BeanDefinition} Registrar
@@ -51,13 +53,13 @@ public class RedisConfigurationBeanDefinitionRegistrar implements ImportBeanDefi
     }
 
     private void registerRedisConfiguration(BeanDefinitionRegistry registry) {
-        registerBeanDefinition(registry, RedisConfiguration.BEAN_NAME, RedisConfiguration.class);
+        registerBeanDefinition(registry, BEAN_NAME, RedisConfiguration.class);
     }
 
     private void registerApplicationListeners(BeanDefinitionRegistry registry) {
-        if (ClassUtils.isPresent(PropagatingRedisConfigurationPropertyChangedEventApplicationListener.ENVIRONMENT_CHANGE_EVENT_CLASS_NAME, classLoader)) {
+        if (ClassUtils.isPresent(ENVIRONMENT_CHANGE_EVENT_CLASS_NAME, classLoader)) {
             AbstractBeanDefinition beanDefinition = genericBeanDefinition(PropagatingRedisConfigurationPropertyChangedEventApplicationListener.class).getBeanDefinition();
-            BeanDefinitionReaderUtils.registerWithGeneratedName(beanDefinition, registry);
+            registerWithGeneratedName(beanDefinition, registry);
         }
     }
 

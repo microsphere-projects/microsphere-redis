@@ -16,22 +16,46 @@
  */
 package io.microsphere.redis.spring;
 
-import io.microsphere.spring.test.redis.EnableRedisTest;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.testcontainers.containers.FixedHostPortGenericContainer;
+import org.testcontainers.junit.jupiter.Testcontainers;
+
+import static org.testcontainers.containers.wait.strategy.Wait.forLogMessage;
 
 /**
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since
  */
 @ExtendWith(SpringExtension.class)
-@EnableRedisTest
 @Disabled
+@Testcontainers(disabledWithoutDocker = true)
 public abstract class AbstractRedisTest {
+
+    private static FixedHostPortGenericContainer<?> redisContainer;
+
+    @BeforeAll
+    static void beforeAll() {
+        redisContainer = new FixedHostPortGenericContainer<>("redis:latest")
+                .withFixedExposedPort(6379, 6379)
+                .waitingFor(forLogMessage(".*Server initialized.*", 1));
+        redisContainer.start();
+    }
+
+    @AfterAll
+    static void afterAll() {
+        redisContainer.stop();
+    }
 
     @Autowired
     protected StringRedisTemplate stringRedisTemplate;
@@ -39,4 +63,25 @@ public abstract class AbstractRedisTest {
     @Autowired
     protected ConfigurableApplicationContext context;
 
+    @Bean
+    public RedisTemplate redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate redisTemplate = new RedisTemplate();
+        redisTemplate.setConnectionFactory(redisConnectionFactory);
+        return redisTemplate;
+    }
+
+    @Bean
+    public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        StringRedisTemplate stringRedisTemplate = new StringRedisTemplate();
+        stringRedisTemplate.setConnectionFactory(redisConnectionFactory);
+        return stringRedisTemplate;
+    }
+
+    @Bean
+    public RedisConnectionFactory redisConnectionFactory() {
+        LettuceConnectionFactory redisConnectionFactory = new LettuceConnectionFactory("127.0.0.1", redisContainer.getMappedPort(6379));
+        redisConnectionFactory.afterPropertiesSet();
+        redisConnectionFactory.validateConnection();
+        return redisConnectionFactory;
+    }
 }

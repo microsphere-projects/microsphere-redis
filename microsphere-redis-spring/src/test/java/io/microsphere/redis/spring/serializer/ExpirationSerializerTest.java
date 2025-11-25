@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @since 1.0.0
  */
-public class ExpirationSerializerTest extends AbstractSerializerTest<Expiration> {
+class ExpirationSerializerTest extends AbstractSerializerTest<Expiration> {
 
     @Override
     protected RedisSerializer<Expiration> getSerializer() {

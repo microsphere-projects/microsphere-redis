@@ -36,7 +36,7 @@ import org.springframework.test.context.TestPropertySource;
 @EnableRedisInterceptor(wrapRedisTemplates = {
         "stringRedisTemplate"
 })
-public class WrapperProcessorTest extends AbstractRedisCommandEventTest {
+class WrapperProcessorTest extends AbstractRedisCommandEventTest {
 
     @Bean
     public WrapperProcessor<StringRedisTemplateWrapper> redisTemplateWrapperProcessor() {

@@ -16,9 +16,9 @@
  */
 package io.microsphere.redis.replicator.spring;
 
-import io.microsphere.redis.spring.context.RedisInitializer;
 import io.microsphere.redis.replicator.spring.event.RedisCommandReplicatedEvent;
 import io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration;
+import io.microsphere.redis.spring.context.RedisInitializer;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationListener;
 import org.springframework.test.context.ContextConfiguration;

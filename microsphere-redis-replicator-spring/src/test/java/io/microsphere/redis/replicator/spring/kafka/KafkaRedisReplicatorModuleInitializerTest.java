@@ -16,11 +16,11 @@
  */
 package io.microsphere.redis.replicator.spring.kafka;
 
-import io.microsphere.redis.spring.context.RedisInitializer;
-import io.microsphere.redis.spring.event.RedisCommandEvent;
 import io.microsphere.redis.replicator.spring.AbstractRedisReplicatorTest;
 import io.microsphere.redis.replicator.spring.event.RedisCommandReplicatedEvent;
 import io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration;
+import io.microsphere.redis.spring.context.RedisInitializer;
+import io.microsphere.redis.spring.event.RedisCommandEvent;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationListener;
 import org.springframework.data.redis.serializer.RedisSerializer;
@@ -31,8 +31,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * {@link KafkaRedisReplicatorModuleInitializer} Test

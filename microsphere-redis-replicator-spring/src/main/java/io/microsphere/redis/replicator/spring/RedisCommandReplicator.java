@@ -1,7 +1,7 @@
 package io.microsphere.redis.replicator.spring;
 
-import io.microsphere.redis.spring.event.RedisCommandEvent;
 import io.microsphere.redis.replicator.spring.event.RedisCommandReplicatedEvent;
+import io.microsphere.redis.spring.event.RedisCommandEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;

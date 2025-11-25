@@ -40,8 +40,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static io.microsphere.spring.util.BeanUtils.getBeanNames;
-import static io.microsphere.spring.util.BeanUtils.getSortedBeans;
+import static io.microsphere.spring.beans.BeanUtils.getBeanNames;
+import static io.microsphere.spring.beans.BeanUtils.getSortedBeans;
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableSet;
 
@@ -182,7 +182,6 @@ public class RedisContext implements SmartInitializingSingleton, ApplicationCont
         logger.debug("The all bean names of RedisConnectionFactory : {}", redisConnectionFactoryBeanNames);
         return unmodifiableSet(new HashSet<>(redisConnectionFactoryBeanNames));
     }
-
 
     public static List<RedisCommandInterceptor> findRedisCommandInterceptors(ListableBeanFactory beanFactory) {
         return getSortedBeans(beanFactory, RedisCommandInterceptor.class);

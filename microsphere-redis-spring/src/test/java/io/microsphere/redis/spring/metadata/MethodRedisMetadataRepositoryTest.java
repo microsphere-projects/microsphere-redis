@@ -16,8 +16,7 @@
  */
 package io.microsphere.redis.spring.metadata;
 
-import org.apache.commons.lang3.ClassUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.redis.connection.RedisCommands;
@@ -33,7 +32,9 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.TreeSet;
 
-import static org.junit.Assert.assertEquals;
+import static io.microsphere.redis.spring.metadata.MethodMetadataRepository.init;
+import static io.microsphere.util.ClassUtils.getAllInterfaces;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * {@link MethodMetadataRepository} Test
@@ -41,15 +42,15 @@ import static org.junit.Assert.assertEquals;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
-public class MethodRedisMetadataRepositoryTest {
+class MethodRedisMetadataRepositoryTest {
 
     @Test
-    public void testInit() {
-        MethodMetadataRepository.init();
+    void testInit() {
+        init();
     }
 
     @Test
-    public void testTypes() {
+    void testTypes() {
         Set<Type> types = new TreeSet<>(Comparator.comparing(Type::getTypeName));
 
         for (Method method : MethodMetadataRepository.getWriteCommandMethods()) {
@@ -68,7 +69,7 @@ public class MethodRedisMetadataRepositoryTest {
     }
 
     @Test
-    public void testWriteMethods() throws Throwable {
+    void testWriteMethods() throws Throwable {
         Resource resource = new ClassPathResource("/META-INF/redis-metadata.yaml");
 
         Yaml yaml = new Yaml();
@@ -84,8 +85,8 @@ public class MethodRedisMetadataRepositoryTest {
     }
 
     @Test
-    public void testMethods() {
-        for (Class interfaceClass : ClassUtils.getAllInterfaces(RedisCommands.class)) {
+    void testMethods() {
+        for (Class interfaceClass : getAllInterfaces(RedisCommands.class)) {
             for (Method method : interfaceClass.getMethods()) {
                 String interfaceName = interfaceClass.getName();
                 String methodName = method.getName();

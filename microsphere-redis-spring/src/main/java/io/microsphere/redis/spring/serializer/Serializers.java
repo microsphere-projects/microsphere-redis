@@ -13,6 +13,8 @@ import org.springframework.data.redis.connection.RedisStringCommands;
 import org.springframework.data.redis.connection.RedisZSetCommands;
 import org.springframework.data.redis.connection.ReturnType;
 import org.springframework.data.redis.connection.SortParameters;
+import org.springframework.data.redis.connection.zset.Aggregate;
+import org.springframework.data.redis.connection.zset.Weights;
 import org.springframework.data.redis.core.types.Expiration;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
@@ -246,11 +248,11 @@ public abstract class Serializers {
         // org.springframework.data.redis.connection.RedisZSetCommands.Range type 
         register(RedisZSetCommands.Range.class, RangeSerializer.INSTANCE);
 
-        // org.springframework.data.redis.connection.RedisZSetCommands.Aggregate
-        register(RedisZSetCommands.Aggregate.class, new EnumSerializer(RedisZSetCommands.Aggregate.class));
+        // org.springframework.data.redis.connection.zset.Aggregate
+        register(Aggregate.class, new EnumSerializer(Aggregate.class));
 
-        // org.springframework.data.redis.connection.RedisZSetCommands.Weights type 
-        register(RedisZSetCommands.Weights.class, WeightsSerializer.INSTANCE);
+        // org.springframework.data.redis.connection.zset.Weights type 
+        register(Weights.class, WeightsSerializer.INSTANCE);
 
         // org.springframework.data.redis.connection.ReturnType type 
         register(ReturnType.class, new EnumSerializer(ReturnType.class));

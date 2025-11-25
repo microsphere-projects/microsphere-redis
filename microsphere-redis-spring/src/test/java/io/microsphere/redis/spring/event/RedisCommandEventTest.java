@@ -32,5 +32,5 @@ import org.springframework.test.context.TestPropertySource;
         "microsphere.redis.enabled=true"
 })
 @EnableRedisInterceptor
-public class RedisCommandEventTest extends AbstractRedisCommandEventTest {
+class RedisCommandEventTest extends AbstractRedisCommandEventTest {
 }

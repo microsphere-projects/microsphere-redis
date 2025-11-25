@@ -14,7 +14,7 @@ import java.util.StringJoiner;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @since 1.0.0
  */
-public class SortParametersSerializerTest extends AbstractSerializerTest<SortParameters> {
+class SortParametersSerializerTest extends AbstractSerializerTest<SortParameters> {
 
     @Override
     protected RedisSerializer<SortParameters> getSerializer() {

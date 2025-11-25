@@ -8,7 +8,7 @@ import org.springframework.data.redis.serializer.RedisSerializer;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @since 1.0.0
  */
-public class DoubleSerializerTest extends AbstractSerializerTest<Double> {
+class DoubleSerializerTest extends AbstractSerializerTest<Double> {
 
     @Override
     protected RedisSerializer<Double> getSerializer() {

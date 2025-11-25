@@ -24,9 +24,9 @@ import org.springframework.core.env.Environment;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * {@link EnableRedisConfiguration} Test
@@ -38,7 +38,7 @@ import static org.junit.Assert.assertTrue;
 @ContextConfiguration(classes = EnableRedisConfigurationTest.class)
 @TestPropertySource(properties = {"microsphere.redis.enabled=true", "spring.application.name=test-app"})
 @EnableRedisConfiguration
-public class EnableRedisConfigurationTest extends AbstractRedisTest {
+class EnableRedisConfigurationTest extends AbstractRedisTest {
 
     @Autowired
     private RedisConfiguration redisConfiguration;
@@ -47,7 +47,7 @@ public class EnableRedisConfigurationTest extends AbstractRedisTest {
     private Environment environment;
 
     @Test
-    public void test() throws Throwable {
+    void test() throws Throwable {
         assertSame(environment, redisConfiguration.getEnvironment());
         assertEquals("test-app", redisConfiguration.getApplicationName());
         assertTrue(redisConfiguration.isEnabled());

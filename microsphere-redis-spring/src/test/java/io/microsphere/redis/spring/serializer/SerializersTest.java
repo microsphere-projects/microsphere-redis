@@ -1,6 +1,6 @@
 package io.microsphere.redis.spring.serializer;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.data.geo.Point;
 import org.springframework.data.redis.connection.RedisGeoCommands;
 import org.springframework.data.redis.connection.RedisListCommands;
@@ -8,6 +8,8 @@ import org.springframework.data.redis.connection.RedisStringCommands;
 import org.springframework.data.redis.connection.RedisZSetCommands;
 import org.springframework.data.redis.connection.ReturnType;
 import org.springframework.data.redis.connection.SortParameters;
+import org.springframework.data.redis.connection.zset.Aggregate;
+import org.springframework.data.redis.connection.zset.Weights;
 import org.springframework.data.redis.core.types.Expiration;
 import org.springframework.data.redis.serializer.RedisSerializer;
 
@@ -18,9 +20,9 @@ import java.util.concurrent.TimeUnit;
 import static io.microsphere.redis.spring.serializer.Serializers.defaultSerializer;
 import static io.microsphere.redis.spring.serializer.Serializers.getSerializer;
 import static io.microsphere.redis.spring.serializer.Serializers.stringSerializer;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * {@link Serializers} Test
@@ -28,15 +30,15 @@ import static org.junit.Assert.assertNull;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @since 1.0.0
  */
-public class SerializersTest {
+class SerializersTest {
 
     @Test
-    public void testTypedSerializers() {
+    void testTypedSerializers() {
         assertFalse(Serializers.typedSerializers.isEmpty());
     }
 
     @Test
-    public void testGetSerializer() {
+    void testGetSerializer() {
 
         RedisSerializer serializer = getSerializer(Expiration.class);
         assertEquals(ExpirationSerializer.class, serializer.getClass());
@@ -49,7 +51,7 @@ public class SerializersTest {
     }
 
     @Test
-    public void testGetSimpleSerializers() {
+    void testGetSimpleSerializers() {
         // boolean 或 Boolean 类型
         assertEquals(getSerializer(boolean.class), BooleanSerializer.INSTANCE);
         assertEquals(getSerializer(Boolean.class), BooleanSerializer.INSTANCE);
@@ -71,7 +73,7 @@ public class SerializersTest {
     }
 
     @Test
-    public void testGetArrayTypeSerializers() {
+    void testGetArrayTypeSerializers() {
         // byte[] 类型
         assertEquals(getSerializer(byte[][].class), defaultSerializer);
 
@@ -83,7 +85,7 @@ public class SerializersTest {
     }
 
     @Test
-    public void testGetCollectionTypeSerializers() {
+    void testGetCollectionTypeSerializers() {
         // Iterable 类型
         assertEquals(getSerializer(Iterable.class), defaultSerializer);
 
@@ -107,12 +109,12 @@ public class SerializersTest {
     }
 
     @Test
-    public void testGetEnumerationSerializers() {
+    void testGetEnumerationSerializers() {
         assertEquals(getSerializer(TimeUnit.class), new EnumSerializer(TimeUnit.class));
     }
 
     @Test
-    public void testGetSpringDataRedisSerializers() {
+    void testGetSpringDataRedisSerializers() {
 
         // org.springframework.data.redis.core.types.Expiration 类型
         assertEquals(getSerializer(Expiration.class), ExpirationSerializer.INSTANCE);
@@ -129,11 +131,11 @@ public class SerializersTest {
         // org.springframework.data.redis.connection.RedisZSetCommands.Range 类型
         assertEquals(getSerializer(RedisZSetCommands.Range.class), RangeSerializer.INSTANCE);
 
-        // org.springframework.data.redis.connection.RedisZSetCommands.Aggregate
-        assertEquals(getSerializer(RedisZSetCommands.Aggregate.class), new EnumSerializer(RedisZSetCommands.Aggregate.class));
+        // org.springframework.data.redis.connection.zset.Aggregate
+        assertEquals(getSerializer(Aggregate.class), new EnumSerializer(Aggregate.class));
 
-        // org.springframework.data.redis.connection.RedisZSetCommands.Weights 类型
-        assertEquals(getSerializer(RedisZSetCommands.Weights.class), WeightsSerializer.INSTANCE);
+        // org.springframework.data.redis.connection.zset.Weights 类型
+        assertEquals(getSerializer(Weights.class), WeightsSerializer.INSTANCE);
 
         // org.springframework.data.redis.connection.ReturnType 类型
         assertEquals(getSerializer(ReturnType.class), new EnumSerializer(ReturnType.class));

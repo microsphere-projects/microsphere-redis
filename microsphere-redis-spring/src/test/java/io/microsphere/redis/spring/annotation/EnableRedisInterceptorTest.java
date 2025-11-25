@@ -41,5 +41,5 @@ import org.springframework.test.context.TestPropertySource;
         "${microsphere.redis.wrapped-rest-templates}",
         " redisTemplate , stringRedisTemplate"
 })
-public class EnableRedisInterceptorTest extends AbstractRedisCommandEventTest {
+class EnableRedisInterceptorTest extends AbstractRedisCommandEventTest {
 }
