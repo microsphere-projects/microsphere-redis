@@ -16,8 +16,6 @@
  */
 package io.microsphere.redis.spring;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +27,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.testcontainers.containers.FixedHostPortGenericContainer;
+import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.testcontainers.containers.wait.strategy.Wait.forLogMessage;
@@ -42,20 +41,10 @@ import static org.testcontainers.containers.wait.strategy.Wait.forLogMessage;
 @Testcontainers(disabledWithoutDocker = true)
 public abstract class AbstractRedisTest {
 
-    private static FixedHostPortGenericContainer<?> redisContainer;
-
-    @BeforeAll
-    static void beforeAll() {
-        redisContainer = new FixedHostPortGenericContainer<>("redis:latest")
-                .withFixedExposedPort(6379, 6379)
-                .waitingFor(forLogMessage(".*Server initialized.*", 1));
-        redisContainer.start();
-    }
-
-    @AfterAll
-    static void afterAll() {
-        redisContainer.stop();
-    }
+    @Container
+    private static FixedHostPortGenericContainer<?> redisContainer = new FixedHostPortGenericContainer<>("redis:latest")
+            .withFixedExposedPort(6379, 6379)
+            .waitingFor(forLogMessage(".*Server initialized.*", 1));
 
     @Autowired
     protected StringRedisTemplate stringRedisTemplate;
