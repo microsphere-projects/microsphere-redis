@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 /**
  * {@link RedisCommandReplicator} Test
  *
@@ -56,8 +58,7 @@ public class RedisCommandReplicatorTest extends AbstractRedisReplicatorTest {
             latch.countDown();
         });
 
-
         stringRedisTemplate.opsForValue().set("Key-1", "Value-1");
-        latch.await();
+        latch.await(10, SECONDS);
     }
 }
