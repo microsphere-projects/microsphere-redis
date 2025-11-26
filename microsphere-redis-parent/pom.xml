@@ -22,6 +22,7 @@
         <microsphere-spring-cloud.version>0.0.1</microsphere-spring-cloud.version>
         <jandex.version>3.1.7</jandex.version>
         <testcontainers.version>1.19.5</testcontainers.version>
+        <jmh.version>1.37</jmh.version>
     </properties>
 
     <dependencyManagement>
@@ -50,6 +51,16 @@
                 <version>${testcontainers.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.openjdk.jmh</groupId>
+                <artifactId>jmh-core</artifactId>
+                <version>${jmh.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjdk.jmh</groupId>
+                <artifactId>jmh-generator-annprocess</artifactId>
+                <version>${jmh.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
