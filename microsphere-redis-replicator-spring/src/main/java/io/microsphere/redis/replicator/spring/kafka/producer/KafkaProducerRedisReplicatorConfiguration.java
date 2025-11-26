@@ -5,6 +5,9 @@ import io.microsphere.redis.replicator.spring.kafka.KafkaRedisReplicatorConfigur
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
@@ -23,15 +26,15 @@ import static org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CON
  * @see RedisReplicatorInitializer
  * @since 1.0.0
  */
-public class KafkaProducerRedisReplicatorConfiguration extends KafkaRedisReplicatorConfiguration {
+public class KafkaProducerRedisReplicatorConfiguration extends KafkaRedisReplicatorConfiguration implements ApplicationContextAware {
 
     private static final Logger logger = LoggerFactory.getLogger(KafkaProducerRedisReplicatorConfiguration.class);
 
     public static final String KAFKA_PRODUCER_PROPERTY_NAME_PREFIX = KAFKA_PROPERTY_NAME_PREFIX + "producer.";
 
     public static final String KAFKA_PRODUCER_KEY_PREFIX_PROPERTY_NAME = KAFKA_PROPERTY_NAME_PREFIX + "key-prefix";
-    public static final String DEFAULT_KAFKA_PRODUCER_KEY_PREFIX = "RPE-";
 
+    public static final String DEFAULT_KAFKA_PRODUCER_KEY_PREFIX = "RPE-";
 
     /**
      * Key Prefix
@@ -41,6 +44,8 @@ public class KafkaProducerRedisReplicatorConfiguration extends KafkaRedisReplica
     private Map<String, Object> producerConfigs;
 
     private KafkaTemplate<byte[], byte[]> redisReplicatorKafkaTemplate;
+
+    private ApplicationContext context;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -65,7 +70,10 @@ public class KafkaProducerRedisReplicatorConfiguration extends KafkaRedisReplica
     }
 
     private void initRedisReplicatorKafkaTemplate() {
-        redisReplicatorKafkaTemplate = new KafkaTemplate<>(redisReplicatorProducerFactory());
+        this.redisReplicatorKafkaTemplate = new KafkaTemplate<>(redisReplicatorProducerFactory());
+        this.redisReplicatorKafkaTemplate.setObservationEnabled(true);
+        this.redisReplicatorKafkaTemplate.setApplicationContext(context);
+        this.redisReplicatorKafkaTemplate.afterSingletonsInstantiated();
     }
 
     /**
@@ -98,6 +106,11 @@ public class KafkaProducerRedisReplicatorConfiguration extends KafkaRedisReplica
 
     private Map<String, Object> getRedisReplicatorProducerConfigs() {
         return producerConfigs;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.context = applicationContext;
     }
 
     @Override

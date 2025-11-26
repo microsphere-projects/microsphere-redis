@@ -1,5 +1,6 @@
 package io.microsphere.redis.spring.metadata;
 
+import io.microsphere.annotation.Nullable;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
 import io.microsphere.redis.spring.util.RedisCommandsUtils;
 import org.slf4j.Logger;
@@ -21,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
+import static io.microsphere.collection.MapUtils.newFixedHashMap;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.buildCommandMethodId;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.buildParameterMetadata;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.loadParameterClasses;
@@ -97,7 +99,7 @@ public class RedisMetadataRepository {
     private static Map<String, Class<?>> initRedisCommandInterfacesCache() {
         List<Class<?>> redisCommandInterfaceClasses = getAllInterfaces(RedisCommands.class);
         int size = redisCommandInterfaceClasses.size();
-        Map<String, Class<?>> redisCommandInterfacesCache = new HashMap<>(size);
+        Map<String, Class<?>> redisCommandInterfacesCache = newFixedHashMap(size);
         for (int i = 0; i < size; i++) {
             Class<?> redisCommandInterfaceClass = redisCommandInterfaceClasses.get(i);
             String interfaceName = redisCommandInterfaceClass.getName();
@@ -152,7 +154,14 @@ public class RedisMetadataRepository {
             // Put id and Method as key
             if (redisMetadataCache.put(id, redisCommandMethod) == null && redisMetadataCache.put(redisCommandMethod, methodMetadata) == null) {
                 if (methodMetadata.isWrite()) {
-                    initWriteCommandMethod(redisCommandMethod);
+                    Class<?>[] parameterTypes = redisCommandMethod.getParameterTypes();
+                    initWriteCommandMethod(redisCommandMethod, parameterTypes);
+
+                    Method overriddenMethod = findOverriddenMethod(redisCommandMethod, parameterTypes);
+                    if (overriddenMethod != null) {
+                        redisMetadataCache.put(overriddenMethod, methodMetadata);
+                        initWriteCommandMethod(overriddenMethod, parameterTypes);
+                    }
                 }
             } else {
                 throw new IllegalStateException("Duplicated Redis Command Method was found, " + methodMetadata);
@@ -266,20 +275,19 @@ public class RedisMetadataRepository {
         if (redisCommandInterfaceClass.equals(returnType) && redisCommandMethod.getParameterCount() < 1) {
             String interfaceName = redisCommandInterfaceClass.getName();
             redisCommandBindings.put(interfaceName, redisConnection -> invokeMethod(redisCommandMethod, redisConnection));
-            logger.debug("Redis command interface {} Bind RedisConnection command object method {}", interfaceName, redisCommandMethod);
+            logger.debug("Redis command interface '{}' Bind RedisConnection command method['{}']", interfaceName, redisCommandMethod);
         }
     }
 
-    private static void initWriteCommandMethod(Method method) {
+    private static void initWriteCommandMethod(Method method, Class<?>[] parameterTypes) {
         try {
-            Class<?>[] parameterTypes = method.getParameterTypes();
             // Reduced Method runtime checks
             trySetAccessible(method);
             if (initWriteCommandMethodParameterMetadata(method, parameterTypes)) {
                 initWriteCommandMethodCache(method, parameterTypes);
             }
         } catch (Throwable e) {
-            logger.error("Unable to initialize write command method[{}], Reason: {}", method, e.getMessage());
+            logger.error("Unable to initialize write command method['{}'], Reason: {}", method, e.getMessage());
             if (FAIL_FAST_ENABLED) {
                 logger.error("Fail-Fast mode is activated and an exception is about to be thrown. You can disable Fail-Fast mode with the JVM startup parameter -D{}=false", FAIL_FAST_ENABLED_PROPERTY_NAME);
                 throw new IllegalArgumentException(e);
@@ -294,12 +302,8 @@ public class RedisMetadataRepository {
         List<ParameterMetadata> parameterMetadataList = buildParameterMetadata(method, parameterTypes);
         writeCommandMethodsMetadata.put(method, parameterMetadataList);
 
-        // The class DefaultedRedisConnection overrides the methods of RedisCommands and its' sub interfaces
-        Method overriddenMethod = findMethod(DEFAULTED_REDIS_CONNECTION_CLASS, method.getName(), parameterTypes);
-        writeCommandMethodsMetadata.put(overriddenMethod, parameterMetadataList);
-
-        logger.debug("Caches the Redis Write Command Method[declared : '{}' , overridden : '{}'] Parameter Metadata : {}",
-                method, overriddenMethod, parameterMetadataList);
+        logger.debug("Caches the Redis Write Command Method['{}'] Parameter Metadata : {}",
+                method, parameterMetadataList);
         return true;
     }
 
@@ -313,4 +317,18 @@ public class RedisMetadataRepository {
         }
     }
 
+    /**
+     * Find the overridden method.
+     * <p>
+     * The class DefaultedRedisConnection overrides the methods of RedisCommands and its' sub interfaces
+     *
+     * @param method         {@link Method}
+     * @param parameterTypes the types of parameters
+     * @return <code>null</code> if not found
+     * @see org.springframework.data.redis.connection.DefaultedRedisConnection
+     */
+    @Nullable
+    private static Method findOverriddenMethod(Method method, Class<?>[] parameterTypes) {
+        return findMethod(DEFAULTED_REDIS_CONNECTION_CLASS, method.getName(), parameterTypes);
+    }
 }

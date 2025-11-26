@@ -30,6 +30,8 @@ import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.findMethodIndex;
+import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.findRedisCommandMethod;
 import static io.microsphere.redis.spring.serializer.RedisCommandEventSerializer.VersionedRedisSerializer.valueOf;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.resolveInterfaceName;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.resolveSimpleInterfaceName;
@@ -142,7 +144,7 @@ public class RedisCommandEventSerializer extends AbstractSerializer<RedisCommand
             @Override
             protected void writeMethodMetadata(RedisCommandEvent redisCommandEvent, OutputStream outputStream) throws IOException {
                 Method redisCommandMethod = redisCommandEvent.getMethod();
-                short methodIndex = RedisMetadataRepository.findMethodIndex(redisCommandMethod);
+                short methodIndex = findMethodIndex(redisCommandMethod);
                 byte[] bytes = serializer.serialize(methodIndex);
                 outputStream.write(bytes);
             }
@@ -153,7 +155,7 @@ public class RedisCommandEventSerializer extends AbstractSerializer<RedisCommand
                 byte[] bytes = new byte[bytesLength];
                 inputStream.read(bytes);
                 short methodIndex = serializer.deserialize(bytes);
-                Method redisCommandMethod = RedisMetadataRepository.findRedisCommandMethod(methodIndex);
+                Method redisCommandMethod = findRedisCommandMethod(methodIndex);
                 builder.method(redisCommandMethod);
             }
         };

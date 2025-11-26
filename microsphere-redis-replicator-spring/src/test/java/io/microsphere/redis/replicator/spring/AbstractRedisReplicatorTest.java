@@ -16,16 +16,19 @@
  */
 package io.microsphere.redis.replicator.spring;
 
-import io.microsphere.spring.test.redis.EnableRedisTest;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
  * Abstract Redis Replicator Test
@@ -35,20 +38,30 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
  */
 @ExtendWith(SpringExtension.class)
 @DirtiesContext
-@EnableRedisTest
-@EmbeddedKafka(
-        ports = 9092,
-        topics = "redis-replicator-event-topic-default",
-        brokerProperties = {
-                "listeners = PLAINTEXT://127.0.0.1:9092",
-                "auto.create.topics.enable = true"
-        }
-)
 @TestPropertySource(properties = {
         "spring.kafka.bootstrap-servers=127.0.0.1:9092"
 })
 @Disabled
+@Testcontainers(disabledWithoutDocker = true)
 public abstract class AbstractRedisReplicatorTest {
+
+//    private static ComposeContainer composeContainer;
+//
+//    @BeforeAll
+//    static void beforeAll() throws Exception {
+//        ClassLoader classLoader = AbstractRedisReplicatorTest.class.getClassLoader();
+//        URL resource = classLoader.getResource("META-INF/docker/servers.yml");
+//        File dockerComposeFile = new File(resource.toURI());
+//        composeContainer = new ComposeContainer(dockerComposeFile);
+//        composeContainer.waitingFor("kafka", forLogMessage(".*Awaiting socket connections.*", 1))
+//                .waitingFor("redis", forLogMessage(".*Server initialized.*", 1))
+//                .start();
+//    }
+//
+//    @AfterAll
+//    static void afterAll() {
+//        composeContainer.stop();
+//    }
 
     @Autowired
     protected ConfigurableApplicationContext context;
@@ -56,4 +69,25 @@ public abstract class AbstractRedisReplicatorTest {
     @Autowired
     protected StringRedisTemplate stringRedisTemplate;
 
+    @Bean
+    public static RedisTemplate redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate redisTemplate = new RedisTemplate();
+        redisTemplate.setConnectionFactory(redisConnectionFactory);
+        return redisTemplate;
+    }
+
+    @Bean
+    public static StringRedisTemplate stringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        StringRedisTemplate stringRedisTemplate = new StringRedisTemplate();
+        stringRedisTemplate.setConnectionFactory(redisConnectionFactory);
+        return stringRedisTemplate;
+    }
+
+    @Bean
+    public static RedisConnectionFactory redisConnectionFactory() {
+        LettuceConnectionFactory redisConnectionFactory = new LettuceConnectionFactory("127.0.0.1", 6379);
+        redisConnectionFactory.afterPropertiesSet();
+        redisConnectionFactory.validateConnection();
+        return redisConnectionFactory;
+    }
 }

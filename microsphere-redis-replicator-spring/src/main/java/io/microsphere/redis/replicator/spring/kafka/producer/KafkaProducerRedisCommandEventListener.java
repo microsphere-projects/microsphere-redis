@@ -2,7 +2,6 @@ package io.microsphere.redis.replicator.spring.kafka.producer;
 
 import io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
-import io.microsphere.redis.spring.serializer.Serializers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -18,7 +17,9 @@ import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+
+import static io.microsphere.redis.spring.serializer.Serializers.serialize;
+import static java.util.concurrent.Executors.newFixedThreadPool;
 
 /**
  * {@link ApplicationListener} listens to {@link RedisCommandEvent} implementation -
@@ -39,12 +40,7 @@ public class KafkaProducerRedisCommandEventListener implements SmartApplicationL
 
     private KafkaProducerRedisReplicatorConfiguration kafkaProducerRedisReplicatorConfiguration;
 
-    private String[] topics;
-
-    private String keyPrefix;
-
     private ExecutorService executor;
-
 
     @Override
     public boolean supportsEventType(Class<? extends ApplicationEvent> eventType) {
@@ -67,7 +63,6 @@ public class KafkaProducerRedisCommandEventListener implements SmartApplicationL
         initRedisReplicatorConfiguration(context);
         initRedisReplicatorKafkaProducerConfiguration(context);
         initRedisReplicatorKafkaTemplate(kafkaProducerRedisReplicatorConfiguration);
-        initKeyPrefix(kafkaProducerRedisReplicatorConfiguration);
         initExecutor();
     }
 
@@ -87,14 +82,10 @@ public class KafkaProducerRedisCommandEventListener implements SmartApplicationL
         this.redisReplicatorKafkaTemplate = kafkaProducerRedisReplicatorConfiguration.getRedisReplicatorKafkaTemplate();
     }
 
-    private void initKeyPrefix(KafkaProducerRedisReplicatorConfiguration kafkaProducerRedisReplicatorConfiguration) {
-        this.keyPrefix = kafkaProducerRedisReplicatorConfiguration.getKeyPrefix();
-    }
-
     private void initExecutor() {
         List<String> domains = redisReplicatorConfiguration.getDomains();
         int size = domains.size();
-        this.executor = Executors.newFixedThreadPool(size, new CustomizableThreadFactory(domains.toString()));
+        this.executor = newFixedThreadPool(size, new CustomizableThreadFactory(domains.toString()));
     }
 
     private void onRedisCommandEvent(RedisCommandEvent event) {
@@ -113,7 +104,7 @@ public class KafkaProducerRedisCommandEventListener implements SmartApplicationL
         String topic = kafkaProducerRedisReplicatorConfiguration.createTopic(domain);
         // Almost all RedisCommands interface methods take the first argument as Key
         byte[] key = generateKafkaKey(event);
-        byte[] value = Serializers.serialize(event);
+        byte[] value = serialize(event);
         Integer partition = calcPartition(event);
         // Use a timestamp of the event
         long timestamp = event.getTimestamp();
@@ -122,11 +113,11 @@ public class KafkaProducerRedisCommandEventListener implements SmartApplicationL
 
         future.whenComplete((result, failure) -> {
             if (failure == null) {
-                logger.debug("[Redis-Replicator-Kafka-P-S] Kafka message sending operation succeeds. Topic: {}, key: {}, data size: {} bytes, event: {}",
-                        topics, key, value.length, event);
+                logger.debug("[Redis-Replicator-Kafka-P-S] Kafka message sending operation succeeds. Topic: '{}', key: '{}', data size: {} bytes, event: {}",
+                        topic, key, value.length, event);
             } else {
-                logger.warn("[Redis-Replicator-Kafka-P-F] Kafka message sending operation failed. Topic: {}, key: {}, data size: {} bytes",
-                        topics, key, value.length, failure);
+                logger.warn("[Redis-Replicator-Kafka-P-F] Kafka message sending operation failed. Topic: '{}', key: '{}', data size: {} bytes",
+                        topic, key, value.length, failure);
             }
         });
     }
