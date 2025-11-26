@@ -26,25 +26,16 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.testcontainers.containers.FixedHostPortGenericContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-
-import static org.testcontainers.containers.wait.strategy.Wait.forLogMessage;
 
 /**
+ * Abstract Redis Test
+ *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
- * @since
+ * @since 1.0.0
  */
 @ExtendWith(SpringExtension.class)
 @Disabled
-@Testcontainers(disabledWithoutDocker = true)
 public abstract class AbstractRedisTest {
-
-    @Container
-    private static FixedHostPortGenericContainer<?> redisContainer = new FixedHostPortGenericContainer<>("redis:latest")
-            .withFixedExposedPort(6379, 6379)
-            .waitingFor(forLogMessage(".*Server initialized.*", 1));
 
     @Autowired
     protected StringRedisTemplate stringRedisTemplate;
@@ -53,22 +44,22 @@ public abstract class AbstractRedisTest {
     protected ConfigurableApplicationContext context;
 
     @Bean
-    public RedisTemplate redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+    public static RedisTemplate redisTemplate(RedisConnectionFactory redisConnectionFactory) {
         RedisTemplate redisTemplate = new RedisTemplate();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
         return redisTemplate;
     }
 
     @Bean
-    public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+    public static StringRedisTemplate stringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
         StringRedisTemplate stringRedisTemplate = new StringRedisTemplate();
         stringRedisTemplate.setConnectionFactory(redisConnectionFactory);
         return stringRedisTemplate;
     }
 
     @Bean
-    public RedisConnectionFactory redisConnectionFactory() {
-        LettuceConnectionFactory redisConnectionFactory = new LettuceConnectionFactory("127.0.0.1", redisContainer.getMappedPort(6379));
+    public static RedisConnectionFactory redisConnectionFactory() {
+        LettuceConnectionFactory redisConnectionFactory = new LettuceConnectionFactory("127.0.0.1", 6379);
         redisConnectionFactory.afterPropertiesSet();
         redisConnectionFactory.validateConnection();
         return redisConnectionFactory;

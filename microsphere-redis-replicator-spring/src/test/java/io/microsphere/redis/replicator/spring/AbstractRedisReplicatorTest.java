@@ -28,13 +28,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.testcontainers.containers.ComposeContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-
-import java.io.File;
-
-import static org.testcontainers.containers.wait.strategy.Wait.forLogMessage;
 
 /**
  * Abstract Redis Replicator Test
@@ -48,13 +41,7 @@ import static org.testcontainers.containers.wait.strategy.Wait.forLogMessage;
         "spring.kafka.bootstrap-servers=127.0.0.1:9092"
 })
 @Disabled
-@Testcontainers(disabledWithoutDocker = true)
 public abstract class AbstractRedisReplicatorTest {
-
-    @Container
-    private static ComposeContainer composeContainer = new ComposeContainer(new File("src/test/resources/META-INF/docker/servers.yml"))
-            .waitingFor("kafka", forLogMessage(".*Awaiting socket connections.*", 1))
-            .waitingFor("redis", forLogMessage(".*Server initialized.*", 1));
 
     @Autowired
     protected ConfigurableApplicationContext context;
