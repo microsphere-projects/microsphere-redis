@@ -16,8 +16,6 @@
  */
 package io.microsphere.redis.replicator.spring;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,10 +29,10 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.testcontainers.containers.ComposeContainer;
+import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.io.File;
-import java.net.URL;
 
 import static org.testcontainers.containers.wait.strategy.Wait.forLogMessage;
 
@@ -53,23 +51,10 @@ import static org.testcontainers.containers.wait.strategy.Wait.forLogMessage;
 @Testcontainers(disabledWithoutDocker = true)
 public abstract class AbstractRedisReplicatorTest {
 
-    private static ComposeContainer composeContainer;
-
-    @BeforeAll
-    static void beforeAll() throws Exception {
-        ClassLoader classLoader = AbstractRedisReplicatorTest.class.getClassLoader();
-        URL resource = classLoader.getResource("META-INF/docker/servers.yml");
-        File dockerComposeFile = new File(resource.toURI());
-        composeContainer = new ComposeContainer(dockerComposeFile);
-        composeContainer.waitingFor("kafka", forLogMessage(".*Awaiting socket connections.*", 1))
-                .waitingFor("redis", forLogMessage(".*Server initialized.*", 1))
-                .start();
-    }
-
-    @AfterAll
-    static void afterAll() {
-        composeContainer.stop();
-    }
+    @Container
+    private static ComposeContainer composeContainer = new ComposeContainer(new File("src/test/resources/META-INF/docker/servers.yml"))
+            .waitingFor("kafka", forLogMessage(".*Awaiting socket connections.*", 1))
+            .waitingFor("redis", forLogMessage(".*Server initialized.*", 1));
 
     @Autowired
     protected ConfigurableApplicationContext context;
