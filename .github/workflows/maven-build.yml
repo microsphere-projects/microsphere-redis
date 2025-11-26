@@ -41,7 +41,7 @@ jobs:
           cache: maven
 
       - name: Run Docker Compose
-        run: docker compose -f "docker/test-servers.yml" up -d --build
+        run: docker compose -f "docker/test-services.yml" up -d --build
 
       - name: Build with Maven
         run: mvn
@@ -61,4 +61,4 @@ jobs:
 
       - name: Stop Docker Compose
         if: always()
-        run: docker compose -f "docker/servers.yml" down
+        run: docker compose -f "docker/test-services.yml" down
