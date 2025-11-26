@@ -35,6 +35,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static io.microsphere.redis.spring.interceptor.EventPublishingRedisCommandInterceptor.BEAN_NAME;
 import static io.microsphere.spring.beans.factory.BeanFactoryUtils.asConfigurableBeanFactory;
 import static java.util.Arrays.asList;
 import static org.springframework.beans.factory.support.BeanDefinitionBuilder.genericBeanDefinition;
@@ -50,7 +51,7 @@ import static org.springframework.util.StringUtils.trimWhitespace;
  * @see EnableRedisInterceptor
  * @since 1.0.0
  */
-public class RedisInterceptorBeanDefinitionRegistrar implements ImportBeanDefinitionRegistrar, EnvironmentAware {
+class RedisInterceptorBeanDefinitionRegistrar implements ImportBeanDefinitionRegistrar, EnvironmentAware {
 
     private static final Logger logger = LoggerFactory.getLogger(RedisInterceptorBeanDefinitionRegistrar.class);
 
@@ -108,7 +109,7 @@ public class RedisInterceptorBeanDefinitionRegistrar implements ImportBeanDefini
     }
 
     private void registerEventPublishingRedisCommendInterceptor(BeanDefinitionRegistry registry) {
-        registerBeanDefinition(registry, EventPublishingRedisCommandInterceptor.BEAN_NAME, EventPublishingRedisCommandInterceptor.class);
+        registerBeanDefinition(registry, BEAN_NAME, EventPublishingRedisCommandInterceptor.class);
     }
 
     private void registerWrapperProcessors(BeanDefinitionRegistry registry) {

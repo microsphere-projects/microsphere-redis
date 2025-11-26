@@ -12,7 +12,6 @@ import org.springframework.data.redis.connection.RedisConnection;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.IOException;
-import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,6 +26,8 @@ import static io.microsphere.redis.spring.util.RedisCommandsUtils.buildParameter
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.loadParameterClasses;
 import static io.microsphere.redis.spring.util.RedisConstants.FAIL_FAST_ENABLED;
 import static io.microsphere.redis.spring.util.RedisConstants.FAIL_FAST_ENABLED_PROPERTY_NAME;
+import static io.microsphere.reflect.AccessibleObjectUtils.trySetAccessible;
+import static io.microsphere.util.ClassLoaderUtils.resolveClass;
 import static io.microsphere.util.ClassUtils.getAllInterfaces;
 import static java.util.Collections.unmodifiableMap;
 import static org.springframework.core.io.support.ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX;
@@ -43,6 +44,13 @@ public class RedisMetadataRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(RedisMetadataRepository.class);
 
+    /**
+     * {@link org.springframework.data.redis.connection.DefaultedRedisConnection} was introduced in Spring Data Redis 2.0.0.RELEASE,
+     * which is {@link Deprecated deprecated}, and may be removed in the future.
+     *
+     * @see org.springframework.data.redis.connection.DefaultedRedisConnection
+     */
+    private static final Class<?> DEFAULTED_REDIS_CONNECTION_CLASS = resolveClass("org.springframework.data.redis.connection.DefaultedRedisConnection");
 
     /**
      * Interface Class name and {@link Class} object cache (reduces class loading performance cost)
@@ -77,6 +85,13 @@ public class RedisMetadataRepository {
     static final Map<Object, Object> methodMetadataCache = initMethodMetadataCache();
 
     /**
+     * Initialize the Redis Metadata Repository
+     */
+    public static void init() {
+        // initialize the caches by class loading
+    }
+
+    /**
      * Caches the name of the {@link RedisCommands} command interface with the {@link Class} object cache
      */
     private static Map<String, Class<?>> initRedisCommandInterfacesCache() {
@@ -100,7 +115,7 @@ public class RedisMetadataRepository {
             for (Method method : methods) {
                 String methodId = buildCommandMethodId(method);
                 redisCommandMethodsCache.put(methodId, method);
-                setAccessible(method);
+                trySetAccessible(method);
                 logger.debug("Caches the Redis Command Method : {}", methodId);
             }
         }
@@ -246,12 +261,6 @@ public class RedisMetadataRepository {
         return redisCommandMethodsCache.get(methodId);
     }
 
-    private static void setAccessible(AccessibleObject accessible) {
-        if (!accessible.isAccessible()) {
-            accessible.setAccessible(true);
-        }
-    }
-
     private static void initRedisCommandBindings(Class<?> redisCommandInterfaceClass, Method redisCommandMethod, Map<String, Function<RedisConnection, Object>> redisCommandBindings) {
         Class<?> returnType = redisCommandMethod.getReturnType();
         if (redisCommandInterfaceClass.equals(returnType) && redisCommandMethod.getParameterCount() < 1) {
@@ -265,9 +274,7 @@ public class RedisMetadataRepository {
         try {
             Class<?>[] parameterTypes = method.getParameterTypes();
             // Reduced Method runtime checks
-            if (!method.isAccessible()) {
-                method.setAccessible(true);
-            }
+            trySetAccessible(method);
             if (initWriteCommandMethodParameterMetadata(method, parameterTypes)) {
                 initWriteCommandMethodCache(method, parameterTypes);
             }
@@ -286,7 +293,13 @@ public class RedisMetadataRepository {
         }
         List<ParameterMetadata> parameterMetadataList = buildParameterMetadata(method, parameterTypes);
         writeCommandMethodsMetadata.put(method, parameterMetadataList);
-        logger.debug("Caches the Redis Write Command Method[{}] Parameter Metadata : {}", method, parameterMetadataList);
+
+        // The class DefaultedRedisConnection overrides the methods of RedisCommands and its' sub interfaces
+        Method overriddenMethod = findMethod(DEFAULTED_REDIS_CONNECTION_CLASS, method.getName(), parameterTypes);
+        writeCommandMethodsMetadata.put(overriddenMethod, parameterMetadataList);
+
+        logger.debug("Caches the Redis Write Command Method[declared : '{}' , overridden : '{}'] Parameter Metadata : {}",
+                method, overriddenMethod, parameterMetadataList);
         return true;
     }
 

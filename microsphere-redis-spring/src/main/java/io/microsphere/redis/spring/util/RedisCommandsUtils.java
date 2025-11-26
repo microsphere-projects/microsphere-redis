@@ -3,8 +3,6 @@ package io.microsphere.redis.spring.util;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
 import io.microsphere.redis.spring.metadata.Parameter;
 import io.microsphere.redis.spring.metadata.ParameterMetadata;
-import io.microsphere.redis.spring.metadata.RedisMetadataRepository;
-import io.microsphere.redis.spring.serializer.Serializers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.DefaultParameterNameDiscoverer;
@@ -13,13 +11,16 @@ import org.springframework.data.redis.connection.RedisCommands;
 import org.springframework.data.redis.connection.RedisConnection;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.BiConsumer;
 
+import static io.microsphere.collection.ListUtils.newArrayList;
+import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.getWriteParameterMetadataList;
+import static io.microsphere.redis.spring.serializer.Serializers.getSerializer;
+import static io.microsphere.redis.spring.serializer.Serializers.serializeRawParameter;
+import static io.microsphere.util.ClassLoaderUtils.resolveClass;
 import static java.util.Collections.unmodifiableList;
-import static org.springframework.util.ClassUtils.forName;
 
 /**
  * {@link RedisCommands Redis Command} Utilities Class
@@ -159,7 +160,7 @@ public abstract class RedisCommandsUtils {
 
         try {
             // First, attempt to get the cached list of ParameterMetadata from the write method
-            parameterMetadataList = RedisMetadataRepository.getWriteParameterMetadataList(method);
+            parameterMetadataList = getWriteParameterMetadataList(method);
             // If not found, try to build them
             if (parameterMetadataList == null) {
                 sourceFromWriteMethod = false;
@@ -176,7 +177,7 @@ public abstract class RedisCommandsUtils {
                     ParameterMetadata parameterMetadata = parameterMetadataList.get(i);
                     Parameter parameter = new Parameter(parameterValue, parameterMetadata);
                     // serialize parameter
-                    Serializers.serializeRawParameter(parameter);
+                    serializeRawParameter(parameter);
                     // consumer one
                     consumer.accept(parameter, i);
                     // consumer others
@@ -201,14 +202,14 @@ public abstract class RedisCommandsUtils {
     public static List<ParameterMetadata> buildParameterMetadata(Method method, Class<?>[] parameterTypes) {
         int parameterCount = parameterTypes.length;
         String[] parameterNames = parameterNameDiscoverer.getParameterNames(method);
-        List<ParameterMetadata> parameterMetadataList = new ArrayList<>(parameterCount);
+        List<ParameterMetadata> parameterMetadataList = newArrayList(parameterCount);
         for (int i = 0; i < parameterCount; i++) {
             String parameterType = parameterTypes[i].getName();
             String parameterName = parameterNames[i];
             ParameterMetadata parameterMetadata = new ParameterMetadata(i, parameterType, parameterName);
             parameterMetadataList.add(parameterMetadata);
             // Preload the RedisSerializer implementation for the Method parameter type
-            Serializers.getSerializer(parameterType);
+            getSerializer(parameterType);
         }
         return unmodifiableList(parameterMetadataList);
     }
@@ -218,20 +219,9 @@ public abstract class RedisCommandsUtils {
         Class[] parameterClasses = new Class[parameterCount];
         for (int i = 0; i < parameterCount; i++) {
             String parameterType = parameterTypes[i];
-            Class parameterClass = loadClass(parameterType);
+            Class parameterClass = resolveClass(parameterType);
             parameterClasses[i] = parameterClass;
         }
         return parameterClasses;
     }
-
-    private static Class loadClass(String className) {
-        Class type = null;
-        try {
-            type = forName(className, null);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        return type;
-    }
-
 }

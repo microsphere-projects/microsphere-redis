@@ -9,6 +9,8 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import static io.microsphere.reflect.AccessibleObjectUtils.trySetAccessible;
+
 /**
  * {@link InvocationHandler} for Intercepting {@link RedisConnection}
  *
@@ -68,9 +70,7 @@ public class InterceptingRedisConnectionInvocationHandler implements InvocationH
             return System.identityHashCode(proxy);
         }
 
-        if (!method.isAccessible()) {
-            method.setAccessible(true);
-        }
+        trySetAccessible(method);
 
         RedisMethodContext<RedisConnection> redisMethodContext = createRedisMethodContext(method, args);
 

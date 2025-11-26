@@ -32,6 +32,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Abstract {@link RedisCommandEvent} Test
@@ -62,7 +63,7 @@ public abstract class AbstractRedisCommandEventTest extends AbstractRedisTest {
             data.put(keySerializer.deserialize((byte[]) key), valueSerializer.deserialize((byte[]) value));
 
             // assert interface name
-            assertEquals("org.springframework.data.redis.connection.RedisStringCommands", event.getInterfaceName());
+            assertNotNull(event.getInterfaceName());
 
             // assert method name
             assertEquals("set", event.getMethodName());

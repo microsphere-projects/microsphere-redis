@@ -36,6 +36,7 @@ import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
+import static io.microsphere.collection.MapUtils.newFixedHashMap;
 import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.isWriteCommandMethod;
 import static io.microsphere.util.ArrayUtils.length;
 import static java.util.Collections.emptyMap;
@@ -123,7 +124,7 @@ public class RedisMethodContext<T> {
 
         if (size > 1) {
             parameters = new Parameter[size];
-            parametersMap = new HashMap<>(size);
+            parametersMap = newFixedHashMap(size);
             write = RedisCommandsUtils.initParameters(method, args, (parameter, index) -> {
                 parameters[index] = parameter;
                 parametersMap.put(parameter.getValue(), parameter);

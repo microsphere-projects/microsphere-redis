@@ -811,14 +811,14 @@ methods:
   - index: 134
     interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
     methodName: zInterWithScores
-    parameterTypes: [ org.springframework.data.redis.connection.RedisZSetCommands$Aggregate,
-                      org.springframework.data.redis.connection.RedisZSetCommands$Weights, '[[B' ]
+    parameterTypes: [ org.springframework.data.redis.connection.zset.Aggregate,
+                      org.springframework.data.redis.connection.zset.Weights, '[[B' ]
     write: true
 
   - index: 135
     interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
     methodName: zInterWithScores
-    parameterTypes: [ org.springframework.data.redis.connection.RedisZSetCommands$Aggregate,
+    parameterTypes: [ org.springframework.data.redis.connection.zset.Aggregate,
                       '[I', '[[B' ]
     write: true
 
@@ -831,14 +831,14 @@ methods:
   - index: 137
     interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
     methodName: zInterStore
-    parameterTypes: [ '[B', org.springframework.data.redis.connection.RedisZSetCommands$Aggregate,
-                      org.springframework.data.redis.connection.RedisZSetCommands$Weights, '[[B' ]
+    parameterTypes: [ '[B', org.springframework.data.redis.connection.zset.Aggregate,
+                      org.springframework.data.redis.connection.zset.Weights, '[[B' ]
     write: true
 
   - index: 138
     interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
     methodName: zInterStore
-    parameterTypes: [ '[B', org.springframework.data.redis.connection.RedisZSetCommands$Aggregate,
+    parameterTypes: [ '[B', org.springframework.data.redis.connection.zset.Aggregate,
                       '[I', '[[B' ]
     write: true
 
@@ -851,14 +851,14 @@ methods:
   - index: 140
     interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
     methodName: zUnionWithScores
-    parameterTypes: [ org.springframework.data.redis.connection.RedisZSetCommands$Aggregate,
-                      org.springframework.data.redis.connection.RedisZSetCommands$Weights, '[[B' ]
+    parameterTypes: [ org.springframework.data.redis.connection.zset.Aggregate,
+                      org.springframework.data.redis.connection.zset.Weights, '[[B' ]
     write: true
 
   - index: 141
     interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
     methodName: zUnionWithScores
-    parameterTypes: [ org.springframework.data.redis.connection.RedisZSetCommands$Aggregate,
+    parameterTypes: [ org.springframework.data.redis.connection.zset.Aggregate,
                       '[I', '[[B' ]
     write: true
 
@@ -871,14 +871,14 @@ methods:
   - index: 143
     interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
     methodName: zUnionStore
-    parameterTypes: [ '[B', org.springframework.data.redis.connection.RedisZSetCommands$Aggregate,
-                      org.springframework.data.redis.connection.RedisZSetCommands$Weights, '[[B' ]
+    parameterTypes: [ '[B', org.springframework.data.redis.connection.zset.Aggregate,
+                      org.springframework.data.redis.connection.zset.Weights, '[[B' ]
     write: true
 
   - index: 144
     interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
     methodName: zUnionStore
-    parameterTypes: [ '[B', org.springframework.data.redis.connection.RedisZSetCommands$Aggregate,
+    parameterTypes: [ '[B', org.springframework.data.redis.connection.zset.Aggregate,
                       '[I', '[[B' ]
     write: true
 

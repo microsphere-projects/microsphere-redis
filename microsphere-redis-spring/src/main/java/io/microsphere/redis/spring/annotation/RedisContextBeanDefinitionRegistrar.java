@@ -31,7 +31,7 @@ import static io.microsphere.spring.beans.factory.support.BeanRegistrar.register
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
-public class RedisContextBeanDefinitionRegistrar implements ImportBeanDefinitionRegistrar {
+class RedisContextBeanDefinitionRegistrar implements ImportBeanDefinitionRegistrar {
 
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {

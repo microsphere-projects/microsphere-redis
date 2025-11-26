@@ -13,6 +13,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import java.util.List;
 
 import static io.microsphere.redis.spring.config.RedisConfiguration.isEnabled;
+import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.init;
 import static io.microsphere.spring.core.env.PropertySourcesUtils.containsBootstrapPropertySource;
 import static org.springframework.core.io.support.SpringFactoriesLoader.loadFactories;
 
@@ -23,6 +24,10 @@ import static org.springframework.core.io.support.SpringFactoriesLoader.loadFact
  * @since 1.0.0
  */
 public class RedisInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+
+    static {
+        init();
+    }
 
     private static final Logger logger = LoggerFactory.getLogger(RedisInitializer.class);
 

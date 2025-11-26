@@ -24,13 +24,14 @@ import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.type.AnnotationMetadata;
-import org.springframework.util.ClassUtils;
 
 import static io.microsphere.redis.spring.config.RedisConfiguration.BEAN_NAME;
 import static io.microsphere.redis.spring.event.PropagatingRedisConfigurationPropertyChangedEventApplicationListener.ENVIRONMENT_CHANGE_EVENT_CLASS_NAME;
+import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.init;
 import static io.microsphere.spring.beans.factory.support.BeanRegistrar.registerBeanDefinition;
 import static org.springframework.beans.factory.support.BeanDefinitionBuilder.genericBeanDefinition;
 import static org.springframework.beans.factory.support.BeanDefinitionReaderUtils.registerWithGeneratedName;
+import static org.springframework.util.ClassUtils.isPresent;
 
 /**
  * {@link RedisConfiguration} {@link BeanDefinition} Registrar
@@ -38,7 +39,11 @@ import static org.springframework.beans.factory.support.BeanDefinitionReaderUtil
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
-public class RedisConfigurationBeanDefinitionRegistrar implements ImportBeanDefinitionRegistrar, BeanClassLoaderAware {
+class RedisConfigurationBeanDefinitionRegistrar implements ImportBeanDefinitionRegistrar, BeanClassLoaderAware {
+
+    static {
+        init();
+    }
 
     private ClassLoader classLoader;
 
@@ -57,7 +62,7 @@ public class RedisConfigurationBeanDefinitionRegistrar implements ImportBeanDefi
     }
 
     private void registerApplicationListeners(BeanDefinitionRegistry registry) {
-        if (ClassUtils.isPresent(ENVIRONMENT_CHANGE_EVENT_CLASS_NAME, classLoader)) {
+        if (isPresent(ENVIRONMENT_CHANGE_EVENT_CLASS_NAME, classLoader)) {
             AbstractBeanDefinition beanDefinition = genericBeanDefinition(PropagatingRedisConfigurationPropertyChangedEventApplicationListener.class).getBeanDefinition();
             registerWithGeneratedName(beanDefinition, registry);
         }
