@@ -19,7 +19,7 @@
     <description>Microsphere Redis Parent</description>
 
     <properties>
-        <microsphere-spring-cloud.version>${revision}</microsphere-spring-cloud.version>
+        <microsphere-spring-cloud.version>0.0.1</microsphere-spring-cloud.version>
         <jandex.version>3.1.7</jandex.version>
         <testcontainers.version>1.19.5</testcontainers.version>
     </properties>
