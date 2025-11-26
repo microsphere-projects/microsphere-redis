@@ -40,8 +40,13 @@ jobs:
           java-version: ${{ matrix.java }}
           cache: maven
 
-      - name: Run Docker
-        run: docker compose -f "docker/servers.yml" up -d --build
+      - name: Setup Testcontainers Cloud Client
+        uses: atomicjar/testcontainers-cloud-setup-action@v1
+        with:
+          token: ${{ secrets.TC_CLOUD_TOKEN }}
+#
+#      - name: Run Docker
+#        run: docker compose -f "docker/servers.yml" up -d --build
 
       - name: Build with Maven
         run: mvn
@@ -51,14 +56,14 @@ jobs:
           -Drevision=0.0.1-SNAPSHOT
           -Dsurefire.useSystemClassLoader=false
           test
-          --activate-profiles test,coverage,${{ matrix.maven-profile-spring-boot }}
+          --activate-profiles test,coverage,testcontainers,${{ matrix.maven-profile-spring-boot }}
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: microsphere-projects/microsphere-redis
-
-      - name: Stop Docker
-        if: always()
-        run: docker compose -f "docker/servers.yml" down
+#
+#      - name: Stop Docker
+#        if: always()
+#        run: docker compose -f "docker/servers.yml" down
