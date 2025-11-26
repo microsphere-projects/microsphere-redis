@@ -1,17 +1,23 @@
 package io.microsphere.redis.replicator.spring;
 
-import io.microsphere.redis.spring.event.RedisCommandEvent;
 import io.microsphere.redis.replicator.spring.event.RedisCommandReplicatedEvent;
+import io.microsphere.redis.replicator.spring.event.handler.RedisCommandReplicatedEventHandler;
+import io.microsphere.redis.spring.event.RedisCommandEvent;
+import io.microsphere.spring.util.SpringFactoriesLoaderUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
 import java.util.function.Function;
 
+import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.CONSUMER_EVENT_HANDLE_PROPERTY_NAME;
+import static io.microsphere.redis.replicator.spring.event.handler.RedisCommandReplicatedEventHandler.EventHandleName.REFLECT;
 import static io.microsphere.redis.spring.beans.Wrapper.tryUnwrap;
 import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.findWriteCommandMethod;
 import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.getRedisCommandBindingFunction;
@@ -23,7 +29,8 @@ import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.getRe
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @since 1.0.0
  */
-public class RedisCommandReplicator implements ApplicationListener<RedisCommandReplicatedEvent> {
+public class RedisCommandReplicator implements ApplicationListener<RedisCommandReplicatedEvent>,
+        ApplicationContextAware {
 
     private static final Logger logger = LoggerFactory.getLogger(RedisCommandReplicator.class);
 
@@ -34,6 +41,7 @@ public class RedisCommandReplicator implements ApplicationListener<RedisCommandR
     public RedisCommandReplicator(RedisConnectionFactory redisConnectionFactory) {
         this.redisConnectionFactory = tryUnwrap(redisConnectionFactory, RedisConnectionFactory.class);
     }
+
 
     @Override
     public void onApplicationEvent(RedisCommandReplicatedEvent event) {
@@ -53,12 +61,26 @@ public class RedisCommandReplicator implements ApplicationListener<RedisCommandR
             Object[] args = redisCommandEvent.getArgs();
             Function<RedisConnection, Object> bindingFunction = getRedisCommandBindingFunction(interfaceNme);
             Object redisCommandObject = bindingFunction.apply(redisConnection);
-            // TODO: Native method implementation
-            ReflectionUtils.invokeMethod(method, redisCommandObject, args);
+            // Native method implementation
+            // ReflectionUtils.invokeMethod(method, redisCommandObject, args);
+            eventHandler.handleEvent(method, redisCommandObject, args);
         }
     }
 
     private RedisConnection getRedisConnection() {
         return redisConnectionFactory.getConnection();
+    }
+
+    RedisCommandReplicatedEventHandler eventHandler;
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        String eventHandleType = applicationContext.getEnvironment()
+                .getProperty(CONSUMER_EVENT_HANDLE_PROPERTY_NAME, String.class, REFLECT.name());
+        eventHandler = SpringFactoriesLoaderUtils.loadFactories(applicationContext, RedisCommandReplicatedEventHandler.class)
+                .stream()
+                .filter(eventHandle -> eventHandle.name().equals(eventHandleType))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No eventHandle found"));
     }
 }

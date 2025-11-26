@@ -13,6 +13,9 @@ import org.springframework.util.ReflectionUtils;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -66,6 +69,12 @@ public class RedisMetadataRepository {
      * Method Simple signature with {@link Method} object caching (reduces reflection cost)
      */
     static final Map<String, Method> writeCommandMethodsCache = new HashMap<>(256);
+
+    private static final MethodHandles.Lookup PUBLIC_LOOKUP = MethodHandles.publicLookup();
+    /**
+     * Method Simple signature with {@link MethodHandle} object caching (reduces reflection cost)
+     */
+    static final Map<String, MethodHandle> writeCommandMethodHandlesCache = new HashMap<>(256);
 
     /**
      * MethodMetadata cache
@@ -227,6 +236,11 @@ public class RedisMetadataRepository {
         return writeCommandMethodsMetadata.keySet();
     }
 
+    public static MethodHandle getWriteCommandMethodHandle(Method method) {
+        String id = buildCommandMethodId(method);
+        return writeCommandMethodHandlesCache.get(id);
+    }
+
     /**
      * Gets the {@link RedisCommands} command interface for the specified Class name {@link Class}
      *
@@ -270,6 +284,7 @@ public class RedisMetadataRepository {
             }
             if (initWriteCommandMethodParameterMetadata(method, parameterTypes)) {
                 initWriteCommandMethodCache(method, parameterTypes);
+                initWriteCommandMethodHandleCache(method);
             }
         } catch (Throwable e) {
             logger.error("Unable to initialize write command method[{}], Reason: {}", method, e.getMessage());
@@ -300,4 +315,25 @@ public class RedisMetadataRepository {
         }
     }
 
+
+    private static void initWriteCommandMethodHandleCache(Method method) {
+        String id = buildCommandMethodId(method);
+
+        MethodHandle methodHandle;
+        try {
+            methodHandle = PUBLIC_LOOKUP.findVirtual(
+                    method.getDeclaringClass(),
+                    method.getName(),
+                    MethodType.methodType(method.getReturnType(), method.getParameterTypes()));
+        } catch (NoSuchMethodException | IllegalAccessException e) {
+            logger.error("The Redis Write Command MethodHandle[{}] can't find", id);
+            return;
+        }
+
+        if (writeCommandMethodHandlesCache.putIfAbsent(id, methodHandle) == null) {
+            logger.debug("Caches the Redis Write Command MethodHandle : {}", id);
+        } else {
+            logger.warn("The Redis Write Command MethodHandle[{}] was cached", id);
+        }
+    }
 }
