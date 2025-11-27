@@ -31,6 +31,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
+import static io.microsphere.util.ArrayUtils.ofArray;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -72,14 +74,14 @@ public class KafkaRedisReplicatorModuleInitializerTest extends AbstractRedisRepl
 
             assertEquals("org.springframework.data.redis.connection.RedisStringCommands", redisCommandEvent.getInterfaceName());
             assertEquals("set", redisCommandEvent.getMethodName());
-            assertArrayEquals(new String[]{"[B", "[B"}, redisCommandEvent.getParameterTypes());
+            assertArrayEquals(ofArray(byte[].class, byte[].class), redisCommandEvent.getParameterTypes());
             assertEquals("default", redisCommandEvent.getApplicationName());
             latch.countDown();
         });
 
 
         stringRedisTemplate.opsForValue().set("Key-1", "Value-1");
-        latch.await();
+        latch.await(10, SECONDS);
 
         assertEquals("Value-1", data.get("Key-1"));
     }
