@@ -336,4 +336,7 @@ public abstract class Serializers {
                     getTypeName(type), getTypeName(oldSerializer), getTypeName(oldSerializer.getTargetType()), getTypeName(serializer), getTypeName(serializer.getTargetType()));
         }
     }
+
+    private Serializers() {
+    }
 }
