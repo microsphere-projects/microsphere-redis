@@ -2,7 +2,6 @@ package io.microsphere.redis.spring.serializer;
 
 import io.microsphere.annotation.Nullable;
 import io.microsphere.logging.Logger;
-import io.microsphere.redis.spring.event.RedisCommandEvent;
 import io.microsphere.redis.spring.metadata.Parameter;
 import org.springframework.core.ResolvableType;
 import org.springframework.data.geo.Point;
@@ -115,11 +114,6 @@ public abstract class Serializers {
             }
         }
         return rawParameterValue;
-    }
-
-    @Nullable
-    public static byte[] defaultSerialize(RedisCommandEvent event) {
-        return DEFAULT_SERIALIZER.serialize(event);
     }
 
     @Nullable
@@ -330,7 +324,7 @@ public abstract class Serializers {
         return loadFactories(RedisSerializer.class, classLoader);
     }
 
-    public static void register(Class<?> type, RedisSerializer<?> serializer) {
+    static void register(Class<?> type, RedisSerializer<?> serializer) {
         String typeName = type.getName();
         RedisSerializer oldSerializer = typedSerializers.put(typeName, serializer);
         logger.debug("The RedisSerializer[class : '{}' , target type : '{}'] for type['{}'] was registered", getTypeName(serializer), getTypeName(serializer.getTargetType()), getTypeName(type));
