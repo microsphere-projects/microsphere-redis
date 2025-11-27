@@ -2,6 +2,8 @@ package io.microsphere.redis.spring.serializer;
 
 import org.springframework.data.redis.serializer.RedisSerializer;
 
+import static io.microsphere.redis.spring.serializer.DoubleSerializer.DOUBLE_SERIALIZER;
+
 /**
  * {@link DoubleSerializer} Test
  *
@@ -12,7 +14,7 @@ class DoubleSerializerTest extends AbstractSerializerTest<Double> {
 
     @Override
     protected RedisSerializer<Double> getSerializer() {
-        return DoubleSerializer.DOUBLE_SERIALIZER;
+        return DOUBLE_SERIALIZER;
     }
 
     @Override
