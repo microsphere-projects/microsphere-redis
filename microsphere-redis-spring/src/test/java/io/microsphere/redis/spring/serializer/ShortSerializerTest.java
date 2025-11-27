@@ -2,6 +2,8 @@ package io.microsphere.redis.spring.serializer;
 
 import org.springframework.data.redis.serializer.RedisSerializer;
 
+import static io.microsphere.redis.spring.serializer.ShortSerializer.SHORT_SERIALIZER;
+
 /**
  * {@link ShortSerializer} Test
  *
@@ -12,7 +14,7 @@ class ShortSerializerTest extends AbstractSerializerTest<Short> {
 
     @Override
     protected RedisSerializer<Short> getSerializer() {
-        return ShortSerializer.SHORT_SERIALIZER;
+        return SHORT_SERIALIZER;
     }
 
     @Override
