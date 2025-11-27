@@ -22,4 +22,9 @@ public final class ByteArraySerializer implements RedisSerializer<byte[]> {
     public byte[] deserialize(byte[] bytes) throws SerializationException {
         return bytes;
     }
+
+    @Override
+    public Class<?> getTargetType() {
+        return byte[].class;
+    }
 }
