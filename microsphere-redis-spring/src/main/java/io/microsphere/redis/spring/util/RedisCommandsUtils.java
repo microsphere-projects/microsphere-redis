@@ -1,10 +1,9 @@
 package io.microsphere.redis.spring.util;
 
+import io.microsphere.logging.Logger;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
 import io.microsphere.redis.spring.metadata.Parameter;
 import io.microsphere.redis.spring.metadata.ParameterMetadata;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.data.redis.connection.RedisCommands;
@@ -16,6 +15,7 @@ import java.util.StringJoiner;
 import java.util.function.BiConsumer;
 
 import static io.microsphere.collection.ListUtils.newArrayList;
+import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.getWriteParameterMetadataList;
 import static io.microsphere.redis.spring.serializer.Serializers.getSerializer;
 import static io.microsphere.redis.spring.serializer.Serializers.serializeRawParameter;
@@ -30,7 +30,7 @@ import static java.util.Collections.unmodifiableList;
  */
 public abstract class RedisCommandsUtils {
 
-    private static final Logger logger = LoggerFactory.getLogger(RedisCommandsUtils.class);
+    private static final Logger logger = getLogger(RedisCommandsUtils.class);
 
     private static final String REDIS_COMMANDS_PACKAGE_NAME = "org.springframework.data.redis.connection.";
 

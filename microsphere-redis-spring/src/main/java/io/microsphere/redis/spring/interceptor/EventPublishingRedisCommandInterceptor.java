@@ -16,16 +16,16 @@
  */
 package io.microsphere.redis.spring.interceptor;
 
+import io.microsphere.logging.Logger;
 import io.microsphere.redis.spring.context.RedisContext;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
 import io.microsphere.redis.spring.event.RedisConfigurationPropertyChangedEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.data.redis.connection.RedisCommands;
 
+import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.util.RedisConstants.COMMAND_EVENT_EXPOSED_PROPERTY_NAME;
 
 /**
@@ -36,7 +36,7 @@ import static io.microsphere.redis.spring.util.RedisConstants.COMMAND_EVENT_EXPO
  */
 public class EventPublishingRedisCommandInterceptor implements RedisCommandInterceptor, ApplicationListener<RedisConfigurationPropertyChangedEvent>, ApplicationEventPublisherAware {
 
-    private static final Logger logger = LoggerFactory.getLogger(EventPublishingRedisCommandInterceptor.class);
+    private static final Logger logger = getLogger(EventPublishingRedisCommandInterceptor.class);
 
     public static final String BEAN_NAME = "eventPublishingRedisCommendInterceptor";
 

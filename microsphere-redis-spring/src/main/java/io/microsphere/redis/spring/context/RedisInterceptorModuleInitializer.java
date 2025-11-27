@@ -1,13 +1,13 @@
 package io.microsphere.redis.spring.context;
 
+import io.microsphere.logging.Logger;
 import io.microsphere.redis.spring.annotation.EnableRedisInterceptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotatedBeanDefinitionReader;
 import org.springframework.core.env.ConfigurableEnvironment;
 
+import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.config.RedisConfiguration.isCommandEventExposed;
 import static io.microsphere.redis.spring.util.RedisConstants.DEFAULT_INTERCEPTOR_ENABLED;
 import static io.microsphere.redis.spring.util.RedisConstants.DEFAULT_WRAP_REDIS_TEMPLATE_PLACEHOLDER;
@@ -22,7 +22,7 @@ import static io.microsphere.redis.spring.util.RedisConstants.INTERCEPTOR_ENABLE
  */
 public class RedisInterceptorModuleInitializer implements RedisModuleInitializer {
 
-    private static final Logger logger = LoggerFactory.getLogger(RedisInterceptorModuleInitializer.class);
+    private static final Logger logger = getLogger(RedisInterceptorModuleInitializer.class);
 
     @Override
     public boolean supports(ConfigurableApplicationContext context, BeanDefinitionRegistry registry) {

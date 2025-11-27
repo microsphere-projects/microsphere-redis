@@ -1,5 +1,6 @@
 package io.microsphere.redis.replicator.spring.kafka.consumer;
 
+import io.microsphere.logging.Logger;
 import io.microsphere.redis.replicator.spring.event.RedisCommandReplicatedEvent;
 import io.microsphere.redis.replicator.spring.kafka.KafkaRedisReplicatorConfiguration;
 import io.microsphere.redis.spring.config.RedisConfiguration;
@@ -7,8 +8,6 @@ import io.microsphere.redis.spring.event.RedisCommandEvent;
 import io.microsphere.redis.spring.serializer.Serializers;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
@@ -22,6 +21,7 @@ import org.springframework.kafka.listener.ContainerProperties;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.config.RedisConfiguration.getBoolean;
 import static io.microsphere.spring.core.env.PropertySourcesUtils.getSubProperties;
 import static org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG;
@@ -35,7 +35,7 @@ import static org.apache.kafka.clients.CommonClientConfigs.GROUP_ID_CONFIG;
  */
 public class KafkaConsumerRedisReplicatorConfiguration extends KafkaRedisReplicatorConfiguration implements ApplicationEventPublisherAware {
 
-    private static final Logger logger = LoggerFactory.getLogger(KafkaConsumerRedisReplicatorConfiguration.class);
+    private static final Logger logger = getLogger(KafkaConsumerRedisReplicatorConfiguration.class);
 
     public static final String KAFKA_CONSUMER_PROPERTY_NAME_PREFIX = KafkaRedisReplicatorConfiguration.KAFKA_PROPERTY_NAME_PREFIX + "consumer.";
 

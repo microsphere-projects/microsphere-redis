@@ -1,8 +1,7 @@
 package io.microsphere.redis.spring.metadata;
 
+import io.microsphere.logging.Logger;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -40,6 +39,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
+import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.buildCommandMethodId;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.buildParameterMetadata;
 import static io.microsphere.redis.spring.util.RedisConstants.FAIL_FAST_ENABLED;
@@ -58,7 +58,7 @@ import static org.springframework.util.ReflectionUtils.findMethod;
 @Deprecated
 public class MethodMetadataRepository {
 
-    private static final Logger logger = LoggerFactory.getLogger(MethodMetadataRepository.class);
+    private static final Logger logger = getLogger(MethodMetadataRepository.class);
 
     private static volatile boolean initialized = false;
 

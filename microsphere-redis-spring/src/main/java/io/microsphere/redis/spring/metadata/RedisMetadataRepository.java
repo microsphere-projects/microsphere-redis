@@ -1,10 +1,9 @@
 package io.microsphere.redis.spring.metadata;
 
 import io.microsphere.annotation.Nullable;
+import io.microsphere.logging.Logger;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
 import io.microsphere.redis.spring.util.RedisCommandsUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -23,6 +22,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 import static io.microsphere.collection.MapUtils.newFixedHashMap;
+import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.buildCommandMethodId;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.buildParameterMetadata;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.loadParameterClasses;
@@ -44,7 +44,7 @@ import static org.springframework.util.ReflectionUtils.invokeMethod;
  */
 public class RedisMetadataRepository {
 
-    private static final Logger logger = LoggerFactory.getLogger(RedisMetadataRepository.class);
+    private static final Logger logger = getLogger(RedisMetadataRepository.class);
 
     /**
      * {@link org.springframework.data.redis.connection.DefaultedRedisConnection} was introduced in Spring Data Redis 2.0.0.RELEASE,

@@ -1,8 +1,7 @@
 package io.microsphere.redis.replicator.spring.kafka;
 
+import io.microsphere.logging.Logger;
 import io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +12,7 @@ import org.springframework.util.Assert;
 
 import java.util.List;
 
+import static io.microsphere.logging.LoggerFactory.getLogger;
 import static org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG;
 
 
@@ -25,7 +25,7 @@ import static org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CON
  */
 public class KafkaRedisReplicatorConfiguration implements EnvironmentAware, InitializingBean, DisposableBean {
 
-    private static final Logger logger = LoggerFactory.getLogger(KafkaRedisReplicatorConfiguration.class);
+    private static final Logger logger = getLogger(KafkaRedisReplicatorConfiguration.class);
 
     public static final String SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_NAME = "spring.kafka.bootstrap-servers";
 

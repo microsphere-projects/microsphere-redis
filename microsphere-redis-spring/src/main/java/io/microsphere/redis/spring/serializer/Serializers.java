@@ -1,9 +1,8 @@
 package io.microsphere.redis.spring.serializer;
 
+import io.microsphere.logging.Logger;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
 import io.microsphere.redis.spring.metadata.Parameter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.data.geo.Point;
@@ -31,6 +30,8 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import static io.microsphere.logging.LoggerFactory.getLogger;
+
 /**
  * {@link RedisSerializer} Utilities class, mainly used for Redis command method parameter type
  * serialization and deserialization
@@ -40,7 +41,7 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class Serializers {
 
-    private static final Logger logger = LoggerFactory.getLogger(Serializers.class);
+    private static final Logger logger = getLogger(Serializers.class);
 
     private static final ClassLoader classLoader = Serializers.class.getClassLoader();
 

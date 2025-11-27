@@ -1,8 +1,7 @@
 package io.microsphere.redis.spring.connection.dynamic;
 
+import io.microsphere.logging.Logger;
 import io.microsphere.text.FormatUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.SmartInitializingSingleton;
@@ -20,6 +19,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.microsphere.logging.LoggerFactory.getLogger;
 import static org.springframework.util.StringUtils.hasText;
 
 /**
@@ -36,7 +36,7 @@ public class DynamicRedisConnectionFactory implements RedisConnectionFactory, Sm
      */
     public static final String DEFAULT_REDIS_CONNECTION_FACTORY_BEAN_NAME = "redisConnectionFactory";
 
-    private static final Logger logger = LoggerFactory.getLogger(DynamicRedisConnectionFactory.class);
+    private static final Logger logger = getLogger(DynamicRedisConnectionFactory.class);
 
     private static final ThreadLocal<String> beanNameHolder = new ThreadLocal<>();
 

@@ -16,12 +16,11 @@
  */
 package io.microsphere.redis.spring.interceptor;
 
+import io.microsphere.logging.Logger;
 import io.microsphere.redis.spring.config.RedisConfiguration;
 import io.microsphere.redis.spring.context.RedisContext;
 import io.microsphere.redis.spring.metadata.Parameter;
 import io.microsphere.redis.spring.util.RedisCommandsUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -37,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import static io.microsphere.collection.MapUtils.newFixedHashMap;
+import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.isWriteCommandMethod;
 import static io.microsphere.util.ArrayUtils.length;
 import static java.util.Collections.emptyMap;
@@ -50,7 +50,7 @@ import static java.util.Collections.unmodifiableMap;
  */
 public class RedisMethodContext<T> {
 
-    private static final Logger logger = LoggerFactory.getLogger(RedisMethodContext.class);
+    private static final Logger logger = getLogger(RedisMethodContext.class);
 
     private static final Parameter[] EMPTY_PARAMETERS = new Parameter[0];
 

@@ -16,12 +16,11 @@
  */
 package io.microsphere.redis.spring.annotation;
 
+import io.microsphere.logging.Logger;
 import io.microsphere.redis.spring.beans.RedisConnectionFactoryProxyBeanPostProcessor;
 import io.microsphere.redis.spring.beans.RedisTemplateWrapperBeanPostProcessor;
 import io.microsphere.redis.spring.beans.WrapperProcessors;
 import io.microsphere.redis.spring.interceptor.EventPublishingRedisCommandInterceptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -35,6 +34,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.interceptor.EventPublishingRedisCommandInterceptor.BEAN_NAME;
 import static io.microsphere.spring.beans.factory.BeanFactoryUtils.asConfigurableBeanFactory;
 import static java.util.Arrays.asList;
@@ -53,7 +53,7 @@ import static org.springframework.util.StringUtils.trimWhitespace;
  */
 class RedisInterceptorBeanDefinitionRegistrar implements ImportBeanDefinitionRegistrar, EnvironmentAware {
 
-    private static final Logger logger = LoggerFactory.getLogger(RedisInterceptorBeanDefinitionRegistrar.class);
+    private static final Logger logger = getLogger(RedisInterceptorBeanDefinitionRegistrar.class);
 
     private ConfigurableEnvironment environment;
 

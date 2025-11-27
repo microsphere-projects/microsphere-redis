@@ -1,16 +1,16 @@
 package io.microsphere.redis.replicator.spring.kafka;
 
+import io.microsphere.logging.Logger;
 import io.microsphere.redis.replicator.spring.RedisReplicatorModuleInitializer;
 import io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration;
 import io.microsphere.redis.replicator.spring.kafka.producer.KafkaProducerRedisCommandEventListener;
 import io.microsphere.redis.replicator.spring.kafka.producer.KafkaProducerRedisReplicatorConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.Environment;
 import org.springframework.util.ClassUtils;
 
+import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.replicator.spring.kafka.KafkaRedisReplicatorConfiguration.KAFKA_BOOTSTRAP_SERVERS_PROPERTY_NAME;
 import static io.microsphere.redis.replicator.spring.kafka.KafkaRedisReplicatorConfiguration.SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_NAME;
 import static io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration.KAFKA_CONSUMER_ENABLED_PROPERTY_NAME;
@@ -27,7 +27,7 @@ public class KafkaRedisReplicatorModuleInitializer implements RedisReplicatorMod
 
     private static final String KAFKA_TEMPLATE_CLASS_NAME = "org.springframework.kafka.core.KafkaTemplate";
 
-    private static final Logger logger = LoggerFactory.getLogger(KafkaRedisReplicatorModuleInitializer.class);
+    private static final Logger logger = getLogger(KafkaRedisReplicatorModuleInitializer.class);
 
     @Override
     public boolean supports(ConfigurableApplicationContext context) {

@@ -1,9 +1,8 @@
 package io.microsphere.redis.replicator.spring;
 
+import io.microsphere.logging.Logger;
 import io.microsphere.redis.replicator.spring.event.RedisCommandReplicatedEvent;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -12,6 +11,7 @@ import org.springframework.util.ReflectionUtils;
 import java.lang.reflect.Method;
 import java.util.function.Function;
 
+import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.beans.Wrapper.tryUnwrap;
 import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.findWriteCommandMethod;
 import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.getRedisCommandBindingFunction;
@@ -25,7 +25,7 @@ import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.getRe
  */
 public class RedisCommandReplicator implements ApplicationListener<RedisCommandReplicatedEvent> {
 
-    private static final Logger logger = LoggerFactory.getLogger(RedisCommandReplicator.class);
+    private static final Logger logger = getLogger(RedisCommandReplicator.class);
 
     public static final String BEAN_NAME = "redisCommandReplicator";
 

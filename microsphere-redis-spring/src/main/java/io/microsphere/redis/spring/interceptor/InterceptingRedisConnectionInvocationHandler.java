@@ -1,14 +1,14 @@
 package io.microsphere.redis.spring.interceptor;
 
+import io.microsphere.logging.Logger;
 import io.microsphere.redis.spring.context.RedisContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.connection.RedisConnection;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.reflect.AccessibleObjectUtils.trySetAccessible;
 
 /**
@@ -19,7 +19,7 @@ import static io.microsphere.reflect.AccessibleObjectUtils.trySetAccessible;
  */
 public class InterceptingRedisConnectionInvocationHandler implements InvocationHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(InterceptingRedisConnectionInvocationHandler.class);
+    private static final Logger logger = getLogger(InterceptingRedisConnectionInvocationHandler.class);
 
     private static final String HASH_CODE = "hashCode";
 

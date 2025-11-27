@@ -1,7 +1,6 @@
 package io.microsphere.redis.spring.context;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.microsphere.logging.Logger;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ApplicationContextInitializer;
@@ -12,6 +11,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 
 import java.util.List;
 
+import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.config.RedisConfiguration.isEnabled;
 import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.init;
 import static io.microsphere.spring.core.env.PropertySourcesUtils.containsBootstrapPropertySource;
@@ -29,7 +29,7 @@ public class RedisInitializer implements ApplicationContextInitializer<Configura
         init();
     }
 
-    private static final Logger logger = LoggerFactory.getLogger(RedisInitializer.class);
+    private static final Logger logger = getLogger(RedisInitializer.class);
 
     @Override
     public void initialize(ConfigurableApplicationContext context) {

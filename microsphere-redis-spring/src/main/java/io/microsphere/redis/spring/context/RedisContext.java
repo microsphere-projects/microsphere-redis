@@ -16,11 +16,10 @@
  */
 package io.microsphere.redis.spring.context;
 
+import io.microsphere.logging.Logger;
 import io.microsphere.redis.spring.config.RedisConfiguration;
 import io.microsphere.redis.spring.interceptor.RedisCommandInterceptor;
 import io.microsphere.redis.spring.interceptor.RedisConnectionInterceptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.BeanFactory;
@@ -40,6 +39,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.spring.beans.BeanUtils.getBeanNames;
 import static io.microsphere.spring.beans.BeanUtils.getSortedBeans;
 import static java.util.Arrays.asList;
@@ -53,7 +53,7 @@ import static java.util.Collections.unmodifiableSet;
  */
 public class RedisContext implements SmartInitializingSingleton, ApplicationContextAware, BeanFactoryAware, BeanClassLoaderAware {
 
-    private static final Logger logger = LoggerFactory.getLogger(RedisConfiguration.class);
+    private static final Logger logger = getLogger(RedisConfiguration.class);
 
     public static final String BEAN_NAME = "redisContext";
 

@@ -1,10 +1,9 @@
 package io.microsphere.redis.replicator.spring.kafka.producer;
 
+import io.microsphere.logging.Logger;
 import io.microsphere.redis.replicator.spring.RedisReplicatorInitializer;
 import io.microsphere.redis.replicator.spring.kafka.KafkaRedisReplicatorConfiguration;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -15,6 +14,7 @@ import org.springframework.kafka.core.ProducerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.spring.core.env.PropertySourcesUtils.getSubProperties;
 import static org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG;
 
@@ -28,7 +28,7 @@ import static org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CON
  */
 public class KafkaProducerRedisReplicatorConfiguration extends KafkaRedisReplicatorConfiguration implements ApplicationContextAware {
 
-    private static final Logger logger = LoggerFactory.getLogger(KafkaProducerRedisReplicatorConfiguration.class);
+    private static final Logger logger = getLogger(KafkaProducerRedisReplicatorConfiguration.class);
 
     public static final String KAFKA_PRODUCER_PROPERTY_NAME_PREFIX = KAFKA_PROPERTY_NAME_PREFIX + "producer.";
 

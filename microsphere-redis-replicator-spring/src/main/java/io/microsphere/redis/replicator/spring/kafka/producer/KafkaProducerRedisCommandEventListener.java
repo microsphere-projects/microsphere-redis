@@ -1,9 +1,8 @@
 package io.microsphere.redis.replicator.spring.kafka.producer;
 
+import io.microsphere.logging.Logger;
 import io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEvent;
@@ -18,6 +17,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 
+import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.serializer.Serializers.serialize;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 
@@ -30,7 +30,7 @@ import static java.util.concurrent.Executors.newFixedThreadPool;
  */
 public class KafkaProducerRedisCommandEventListener implements SmartApplicationListener, DisposableBean {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = getLogger(getClass());
 
     private KafkaTemplate<byte[], byte[]> redisReplicatorKafkaTemplate;
 

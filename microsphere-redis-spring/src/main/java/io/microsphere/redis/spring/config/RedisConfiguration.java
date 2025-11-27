@@ -1,8 +1,7 @@
 package io.microsphere.redis.spring.config;
 
+import io.microsphere.logging.Logger;
 import io.microsphere.redis.spring.event.RedisConfigurationPropertyChangedEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.ApplicationContext;
@@ -12,6 +11,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 
+import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.util.RedisConstants.COMMAND_EVENT_EXPOSED_PROPERTY_NAME;
 import static io.microsphere.redis.spring.util.RedisConstants.DEFAULT_COMMAND_EVENT_EXPOSED;
 import static io.microsphere.redis.spring.util.RedisConstants.DEFAULT_ENABLED;
@@ -25,7 +25,7 @@ import static io.microsphere.redis.spring.util.RedisConstants.ENABLED_PROPERTY_N
  */
 public class RedisConfiguration implements ApplicationListener<RedisConfigurationPropertyChangedEvent>, ApplicationContextAware {
 
-    private static final Logger logger = LoggerFactory.getLogger(RedisConfiguration.class);
+    private static final Logger logger = getLogger(RedisConfiguration.class);
 
     /**
      * {@link RedisConfiguration} Bean Name

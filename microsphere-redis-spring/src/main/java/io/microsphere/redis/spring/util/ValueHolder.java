@@ -16,11 +16,12 @@
  */
 package io.microsphere.redis.spring.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.microsphere.logging.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static io.microsphere.logging.LoggerFactory.getLogger;
 
 /**
  * Value Holder
@@ -30,7 +31,7 @@ import java.util.Map;
  */
 public class ValueHolder {
 
-    private static final Logger logger = LoggerFactory.getLogger(ValueHolder.class);
+    private static final Logger logger = getLogger(ValueHolder.class);
 
     private static final ThreadLocal<ValueHolder> holder = ThreadLocal.withInitial(() -> new ValueHolder(4));
 

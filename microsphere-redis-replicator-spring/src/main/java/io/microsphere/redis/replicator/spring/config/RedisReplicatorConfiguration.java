@@ -16,12 +16,11 @@
  */
 package io.microsphere.redis.replicator.spring.config;
 
+import io.microsphere.logging.Logger;
 import io.microsphere.redis.spring.config.RedisConfiguration;
 import io.microsphere.redis.spring.context.RedisContext;
 import io.microsphere.redis.spring.event.RedisConfigurationPropertyChangedEvent;
 import io.microsphere.redis.spring.util.RedisConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
@@ -37,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.config.RedisConfiguration.getBoolean;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
@@ -51,7 +51,7 @@ import static java.util.Collections.unmodifiableMap;
  */
 public class RedisReplicatorConfiguration implements ApplicationListener<RedisConfigurationPropertyChangedEvent> {
 
-    private static final Logger logger = LoggerFactory.getLogger(RedisReplicatorConfiguration.class);
+    private static final Logger logger = getLogger(RedisReplicatorConfiguration.class);
 
     public static final String BEAN_NAME = "redisReplicatorConfiguration";
 
