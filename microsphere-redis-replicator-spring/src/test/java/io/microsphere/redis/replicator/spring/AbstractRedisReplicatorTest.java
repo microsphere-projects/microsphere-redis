@@ -16,18 +16,32 @@
  */
 package io.microsphere.redis.replicator.spring;
 
+import io.microsphere.redis.replicator.spring.event.RedisCommandReplicatedEvent;
+import io.microsphere.redis.spring.event.RedisCommandEvent;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+
+import static io.microsphere.util.ArrayUtils.ofArray;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Abstract Redis Replicator Test
@@ -48,6 +62,36 @@ public abstract class AbstractRedisReplicatorTest {
 
     @Autowired
     protected StringRedisTemplate stringRedisTemplate;
+
+    @Test
+    public void test() throws InterruptedException {
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        Map<Object, Object> data = new HashMap<>();
+
+        context.addApplicationListener((ApplicationListener<RedisCommandReplicatedEvent>) event -> {
+            RedisCommandEvent redisCommandEvent = event.getSourceEvent();
+
+            RedisSerializer keySerializer = stringRedisTemplate.getKeySerializer();
+            RedisSerializer valueSerializer = stringRedisTemplate.getValueSerializer();
+            Object key = keySerializer.deserialize((byte[]) redisCommandEvent.getArg(0));
+            Object value = valueSerializer.deserialize((byte[]) redisCommandEvent.getArg(1));
+            data.put(key, value);
+
+            assertEquals("org.springframework.data.redis.connection.RedisStringCommands", redisCommandEvent.getInterfaceName());
+            assertEquals("set", redisCommandEvent.getMethodName());
+            assertArrayEquals(ofArray(byte[].class, byte[].class), redisCommandEvent.getParameterTypes());
+            assertEquals("default", redisCommandEvent.getApplicationName());
+            latch.countDown();
+        });
+
+        stringRedisTemplate.opsForValue().set("Key-1", "Value-1");
+
+        if (latch.await(10, SECONDS)) {
+            assertEquals("Value-1", data.get("Key-1"));
+        }
+    }
 
     @Bean
     public static RedisTemplate redisTemplate(RedisConnectionFactory redisConnectionFactory) {

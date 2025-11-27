@@ -17,23 +17,10 @@
 package io.microsphere.redis.replicator.spring.kafka;
 
 import io.microsphere.redis.replicator.spring.AbstractRedisReplicatorTest;
-import io.microsphere.redis.replicator.spring.event.RedisCommandReplicatedEvent;
 import io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration;
 import io.microsphere.redis.spring.context.RedisInitializer;
-import io.microsphere.redis.spring.event.RedisCommandEvent;
-import org.junit.jupiter.api.Test;
-import org.springframework.context.ApplicationListener;
-import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-
-import static io.microsphere.util.ArrayUtils.ofArray;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * {@link KafkaRedisReplicatorModuleInitializer} Test
@@ -54,34 +41,4 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         "microsphere.redis.wrapped-redis-templates=stringRedisTemplate",
 })
 public class KafkaRedisReplicatorModuleInitializerTest extends AbstractRedisReplicatorTest {
-
-    @Test
-    public void test() throws InterruptedException {
-
-        CountDownLatch latch = new CountDownLatch(1);
-
-        Map<Object, Object> data = new HashMap<>();
-
-        context.addApplicationListener((ApplicationListener<RedisCommandReplicatedEvent>) event -> {
-            RedisCommandEvent redisCommandEvent = event.getSourceEvent();
-
-            RedisSerializer keySerializer = stringRedisTemplate.getKeySerializer();
-            RedisSerializer valueSerializer = stringRedisTemplate.getValueSerializer();
-            Object key = keySerializer.deserialize((byte[]) redisCommandEvent.getArg(0));
-            Object value = valueSerializer.deserialize((byte[]) redisCommandEvent.getArg(1));
-            data.put(key, value);
-
-            assertEquals("org.springframework.data.redis.connection.RedisStringCommands", redisCommandEvent.getInterfaceName());
-            assertEquals("set", redisCommandEvent.getMethodName());
-            assertArrayEquals(ofArray(byte[].class, byte[].class), redisCommandEvent.getParameterTypes());
-            assertEquals("default", redisCommandEvent.getApplicationName());
-            latch.countDown();
-        });
-
-
-        stringRedisTemplate.opsForValue().set("Key-1", "Value-1");
-        latch.await();
-
-        assertEquals("Value-1", data.get("Key-1"));
-    }
 }

@@ -16,17 +16,10 @@
  */
 package io.microsphere.redis.replicator.spring;
 
-import io.microsphere.redis.replicator.spring.event.RedisCommandReplicatedEvent;
 import io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration;
 import io.microsphere.redis.spring.context.RedisInitializer;
-import org.junit.jupiter.api.Test;
-import org.springframework.context.ApplicationListener;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * {@link RedisCommandReplicator} Test
@@ -44,19 +37,4 @@ import java.util.concurrent.CountDownLatch;
         "microsphere.redis.enabled=true"
 })
 public class RedisCommandReplicatorTest extends AbstractRedisReplicatorTest {
-
-    @Test
-    public void test() throws InterruptedException {
-
-        CountDownLatch latch = new CountDownLatch(1);
-
-        Map<Object, Object> data = new HashMap<>();
-
-        context.addApplicationListener((ApplicationListener<RedisCommandReplicatedEvent>) event -> {
-            latch.countDown();
-        });
-
-        stringRedisTemplate.opsForValue().set("Key-1", "Value-1");
-        latch.await();
-    }
 }
