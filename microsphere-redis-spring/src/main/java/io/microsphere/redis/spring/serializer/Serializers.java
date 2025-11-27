@@ -252,7 +252,7 @@ public abstract class Serializers {
         register(Expiration.class, ExpirationSerializer.EXPIRATION_SERIALIZER);
 
         // org.springframework.data.redis.connection.SortParameters type 
-        register(SortParameters.class, SortParametersSerializer.INSTANCE);
+        register(SortParameters.class, SortParametersSerializer.SORT_PARAMETERS_SERIALIZER);
 
         // org.springframework.data.redis.connection.RedisListCommands.Position type 
         register(Position.class, new EnumSerializer(Position.class));
