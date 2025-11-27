@@ -4,6 +4,8 @@ import org.springframework.data.geo.Point;
 import org.springframework.data.redis.connection.RedisGeoCommands;
 import org.springframework.data.redis.serializer.RedisSerializer;
 
+import static io.microsphere.redis.spring.serializer.GeoLocationSerializer.GEO_LOCATION_SERIALIZER;
+
 /**
  * {@link GeoLocationSerializer} Test
  *
@@ -14,7 +16,7 @@ class GeoLocationSerializerTest extends AbstractSerializerTest<RedisGeoCommands.
 
     @Override
     protected RedisSerializer<RedisGeoCommands.GeoLocation> getSerializer() {
-        return GeoLocationSerializer.GEO_LOCATION_SERIALIZER;
+        return GEO_LOCATION_SERIALIZER;
     }
 
     @Override
