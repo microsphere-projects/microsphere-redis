@@ -120,7 +120,7 @@ class SerializersTest {
         assertEquals(getSerializer(Expiration.class), ExpirationSerializer.EXPIRATION_SERIALIZER);
 
         // org.springframework.data.redis.connection.SortParameters 类型
-        assertEquals(getSerializer(SortParameters.class), SortParametersSerializer.INSTANCE);
+        assertEquals(getSerializer(SortParameters.class), SortParametersSerializer.SORT_PARAMETERS_SERIALIZER);
 
         // org.springframework.data.redis.connection.RedisListCommands.Position 类型
         assertEquals(getSerializer(RedisListCommands.Position.class), new EnumSerializer(RedisListCommands.Position.class));
