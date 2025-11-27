@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import static io.microsphere.util.ArrayUtils.ofArray;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -81,7 +80,7 @@ public class KafkaRedisReplicatorModuleInitializerTest extends AbstractRedisRepl
 
 
         stringRedisTemplate.opsForValue().set("Key-1", "Value-1");
-        latch.await(10, SECONDS);
+        latch.await();
 
         assertEquals("Value-1", data.get("Key-1"));
     }
