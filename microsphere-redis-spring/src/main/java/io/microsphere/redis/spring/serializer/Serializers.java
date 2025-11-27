@@ -104,6 +104,9 @@ public abstract class Serializers {
 
     @Nullable
     public static byte[] serializeRawParameter(Parameter parameter) {
+        if (parameter == null) {
+            return null;
+        }
         byte[] rawParameterValue = parameter.getRawValue();
         if (rawParameterValue == null) {
             Object parameterValue = parameter.getValue();

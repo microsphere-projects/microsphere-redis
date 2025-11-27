@@ -1,5 +1,7 @@
 package io.microsphere.redis.spring.serializer;
 
+import io.microsphere.redis.spring.metadata.Parameter;
+import io.microsphere.redis.spring.metadata.ParameterMetadata;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.geo.Point;
 import org.springframework.data.redis.connection.RedisGeoCommands;
@@ -34,6 +36,7 @@ import static io.microsphere.redis.spring.serializer.Serializers.getSerializer;
 import static io.microsphere.redis.spring.serializer.Serializers.initializeParameterizedSerializer;
 import static io.microsphere.redis.spring.serializer.Serializers.register;
 import static io.microsphere.redis.spring.serializer.Serializers.serialize;
+import static io.microsphere.redis.spring.serializer.Serializers.serializeRawParameter;
 import static io.microsphere.redis.spring.serializer.ShortSerializer.SHORT_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.SortParametersSerializer.SORT_PARAMETERS_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.WeightsSerializer.WEIGHTS_SERIALIZER;
@@ -119,6 +122,27 @@ class SerializersTest {
     void testDefaultSerialize() {
         String object = "hello";
         assertNotNull(defaultSerialize(object));
+    }
+
+    @Test
+    void testSerializeRawParameter() {
+        String value = "hello";
+        ParameterMetadata parameterMetadata = new ParameterMetadata(0, String.class.getName(), "name");
+        Parameter parameter = new Parameter(value, parameterMetadata);
+        assertArrayEquals(serialize(value), serializeRawParameter(parameter));
+        assertArrayEquals(serialize(value), serializeRawParameter(parameter));
+    }
+
+    @Test
+    void testSerializeRawParameterWithNull() {
+        assertNull(serializeRawParameter(null));
+    }
+
+    @Test
+    void testSerializeRawParameterOnRedisSerializerNotFound() {
+        ParameterMetadata parameterMetadata = new ParameterMetadata(0, "", "name");
+        Parameter parameter = new Parameter(new Integer(0), parameterMetadata);
+        assertNull(serializeRawParameter(parameter));
     }
 
     @Test
