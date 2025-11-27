@@ -4,9 +4,14 @@ import org.springframework.data.redis.connection.DefaultSortParameters;
 import org.springframework.data.redis.connection.SortParameters;
 import org.springframework.data.redis.serializer.RedisSerializer;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.StringJoiner;
+
+import static io.microsphere.redis.spring.serializer.SortParametersSerializer.SORT_PARAMETERS_SERIALIZER;
+import static java.lang.String.valueOf;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Arrays.deepToString;
+import static org.springframework.data.redis.connection.SortParameters.Order.ASC;
 
 /**
  * {@link SortParametersSerializer} Test
@@ -18,15 +23,15 @@ class SortParametersSerializerTest extends AbstractSerializerTest<SortParameters
 
     @Override
     protected RedisSerializer<SortParameters> getSerializer() {
-        return SortParametersSerializer.INSTANCE;
+        return SORT_PARAMETERS_SERIALIZER;
     }
 
     @Override
     protected SortParameters getValue() {
-        return new DefaultSortParameters("a".getBytes(StandardCharsets.UTF_8),
+        return new DefaultSortParameters("a".getBytes(UTF_8),
                 new SortParameters.Range(0, 10),
                 new byte[0][0],
-                SortParameters.Order.ASC,
+                ASC,
                 true);
     }
 
@@ -34,12 +39,12 @@ class SortParametersSerializerTest extends AbstractSerializerTest<SortParameters
     protected Object getTestData(SortParameters value) {
         StringJoiner stringJoiner = new StringJoiner(":");
         return stringJoiner
-                .add(String.valueOf(value.getOrder()))
-                .add(String.valueOf(value.getLimit().getStart()))
-                .add(String.valueOf(value.getLimit().getCount()))
-                .add(String.valueOf(value.isAlphabetic()))
+                .add(valueOf(value.getOrder()))
+                .add(valueOf(value.getLimit().getStart()))
+                .add(valueOf(value.getLimit().getCount()))
+                .add(valueOf(value.isAlphabetic()))
                 .add(Arrays.toString(value.getByPattern()))
-                .add(Arrays.deepToString(value.getGetPattern()))
+                .add(deepToString(value.getGetPattern()))
                 .toString();
     }
 }
