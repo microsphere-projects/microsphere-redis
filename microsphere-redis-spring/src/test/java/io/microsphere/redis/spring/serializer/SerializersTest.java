@@ -17,9 +17,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
-import static io.microsphere.redis.spring.serializer.Serializers.defaultSerializer;
+import static io.microsphere.redis.spring.serializer.Serializers.DEFAULT_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.Serializers.getSerializer;
-import static io.microsphere.redis.spring.serializer.Serializers.stringSerializer;
+import static io.microsphere.redis.spring.serializer.Serializers.STRING_SERIALIZER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -53,59 +53,59 @@ class SerializersTest {
     @Test
     void testGetSimpleSerializers() {
         // boolean 或 Boolean 类型
-        assertEquals(getSerializer(boolean.class), BooleanSerializer.INSTANCE);
-        assertEquals(getSerializer(Boolean.class), BooleanSerializer.INSTANCE);
+        assertEquals(getSerializer(boolean.class), BooleanSerializer.BOOLEAN_SERIALIZER);
+        assertEquals(getSerializer(Boolean.class), BooleanSerializer.BOOLEAN_SERIALIZER);
 
         // int 或 Integer 类型
-        assertEquals(getSerializer(int.class), IntegerSerializer.INSTANCE);
-        assertEquals(getSerializer(Integer.class), IntegerSerializer.INSTANCE);
+        assertEquals(getSerializer(int.class), IntegerSerializer.INTEGER_SERIALIZER);
+        assertEquals(getSerializer(Integer.class), IntegerSerializer.INTEGER_SERIALIZER);
 
         // long 或 Long 类型
-        assertEquals(getSerializer(long.class), LongSerializer.INSTANCE);
-        assertEquals(getSerializer(Long.class), LongSerializer.INSTANCE);
+        assertEquals(getSerializer(long.class), LongSerializer.LONG_SERIALIZER);
+        assertEquals(getSerializer(Long.class), LongSerializer.LONG_SERIALIZER);
 
         // double 或 Double 类型
-        assertEquals(getSerializer(double.class), DoubleSerializer.INSTANCE);
-        assertEquals(getSerializer(Double.class), DoubleSerializer.INSTANCE);
+        assertEquals(getSerializer(double.class), DoubleSerializer.DOUBLE_SERIALIZER);
+        assertEquals(getSerializer(Double.class), DoubleSerializer.DOUBLE_SERIALIZER);
 
         // String 类型
-        assertEquals(getSerializer(String.class), stringSerializer);
+        assertEquals(getSerializer(String.class), STRING_SERIALIZER);
     }
 
     @Test
     void testGetArrayTypeSerializers() {
         // byte[] 类型
-        assertEquals(getSerializer(byte[][].class), defaultSerializer);
+        assertEquals(getSerializer(byte[][].class), DEFAULT_SERIALIZER);
 
         // int[] 类型
-        assertEquals(getSerializer(int[].class), defaultSerializer);
+        assertEquals(getSerializer(int[].class), DEFAULT_SERIALIZER);
 
         // byte[][] 类型
-        assertEquals(getSerializer(int[].class), defaultSerializer);
+        assertEquals(getSerializer(int[].class), DEFAULT_SERIALIZER);
     }
 
     @Test
     void testGetCollectionTypeSerializers() {
         // Iterable 类型
-        assertEquals(getSerializer(Iterable.class), defaultSerializer);
+        assertEquals(getSerializer(Iterable.class), DEFAULT_SERIALIZER);
 
         // Iterator 类型
-        assertEquals(getSerializer(Iterator.class), defaultSerializer);
+        assertEquals(getSerializer(Iterator.class), DEFAULT_SERIALIZER);
 
         // Collection 类型
-        assertEquals(getSerializer(Collection.class), defaultSerializer);
+        assertEquals(getSerializer(Collection.class), DEFAULT_SERIALIZER);
 
         // List 类型
-        assertEquals(getSerializer(Collection.class), defaultSerializer);
+        assertEquals(getSerializer(Collection.class), DEFAULT_SERIALIZER);
 
         // Set 类型
-        assertEquals(getSerializer(Collection.class), defaultSerializer);
+        assertEquals(getSerializer(Collection.class), DEFAULT_SERIALIZER);
 
         // Map 类型
-        assertEquals(getSerializer(Collection.class), defaultSerializer);
+        assertEquals(getSerializer(Collection.class), DEFAULT_SERIALIZER);
 
         // Queue 类型
-        assertEquals(getSerializer(Collection.class), defaultSerializer);
+        assertEquals(getSerializer(Collection.class), DEFAULT_SERIALIZER);
     }
 
     @Test
@@ -117,7 +117,7 @@ class SerializersTest {
     void testGetSpringDataRedisSerializers() {
 
         // org.springframework.data.redis.core.types.Expiration 类型
-        assertEquals(getSerializer(Expiration.class), ExpirationSerializer.INSTANCE);
+        assertEquals(getSerializer(Expiration.class), ExpirationSerializer.EXPIRATION_SERIALIZER);
 
         // org.springframework.data.redis.connection.SortParameters 类型
         assertEquals(getSerializer(SortParameters.class), SortParametersSerializer.INSTANCE);
@@ -129,21 +129,21 @@ class SerializersTest {
         assertEquals(getSerializer(RedisStringCommands.SetOption.class), new EnumSerializer(RedisStringCommands.SetOption.class));
 
         // org.springframework.data.redis.connection.RedisZSetCommands.Range 类型
-        assertEquals(getSerializer(RedisZSetCommands.Range.class), RangeSerializer.INSTANCE);
+        assertEquals(getSerializer(RedisZSetCommands.Range.class), RangeSerializer.RANGE_SERIALIZER);
 
         // org.springframework.data.redis.connection.zset.Aggregate
         assertEquals(getSerializer(Aggregate.class), new EnumSerializer(Aggregate.class));
 
         // org.springframework.data.redis.connection.zset.Weights 类型
-        assertEquals(getSerializer(Weights.class), WeightsSerializer.INSTANCE);
+        assertEquals(getSerializer(Weights.class), WeightsSerializer.WEIGHTS_SERIALIZER);
 
         // org.springframework.data.redis.connection.ReturnType 类型
         assertEquals(getSerializer(ReturnType.class), new EnumSerializer(ReturnType.class));
 
         // org.springframework.data.redis.connection.RedisGeoCommands.GeoLocation 类型
-        assertEquals(getSerializer(RedisGeoCommands.GeoLocation.class), GeoLocationSerializer.INSTANCE);
+        assertEquals(getSerializer(RedisGeoCommands.GeoLocation.class), GeoLocationSerializer.GEO_LOCATION_SERIALIZER);
 
         // org.springframework.data.geo.Point 类型
-        assertEquals(getSerializer(Point.class), PointSerializer.INSTANCE);
+        assertEquals(getSerializer(Point.class), PointSerializer.POINT_SERIALIZER);
     }
 }

@@ -11,7 +11,7 @@ import org.springframework.data.redis.serializer.SerializationException;
  */
 public final class ByteArraySerializer implements RedisSerializer<byte[]> {
 
-    public static final ByteArraySerializer INSTANCE = new ByteArraySerializer();
+    public static final ByteArraySerializer BYTE_ARRAY_SERIALIZER = new ByteArraySerializer();
 
     @Override
     public byte[] serialize(byte[] bytes) throws SerializationException {

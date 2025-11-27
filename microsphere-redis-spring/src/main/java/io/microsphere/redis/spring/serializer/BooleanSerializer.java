@@ -11,7 +11,7 @@ import org.springframework.data.redis.serializer.SerializationException;
  */
 public final class BooleanSerializer extends AbstractSerializer<Boolean> {
 
-    public static final BooleanSerializer INSTANCE = new BooleanSerializer();
+    public static final BooleanSerializer BOOLEAN_SERIALIZER = new BooleanSerializer();
 
     private static final byte NULL_VALUE = -1;
 

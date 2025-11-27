@@ -12,7 +12,7 @@ class DoubleSerializerTest extends AbstractSerializerTest<Double> {
 
     @Override
     protected RedisSerializer<Double> getSerializer() {
-        return DoubleSerializer.INSTANCE;
+        return DoubleSerializer.DOUBLE_SERIALIZER;
     }
 
     @Override

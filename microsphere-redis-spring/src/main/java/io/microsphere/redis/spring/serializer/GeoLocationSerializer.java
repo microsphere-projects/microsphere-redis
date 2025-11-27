@@ -8,6 +8,7 @@ import org.springframework.data.redis.serializer.SerializationException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.microsphere.redis.spring.serializer.PointSerializer.POINT_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.Serializers.defaultSerialize;
 
 /**
@@ -18,9 +19,7 @@ import static io.microsphere.redis.spring.serializer.Serializers.defaultSerializ
  */
 public class GeoLocationSerializer extends AbstractSerializer<RedisGeoCommands.GeoLocation> {
 
-    private static final PointSerializer pointSerializer = PointSerializer.INSTANCE;
-
-    public static final GeoLocationSerializer INSTANCE = new GeoLocationSerializer();
+    public static final GeoLocationSerializer GEO_LOCATION_SERIALIZER = new GeoLocationSerializer();
 
     private static final String NAME_KEY = "n";
 
@@ -33,7 +32,7 @@ public class GeoLocationSerializer extends AbstractSerializer<RedisGeoCommands.G
         Map<String, Object> data = new HashMap<>(2);
         // nameBytes may fail
         byte[] nameBytes = defaultSerialize(name);
-        byte[] pointBytes = pointSerializer.serialize(point);
+        byte[] pointBytes = POINT_SERIALIZER.serialize(point);
 
         data.put(NAME_KEY, nameBytes);
         data.put(POINT_KEY, pointBytes);
@@ -49,7 +48,7 @@ public class GeoLocationSerializer extends AbstractSerializer<RedisGeoCommands.G
         byte[] pointBytes = (byte[]) data.get(POINT_KEY);
 
         Object object = Serializers.deserialize(nameBytes, Object.class);
-        Point point = pointSerializer.deserialize(pointBytes);
+        Point point = POINT_SERIALIZER.deserialize(pointBytes);
 
         return new RedisGeoCommands.GeoLocation(object, point);
     }

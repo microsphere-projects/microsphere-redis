@@ -16,7 +16,7 @@ import static io.microsphere.redis.spring.serializer.Serializers.defaultSerializ
  */
 public class WeightsSerializer extends AbstractSerializer<Weights> {
 
-    public static final WeightsSerializer INSTANCE = new WeightsSerializer();
+    public static final WeightsSerializer WEIGHTS_SERIALIZER = new WeightsSerializer();
 
     @Override
     protected byte[] doSerialize(Weights weights) throws SerializationException {

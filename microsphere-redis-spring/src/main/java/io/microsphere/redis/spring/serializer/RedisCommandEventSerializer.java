@@ -139,7 +139,7 @@ public class RedisCommandEventSerializer extends AbstractSerializer<RedisCommand
 
         V1(RedisCommandEventSerializer.VERSION_V1) {
 
-            private final ShortSerializer serializer = ShortSerializer.INSTANCE;
+            private final ShortSerializer serializer = ShortSerializer.SHORT_SERIALIZER;
 
             @Override
             protected void writeMethodMetadata(RedisCommandEvent redisCommandEvent, OutputStream outputStream) throws IOException {

@@ -12,7 +12,7 @@ class ShortSerializerTest extends AbstractSerializerTest<Short> {
 
     @Override
     protected RedisSerializer<Short> getSerializer() {
-        return ShortSerializer.INSTANCE;
+        return ShortSerializer.SHORT_SERIALIZER;
     }
 
     @Override

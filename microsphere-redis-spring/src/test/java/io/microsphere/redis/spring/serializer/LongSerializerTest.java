@@ -12,7 +12,7 @@ class LongSerializerTest extends AbstractSerializerTest<Long> {
 
     @Override
     protected RedisSerializer<Long> getSerializer() {
-        return LongSerializer.INSTANCE;
+        return LongSerializer.LONG_SERIALIZER;
     }
 
     @Override

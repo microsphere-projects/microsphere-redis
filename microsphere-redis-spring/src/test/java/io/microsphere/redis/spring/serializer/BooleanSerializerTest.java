@@ -13,7 +13,7 @@ class BooleanSerializerTest extends AbstractSerializerTest<Boolean> {
 
     @Override
     protected RedisSerializer<Boolean> getSerializer() {
-        return BooleanSerializer.INSTANCE;
+        return BooleanSerializer.BOOLEAN_SERIALIZER;
     }
 
     @Override

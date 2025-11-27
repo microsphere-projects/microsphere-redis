@@ -12,7 +12,7 @@ class IntegerSerializerTest extends AbstractSerializerTest<Integer> {
 
     @Override
     protected RedisSerializer<Integer> getSerializer() {
-        return IntegerSerializer.INSTANCE;
+        return IntegerSerializer.INTEGER_SERIALIZER;
     }
 
     @Override

@@ -11,7 +11,7 @@ import org.springframework.data.redis.serializer.SerializationException;
  */
 public class IntegerSerializer extends AbstractSerializer<Integer> {
 
-    public static final IntegerSerializer INSTANCE = new IntegerSerializer();
+    public static final IntegerSerializer INTEGER_SERIALIZER = new IntegerSerializer();
 
     @Override
     protected int calcBytesLength() {

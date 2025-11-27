@@ -11,7 +11,7 @@ import org.springframework.data.redis.serializer.SerializationException;
  */
 public class ShortSerializer extends AbstractSerializer<Short> {
 
-    public static final ShortSerializer INSTANCE = new ShortSerializer();
+    public static final ShortSerializer SHORT_SERIALIZER = new ShortSerializer();
 
     @Override
     protected int calcBytesLength() {

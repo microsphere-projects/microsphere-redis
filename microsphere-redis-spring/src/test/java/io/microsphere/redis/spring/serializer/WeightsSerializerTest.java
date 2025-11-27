@@ -3,7 +3,7 @@ package io.microsphere.redis.spring.serializer;
 import org.springframework.data.redis.connection.zset.Weights;
 import org.springframework.data.redis.serializer.RedisSerializer;
 
-import static io.microsphere.redis.spring.serializer.WeightsSerializer.INSTANCE;
+import static io.microsphere.redis.spring.serializer.WeightsSerializer.WEIGHTS_SERIALIZER;
 
 /**
  * {@link WeightsSerializer} Test
@@ -15,7 +15,7 @@ class WeightsSerializerTest extends AbstractSerializerTest<Weights> {
 
     @Override
     protected RedisSerializer<Weights> getSerializer() {
-        return INSTANCE;
+        return WEIGHTS_SERIALIZER;
     }
 
     @Override

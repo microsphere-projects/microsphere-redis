@@ -18,7 +18,7 @@ class RangeSerializerTest extends AbstractSerializerTest<RedisZSetCommands.Range
 
     @Override
     protected RedisSerializer<RedisZSetCommands.Range> getSerializer() {
-        return RangeSerializer.INSTANCE;
+        return RangeSerializer.RANGE_SERIALIZER;
     }
 
     @Override

@@ -13,7 +13,7 @@ class PointSerializerTest extends AbstractSerializerTest<Point> {
 
     @Override
     protected RedisSerializer<Point> getSerializer() {
-        return PointSerializer.INSTANCE;
+        return PointSerializer.POINT_SERIALIZER;
     }
 
     @Override

@@ -15,7 +15,7 @@ class ExpirationSerializerTest extends AbstractSerializerTest<Expiration> {
 
     @Override
     protected RedisSerializer<Expiration> getSerializer() {
-        return ExpirationSerializer.INSTANCE;
+        return ExpirationSerializer.EXPIRATION_SERIALIZER;
     }
 
     @Override

@@ -4,6 +4,8 @@ import org.springframework.data.geo.Point;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
 
+import static io.microsphere.redis.spring.serializer.DoubleSerializer.DOUBLE_SERIALIZER;
+
 /**
  * {@link Point} {@link RedisSerializer}
  *
@@ -12,21 +14,19 @@ import org.springframework.data.redis.serializer.SerializationException;
  */
 public class PointSerializer extends AbstractSerializer<Point> {
 
-    private static final DoubleSerializer doubleSerializer = DoubleSerializer.INSTANCE;
-
-    public static final PointSerializer INSTANCE = new PointSerializer();
+    public static final PointSerializer POINT_SERIALIZER = new PointSerializer();
 
     @Override
     protected int calcBytesLength() {
-        return doubleSerializer.getBytesLength() * 2;
+        return DOUBLE_SERIALIZER.getBytesLength() * 2;
     }
 
     @Override
     protected byte[] doSerialize(Point point) throws SerializationException {
         double x = point.getX();
         double y = point.getY();
-        byte[] xBytes = doubleSerializer.serialize(x);
-        byte[] yBytes = doubleSerializer.serialize(y);
+        byte[] xBytes = DOUBLE_SERIALIZER.serialize(x);
+        byte[] yBytes = DOUBLE_SERIALIZER.serialize(y);
         int length = xBytes.length + yBytes.length;
         byte[] bytes = new byte[length];
         int index = 0;
@@ -52,8 +52,8 @@ public class PointSerializer extends AbstractSerializer<Point> {
         for (int i = 0; i < size; i++) {
             yBytes[i] = bytes[index++];
         }
-        double x = doubleSerializer.deserialize(xBytes);
-        double y = doubleSerializer.deserialize(yBytes);
+        double x = DOUBLE_SERIALIZER.deserialize(xBytes);
+        double y = DOUBLE_SERIALIZER.deserialize(yBytes);
         return new Point(x, y);
     }
 }

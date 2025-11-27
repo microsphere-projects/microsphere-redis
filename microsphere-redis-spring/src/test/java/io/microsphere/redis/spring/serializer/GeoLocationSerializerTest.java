@@ -14,7 +14,7 @@ class GeoLocationSerializerTest extends AbstractSerializerTest<RedisGeoCommands.
 
     @Override
     protected RedisSerializer<RedisGeoCommands.GeoLocation> getSerializer() {
-        return GeoLocationSerializer.INSTANCE;
+        return GeoLocationSerializer.GEO_LOCATION_SERIALIZER;
     }
 
     @Override

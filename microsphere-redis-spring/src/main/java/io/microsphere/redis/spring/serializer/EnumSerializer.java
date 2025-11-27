@@ -7,6 +7,9 @@ import org.springframework.util.ReflectionUtils;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
+import static io.microsphere.redis.spring.serializer.IntegerSerializer.INTEGER_SERIALIZER;
+import static io.microsphere.redis.spring.serializer.ShortSerializer.SHORT_SERIALIZER;
+
 /**
  * {@link Enum} {@link RedisSerializer} Class
  *
@@ -22,10 +25,6 @@ public class EnumSerializer<E extends Enum> implements RedisSerializer<E> {
     private static final int SHORT_BYTES_LENGTH = 2;
 
     private static final int INTEGER_BYTES_LENGTH = 4;
-
-    private static final IntegerSerializer integerSerializer = IntegerSerializer.INSTANCE;
-
-    private static final ShortSerializer shortSerializer = ShortSerializer.INSTANCE;
 
     private final Class<E> enumType;
 
@@ -79,10 +78,10 @@ public class EnumSerializer<E extends Enum> implements RedisSerializer<E> {
                 bytes[0] = (byte) ordinal;
                 break;
             case SHORT_BYTES_LENGTH:
-                bytes = shortSerializer.serialize((short) ordinal);
+                bytes = SHORT_SERIALIZER.serialize((short) ordinal);
                 break;
             case INTEGER_BYTES_LENGTH:
-                bytes = integerSerializer.serialize(ordinal);
+                bytes = INTEGER_SERIALIZER.serialize(ordinal);
         }
 
         return bytes;
@@ -94,21 +93,15 @@ public class EnumSerializer<E extends Enum> implements RedisSerializer<E> {
         if (bytes == null) {
             return null;
         }
-        // RedisSerializer<String> delegate = Serializers.stringSerializer;
-        // String name = delegate.deserialize(bytes);
-        // return Enum.valueOf(enumType, name);
 
         int ordinal = 0;
-        switch (bytesLength) {
-            case BYTE_BYTES_LENGTH: // Most scenarios match
-                ordinal = bytes[0];
-                break;
-            case SHORT_BYTES_LENGTH:
-                ordinal = shortSerializer.deserialize(bytes);
-                break;
-            case INTEGER_BYTES_LENGTH:
-                ordinal = integerSerializer.deserialize(bytes);
-        }
+
+        ordinal = switch (bytesLength) {
+            case BYTE_BYTES_LENGTH -> bytes[0];
+            case SHORT_BYTES_LENGTH -> SHORT_SERIALIZER.deserialize(bytes);
+            case INTEGER_BYTES_LENGTH -> INTEGER_SERIALIZER.deserialize(bytes);
+            default -> throw new IllegalArgumentException("Unsupported bytes length: " + bytesLength);
+        };
 
         return enums[ordinal];
     }

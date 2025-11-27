@@ -6,6 +6,7 @@ import org.springframework.data.redis.serializer.SerializationException;
 
 import java.util.concurrent.TimeUnit;
 
+import static io.microsphere.redis.spring.serializer.LongSerializer.LONG_SERIALIZER;
 import static java.lang.System.arraycopy;
 
 /**
@@ -18,15 +19,13 @@ import static java.lang.System.arraycopy;
  */
 public class ExpirationSerializer extends AbstractSerializer<Expiration> {
 
-    private static final LongSerializer longSerializer = LongSerializer.INSTANCE;
-
     private static final EnumSerializer<TimeUnit> timeUnitEnumSerializer = new EnumSerializer<>(TimeUnit.class);
 
-    private static final int expirationTimeBytesLength = longSerializer.getBytesLength();
+    private static final int expirationTimeBytesLength = LONG_SERIALIZER.getBytesLength();
 
     private static final int timeUnitBytesLength = timeUnitEnumSerializer.getBytesLength();
 
-    public static final ExpirationSerializer INSTANCE = new ExpirationSerializer();
+    public static final ExpirationSerializer EXPIRATION_SERIALIZER = new ExpirationSerializer();
 
     @Override
     protected int calcBytesLength() {
@@ -40,7 +39,7 @@ public class ExpirationSerializer extends AbstractSerializer<Expiration> {
 
         long expirationTime = expiration.getExpirationTime();
 
-        byte[] expirationTimeBytes = longSerializer.serialize(expirationTime);
+        byte[] expirationTimeBytes = LONG_SERIALIZER.serialize(expirationTime);
 
         byte[] bytes = new byte[bytesLength];
 
@@ -70,7 +69,7 @@ public class ExpirationSerializer extends AbstractSerializer<Expiration> {
         byte[] timeUnitBytes = new byte[timeUnitBytesLength];
         arraycopy(bytes, expirationTimeBytesLength, timeUnitBytes, 0, timeUnitBytesLength);
 
-        long expirationTime = longSerializer.deserialize(expirationTimeBytes);
+        long expirationTime = LONG_SERIALIZER.deserialize(expirationTimeBytes);
 
         TimeUnit timeUnit = timeUnitEnumSerializer.deserialize(timeUnitBytes);
 

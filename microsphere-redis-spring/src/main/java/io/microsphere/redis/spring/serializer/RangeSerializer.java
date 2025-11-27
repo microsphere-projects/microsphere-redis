@@ -1,22 +1,27 @@
 package io.microsphere.redis.spring.serializer;
 
-import org.springframework.data.redis.connection.RedisZSetCommands;
+import org.springframework.data.redis.connection.RedisZSetCommands.Range;
+import org.springframework.data.redis.connection.RedisZSetCommands.Range.Boundary;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.springframework.data.redis.connection.RedisZSetCommands.Range.range;
+
 
 /**
- * {@link RedisZSetCommands.Range} {@link RedisSerializer} Class
+ * {@link Range} {@link RedisSerializer} Class
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
+ * @see Range
+ * @see Boundary
  * @since 1.0.0
  */
-public class RangeSerializer extends AbstractSerializer<RedisZSetCommands.Range> {
+public class RangeSerializer extends AbstractSerializer<Range> {
 
-    public static final RangeSerializer INSTANCE = new RangeSerializer();
+    public static final RangeSerializer RANGE_SERIALIZER = new RangeSerializer();
 
     private static final String MAX_VALUE_KEY = "xv";
 
@@ -27,17 +32,17 @@ public class RangeSerializer extends AbstractSerializer<RedisZSetCommands.Range>
     private static final String MIN_INCLUDING_KEY = "mi";
 
     @Override
-    protected byte[] doSerialize(RedisZSetCommands.Range range) throws SerializationException {
+    protected byte[] doSerialize(Range range) throws SerializationException {
         Map<String, Object> data = new HashMap<>(4);
 
-        RedisZSetCommands.Range.Boundary max = range.getMax();
+        Boundary max = range.getMax();
         Object maxValue = max == null ? null : max.getValue();
         boolean maxIncluding = max == null ? false : max.isIncluding();
 
         data.put(MAX_VALUE_KEY, maxValue);
         data.put(MAX_INCLUDING_KEY, maxIncluding);
 
-        RedisZSetCommands.Range.Boundary min = range.getMin();
+        Boundary min = range.getMin();
         Object minValue = min == null ? null : min.getValue();
         boolean minIncluding = min == null ? false : min.isIncluding();
 
@@ -48,10 +53,10 @@ public class RangeSerializer extends AbstractSerializer<RedisZSetCommands.Range>
     }
 
     @Override
-    protected RedisZSetCommands.Range doDeserialize(byte[] bytes) throws SerializationException {
+    protected Range doDeserialize(byte[] bytes) throws SerializationException {
         Map<String, Object> data = Serializers.deserialize(bytes, Map.class);
 
-        RedisZSetCommands.Range range = RedisZSetCommands.Range.range();
+        Range range = range();
 
         Object maxValue = data.get(MAX_VALUE_KEY);
         boolean maxIncluding = (Boolean) data.get(MAX_INCLUDING_KEY);
@@ -68,7 +73,7 @@ public class RangeSerializer extends AbstractSerializer<RedisZSetCommands.Range>
         }
 
         if (maxValue == null && minValue == null && maxIncluding && minIncluding) {
-            range = RedisZSetCommands.Range.unbounded();
+            range = Range.unbounded();
         }
 
         return range;
