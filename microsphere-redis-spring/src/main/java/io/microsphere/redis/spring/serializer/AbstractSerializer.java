@@ -62,7 +62,7 @@ public abstract class AbstractSerializer<T> implements RedisSerializer<T> {
         }
 
         // Compatible byte array fixed case
-        if (bytesLength != UNBOUND_BYTES_LENGTH && bytes.length != getBytesLength()) {
+        if (bytesLength != UNBOUND_BYTES_LENGTH && bytesLength != bytes.length) {
             return null;
         }
 
