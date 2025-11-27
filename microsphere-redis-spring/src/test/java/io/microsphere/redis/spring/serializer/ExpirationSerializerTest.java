@@ -5,6 +5,8 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 
 import java.util.concurrent.TimeUnit;
 
+import static io.microsphere.redis.spring.serializer.ExpirationSerializer.EXPIRATION_SERIALIZER;
+
 /**
  * {@link ExpirationSerializer}
  *
@@ -15,7 +17,7 @@ class ExpirationSerializerTest extends AbstractSerializerTest<Expiration> {
 
     @Override
     protected RedisSerializer<Expiration> getSerializer() {
-        return ExpirationSerializer.EXPIRATION_SERIALIZER;
+        return EXPIRATION_SERIALIZER;
     }
 
     @Override
