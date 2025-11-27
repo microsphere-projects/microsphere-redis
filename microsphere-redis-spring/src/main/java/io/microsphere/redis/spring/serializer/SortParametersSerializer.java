@@ -37,7 +37,7 @@ public class SortParametersSerializer extends AbstractSerializer<SortParameters>
 
     private static final EnumSerializer orderEnumSerializer = new EnumSerializer(Order.class);
 
-    public static final SortParametersSerializer INSTANCE = new SortParametersSerializer();
+    public static final SortParametersSerializer SORT_PARAMETERS_SERIALIZER = new SortParametersSerializer();
 
     @Override
     protected byte[] doSerialize(SortParameters sortParameters) throws SerializationException {
