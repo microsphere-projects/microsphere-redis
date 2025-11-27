@@ -3,6 +3,8 @@ package io.microsphere.redis.spring.serializer;
 import org.springframework.data.geo.Point;
 import org.springframework.data.redis.serializer.RedisSerializer;
 
+import static io.microsphere.redis.spring.serializer.PointSerializer.POINT_SERIALIZER;
+
 /**
  * {@link PointSerializer} Test
  *
@@ -13,7 +15,7 @@ class PointSerializerTest extends AbstractSerializerTest<Point> {
 
     @Override
     protected RedisSerializer<Point> getSerializer() {
-        return PointSerializer.POINT_SERIALIZER;
+        return POINT_SERIALIZER;
     }
 
     @Override
