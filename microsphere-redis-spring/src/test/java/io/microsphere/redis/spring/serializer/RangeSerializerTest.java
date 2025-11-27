@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.data.redis.connection.RedisZSetCommands;
 import org.springframework.data.redis.serializer.RedisSerializer;
 
+import static io.microsphere.redis.spring.serializer.RangeSerializer.RANGE_SERIALIZER;
 import static org.springframework.data.redis.connection.RedisZSetCommands.Range.range;
 import static org.springframework.data.redis.connection.RedisZSetCommands.Range.unbounded;
 
@@ -18,7 +19,7 @@ class RangeSerializerTest extends AbstractSerializerTest<RedisZSetCommands.Range
 
     @Override
     protected RedisSerializer<RedisZSetCommands.Range> getSerializer() {
-        return RangeSerializer.RANGE_SERIALIZER;
+        return RANGE_SERIALIZER;
     }
 
     @Override
