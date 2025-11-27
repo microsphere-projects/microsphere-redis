@@ -2,6 +2,8 @@ package io.microsphere.redis.spring.serializer;
 
 import org.springframework.data.redis.serializer.RedisSerializer;
 
+import static io.microsphere.redis.spring.serializer.LongSerializer.LONG_SERIALIZER;
+
 /**
  * {@link LongSerializer} Test
  *
@@ -12,7 +14,7 @@ class LongSerializerTest extends AbstractSerializerTest<Long> {
 
     @Override
     protected RedisSerializer<Long> getSerializer() {
-        return LongSerializer.LONG_SERIALIZER;
+        return LONG_SERIALIZER;
     }
 
     @Override
