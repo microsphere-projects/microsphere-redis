@@ -28,9 +28,11 @@ import static io.microsphere.redis.spring.serializer.PointSerializer.POINT_SERIA
 import static io.microsphere.redis.spring.serializer.RangeSerializer.RANGE_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.Serializers.DEFAULT_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.Serializers.STRING_SERIALIZER;
+import static io.microsphere.redis.spring.serializer.Serializers.defaultSerialize;
 import static io.microsphere.redis.spring.serializer.Serializers.deserialize;
 import static io.microsphere.redis.spring.serializer.Serializers.getSerializer;
 import static io.microsphere.redis.spring.serializer.Serializers.initializeParameterizedSerializer;
+import static io.microsphere.redis.spring.serializer.Serializers.register;
 import static io.microsphere.redis.spring.serializer.Serializers.serialize;
 import static io.microsphere.redis.spring.serializer.ShortSerializer.SHORT_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.SortParametersSerializer.SORT_PARAMETERS_SERIALIZER;
@@ -39,6 +41,7 @@ import static io.microsphere.util.ArrayUtils.EMPTY_BYTE_ARRAY;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.data.redis.core.types.Expiration.seconds;
 
@@ -110,6 +113,12 @@ class SerializersTest {
         String object = "hello";
         byte[] bytes = serialize(object);
         assertNull(deserialize(bytes, Integer.class));
+    }
+
+    @Test
+    void testDefaultSerialize() {
+        String object = "hello";
+        assertNotNull(defaultSerialize(object));
     }
 
     @Test
@@ -226,5 +235,12 @@ class SerializersTest {
                 return null;
             }
         });
+    }
+
+    @Test
+    void testRegister() {
+        register(String.class, DEFAULT_SERIALIZER);
+        register(String.class, STRING_SERIALIZER);
+        register(String.class, STRING_SERIALIZER);
     }
 }
