@@ -13,8 +13,6 @@ public final class BooleanSerializer extends AbstractSerializer<Boolean> {
 
     public static final BooleanSerializer BOOLEAN_SERIALIZER = new BooleanSerializer();
 
-    private static final byte NULL_VALUE = -1;
-
     private static final byte TRUE_VALUE = 1;
 
     private static final byte FALSE_VALUE = 0;
