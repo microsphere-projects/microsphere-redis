@@ -26,27 +26,14 @@ public final class BooleanSerializer extends AbstractSerializer<Boolean> {
 
     @Override
     protected byte[] doSerialize(Boolean booleanValue) throws SerializationException {
-        byte byteValue = booleanValue == null ? NULL_VALUE : (booleanValue ? TRUE_VALUE : FALSE_VALUE);
+        byte byteValue = booleanValue ? TRUE_VALUE : FALSE_VALUE;
         byte[] bytes = new byte[]{byteValue};
         return bytes;
     }
 
     @Override
     protected Boolean doDeserialize(byte[] bytes) throws SerializationException {
-        Boolean booleanValue = null;
         byte byteValue = bytes[0];
-        switch (byteValue) {
-            case NULL_VALUE:
-                booleanValue = null;
-                break;
-            case TRUE_VALUE:
-                booleanValue = Boolean.TRUE;
-                break;
-            case FALSE_VALUE:
-                booleanValue = Boolean.FALSE;
-                break;
-        }
-        return booleanValue;
+        return byteValue == TRUE_VALUE ? true : false;
     }
-
 }
