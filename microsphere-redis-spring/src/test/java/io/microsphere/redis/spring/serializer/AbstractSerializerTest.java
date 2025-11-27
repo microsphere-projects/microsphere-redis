@@ -1,6 +1,7 @@
 package io.microsphere.redis.spring.serializer;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.core.ResolvableType;
 import org.springframework.data.redis.serializer.RedisSerializer;
 
 import java.util.function.Supplier;
@@ -41,12 +42,16 @@ public abstract class AbstractSerializerTest<T> {
         }
 
         Class<?> targetType = serializer.getTargetType();
-        Class<?> parameterType = forType(getClass()).getSuperType().getGeneric(0).resolve();
+        ResolvableType resolvableType = forType(getClass()).getSuperType().getGeneric(0);
+        Class<?> parameterType = resolvableType.resolve();
+
         assertSame(targetType, parameterType);
         assertTrue(serializer.canSerialize(parameterType));
 
         if (serializer instanceof AbstractSerializer) {
             AbstractSerializer abstractSerializer = (AbstractSerializer) serializer;
+            ResolvableType parameterizedType = abstractSerializer.getParameterizedType();
+            assertSame(parameterType, parameterizedType.resolve());
             assertSame(targetType, abstractSerializer.getParameterizedClass());
         }
     }
