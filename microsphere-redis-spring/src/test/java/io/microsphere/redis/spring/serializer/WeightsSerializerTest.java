@@ -4,6 +4,7 @@ import org.springframework.data.redis.connection.zset.Weights;
 import org.springframework.data.redis.serializer.RedisSerializer;
 
 import static io.microsphere.redis.spring.serializer.WeightsSerializer.WEIGHTS_SERIALIZER;
+import static org.springframework.data.redis.connection.zset.Weights.of;
 
 /**
  * {@link WeightsSerializer} Test
@@ -20,7 +21,7 @@ class WeightsSerializerTest extends AbstractSerializerTest<Weights> {
 
     @Override
     protected Weights getValue() {
-        return Weights.of(1.0, 2.0, 3.0);
+        return of(1.0, 2.0, 3.0);
     }
 
     @Override
