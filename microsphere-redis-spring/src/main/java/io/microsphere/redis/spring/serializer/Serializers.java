@@ -5,7 +5,6 @@ import io.microsphere.logging.Logger;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
 import io.microsphere.redis.spring.metadata.Parameter;
 import org.springframework.core.ResolvableType;
-import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.data.geo.Point;
 import org.springframework.data.redis.connection.RedisGeoCommands.GeoLocation;
 import org.springframework.data.redis.connection.RedisListCommands.Position;
@@ -31,8 +30,22 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
+import static io.microsphere.redis.spring.serializer.BooleanSerializer.BOOLEAN_SERIALIZER;
+import static io.microsphere.redis.spring.serializer.ByteArraySerializer.BYTE_ARRAY_SERIALIZER;
+import static io.microsphere.redis.spring.serializer.DoubleSerializer.DOUBLE_SERIALIZER;
+import static io.microsphere.redis.spring.serializer.ExpirationSerializer.EXPIRATION_SERIALIZER;
+import static io.microsphere.redis.spring.serializer.GeoLocationSerializer.GEO_LOCATION_SERIALIZER;
+import static io.microsphere.redis.spring.serializer.IntegerSerializer.INTEGER_SERIALIZER;
+import static io.microsphere.redis.spring.serializer.LongSerializer.LONG_SERIALIZER;
+import static io.microsphere.redis.spring.serializer.PointSerializer.POINT_SERIALIZER;
+import static io.microsphere.redis.spring.serializer.RangeSerializer.RANGE_SERIALIZER;
+import static io.microsphere.redis.spring.serializer.ShortSerializer.SHORT_SERIALIZER;
+import static io.microsphere.redis.spring.serializer.SortParametersSerializer.SORT_PARAMETERS_SERIALIZER;
+import static io.microsphere.redis.spring.serializer.WeightsSerializer.WEIGHTS_SERIALIZER;
 import static io.microsphere.util.ClassUtils.getType;
 import static io.microsphere.util.ClassUtils.getTypeName;
+import static io.microsphere.util.StringUtils.isBlank;
+import static org.springframework.core.io.support.SpringFactoriesLoader.loadFactories;
 
 /**
  * {@link RedisSerializer} Utilities class, mainly used for Redis command method parameter type
@@ -74,6 +87,9 @@ public abstract class Serializers {
 
     @Nullable
     public static RedisSerializer<?> getSerializer(String typeName) {
+        if (isBlank(typeName)) {
+            return null;
+        }
         RedisSerializer<?> serializer = typedSerializers.get(typeName);
 
         if (serializer == null) {
@@ -139,11 +155,14 @@ public abstract class Serializers {
     @Nullable
     public static <T> T deserialize(byte[] bytes, Class<T> type) {
         RedisSerializer<?> serializer = getSerializer(type);
+        if (serializer == null) {
+            return null;
+        }
         Object object = serializer.deserialize(bytes);
         if (type.isInstance(object)) {
             return type.cast(object);
         } else {
-            logger.error("Unable to deserialize the byte stream to an object of target type {}", type.getName());
+            logger.error("Unable to deserialize the byte stream to an object of target type : '{}'", type);
             return null;
         }
     }
@@ -175,20 +194,24 @@ public abstract class Serializers {
     private static void initializeSimpleSerializers() {
 
         // boolean or Boolean type 
-        register(boolean.class, BooleanSerializer.BOOLEAN_SERIALIZER);
-        register(Boolean.class, BooleanSerializer.BOOLEAN_SERIALIZER);
+        register(boolean.class, BOOLEAN_SERIALIZER);
+        register(Boolean.class, BOOLEAN_SERIALIZER);
+
+        // short or Short type
+        register(short.class, SHORT_SERIALIZER);
+        register(Short.class, SHORT_SERIALIZER);
 
         // int or Integer type 
-        register(int.class, IntegerSerializer.INTEGER_SERIALIZER);
-        register(Integer.class, IntegerSerializer.INTEGER_SERIALIZER);
+        register(int.class, INTEGER_SERIALIZER);
+        register(Integer.class, INTEGER_SERIALIZER);
 
         // long or Long type 
-        register(long.class, LongSerializer.LONG_SERIALIZER);
-        register(Long.class, LongSerializer.LONG_SERIALIZER);
+        register(long.class, LONG_SERIALIZER);
+        register(Long.class, LONG_SERIALIZER);
 
         // double or Double type 
-        register(double.class, DoubleSerializer.DOUBLE_SERIALIZER);
-        register(Double.class, DoubleSerializer.DOUBLE_SERIALIZER);
+        register(double.class, DOUBLE_SERIALIZER);
+        register(Double.class, DOUBLE_SERIALIZER);
 
         // String type 
         register(String.class, STRING_SERIALIZER);
@@ -227,7 +250,7 @@ public abstract class Serializers {
     private static void initializeArrayTypeSerializers() {
 
         // byte[] type 
-        register(byte[].class, ByteArraySerializer.BYTE_ARRAY_SERIALIZER);
+        register(byte[].class, BYTE_ARRAY_SERIALIZER);
 
         // int[] type 
         register(int[].class, DEFAULT_SERIALIZER);
@@ -249,10 +272,10 @@ public abstract class Serializers {
     private static void initializeSpringDataRedisSerializers() {
 
         // org.springframework.data.redis.core.types.Expiration type 
-        register(Expiration.class, ExpirationSerializer.EXPIRATION_SERIALIZER);
+        register(Expiration.class, EXPIRATION_SERIALIZER);
 
         // org.springframework.data.redis.connection.SortParameters type 
-        register(SortParameters.class, SortParametersSerializer.SORT_PARAMETERS_SERIALIZER);
+        register(SortParameters.class, SORT_PARAMETERS_SERIALIZER);
 
         // org.springframework.data.redis.connection.RedisListCommands.Position type 
         register(Position.class, new EnumSerializer(Position.class));
@@ -261,22 +284,22 @@ public abstract class Serializers {
         register(SetOption.class, new EnumSerializer(SetOption.class));
 
         // org.springframework.data.redis.connection.RedisZSetCommands.Range type 
-        register(Range.class, RangeSerializer.RANGE_SERIALIZER);
+        register(Range.class, RANGE_SERIALIZER);
 
         // org.springframework.data.redis.connection.zset.Aggregate
         register(Aggregate.class, new EnumSerializer(Aggregate.class));
 
         // org.springframework.data.redis.connection.zset.Weights type 
-        register(Weights.class, WeightsSerializer.WEIGHTS_SERIALIZER);
+        register(Weights.class, WEIGHTS_SERIALIZER);
 
         // org.springframework.data.redis.connection.ReturnType type 
         register(ReturnType.class, new EnumSerializer(ReturnType.class));
 
         // org.springframework.data.redis.connection.RedisGeoCommands.GeoLocation type 
-        register(GeoLocation.class, GeoLocationSerializer.GEO_LOCATION_SERIALIZER);
+        register(GeoLocation.class, GEO_LOCATION_SERIALIZER);
 
         // org.springframework.data.geo.Point type 
-        register(Point.class, PointSerializer.POINT_SERIALIZER);
+        register(Point.class, POINT_SERIALIZER);
     }
 
     /**
@@ -293,7 +316,7 @@ public abstract class Serializers {
         }
     }
 
-    private static void initializeParameterizedSerializer(RedisSerializer serializer) {
+    static void initializeParameterizedSerializer(RedisSerializer serializer) {
         Class<?> parameterizedType = ResolvableType.forType(serializer.getClass()).as(RedisSerializer.class).getGeneric(0).resolve();
 
         if (parameterizedType != null) {
@@ -304,7 +327,7 @@ public abstract class Serializers {
     }
 
     private static List<RedisSerializer> loadSerializers() {
-        return SpringFactoriesLoader.loadFactories(RedisSerializer.class, classLoader);
+        return loadFactories(RedisSerializer.class, classLoader);
     }
 
     public static void register(Class<?> type, RedisSerializer<?> serializer) {
