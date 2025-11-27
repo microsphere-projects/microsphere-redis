@@ -16,6 +16,7 @@ import static org.springframework.core.ResolvableType.forType;
  *
  * @param <T> Serialization type
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
+ * @see AbstractSerializer
  * @since 1.0.0
  */
 public abstract class AbstractSerializerTest<T> {
