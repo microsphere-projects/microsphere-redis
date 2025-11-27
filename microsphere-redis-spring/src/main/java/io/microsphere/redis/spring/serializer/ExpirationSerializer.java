@@ -6,10 +6,14 @@ import org.springframework.data.redis.serializer.SerializationException;
 
 import java.util.concurrent.TimeUnit;
 
+import static java.lang.System.arraycopy;
+
 /**
  * {@link Expiration} {@link RedisSerializer} Class
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
+ * @see Expiration
+ * @see RedisSerializer
  * @since 1.0.0
  */
 public class ExpirationSerializer extends AbstractSerializer<Expiration> {
@@ -40,15 +44,12 @@ public class ExpirationSerializer extends AbstractSerializer<Expiration> {
 
         byte[] bytes = new byte[bytesLength];
 
-        int i = 0;
-        for (; i < expirationTimeBytesLength; i++) {
-            bytes[i] = expirationTimeBytes[i];
-        }
+        arraycopy(expirationTimeBytes, 0, bytes, 0, expirationTimeBytesLength);
 
         TimeUnit timeUnit = expiration.getTimeUnit();
         byte ordinal = (byte) timeUnit.ordinal();
 
-        for (; i < bytesLength; i++) {
+        for (int i = expirationTimeBytesLength; i < bytesLength; i++) {
             bytes[i] = ordinal;
         }
 
@@ -63,16 +64,11 @@ public class ExpirationSerializer extends AbstractSerializer<Expiration> {
 
         // ExpirationTime array
         byte[] expirationTimeBytes = new byte[expirationTimeBytesLength];
-        int i = 0;
-        for (; i < expirationTimeBytesLength; i++) {
-            expirationTimeBytes[i] = bytes[i];
-        }
+        arraycopy(bytes, 0, expirationTimeBytes, 0, expirationTimeBytesLength);
 
         // TimeUnit array
         byte[] timeUnitBytes = new byte[timeUnitBytesLength];
-        for (int j = 0; j < timeUnitBytesLength && i < bytesLength; j++, i++) {
-            timeUnitBytes[j] = bytes[i];
-        }
+        arraycopy(bytes, expirationTimeBytesLength, timeUnitBytes, 0, timeUnitBytesLength);
 
         long expirationTime = longSerializer.deserialize(expirationTimeBytes);
 
@@ -80,5 +76,4 @@ public class ExpirationSerializer extends AbstractSerializer<Expiration> {
 
         return Expiration.from(expirationTime, timeUnit);
     }
-
 }
