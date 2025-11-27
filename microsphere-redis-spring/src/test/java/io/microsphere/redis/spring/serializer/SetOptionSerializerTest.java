@@ -1,23 +1,30 @@
 package io.microsphere.redis.spring.serializer;
 
-import org.springframework.data.redis.connection.RedisStringCommands;
+import org.springframework.data.redis.connection.RedisStringCommands.SetOption;
 import org.springframework.data.redis.serializer.RedisSerializer;
 
+import java.util.Random;
+
+import static org.springframework.data.redis.connection.RedisStringCommands.SetOption.values;
+
 /**
- * {@link RedisStringCommands.SetOption} {@link EnumSerializer} Test
+ * {@link SetOption} {@link EnumSerializer} Test
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @since 1.0.0
  */
-class SetOptionSerializerTest extends AbstractSerializerTest<RedisStringCommands.SetOption> {
+class SetOptionSerializerTest extends AbstractSerializerTest<SetOption> {
 
     @Override
-    protected RedisSerializer<RedisStringCommands.SetOption> getSerializer() {
-        return new EnumSerializer(RedisStringCommands.SetOption.class);
+    protected RedisSerializer<SetOption> getSerializer() {
+        return new EnumSerializer(SetOption.class);
     }
 
     @Override
-    protected RedisStringCommands.SetOption getValue() {
-        return RedisStringCommands.SetOption.SET_IF_ABSENT;
+    protected SetOption getValue() {
+        Random random = new Random();
+        SetOption[] values = values();
+        int index = random.nextInt(values.length);
+        return values[index];
     }
 }
