@@ -7,6 +7,8 @@ import org.springframework.data.redis.connection.RedisZSetCommands.Range.Boundar
 import org.springframework.data.redis.serializer.RedisSerializer;
 
 import static io.microsphere.redis.spring.serializer.RedisZSetCommandsRangeSerializer.REDIS_ZSET_COMMANDS_RANGE_SERIALIZER;
+import static io.microsphere.redis.spring.serializer.RedisZSetCommandsRangeSerializer.toRange;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.data.redis.connection.RedisZSetCommands.Range.range;
 import static org.springframework.data.redis.connection.RedisZSetCommands.Range.unbounded;
 
@@ -74,7 +76,14 @@ class RedisZSetCommandsRangeSerializerTest extends AbstractSerializerTest<RedisZ
 
     @Test
     void testToRange() {
+        RedisZSetCommands.Range range = toRange(null, null, true, true);
+        assertEquals(getTestData(range), getTestData(unbounded()));
 
+        range = toRange(null, null, false, true);
+        assertEquals(getTestData(range), getTestData(range()));
+
+        range = toRange(null, null, true, false);
+        assertEquals(getTestData(range), getTestData(range()));
     }
 
     private void buildTestData(StringBuilder testData, Boundary boundary) {

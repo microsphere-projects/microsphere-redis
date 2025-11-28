@@ -44,20 +44,20 @@ public class RedisZSetCommandsRangeSerializer extends AbstractSerializer<RedisZS
         boolean isLowerInclusive = lowerBound.isInclusive();
         boolean isUpperInclusive = upperBound.isInclusive();
 
-        RedisZSetCommands.Range range = range();
+        return toRange(lowerBoundValue, upperBoundValue, isLowerInclusive, isUpperInclusive);
+    }
 
+    static RedisZSetCommands.Range toRange(Object lowerBoundValue, Object upperBoundValue, boolean isLowerInclusive, boolean isUpperInclusive) {
+        RedisZSetCommands.Range range = range();
         if (lowerBoundValue != null) {
             range = isLowerInclusive ? range.gte(lowerBoundValue) : range.gt(lowerBoundValue);
         }
-
         if (upperBoundValue != null) {
             range = isUpperInclusive ? range.lte(upperBoundValue) : range.lt(upperBoundValue);
         }
-
         if (lowerBoundValue == null && upperBoundValue == null && isLowerInclusive && isUpperInclusive) {
             range = unbounded();
         }
-
         return range;
     }
 }
