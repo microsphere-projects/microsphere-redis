@@ -18,20 +18,14 @@ package io.microsphere.redis.spring.annotation;
 
 import io.microsphere.redis.spring.config.RedisConfiguration;
 import io.microsphere.redis.spring.event.PropagatingRedisConfigurationPropertyChangedEventApplicationListener;
-import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.type.AnnotationMetadata;
 
 import static io.microsphere.redis.spring.config.RedisConfiguration.BEAN_NAME;
-import static io.microsphere.redis.spring.event.PropagatingRedisConfigurationPropertyChangedEventApplicationListener.ENVIRONMENT_CHANGE_EVENT_CLASS_NAME;
 import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.init;
 import static io.microsphere.spring.beans.factory.support.BeanRegistrar.registerBeanDefinition;
-import static org.springframework.beans.factory.support.BeanDefinitionBuilder.genericBeanDefinition;
-import static org.springframework.beans.factory.support.BeanDefinitionReaderUtils.registerWithGeneratedName;
-import static org.springframework.util.ClassUtils.isPresent;
 
 /**
  * {@link RedisConfiguration} {@link BeanDefinition} Registrar
@@ -39,13 +33,11 @@ import static org.springframework.util.ClassUtils.isPresent;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
-class RedisConfigurationBeanDefinitionRegistrar implements ImportBeanDefinitionRegistrar, BeanClassLoaderAware {
+class RedisConfigurationBeanDefinitionRegistrar implements ImportBeanDefinitionRegistrar {
 
     static {
         init();
     }
-
-    private ClassLoader classLoader;
 
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
@@ -62,14 +54,6 @@ class RedisConfigurationBeanDefinitionRegistrar implements ImportBeanDefinitionR
     }
 
     private void registerApplicationListeners(BeanDefinitionRegistry registry) {
-        if (isPresent(ENVIRONMENT_CHANGE_EVENT_CLASS_NAME, classLoader)) {
-            AbstractBeanDefinition beanDefinition = genericBeanDefinition(PropagatingRedisConfigurationPropertyChangedEventApplicationListener.class).getBeanDefinition();
-            registerWithGeneratedName(beanDefinition, registry);
-        }
-    }
-
-    @Override
-    public void setBeanClassLoader(ClassLoader classLoader) {
-        this.classLoader = classLoader;
+        registerBeanDefinition(registry, PropagatingRedisConfigurationPropertyChangedEventApplicationListener.class);
     }
 }
