@@ -23,13 +23,15 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.support.MergedBeanDefinitionPostProcessor;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.core.ResolvableType;
-import org.springframework.util.Assert;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static io.microsphere.spring.beans.factory.BeanFactoryUtils.asConfigurableListableBeanFactory;
 
 /**
  * The composite class of {@link WrapperProcessor}
@@ -37,7 +39,7 @@ import java.util.Map;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
-public class WrapperProcessors implements InitializingBean, BeanFactoryAware {
+public class WrapperProcessors implements MergedBeanDefinitionPostProcessor, InitializingBean, BeanFactoryAware {
 
     public static final String BEAN_NAME = "wrapperProcessors";
 
@@ -57,28 +59,21 @@ public class WrapperProcessors implements InitializingBean, BeanFactoryAware {
     }
 
     @Override
+    public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Class<?> beanType, String beanName) {
+        if (WrapperProcessor.class.isAssignableFrom(beanType)) {
+            ResolvableType resolvableType = beanDefinition.getResolvableType();
+            Class<?> redisTemplateClass = resolvableType.as(WrapperProcessor.class).getGeneric(0).getRawClass();
+            wrapperHandlersMap.computeIfAbsent(redisTemplateClass, type -> beanFactory.getBeanProvider(resolvableType));
+        }
+    }
+
+    @Override
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-        Assert.isInstanceOf(ConfigurableListableBeanFactory.class, beanFactory, "The 'beanFactory' is not a instance of ConfigurableListableBeanFactory");
-        this.beanFactory = (ConfigurableListableBeanFactory) beanFactory;
+        this.beanFactory = asConfigurableListableBeanFactory(beanFactory);
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        this.wrapperHandlersMap = initWrapperHandlersMap();
+        this.wrapperHandlersMap = new HashMap<>(2);
     }
-
-    private Map<Class<?>, ObjectProvider<WrapperProcessor>> initWrapperHandlersMap() {
-        Map<Class<?>, ObjectProvider<WrapperProcessor>> wrapperHandlersMap = new HashMap<>(2);
-        for (String beanName : beanFactory.getBeanDefinitionNames()) {
-            BeanDefinition beanDefinition = beanFactory.getMergedBeanDefinition(beanName);
-            ResolvableType resolvableType = beanDefinition.getResolvableType();
-            Class<?> beanClass = resolvableType.getRawClass();
-            if (beanClass != null && WrapperProcessor.class.isAssignableFrom(beanClass)) {
-                Class<?> redisTemplateClass = resolvableType.as(WrapperProcessor.class).getGeneric(0).getRawClass();
-                wrapperHandlersMap.computeIfAbsent(redisTemplateClass, type -> beanFactory.getBeanProvider(resolvableType));
-            }
-        }
-        return wrapperHandlersMap;
-    }
-
 }
