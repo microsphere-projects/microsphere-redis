@@ -6,15 +6,15 @@ import io.microsphere.redis.spring.event.RedisCommandEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
 import java.util.function.Function;
 
+import static io.microsphere.lang.Wrapper.tryUnwrap;
 import static io.microsphere.logging.LoggerFactory.getLogger;
-import static io.microsphere.redis.spring.beans.Wrapper.tryUnwrap;
 import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.findWriteCommandMethod;
 import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.getRedisCommandBindingFunction;
+import static org.springframework.util.ReflectionUtils.invokeMethod;
 
 
 /**
@@ -54,7 +54,7 @@ public class RedisCommandReplicator implements ApplicationListener<RedisCommandR
             Function<RedisConnection, Object> bindingFunction = getRedisCommandBindingFunction(interfaceNme);
             Object redisCommandObject = bindingFunction.apply(redisConnection);
             // TODO: Native method implementation
-            ReflectionUtils.invokeMethod(method, redisCommandObject, args);
+            invokeMethod(method, redisCommandObject, args);
         }
     }
 
