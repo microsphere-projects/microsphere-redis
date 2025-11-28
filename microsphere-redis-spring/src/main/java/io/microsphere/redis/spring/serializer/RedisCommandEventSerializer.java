@@ -30,6 +30,7 @@ import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import static io.microsphere.lang.function.ThrowableAction.execute;
 import static io.microsphere.redis.spring.event.RedisCommandEvent.Builder.source;
 import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.findMethodIndex;
 import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.findRedisCommandMethod;
@@ -179,16 +180,16 @@ public class RedisCommandEventSerializer extends AbstractSerializer<RedisCommand
         @Override
         public byte[] serialize(RedisCommandEvent redisCommandEvent) throws SerializationException {
             FastByteArrayOutputStream outputStream = new FastByteArrayOutputStream();
-            try {
-                // write metadata(version, byte-size, method, and so on)
-                writeMetadata(redisCommandEvent, outputStream);
-                // write data(parameters)
-                writeData(redisCommandEvent, outputStream);
-            } catch (IOException e) {
-                throw new SerializationException("RedisCommandEvent serialization failed", e);
-            } finally {
-                outputStream.close();
-            }
+            execute(() -> {
+                try {
+                    // write metadata(version, byte-size, method, and so on)
+                    writeMetadata(redisCommandEvent, outputStream);
+                    // write data(parameters)
+                    writeData(redisCommandEvent, outputStream);
+                } finally {
+                    outputStream.close();
+                }
+            }, e -> new SerializationException(e.getMessage(), e));
             return outputStream.toByteArray();
         }
 
@@ -262,14 +263,12 @@ public class RedisCommandEventSerializer extends AbstractSerializer<RedisCommand
         public RedisCommandEvent deserialize(byte[] bytes) throws SerializationException {
             FastByteArrayInputStream inputStream = new FastByteArrayInputStream(bytes, 1, bytes.length);
             RedisCommandEvent.Builder builder = source("stream");
-            try {
+            execute(() -> {
                 // read metadata(version, byte-size, method, and so on)
                 readMetadata(inputStream, builder);
                 // read data
                 readData(inputStream, builder);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            });
             return builder.build();
         }
 
