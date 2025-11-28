@@ -1,5 +1,6 @@
 package io.microsphere.redis.spring.beans;
 
+import io.microsphere.lang.DelegatingWrapper;
 import io.microsphere.redis.spring.context.RedisContext;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.StringRedisTemplate;

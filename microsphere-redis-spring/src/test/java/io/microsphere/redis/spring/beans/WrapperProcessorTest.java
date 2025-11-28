@@ -16,6 +16,7 @@
  */
 package io.microsphere.redis.spring.beans;
 
+import io.microsphere.lang.WrapperProcessor;
 import io.microsphere.redis.spring.AbstractRedisCommandEventTest;
 import io.microsphere.redis.spring.annotation.EnableRedisInterceptor;
 import org.springframework.context.annotation.Bean;

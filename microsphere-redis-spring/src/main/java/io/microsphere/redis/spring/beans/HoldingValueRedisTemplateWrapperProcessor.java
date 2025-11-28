@@ -16,6 +16,7 @@
  */
 package io.microsphere.redis.spring.beans;
 
+import io.microsphere.lang.WrapperProcessor;
 import io.microsphere.redis.spring.serializer.HoldingValueRedisSerializerWrapper;
 
 import static io.microsphere.redis.spring.serializer.HoldingValueRedisSerializerWrapper.wrap;

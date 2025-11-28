@@ -16,6 +16,8 @@
  */
 package io.microsphere.redis.spring.beans;
 
+import io.microsphere.lang.Wrapper;
+import io.microsphere.lang.WrapperProcessor;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;

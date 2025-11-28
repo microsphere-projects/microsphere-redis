@@ -1,5 +1,6 @@
 package io.microsphere.redis.spring.beans;
 
+import io.microsphere.lang.Wrapper;
 import io.microsphere.redis.spring.context.RedisContext;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
