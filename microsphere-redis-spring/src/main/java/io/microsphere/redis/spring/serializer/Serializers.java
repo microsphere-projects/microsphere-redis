@@ -4,11 +4,12 @@ import io.microsphere.annotation.Nullable;
 import io.microsphere.logging.Logger;
 import io.microsphere.redis.spring.metadata.Parameter;
 import org.springframework.core.ResolvableType;
+import org.springframework.data.domain.Range;
 import org.springframework.data.geo.Point;
 import org.springframework.data.redis.connection.RedisGeoCommands.GeoLocation;
 import org.springframework.data.redis.connection.RedisListCommands.Position;
 import org.springframework.data.redis.connection.RedisStringCommands.SetOption;
-import org.springframework.data.redis.connection.RedisZSetCommands.Range;
+import org.springframework.data.redis.connection.RedisZSetCommands;
 import org.springframework.data.redis.connection.ReturnType;
 import org.springframework.data.redis.connection.SortParameters;
 import org.springframework.data.redis.connection.zset.Aggregate;
@@ -38,6 +39,7 @@ import static io.microsphere.redis.spring.serializer.IntegerSerializer.INTEGER_S
 import static io.microsphere.redis.spring.serializer.LongSerializer.LONG_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.PointSerializer.POINT_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.RangeSerializer.RANGE_SERIALIZER;
+import static io.microsphere.redis.spring.serializer.RedisZSetCommandsRangeSerializer.REDIS_ZSET_COMMANDS_RANGE_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.ShortSerializer.SHORT_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.SortParametersSerializer.SORT_PARAMETERS_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.WeightsSerializer.WEIGHTS_SERIALIZER;
@@ -122,6 +124,19 @@ public abstract class Serializers {
     @Nullable
     public static byte[] defaultSerialize(Object object) {
         return DEFAULT_SERIALIZER.serialize(object);
+    }
+
+    /**
+     * Deserialize by {@link #DEFAULT_SERIALIZER}
+     *
+     * @param bytes bytes
+     * @param <T>   the type of the deserialized object
+     * @return
+     * @throws ClassCastException if the object cannot be deserialized to the specified type
+     */
+    @Nullable
+    public static <T> T defaultDeserialize(byte[] bytes) {
+        return (T) DEFAULT_SERIALIZER.deserialize(bytes);
     }
 
     @Nullable
@@ -281,6 +296,9 @@ public abstract class Serializers {
         register(SetOption.class, new EnumSerializer(SetOption.class));
 
         // org.springframework.data.redis.connection.RedisZSetCommands.Range type 
+        register(RedisZSetCommands.Range.class, REDIS_ZSET_COMMANDS_RANGE_SERIALIZER);
+
+        // org.springframework.data.domain.Range
         register(Range.class, RANGE_SERIALIZER);
 
         // org.springframework.data.redis.connection.zset.Aggregate

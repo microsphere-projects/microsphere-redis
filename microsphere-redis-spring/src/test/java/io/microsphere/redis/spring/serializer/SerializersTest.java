@@ -27,9 +27,10 @@ import static io.microsphere.redis.spring.serializer.GeoLocationSerializer.GEO_L
 import static io.microsphere.redis.spring.serializer.IntegerSerializer.INTEGER_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.LongSerializer.LONG_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.PointSerializer.POINT_SERIALIZER;
-import static io.microsphere.redis.spring.serializer.RangeSerializer.RANGE_SERIALIZER;
+import static io.microsphere.redis.spring.serializer.RedisZSetCommandsRangeSerializer.REDIS_ZSET_COMMANDS_RANGE_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.Serializers.DEFAULT_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.Serializers.STRING_SERIALIZER;
+import static io.microsphere.redis.spring.serializer.Serializers.defaultDeserialize;
 import static io.microsphere.redis.spring.serializer.Serializers.defaultSerialize;
 import static io.microsphere.redis.spring.serializer.Serializers.deserialize;
 import static io.microsphere.redis.spring.serializer.Serializers.getSerializer;
@@ -122,6 +123,13 @@ class SerializersTest {
     void testDefaultSerialize() {
         String object = "hello";
         assertNotNull(defaultSerialize(object));
+    }
+
+    @Test
+    void testDefaultDeserialize() {
+        String object = "hello";
+        byte[] bytes = defaultSerialize(object);
+        assertEquals(object, defaultDeserialize(bytes));
     }
 
     @Test
@@ -228,7 +236,7 @@ class SerializersTest {
         assertEquals(getSerializer(RedisStringCommands.SetOption.class), new EnumSerializer(RedisStringCommands.SetOption.class));
 
         // org.springframework.data.redis.connection.RedisZSetCommands.Range type
-        assertEquals(getSerializer(RedisZSetCommands.Range.class), RANGE_SERIALIZER);
+        assertEquals(getSerializer(RedisZSetCommands.Range.class), REDIS_ZSET_COMMANDS_RANGE_SERIALIZER);
 
         // org.springframework.data.redis.connection.zset.Aggregate
         assertEquals(getSerializer(Aggregate.class), new EnumSerializer(Aggregate.class));
