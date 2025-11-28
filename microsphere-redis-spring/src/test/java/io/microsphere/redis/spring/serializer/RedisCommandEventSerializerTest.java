@@ -17,12 +17,16 @@
 package io.microsphere.redis.spring.serializer;
 
 import io.microsphere.redis.spring.event.RedisCommandEvent;
+import org.junit.jupiter.api.Test;
 import org.springframework.data.redis.serializer.RedisSerializer;
 
 import java.lang.reflect.Method;
 
+import static io.microsphere.redis.spring.event.RedisCommandEvent.Builder.source;
 import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.findWriteCommandMethod;
+import static io.microsphere.redis.spring.serializer.RedisCommandEventSerializer.DEFAULT_REDIS_COMMAND_EVENT_REDIS_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.RedisCommandEventSerializer.VERSION_V1;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 /**
@@ -45,11 +49,21 @@ class RedisCommandEventSerializerTest extends AbstractSerializerTest<RedisComman
         String[] parameterTypes = new String[]{"[B", "[B"};
         Method method = findWriteCommandMethod(interfaceName, methodName, parameterTypes);
         String applicationName = "test";
-        RedisCommandEvent.Builder builder = RedisCommandEvent.Builder.source("test")
+        RedisCommandEvent.Builder builder = source("test")
                 .applicationName(applicationName)
                 .method(method)
                 .args("A".getBytes(), "B".getBytes())
                 .serializationVersion(VERSION_V1);
         return builder.build();
     }
+
+    @Test
+    void testDefault() {
+        RedisSerializer<RedisCommandEvent> serializer = DEFAULT_REDIS_COMMAND_EVENT_REDIS_SERIALIZER;
+        RedisCommandEvent value = getValue();
+        byte[] bytes = serializer.serialize(value);
+        RedisCommandEvent deserialized = serializer.deserialize(bytes);
+        assertEquals(value, deserialized);
+    }
+
 }
