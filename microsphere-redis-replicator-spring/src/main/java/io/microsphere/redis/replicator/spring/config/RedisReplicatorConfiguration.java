@@ -145,7 +145,7 @@ public class RedisReplicatorConfiguration implements ApplicationListener<RedisCo
             } else if (key.startsWith(DOMAIN_REDIS_TEMPLATE_BEAN_NAMES_PROPERTY_NAME_PREFIX)) {
                 setDomains();
             }
-            // TODO More configuration changes are supported
+            // TODO support the more configurations change
         }
     }
 
