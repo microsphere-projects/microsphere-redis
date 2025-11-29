@@ -24,6 +24,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
+
+import java.util.List;
 
 import static io.microsphere.collection.Lists.ofList;
 import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.BEAN_NAME;
@@ -40,7 +48,9 @@ import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfi
 import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.DOMAIN_REDIS_TEMPLATE_BEAN_NAMES_PROPERTY_NAME_SUFFIX;
 import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.ENABLED_PROPERTY_NAME;
 import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.PROPERTY_NAME_PREFIX;
+import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.get;
 import static io.microsphere.spring.test.util.SpringTestUtils.testInSpringContainer;
+import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -82,66 +92,43 @@ class RedisReplicatorConfigurationTest {
 
     @Test
     void testOnDefault() {
-        testInSpringContainer(context -> {
-            RedisReplicatorConfiguration configuration = context.getBean(BEAN_NAME, RedisReplicatorConfiguration.class);
-            assertTrue(configuration.isEnabled());
-            assertFalse(configuration.isConsumerEnabled());
-            assertEquals(ofList("default"), configuration.getDomains());
-            assertSame(context.getBean(RedisContext.BEAN_NAME), configuration.getRedisContext());
-            assertSame(context.getBean(RedisConfiguration.BEAN_NAME), configuration.getRedisConfiguration());
+        testInSpringContainer((context, environment) -> {
+            RedisReplicatorConfiguration configuration = assertDefaultConfig(context, "default");
+
+            assertEquals(emptyList(), configuration.getDomainRedisTemplateBeanNames(environment, "default"));
         }, DefaultConfig.class);
     }
 
     @Test
-    void testOnApplicationEvent() {
+    void testOnDomainRedisTemplateBeans() {
+        testInSpringContainer((context, environment) -> {
+            RedisReplicatorConfiguration configuration = assertDefaultConfig(context, "default", "test", "fixed");
+
+            assertDomainRedisTemplateBeanNames(configuration, environment, "default");
+            assertDomainRedisTemplateBeanNames(configuration, environment, "test");
+        }, FullConfig.class);
     }
 
     @Test
-    void testGetDomains() {
+    void testOnRedisConfigurationPropertyChangedEvent() {
+
     }
 
-    @Test
-    void testGetDomainRedisTemplateBeanNames() {
+    RedisReplicatorConfiguration assertDefaultConfig(ConfigurableApplicationContext context, String... domains) {
+        RedisReplicatorConfiguration configuration = get(context);
+        assertSame(context.getBean(RedisContext.BEAN_NAME), configuration.getRedisContext());
+        assertSame(context.getBean(RedisConfiguration.BEAN_NAME), configuration.getRedisConfiguration());
+
+        assertTrue(configuration.isEnabled());
+        assertFalse(configuration.isConsumerEnabled());
+        assertEquals(ofList(domains), configuration.getDomains());
+        assertEquals(configuration.getDomains(), configuration.getDomains("not-found"));
+        return configuration;
     }
 
-    @Test
-    void testGetDomainRedisTemplateBeanNamesPropertyName() {
-    }
-
-    @Test
-    void testIsEnabled() {
-    }
-
-    @Test
-    void testIsConsumerEnabled() {
-    }
-
-    @Test
-    void testTestGetDomains() {
-    }
-
-    @Test
-    void testTestGetDomains1() {
-    }
-
-    @Test
-    void testGetRedisContext() {
-    }
-
-    @Test
-    void testGetRedisConfiguration() {
-    }
-
-    @Test
-    void testTestIsEnabled() {
-    }
-
-    @Test
-    void testTestIsConsumerEnabled() {
-    }
-
-    @Test
-    void testGet() {
+    void assertDomainRedisTemplateBeanNames(RedisReplicatorConfiguration configuration, ConfigurableEnvironment environment, String domain) {
+        List<String> domainRedisTemplateBeanNames = configuration.getDomainRedisTemplateBeanNames(environment, domain);
+        assertEquals(ofList(domain + "RedisTemplate", domain + "StringRedisTemplate"), domainRedisTemplateBeanNames);
     }
 
     static class DefaultConfig {
@@ -159,6 +146,52 @@ class RedisReplicatorConfigurationTest {
         @Bean(RedisConfiguration.BEAN_NAME)
         public RedisConfiguration redisConfiguration() {
             return new RedisConfiguration();
+        }
+    }
+
+    @PropertySource(
+            "classpath:/META-INF/test-redis-replicator.properties"
+    )
+    static class FullConfig extends DefaultConfig {
+
+        @Bean
+        public RedisTemplate defaultRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+            return newRedisTemplate(redisConnectionFactory);
+        }
+
+        @Bean
+        public StringRedisTemplate defaultStringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+            return newStringRedisTemplate(redisConnectionFactory);
+        }
+
+        @Bean
+        public RedisTemplate testRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+            return newRedisTemplate(redisConnectionFactory);
+        }
+
+        @Bean
+        public StringRedisTemplate testStringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+            return newStringRedisTemplate(redisConnectionFactory);
+        }
+
+        RedisTemplate newRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+            RedisTemplate redisTemplate = new RedisTemplate();
+            redisTemplate.setConnectionFactory(redisConnectionFactory);
+            return redisTemplate;
+        }
+
+        StringRedisTemplate newStringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+            StringRedisTemplate stringRedisTemplate = new StringRedisTemplate();
+            stringRedisTemplate.setConnectionFactory(redisConnectionFactory);
+            return stringRedisTemplate;
+        }
+
+        @Bean
+        public RedisConnectionFactory redisConnectionFactory() {
+            LettuceConnectionFactory redisConnectionFactory = new LettuceConnectionFactory("127.0.0.1", 6379);
+            redisConnectionFactory.afterPropertiesSet();
+            redisConnectionFactory.validateConnection();
+            return redisConnectionFactory;
         }
     }
 }
