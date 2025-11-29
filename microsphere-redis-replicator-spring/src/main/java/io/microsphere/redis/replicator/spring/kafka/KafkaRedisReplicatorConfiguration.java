@@ -1,5 +1,6 @@
 package io.microsphere.redis.replicator.spring.kafka;
 
+import io.microsphere.annotation.ConfigurationProperty;
 import io.microsphere.logging.Logger;
 import io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration;
 import org.springframework.beans.factory.DisposableBean;
@@ -26,18 +27,38 @@ import static org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CON
 public class KafkaRedisReplicatorConfiguration implements EnvironmentAware, InitializingBean, DisposableBean {
 
     private static final Logger logger = getLogger(KafkaRedisReplicatorConfiguration.class);
-
+    /**
+     * The Microsphere Property name of Kafka Broker list
+     */
+    @ConfigurationProperty(
+            type = String[].class
+    )
     public static final String SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_NAME = "spring.kafka.bootstrap-servers";
+
+    public static final String SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_PLACEHOLDER = "${" + SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_NAME + "}";
 
     public static final String KAFKA_PROPERTY_NAME_PREFIX = RedisReplicatorConfiguration.PROPERTY_NAME_PREFIX + "kafka.";
 
+    /**
+     * The Microsphere Property name of Kafka Broker list
+     */
+    @ConfigurationProperty(
+            type = String[].class,
+            defaultValue = SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_PLACEHOLDER
+    )
     public static final String KAFKA_BOOTSTRAP_SERVERS_PROPERTY_NAME = KAFKA_PROPERTY_NAME_PREFIX + BOOTSTRAP_SERVERS_CONFIG;
 
-    public static final String KAFKA_BOOTSTRAP_SERVERS_PROPERTY_PLACEHOLDER = "${" + KAFKA_BOOTSTRAP_SERVERS_PROPERTY_NAME + ":${" + SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_NAME + "}}";
-
-    public static final String KAFKA_TOPIC_PREFIX_PROPERTY_NAME = KAFKA_PROPERTY_NAME_PREFIX + "topic-prefix";
+    public static final String KAFKA_BOOTSTRAP_SERVERS_PROPERTY_PLACEHOLDER = "${" + KAFKA_BOOTSTRAP_SERVERS_PROPERTY_NAME + ":" + SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_PLACEHOLDER + "}";
 
     public static final String DEFAULT_KAFKA_TOPIC_PREFIX_PROPERTY_VALUE = "redis-replicator-event-topic-";
+
+    /*
+     * The Spring Property name of Kafka Topic Prefix
+     */
+    @ConfigurationProperty(
+            defaultValue = DEFAULT_KAFKA_TOPIC_PREFIX_PROPERTY_VALUE
+    )
+    public static final String KAFKA_TOPIC_PREFIX_PROPERTY_NAME = KAFKA_PROPERTY_NAME_PREFIX + "topic-prefix";
 
     /**
      * Node ip Port address (reusing application configurations)
