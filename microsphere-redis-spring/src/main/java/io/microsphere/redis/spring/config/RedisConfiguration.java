@@ -92,10 +92,8 @@ public class RedisConfiguration implements ApplicationListener<RedisConfiguratio
         Environment environment = context.getEnvironment();
         Boolean propertyValue = environment.getProperty(propertyName, Boolean.class);
         boolean value = propertyValue == null ? defaultValue : propertyValue.booleanValue();
-        if (logger.isDebugEnabled()) {
-            String status = value ? statusIfTrue : "not " + statusIfTrue;
-            logger.debug("Microsphere Redis {} is '{}' in the Spring ApplicationContext[id :'{}' , property name: '{}' , property value: {} , default value: {}", feature, status, context.getId(), propertyName, propertyValue, defaultValue);
-        }
+        logger.trace("Microsphere Redis {} is '{}' in the Spring ApplicationContext[id :'{}' , property name: '{}' , property value: {} , default value: {}",
+                feature, (value ? statusIfTrue : "not " + statusIfTrue), context.getId(), propertyName, propertyValue, defaultValue);
         return value;
     }
 
