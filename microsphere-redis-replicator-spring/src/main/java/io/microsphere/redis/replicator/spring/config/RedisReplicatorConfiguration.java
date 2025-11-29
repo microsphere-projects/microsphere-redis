@@ -16,6 +16,7 @@
  */
 package io.microsphere.redis.replicator.spring.config;
 
+import io.microsphere.annotation.ConfigurationProperty;
 import io.microsphere.logging.Logger;
 import io.microsphere.redis.spring.config.RedisConfiguration;
 import io.microsphere.redis.spring.context.RedisContext;
@@ -29,15 +30,16 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.lang.NonNull;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static io.microsphere.collection.Lists.ofList;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.config.RedisConfiguration.getBoolean;
+import static java.lang.Boolean.parseBoolean;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
@@ -57,24 +59,46 @@ public class RedisReplicatorConfiguration implements ApplicationListener<RedisCo
 
     public static final String PROPERTY_NAME_PREFIX = RedisConstants.PROPERTY_NAME_PREFIX + "replicator.";
 
+    public static final String DEFAULT_ENABLED_PROPERTY_VALUE = "true";
+
+    public static final String DEFAULT_CONSUMER_ENABLED_PROPERTY_VALUE = "false";
+
+    /**
+     * The Spring Property name of Redis Replicator enabled.
+     */
+    @ConfigurationProperty(
+            type = boolean.class,
+            defaultValue = DEFAULT_ENABLED_PROPERTY_VALUE
+    )
     public static final String ENABLED_PROPERTY_NAME = PROPERTY_NAME_PREFIX + "enabled";
 
     public static final String CONSUMER_PROPERTY_NAME_PREFIX = PROPERTY_NAME_PREFIX + "consumer.";
 
+    /**
+     * The Spring Property name of Redis Replicator consumer enabled.
+     */
+    @ConfigurationProperty(
+            type = boolean.class,
+            defaultValue = DEFAULT_CONSUMER_ENABLED_PROPERTY_VALUE
+    )
     public static final String CONSUMER_ENABLED_PROPERTY_NAME = CONSUMER_PROPERTY_NAME_PREFIX + "enabled";
 
-    public static final boolean DEFAULT_ENABLED = true;
+    public static final boolean DEFAULT_ENABLED = parseBoolean(ENABLED_PROPERTY_NAME);
 
-    public static final boolean DEFAULT_CONSUMER_ENABLED = Boolean.getBoolean(CONSUMER_ENABLED_PROPERTY_NAME);
+    public static final boolean DEFAULT_CONSUMER_ENABLED = parseBoolean(DEFAULT_CONSUMER_ENABLED_PROPERTY_VALUE);
+
+    public static final String DEFAULT_DOMAIN = "default";
 
     /**
      * Business Domains
      */
+    @ConfigurationProperty(
+            type = String[].class,
+            defaultValue = DEFAULT_DOMAIN
+    )
     public static final String DOMAINS_PROPERTY_NAME = PROPERTY_NAME_PREFIX + "domains";
 
-    public static final String DEFAULT_DOMAIN = "default";
-
-    public static final List<String> DEFAULT_DOMAINS = Arrays.asList(DEFAULT_DOMAIN);
+    public static final List<String> DEFAULT_DOMAINS = ofList(DEFAULT_DOMAIN);
 
     public static final String DOMAIN_REDIS_TEMPLATE_BEAN_NAMES_PROPERTY_NAME_PREFIX = DOMAINS_PROPERTY_NAME + ".";
 
