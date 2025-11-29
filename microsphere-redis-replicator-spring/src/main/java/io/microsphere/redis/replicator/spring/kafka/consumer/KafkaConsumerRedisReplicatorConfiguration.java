@@ -1,5 +1,6 @@
 package io.microsphere.redis.replicator.spring.kafka.consumer;
 
+import io.microsphere.annotation.ConfigurationProperty;
 import io.microsphere.logging.Logger;
 import io.microsphere.redis.replicator.spring.event.RedisCommandReplicatedEvent;
 import io.microsphere.redis.replicator.spring.kafka.KafkaRedisReplicatorConfiguration;
@@ -21,9 +22,12 @@ import org.springframework.kafka.listener.ContainerProperties;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.microsphere.annotation.ConfigurationProperty.APPLICATION_SOURCE;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.config.RedisConfiguration.getBoolean;
 import static io.microsphere.spring.core.env.PropertySourcesUtils.getSubProperties;
+import static java.lang.Boolean.parseBoolean;
+import static java.lang.Integer.parseInt;
 import static org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG;
 import static org.apache.kafka.clients.CommonClientConfigs.GROUP_ID_CONFIG;
 
@@ -37,23 +41,53 @@ public class KafkaConsumerRedisReplicatorConfiguration extends KafkaRedisReplica
 
     private static final Logger logger = getLogger(KafkaConsumerRedisReplicatorConfiguration.class);
 
-    public static final String KAFKA_CONSUMER_PROPERTY_NAME_PREFIX = KafkaRedisReplicatorConfiguration.KAFKA_PROPERTY_NAME_PREFIX + "consumer.";
+    private static final String DEFAULT_KAFKA_CONSUMER_ENABLED_PROPERTY_VALUE = "true";
 
-    public static final String KAFKA_CONSUMER_ENABLED_PROPERTY_NAME = KAFKA_CONSUMER_PROPERTY_NAME_PREFIX + "enabled";
+    private static final String DEFAULT_KAFKA_LISTENER_POLL_TIMEOUT_PROPERTY_VALUE = "10000";
+
+    private static final String DEFAULT_KAFKA_LISTENER_CONCURRENCY_PROPERTY_VALUE = "1";
+
+    public static final String KAFKA_CONSUMER_PROPERTY_NAME_PREFIX = KafkaRedisReplicatorConfiguration.KAFKA_PROPERTY_NAME_PREFIX + "consumer.";
 
     public static final String KAFKA_LISTENER_PROPERTY_NAME_PREFIX = KafkaRedisReplicatorConfiguration.KAFKA_PROPERTY_NAME_PREFIX + "listener.";
 
+    /**
+     * The property name for Kafka Consumer enabled status
+     */
+    @ConfigurationProperty(
+            type = boolean.class,
+            defaultValue = DEFAULT_KAFKA_CONSUMER_ENABLED_PROPERTY_VALUE,
+            source = APPLICATION_SOURCE
+    )
+    public static final String KAFKA_CONSUMER_ENABLED_PROPERTY_NAME = KAFKA_CONSUMER_PROPERTY_NAME_PREFIX + "enabled";
+
+    /**
+     * The property name for Kafka Listener poll timeout
+     */
+    @ConfigurationProperty(
+            type = int.class,
+            defaultValue = DEFAULT_KAFKA_LISTENER_POLL_TIMEOUT_PROPERTY_VALUE,
+            source = APPLICATION_SOURCE
+    )
     public static final String KAFKA_LISTENER_POLL_TIMEOUT_PROPERTY_NAME = KAFKA_LISTENER_PROPERTY_NAME_PREFIX + "poll-timeout";
 
+    /**
+     * The property name for Kafka Listener concurrency
+     */
+    @ConfigurationProperty(
+            type = int.class,
+            defaultValue = DEFAULT_KAFKA_LISTENER_CONCURRENCY_PROPERTY_VALUE,
+            source = APPLICATION_SOURCE
+    )
     public static final String KAFKA_LISTENER_CONCURRENCY_PROPERTY_NAME = KAFKA_LISTENER_PROPERTY_NAME_PREFIX + "concurrency";
 
     public static final String KAFKA_CONSUMER_GROUP_ID_PREFIX = "Redis-Replicator-";
 
-    public static final boolean DEFAULT_KAFKA_CONSUMER_ENABLED = true;
+    public static final boolean DEFAULT_KAFKA_CONSUMER_ENABLED = parseBoolean(DEFAULT_KAFKA_CONSUMER_ENABLED_PROPERTY_VALUE);
 
-    public static final int DEFAULT_KAFKA_LISTENER_POLL_TIMEOUT = 10000;
+    public static final int DEFAULT_KAFKA_LISTENER_POLL_TIMEOUT = parseInt(DEFAULT_KAFKA_LISTENER_POLL_TIMEOUT_PROPERTY_VALUE);
 
-    public static final int DEFAULT_KAFKA_LISTENER_CONCURRENCY = 1;
+    public static final int DEFAULT_KAFKA_LISTENER_CONCURRENCY = parseInt(DEFAULT_KAFKA_LISTENER_CONCURRENCY_PROPERTY_VALUE);
 
     private volatile Map<String, Object> consumerConfigs;
 
@@ -77,6 +111,7 @@ public class KafkaConsumerRedisReplicatorConfiguration extends KafkaRedisReplica
     public ConcurrentMessageListenerContainer<byte[], byte[]> redisReplicatorConcurrentMessageListenerContainer() {
         String[] topics = getTopics();
         ContainerProperties containerProperties = new ContainerProperties(topics);
+        containerProperties.setPollTimeout(this.listenerPollTimeOut);
         ConsumerFactory<byte[], byte[]> redisReplicatorConsumerFactory = redisReplicatorConsumerFactory();
         ConcurrentMessageListenerContainer<byte[], byte[]> listenerContainer = new ConcurrentMessageListenerContainer<>(redisReplicatorConsumerFactory, containerProperties);
         listenerContainer.setConcurrency(getConcurrency(topics));
