@@ -61,7 +61,7 @@ public class RedisReplicatorConfiguration implements ApplicationListener<RedisCo
 
     public static final String DEFAULT_ENABLED_PROPERTY_VALUE = "true";
 
-    public static final String DEFAULT_CONSUMER_ENABLED_PROPERTY_VALUE = "false";
+    public static final boolean DEFAULT_ENABLED = parseBoolean(DEFAULT_ENABLED_PROPERTY_VALUE);
 
     /**
      * The Spring Property name of Redis Replicator enabled.
@@ -74,6 +74,10 @@ public class RedisReplicatorConfiguration implements ApplicationListener<RedisCo
 
     public static final String CONSUMER_PROPERTY_NAME_PREFIX = PROPERTY_NAME_PREFIX + "consumer.";
 
+    public static final String DEFAULT_CONSUMER_ENABLED_PROPERTY_VALUE = "false";
+
+    public static final boolean DEFAULT_CONSUMER_ENABLED = parseBoolean(DEFAULT_CONSUMER_ENABLED_PROPERTY_VALUE);
+
     /**
      * The Spring Property name of Redis Replicator consumer enabled.
      */
@@ -83,11 +87,9 @@ public class RedisReplicatorConfiguration implements ApplicationListener<RedisCo
     )
     public static final String CONSUMER_ENABLED_PROPERTY_NAME = CONSUMER_PROPERTY_NAME_PREFIX + "enabled";
 
-    public static final boolean DEFAULT_ENABLED = parseBoolean(DEFAULT_ENABLED_PROPERTY_VALUE);
-
-    public static final boolean DEFAULT_CONSUMER_ENABLED = parseBoolean(DEFAULT_CONSUMER_ENABLED_PROPERTY_VALUE);
-
     public static final String DEFAULT_DOMAIN = "default";
+
+    public static final List<String> DEFAULT_DOMAINS = ofList(DEFAULT_DOMAIN);
 
     /**
      * Business Domains
@@ -97,8 +99,6 @@ public class RedisReplicatorConfiguration implements ApplicationListener<RedisCo
             defaultValue = DEFAULT_DOMAIN
     )
     public static final String DOMAINS_PROPERTY_NAME = PROPERTY_NAME_PREFIX + "domains";
-
-    public static final List<String> DEFAULT_DOMAINS = ofList(DEFAULT_DOMAIN);
 
     public static final String DOMAIN_REDIS_TEMPLATE_BEAN_NAMES_PROPERTY_NAME_PREFIX = DOMAINS_PROPERTY_NAME + ".";
 
