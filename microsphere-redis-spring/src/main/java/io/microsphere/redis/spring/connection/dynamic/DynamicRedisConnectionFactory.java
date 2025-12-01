@@ -178,7 +178,7 @@ public class DynamicRedisConnectionFactory implements RedisConnectionFactory, Sm
         logger.trace("Clear target RedisConnectionFactory Bean Name: '{}'", targetBeanName);
     }
 
-    protected static String getTargetBeanName() {
+    public static String getTargetBeanName() {
         return beanNameHolder.get();
     }
 }
