@@ -28,6 +28,7 @@ import static io.microsphere.redis.spring.config.RedisConfiguration.getBoolean;
 import static io.microsphere.spring.core.env.PropertySourcesUtils.getSubProperties;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Integer.parseInt;
+import static java.lang.Math.max;
 import static org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG;
 import static org.apache.kafka.clients.CommonClientConfigs.GROUP_ID_CONFIG;
 
@@ -121,7 +122,7 @@ public class KafkaConsumerRedisReplicatorConfiguration extends KafkaRedisReplica
 
     private int getConcurrency(String[] topics) {
         int topicCount = topics.length;
-        return topicCount > listenerConcurrency ? topicCount : listenerConcurrency;
+        return max(topicCount, listenerConcurrency);
     }
 
     private BatchAcknowledgingMessageListener<byte[], byte[]> batchAcknowledgingMessageListener() {

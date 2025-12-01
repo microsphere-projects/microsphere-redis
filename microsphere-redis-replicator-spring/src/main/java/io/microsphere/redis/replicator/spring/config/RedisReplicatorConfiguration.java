@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static io.microsphere.annotation.ConfigurationProperty.APPLICATION_SOURCE;
 import static io.microsphere.collection.Lists.ofList;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.config.RedisConfiguration.getBoolean;
@@ -68,7 +69,8 @@ public class RedisReplicatorConfiguration implements ApplicationListener<RedisCo
      */
     @ConfigurationProperty(
             type = boolean.class,
-            defaultValue = DEFAULT_ENABLED_PROPERTY_VALUE
+            defaultValue = DEFAULT_ENABLED_PROPERTY_VALUE,
+            source = APPLICATION_SOURCE
     )
     public static final String ENABLED_PROPERTY_NAME = PROPERTY_NAME_PREFIX + "enabled";
 
@@ -83,7 +85,8 @@ public class RedisReplicatorConfiguration implements ApplicationListener<RedisCo
      */
     @ConfigurationProperty(
             type = boolean.class,
-            defaultValue = DEFAULT_CONSUMER_ENABLED_PROPERTY_VALUE
+            defaultValue = DEFAULT_CONSUMER_ENABLED_PROPERTY_VALUE,
+            source = APPLICATION_SOURCE
     )
     public static final String CONSUMER_ENABLED_PROPERTY_NAME = CONSUMER_PROPERTY_NAME_PREFIX + "enabled";
 
@@ -96,7 +99,8 @@ public class RedisReplicatorConfiguration implements ApplicationListener<RedisCo
      */
     @ConfigurationProperty(
             type = String[].class,
-            defaultValue = DEFAULT_DOMAIN
+            defaultValue = DEFAULT_DOMAIN,
+            source = APPLICATION_SOURCE
     )
     public static final String DOMAINS_PROPERTY_NAME = PROPERTY_NAME_PREFIX + "domains";
 

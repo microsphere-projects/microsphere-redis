@@ -12,6 +12,7 @@ import org.springframework.core.env.Environment;
 
 import java.util.List;
 
+import static io.microsphere.annotation.ConfigurationProperty.APPLICATION_SOURCE;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.spring.core.env.EnvironmentUtils.asConfigurableEnvironment;
 import static io.microsphere.util.ArrayUtils.arrayToString;
@@ -35,7 +36,8 @@ public class KafkaRedisReplicatorConfiguration implements EnvironmentAware, Init
      */
     @ConfigurationProperty(
             type = String[].class,
-            defaultValue = "127.0.0.1:9092"
+            defaultValue = "127.0.0.1:9092",
+            source = APPLICATION_SOURCE
     )
     public static final String SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_NAME = "spring.kafka.bootstrap-servers";
 
@@ -48,7 +50,8 @@ public class KafkaRedisReplicatorConfiguration implements EnvironmentAware, Init
      */
     @ConfigurationProperty(
             type = String[].class,
-            defaultValue = SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_PLACEHOLDER
+            defaultValue = SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_PLACEHOLDER,
+            source = APPLICATION_SOURCE
     )
     public static final String KAFKA_BOOTSTRAP_SERVERS_PROPERTY_NAME = KAFKA_PROPERTY_NAME_PREFIX + BOOTSTRAP_SERVERS_CONFIG;
 
@@ -60,7 +63,8 @@ public class KafkaRedisReplicatorConfiguration implements EnvironmentAware, Init
      * The Spring Property name of Kafka Topic Prefix
      */
     @ConfigurationProperty(
-            defaultValue = DEFAULT_KAFKA_TOPIC_PREFIX_PROPERTY_VALUE
+            defaultValue = DEFAULT_KAFKA_TOPIC_PREFIX_PROPERTY_VALUE,
+            source = APPLICATION_SOURCE
     )
     public static final String KAFKA_TOPIC_PREFIX_PROPERTY_NAME = KAFKA_PROPERTY_NAME_PREFIX + "topic-prefix";
 
