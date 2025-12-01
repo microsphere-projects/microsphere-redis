@@ -16,9 +16,11 @@
  */
 package io.microsphere.redis.spring;
 
+import io.microsphere.redis.spring.config.RedisConfig;
 import org.junit.jupiter.api.Disabled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -31,6 +33,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
  */
 @SpringJUnitConfig
 @Disabled
+@Import(RedisConfig.class)
 public abstract class AbstractRedisTest {
 
     @Autowired
