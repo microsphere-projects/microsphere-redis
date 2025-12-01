@@ -17,15 +17,11 @@
 package io.microsphere.redis.spring;
 
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 /**
  * Abstract Redis Test
@@ -33,35 +29,16 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
-@ExtendWith(SpringExtension.class)
+@SpringJUnitConfig
 @Disabled
 public abstract class AbstractRedisTest {
+
+    @Autowired
+    protected RedisTemplate redisTemplate;
 
     @Autowired
     protected StringRedisTemplate stringRedisTemplate;
 
     @Autowired
     protected ConfigurableApplicationContext context;
-
-    @Bean
-    public static RedisTemplate redisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        RedisTemplate redisTemplate = new RedisTemplate();
-        redisTemplate.setConnectionFactory(redisConnectionFactory);
-        return redisTemplate;
-    }
-
-    @Bean
-    public static StringRedisTemplate stringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        StringRedisTemplate stringRedisTemplate = new StringRedisTemplate();
-        stringRedisTemplate.setConnectionFactory(redisConnectionFactory);
-        return stringRedisTemplate;
-    }
-
-    @Bean
-    public static RedisConnectionFactory redisConnectionFactory() {
-        LettuceConnectionFactory redisConnectionFactory = new LettuceConnectionFactory("127.0.0.1", 6379);
-        redisConnectionFactory.afterPropertiesSet();
-        redisConnectionFactory.validateConnection();
-        return redisConnectionFactory;
-    }
 }
