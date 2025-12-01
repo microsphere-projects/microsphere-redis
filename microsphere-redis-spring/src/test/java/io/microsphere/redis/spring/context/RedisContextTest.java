@@ -18,17 +18,18 @@
 package io.microsphere.redis.spring.context;
 
 
+import io.microsphere.redis.spring.AbstractRedisTest;
 import io.microsphere.redis.spring.config.RedisConfiguration;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.test.context.ContextConfiguration;
 
 import static io.microsphere.collection.Sets.ofSet;
 import static io.microsphere.redis.spring.context.RedisContext.BEAN_NAME;
 import static io.microsphere.redis.spring.context.RedisContext.get;
-import static io.microsphere.spring.test.util.SpringTestUtils.testInSpringContainer;
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -43,52 +44,43 @@ import static org.junit.jupiter.api.Assertions.assertSame;
  * @see RedisContext
  * @since 1.0.0
  */
-class RedisContextTest {
+@ContextConfiguration(classes = RedisContextTest.class)
+class RedisContextTest extends AbstractRedisTest {
 
     @Bean(BEAN_NAME)
-    public RedisContext redisContext() {
+    public static RedisContext redisContext() {
         return new RedisContext();
     }
 
     @Bean(RedisConfiguration.BEAN_NAME)
-    public RedisConfiguration redisConfiguration() {
+    public static RedisConfiguration redisConfiguration() {
         return new RedisConfiguration();
     }
 
-    @Bean
-    public RedisTemplate redisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        RedisTemplate redisTemplate = new RedisTemplate();
-        redisTemplate.setConnectionFactory(redisConnectionFactory);
-        return redisTemplate;
-    }
+    @Autowired
+    private ConfigurableApplicationContext context;
 
-    @Bean
-    public RedisConnectionFactory redisConnectionFactory() {
-        LettuceConnectionFactory redisConnectionFactory = new LettuceConnectionFactory("127.0.0.1", 6379);
-        redisConnectionFactory.afterPropertiesSet();
-        redisConnectionFactory.validateConnection();
-        return redisConnectionFactory;
-    }
+    @Autowired
+    private ConfigurableEnvironment environment;
 
     @Test
     void test() {
-        testInSpringContainer((context, environment) -> {
-            RedisContext redisContext = get(context);
-            RedisConfiguration redisConfiguration = redisContext.getRedisConfiguration();
-            assertSame(RedisConfiguration.get(context), redisConfiguration);
-            assertSame(context.getBeanFactory(), redisContext.getBeanFactory());
-            assertSame(context, redisContext.getApplicationContext());
-            assertSame(context.getClassLoader(), redisContext.getClassLoader());
-            assertSame(environment, redisContext.getEnvironment());
-            assertFalse(redisContext.isEnabled());
-            assertNotNull(redisContext.getRedisTemplate("redisTemplate"));
-            assertNull(redisContext.getRedisTemplate("not-found"));
-            assertEquals(ofSet("redisTemplate"), redisContext.getRedisTemplateBeanNames());
-            assertEquals(ofSet("redisConnectionFactory"), redisContext.getRedisConnectionFactoryBeanNames());
-            assertEquals(redisConfiguration.isCommandEventExposed(), redisContext.isCommandEventExposed());
-            assertEquals(redisConfiguration.getApplicationName(), redisContext.getApplicationName());
-            assertEquals(emptyList(), redisContext.getRedisConnectionInterceptors());
-            assertEquals(emptyList(), redisContext.getRedisCommandInterceptors());
-        }, RedisContextTest.class);
+        RedisContext redisContext = get(context);
+        RedisConfiguration redisConfiguration = redisContext.getRedisConfiguration();
+        assertSame(RedisConfiguration.get(context), redisConfiguration);
+        assertSame(context.getBeanFactory(), redisContext.getBeanFactory());
+        assertSame(context, redisContext.getApplicationContext());
+        assertSame(context.getClassLoader(), redisContext.getClassLoader());
+        assertSame(environment, redisContext.getEnvironment());
+        assertFalse(redisContext.isEnabled());
+        assertNotNull(redisContext.getRedisTemplate("redisTemplate"));
+        assertNotNull(redisContext.getRedisTemplate("stringRedisTemplate"));
+        assertNull(redisContext.getRedisTemplate("not-found"));
+        assertEquals(ofSet("redisTemplate", "stringRedisTemplate"), redisContext.getRedisTemplateBeanNames());
+        assertEquals(ofSet("redisConnectionFactory"), redisContext.getRedisConnectionFactoryBeanNames());
+        assertEquals(redisConfiguration.isCommandEventExposed(), redisContext.isCommandEventExposed());
+        assertEquals(redisConfiguration.getApplicationName(), redisContext.getApplicationName());
+        assertEquals(emptyList(), redisContext.getRedisConnectionInterceptors());
+        assertEquals(emptyList(), redisContext.getRedisCommandInterceptors());
     }
 }
