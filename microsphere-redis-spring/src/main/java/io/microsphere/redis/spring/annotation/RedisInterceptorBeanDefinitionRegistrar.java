@@ -22,23 +22,22 @@ import io.microsphere.redis.spring.beans.RedisTemplateWrapperBeanPostProcessor;
 import io.microsphere.redis.spring.beans.WrapperProcessors;
 import io.microsphere.redis.spring.interceptor.EventPublishingRedisCommandInterceptor;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
+import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
 
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.interceptor.EventPublishingRedisCommandInterceptor.BEAN_NAME;
 import static io.microsphere.spring.beans.factory.BeanFactoryUtils.asConfigurableBeanFactory;
-import static java.util.Arrays.asList;
-import static org.springframework.beans.factory.support.BeanDefinitionBuilder.genericBeanDefinition;
+import static io.microsphere.spring.beans.factory.support.BeanRegistrar.registerBeanDefinition;
+import static io.microsphere.spring.core.annotation.AnnotationUtils.getAnnotationAttributes;
 import static org.springframework.util.CollectionUtils.isEmpty;
 import static org.springframework.util.StringUtils.commaDelimitedListToSet;
 import static org.springframework.util.StringUtils.hasText;
@@ -53,16 +52,19 @@ import static org.springframework.util.StringUtils.trimWhitespace;
  */
 class RedisInterceptorBeanDefinitionRegistrar implements ImportBeanDefinitionRegistrar, EnvironmentAware {
 
+    private static Class<EnableRedisInterceptor> ENABLE_REDIS_INTERCEPTOR_CLASS = EnableRedisInterceptor.class;
+
     private static final Logger logger = getLogger(RedisInterceptorBeanDefinitionRegistrar.class);
 
     private ConfigurableEnvironment environment;
 
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-        Map<String, Object> attributes = importingClassMetadata.getAnnotationAttributes(EnableRedisInterceptor.class.getName());
-        String[] wrapRedisTemplates = (String[]) attributes.get("wrapRedisTemplates");
+        AnnotationAttributes annotationAttributes = getAnnotationAttributes(importingClassMetadata, ENABLE_REDIS_INTERCEPTOR_CLASS);
+        String[] wrapRedisTemplates = annotationAttributes.getStringArray("wrapRedisTemplates");
+        boolean exposeCommandEvent = annotationAttributes.getBoolean("exposeCommandEvent");
 
-        boolean exposeCommandEvent = (boolean) attributes.get("exposeCommandEvent");
+        logger.trace("@EnableRedisInterceptor({}} annotated on the '{}'", annotationAttributes, importingClassMetadata);
 
         Set<String> wrapRedisTemplateBeanNames = resolveWrappedRedisTemplateBeanNames(wrapRedisTemplates);
 
@@ -114,18 +116,6 @@ class RedisInterceptorBeanDefinitionRegistrar implements ImportBeanDefinitionReg
 
     private void registerWrapperProcessors(BeanDefinitionRegistry registry) {
         registerBeanDefinition(registry, WrapperProcessors.BEAN_NAME, WrapperProcessors.class);
-    }
-
-    private void registerBeanDefinition(BeanDefinitionRegistry registry, String beanName, Class<?>
-            beanClass, Object... constructorArgs) {
-        if (!registry.containsBeanDefinition(beanName)) {
-            BeanDefinitionBuilder beanDefinitionBuilder = genericBeanDefinition(beanClass);
-            for (Object constructorArg : constructorArgs) {
-                beanDefinitionBuilder.addConstructorArgValue(constructorArg);
-            }
-            registry.registerBeanDefinition(beanName, beanDefinitionBuilder.getBeanDefinition());
-            logger.debug("Redis Interceptor Component[name : '{}' , class : {} , args : {}] registered", beanName, beanClass, asList(constructorArgs));
-        }
     }
 
     @Override
