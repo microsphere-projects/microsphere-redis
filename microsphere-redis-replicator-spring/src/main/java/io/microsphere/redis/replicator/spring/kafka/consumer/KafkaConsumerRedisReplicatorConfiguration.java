@@ -2,6 +2,7 @@ package io.microsphere.redis.replicator.spring.kafka.consumer;
 
 import io.microsphere.annotation.ConfigurationProperty;
 import io.microsphere.logging.Logger;
+import io.microsphere.redis.replicator.spring.RedisReplicatorInitializer;
 import io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration;
 import io.microsphere.redis.replicator.spring.event.RedisCommandReplicatedEvent;
 import io.microsphere.redis.replicator.spring.kafka.KafkaRedisReplicatorConfiguration;
@@ -40,6 +41,7 @@ import static org.apache.kafka.clients.CommonClientConfigs.GROUP_ID_CONFIG;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @see KafkaRedisReplicatorConfiguration
  * @see RedisReplicatorConfiguration
+ * @see RedisReplicatorInitializer
  * @since 1.0.0
  */
 public class KafkaConsumerRedisReplicatorConfiguration extends KafkaRedisReplicatorConfiguration implements ApplicationEventPublisherAware {
