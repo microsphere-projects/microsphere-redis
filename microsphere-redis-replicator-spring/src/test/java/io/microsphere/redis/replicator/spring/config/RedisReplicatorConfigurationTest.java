@@ -20,20 +20,27 @@ package io.microsphere.redis.replicator.spring.config;
 
 import io.microsphere.redis.spring.config.RedisConfiguration;
 import io.microsphere.redis.spring.context.RedisContext;
-import org.junit.jupiter.api.BeforeEach;
+import io.microsphere.redis.spring.event.RedisConfigurationPropertyChangedEvent;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.MutablePropertySources;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.support.DefaultPropertySourceFactory;
+import org.springframework.core.io.support.EncodedResource;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static io.microsphere.collection.Lists.ofList;
+import static io.microsphere.collection.Sets.ofSet;
 import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.BEAN_NAME;
 import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.CONSUMER_ENABLED_PROPERTY_NAME;
 import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.CONSUMER_PROPERTY_NAME_PREFIX;
@@ -49,8 +56,10 @@ import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfi
 import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.ENABLED_PROPERTY_NAME;
 import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.PROPERTY_NAME_PREFIX;
 import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.get;
+import static io.microsphere.spring.core.env.PropertySourcesUtils.getSubProperties;
 import static io.microsphere.spring.test.util.SpringTestUtils.testInSpringContainer;
 import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -65,9 +74,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class RedisReplicatorConfigurationTest {
 
-    @BeforeEach
-    void setUp() {
-    }
+    public static final String TEST_PROPERTY_SOURCE_RESOURCE_NAME = "/META-INF/test-redis-replicator.properties";
+
+    public static final String TEST_PROPERTY_SOURCE_LOCATION = "classpath:" + TEST_PROPERTY_SOURCE_RESOURCE_NAME;
 
     @Test
     void testConstants() {
@@ -94,7 +103,6 @@ class RedisReplicatorConfigurationTest {
     void testOnDefault() {
         testInSpringContainer((context, environment) -> {
             RedisReplicatorConfiguration configuration = assertDefaultConfig(context, "default");
-
             assertEquals(emptyList(), configuration.getDomainRedisTemplateBeanNames(environment, "default"));
         }, DefaultConfig.class);
     }
@@ -102,8 +110,7 @@ class RedisReplicatorConfigurationTest {
     @Test
     void testOnDomainRedisTemplateBeans() {
         testInSpringContainer((context, environment) -> {
-            RedisReplicatorConfiguration configuration = assertDefaultConfig(context, "default", "test", "fixed");
-
+            RedisReplicatorConfiguration configuration = assertDefaultConfig(context, "default", "test", "fixed", "duplicated");
             assertDomainRedisTemplateBeanNames(configuration, environment, "default");
             assertDomainRedisTemplateBeanNames(configuration, environment, "test");
         }, FullConfig.class);
@@ -111,7 +118,31 @@ class RedisReplicatorConfigurationTest {
 
     @Test
     void testOnRedisConfigurationPropertyChangedEvent() {
+        testInSpringContainer((context, environment) -> {
+            RedisReplicatorConfiguration configuration = assertDefaultConfig(context, "default");
+            DefaultPropertySourceFactory propertySourceFactory = new DefaultPropertySourceFactory();
 
+            RedisConfigurationPropertyChangedEvent event = new RedisConfigurationPropertyChangedEvent(context, ofSet("not-found"));
+            context.publishEvent(event);
+
+            EncodedResource resource = new EncodedResource(new ClassPathResource(TEST_PROPERTY_SOURCE_RESOURCE_NAME), "UTF-8");
+            org.springframework.core.env.PropertySource<?> propertySource = propertySourceFactory.createPropertySource("test", resource);
+
+            MutablePropertySources propertySources = environment.getPropertySources();
+            propertySources.addLast(propertySource);
+
+            Map<String, Object> properties = getSubProperties(propertySources, PROPERTY_NAME_PREFIX);
+            Set<String> propertyNames = properties.keySet()
+                    .stream()
+                    .map(k -> PROPERTY_NAME_PREFIX + k)
+                    .collect(toSet());
+
+            event = new RedisConfigurationPropertyChangedEvent(context, propertyNames);
+            context.publishEvent(event);
+
+            assertDomainRedisTemplateBeanNames(configuration, environment, "default");
+            assertDomainRedisTemplateBeanNames(configuration, environment, "test");
+        }, DefaultConfig.class);
     }
 
     RedisReplicatorConfiguration assertDefaultConfig(ConfigurableApplicationContext context, String... domains) {
@@ -150,7 +181,7 @@ class RedisReplicatorConfigurationTest {
     }
 
     @PropertySource(
-            "classpath:/META-INF/test-redis-replicator.properties"
+            TEST_PROPERTY_SOURCE_LOCATION
     )
     static class FullConfig extends DefaultConfig {
 
