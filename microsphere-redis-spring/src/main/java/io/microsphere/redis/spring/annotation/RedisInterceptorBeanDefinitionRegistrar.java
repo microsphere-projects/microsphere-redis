@@ -38,6 +38,7 @@ import static io.microsphere.redis.spring.interceptor.EventPublishingRedisComman
 import static io.microsphere.spring.beans.factory.BeanFactoryUtils.asConfigurableBeanFactory;
 import static io.microsphere.spring.beans.factory.support.BeanRegistrar.registerBeanDefinition;
 import static io.microsphere.spring.core.annotation.AnnotationUtils.getAnnotationAttributes;
+import static io.microsphere.spring.core.env.EnvironmentUtils.asConfigurableEnvironment;
 import static org.springframework.util.CollectionUtils.isEmpty;
 import static org.springframework.util.StringUtils.commaDelimitedListToSet;
 import static org.springframework.util.StringUtils.hasText;
@@ -93,7 +94,7 @@ class RedisInterceptorBeanDefinitionRegistrar implements ImportBeanDefinitionReg
     private Set<String> resolveWrappedRedisTemplateBeanNames(String[] wrapRedisTemplates) {
         Set<String> wrappedRedisTemplateBeanNames = new LinkedHashSet<>();
         for (String wrapRedisTemplate : wrapRedisTemplates) {
-            String wrappedRedisTemplateBeanName = environment.resolveRequiredPlaceholders(wrapRedisTemplate);
+            String wrappedRedisTemplateBeanName = this.environment.resolveRequiredPlaceholders(wrapRedisTemplate);
             Set<String> beanNames = commaDelimitedListToSet(wrappedRedisTemplateBeanName);
             for (String beanName : beanNames) {
                 wrappedRedisTemplateBeanName = trimWhitespace(beanName);
@@ -120,6 +121,6 @@ class RedisInterceptorBeanDefinitionRegistrar implements ImportBeanDefinitionReg
 
     @Override
     public void setEnvironment(Environment environment) {
-        this.environment = (ConfigurableEnvironment) environment;
+        this.environment = asConfigurableEnvironment(environment);
     }
 }
