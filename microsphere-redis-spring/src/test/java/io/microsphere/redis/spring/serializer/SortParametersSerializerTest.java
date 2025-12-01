@@ -1,5 +1,6 @@
 package io.microsphere.redis.spring.serializer;
 
+import org.junit.jupiter.api.Test;
 import org.springframework.data.redis.connection.DefaultSortParameters;
 import org.springframework.data.redis.connection.SortParameters;
 import org.springframework.data.redis.serializer.RedisSerializer;
@@ -11,6 +12,8 @@ import static io.microsphere.redis.spring.serializer.SortParametersSerializer.SO
 import static java.lang.String.valueOf;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.deepToString;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.data.redis.connection.SortParameters.Order.ASC;
 
 /**
@@ -46,5 +49,20 @@ class SortParametersSerializerTest extends AbstractSerializerTest<SortParameters
                 .add(Arrays.toString(value.getByPattern()))
                 .add(deepToString(value.getGetPattern()))
                 .toString();
+    }
+
+    @Test
+    void testSortParametersWithoutValue() {
+        SortParameters sortParameters = new DefaultSortParameters();
+        byte[] bytes = SORT_PARAMETERS_SERIALIZER.serialize(sortParameters);
+        assertNotNull(bytes);
+
+        SortParameters deserialized = SORT_PARAMETERS_SERIALIZER.deserialize(bytes);
+        assertNotNull(deserialized);
+        assertNull(deserialized.getByPattern());
+        assertNotNull(deserialized.getGetPattern());
+        assertNull(deserialized.getLimit());
+        assertNull(deserialized.getOrder());
+        assertNull(deserialized.isAlphabetic());
     }
 }
