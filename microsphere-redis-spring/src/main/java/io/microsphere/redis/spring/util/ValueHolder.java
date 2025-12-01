@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
+import static java.lang.ThreadLocal.withInitial;
 
 /**
  * Value Holder
@@ -33,7 +34,7 @@ public class ValueHolder {
 
     private static final Logger logger = getLogger(ValueHolder.class);
 
-    private static final ThreadLocal<ValueHolder> holder = ThreadLocal.withInitial(() -> new ValueHolder(4));
+    private static final ThreadLocal<ValueHolder> holder = withInitial(() -> new ValueHolder(4));
 
     private final Map<Object, Object> cache;
 
@@ -49,9 +50,7 @@ public class ValueHolder {
 
     private void put(Object key, Object value) {
         Object oldValue = cache.put(key, value);
-        if (logger.isDebugEnabled()) {
-            logger.debug("Put key[{}] and value[{}] into cache, old value : {}", key, value, oldValue);
-        }
+        logger.trace("Put key[{}] and value[{}] into cache, old value : {}", key, value, oldValue);
     }
 
     public Object getValue(byte[] rawValue) {
