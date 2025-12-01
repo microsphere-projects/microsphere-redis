@@ -16,6 +16,8 @@
  */
 package io.microsphere.redis.spring.beans;
 
+import io.microsphere.annotation.Nonnull;
+import io.microsphere.annotation.Nullable;
 import io.microsphere.redis.spring.context.RedisContext;
 import io.microsphere.redis.spring.interceptor.InterceptingRedisConnectionInvocationHandler;
 import io.microsphere.spring.beans.factory.config.GenericBeanPostProcessorAdapter;
@@ -28,12 +30,13 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
+import static io.microsphere.redis.spring.context.RedisContext.get;
+import static io.microsphere.reflect.AccessibleObjectUtils.trySetAccessible;
+import static io.microsphere.reflect.MethodUtils.findMethod;
 import static java.lang.reflect.Proxy.newProxyInstance;
 
 /**
@@ -48,6 +51,8 @@ public class RedisConnectionFactoryProxyBeanPostProcessor extends GenericBeanPos
 
     private static final Class[] REDIS_CONNECTION_TYPES = new Class[]{RedisConnection.class};
 
+    private static final Method GET_CONNECTION_METHOD = findMethod(RedisConnectionFactory.class, "getConnection");
+
     private final ConfigurableBeanFactory beanFactory;
 
     public RedisConnectionFactoryProxyBeanPostProcessor(ConfigurableBeanFactory beanFactory) {
@@ -60,13 +65,12 @@ public class RedisConnectionFactoryProxyBeanPostProcessor extends GenericBeanPos
         proxyFactory.addAdvice(new MethodInterceptor() {
             @Nullable
             @Override
-            public Object invoke(@NonNull MethodInvocation invocation) throws Throwable {
+            public Object invoke(@Nonnull MethodInvocation invocation) throws Throwable {
                 Method method = invocation.getMethod();
-                method.setAccessible(true);
-                String methodName = method.getName();
+                trySetAccessible(method);
                 Object result = invocation.proceed();
-                if ("getConnection".equals(methodName) && result instanceof RedisConnection) {
-                    RedisContext redisContext = RedisContext.get(beanFactory);
+                if (GET_CONNECTION_METHOD.equals(method)) {
+                    RedisContext redisContext = get(beanFactory);
                     if (redisContext.isEnabled()) {
                         result = newProxyRedisConnection((RedisConnection) result, redisContext, beanName);
                     }
