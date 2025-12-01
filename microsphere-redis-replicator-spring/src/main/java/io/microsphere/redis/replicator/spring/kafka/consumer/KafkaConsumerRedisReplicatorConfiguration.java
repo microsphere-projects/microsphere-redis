@@ -2,6 +2,7 @@ package io.microsphere.redis.replicator.spring.kafka.consumer;
 
 import io.microsphere.annotation.ConfigurationProperty;
 import io.microsphere.logging.Logger;
+import io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration;
 import io.microsphere.redis.replicator.spring.event.RedisCommandReplicatedEvent;
 import io.microsphere.redis.replicator.spring.kafka.KafkaRedisReplicatorConfiguration;
 import io.microsphere.redis.spring.config.RedisConfiguration;
@@ -26,6 +27,7 @@ import static io.microsphere.annotation.ConfigurationProperty.APPLICATION_SOURCE
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.config.RedisConfiguration.getBoolean;
 import static io.microsphere.spring.core.env.PropertySourcesUtils.getSubProperties;
+import static io.microsphere.util.ArrayUtils.length;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Integer.parseInt;
 import static java.lang.Math.max;
@@ -36,6 +38,8 @@ import static org.apache.kafka.clients.CommonClientConfigs.GROUP_ID_CONFIG;
  * Kafka Consumer {@link KafkaRedisReplicatorConfiguration}
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
+ * @see KafkaRedisReplicatorConfiguration
+ * @see RedisReplicatorConfiguration
  * @since 1.0.0
  */
 public class KafkaConsumerRedisReplicatorConfiguration extends KafkaRedisReplicatorConfiguration implements ApplicationEventPublisherAware {
@@ -135,7 +139,7 @@ public class KafkaConsumerRedisReplicatorConfiguration extends KafkaRedisReplica
         };
     }
 
-    private void consumeRecord(ConsumerRecord<byte[], byte[]> consumerRecord) {
+    void consumeRecord(ConsumerRecord<byte[], byte[]> consumerRecord) {
         byte[] key = consumerRecord.key();
         byte[] value = consumerRecord.value();
         int partition = consumerRecord.partition();
@@ -143,9 +147,9 @@ public class KafkaConsumerRedisReplicatorConfiguration extends KafkaRedisReplica
             RedisCommandEvent redisCommandEvent = Serializers.deserialize(value, RedisCommandEvent.class);
             RedisCommandReplicatedEvent redisCommandReplicatedEvent = createRedisCommandReplicatedEvent(redisCommandEvent, consumerRecord);
             applicationEventPublisher.publishEvent(redisCommandReplicatedEvent);
-            logger.debug("[Redis-Replicator-Kafka-C-S] Processing Redis Replicator message succeeded. Topic: {}, key: {}, data size: {} bytes, partition: {}", consumerRecord.topic(), key, value.length, partition);
+            logger.trace("[Redis-Replicator-Kafka-C-S] Topic: {}, key: {}, data size: {} bytes, partition: {}", consumerRecord.topic(), key, length(value), partition);
         } catch (Throwable e) {
-            logger.warn("[Redis-Replicator-Kafka-C-F] fails to process a Redis Replicator message. Topic: {}, key: {}, data size: {} bytes, partition: {}", consumerRecord.topic(), key, value.length, partition, e);
+            logger.warn("[Redis-Replicator-Kafka-C-F] Topic: {}, key: {}, data size: {} bytes, partition: {}", consumerRecord.topic(), key, length(value), partition, e);
         }
     }
 
@@ -167,7 +171,7 @@ public class KafkaConsumerRedisReplicatorConfiguration extends KafkaRedisReplica
         super.afterPropertiesSet();
         initConsumerConfigs();
         initListenerConfigs();
-        logger.debug("Redis Replicator Kafka consumer configuration has been initialized");
+        logger.trace("Redis Replicator Kafka consumer configuration has been initialized.");
     }
 
     private void initConsumerConfigs() {
@@ -206,7 +210,8 @@ public class KafkaConsumerRedisReplicatorConfiguration extends KafkaRedisReplica
     }
 
     @Override
-    public void destroy() {
-        logger.debug("Redis Replicator Kafka consumer configuration is being destroyed");
+    public void destroy() throws Exception {
+        super.destroy();
+        logger.trace("Redis Replicator Kafka consumer configuration is being destroyed.");
     }
 }
