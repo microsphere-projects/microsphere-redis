@@ -22,8 +22,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.serializer.RedisSerializer;
 
@@ -42,12 +40,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  */
 @Disabled
 public abstract class AbstractRedisCommandEventTest extends AbstractRedisTest {
-
-    @Autowired
-    protected StringRedisTemplate stringRedisTemplate;
-
-    @Autowired
-    protected ConfigurableApplicationContext context;
 
     @Autowired
     protected RedisContext redisContext;
