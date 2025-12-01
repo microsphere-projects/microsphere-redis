@@ -1,7 +1,9 @@
 package io.microsphere.redis.replicator.spring.kafka.producer;
 
+import io.microsphere.annotation.ConfigurationProperty;
 import io.microsphere.logging.Logger;
 import io.microsphere.redis.replicator.spring.RedisReplicatorInitializer;
+import io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration;
 import io.microsphere.redis.replicator.spring.kafka.KafkaRedisReplicatorConfiguration;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.springframework.beans.BeansException;
@@ -14,6 +16,7 @@ import org.springframework.kafka.core.ProducerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.microsphere.annotation.ConfigurationProperty.APPLICATION_SOURCE;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.spring.core.env.PropertySourcesUtils.getSubProperties;
 import static org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG;
@@ -23,6 +26,7 @@ import static org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CON
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @see KafkaRedisReplicatorConfiguration
+ * @see RedisReplicatorConfiguration
  * @see RedisReplicatorInitializer
  * @since 1.0.0
  */
@@ -32,9 +36,16 @@ public class KafkaProducerRedisReplicatorConfiguration extends KafkaRedisReplica
 
     public static final String KAFKA_PRODUCER_PROPERTY_NAME_PREFIX = KAFKA_PROPERTY_NAME_PREFIX + "producer.";
 
-    public static final String KAFKA_PRODUCER_KEY_PREFIX_PROPERTY_NAME = KAFKA_PROPERTY_NAME_PREFIX + "key-prefix";
-
     public static final String DEFAULT_KAFKA_PRODUCER_KEY_PREFIX = "RPE-";
+
+    /**
+     * The Spring property name for Kafka Producer key prefix.
+     */
+    @ConfigurationProperty(
+            defaultValue = DEFAULT_KAFKA_PRODUCER_KEY_PREFIX,
+            source = APPLICATION_SOURCE
+    )
+    public static final String KAFKA_PRODUCER_KEY_PREFIX_PROPERTY_NAME = KAFKA_PROPERTY_NAME_PREFIX + "key-prefix";
 
     /**
      * Key Prefix
@@ -57,6 +68,7 @@ public class KafkaProducerRedisReplicatorConfiguration extends KafkaRedisReplica
 
     private void initKeyPrefix() {
         this.keyPrefix = environment.getProperty(KAFKA_PRODUCER_KEY_PREFIX_PROPERTY_NAME, DEFAULT_KAFKA_PRODUCER_KEY_PREFIX);
+        logger.trace("The Kafka key prefix : '{}'", this.keyPrefix);
     }
 
     private void initProducerConfigs() {
@@ -67,6 +79,8 @@ public class KafkaProducerRedisReplicatorConfiguration extends KafkaRedisReplica
         // Kafka Producer properties
         producerConfigs.putAll(getSubProperties(environment, KAFKA_PRODUCER_PROPERTY_NAME_PREFIX));
         this.producerConfigs = producerConfigs;
+        logger.trace("The Kafka Producer configs : {}", producerConfigs);
+
     }
 
     private void initRedisReplicatorKafkaTemplate() {
@@ -90,10 +104,8 @@ public class KafkaProducerRedisReplicatorConfiguration extends KafkaRedisReplica
     private void destroyProducerFactory() {
         if (redisReplicatorKafkaTemplate != null) {
             ProducerFactory producerFactory = redisReplicatorKafkaTemplate.getProducerFactory();
-            if (producerFactory instanceof DefaultKafkaProducerFactory) {
-                DefaultKafkaProducerFactory defaultKafkaProducerFactory = (DefaultKafkaProducerFactory) producerFactory;
-                defaultKafkaProducerFactory.reset();
-            }
+            DefaultKafkaProducerFactory defaultKafkaProducerFactory = (DefaultKafkaProducerFactory) producerFactory;
+            defaultKafkaProducerFactory.reset();
         }
     }
 
