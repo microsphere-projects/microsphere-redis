@@ -16,6 +16,8 @@ import static io.microsphere.redis.spring.util.RedisConstants.COMMAND_EVENT_EXPO
 import static io.microsphere.redis.spring.util.RedisConstants.DEFAULT_COMMAND_EVENT_EXPOSED;
 import static io.microsphere.redis.spring.util.RedisConstants.DEFAULT_ENABLED;
 import static io.microsphere.redis.spring.util.RedisConstants.ENABLED_PROPERTY_NAME;
+import static io.microsphere.spring.context.ApplicationContextUtils.asConfigurableApplicationContext;
+import static io.microsphere.spring.core.env.EnvironmentUtils.asConfigurableEnvironment;
 
 /**
  * Redis Configuration
@@ -51,33 +53,33 @@ public class RedisConfiguration implements ApplicationListener<RedisConfiguratio
         this.enabled = isEnabled(context);
     }
 
+    public ConfigurableEnvironment getEnvironment() {
+        return this.environment;
+    }
+
+    public String getApplicationName() {
+        return this.applicationName;
+    }
+
     public boolean isEnabled() {
-        return enabled;
+        return this.enabled;
+    }
+
+    public boolean isCommandEventExposed() {
+        return isCommandEventExposed(this.context);
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext context) throws BeansException {
+        this.context = asConfigurableApplicationContext(context);
+        this.environment = asConfigurableEnvironment(this.context.getEnvironment());
+        this.applicationName = resolveApplicationName(this.environment);
+        setEnabled();
     }
 
     protected String resolveApplicationName(Environment environment) {
         String applicationName = environment.getProperty("spring.application.name", "default");
         return applicationName;
-    }
-
-    public ConfigurableEnvironment getEnvironment() {
-        return environment;
-    }
-
-    public String getApplicationName() {
-        return applicationName;
-    }
-
-    public boolean isCommandEventExposed() {
-        return isCommandEventExposed(context);
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext context) throws BeansException {
-        this.context = (ConfigurableApplicationContext) context;
-        this.environment = (ConfigurableEnvironment) context.getEnvironment();
-        this.applicationName = resolveApplicationName(environment);
-        setEnabled();
     }
 
     public static boolean isEnabled(ApplicationContext context) {
