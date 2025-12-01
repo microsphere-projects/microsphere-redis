@@ -99,12 +99,12 @@ public class KafkaConsumerRedisReplicatorConfiguration extends KafkaRedisReplica
     /**
      * Listener connection timeout
      */
-    private int listenerPollTimeOut;
+    int listenerPollTimeOut;
 
     /**
      * Number of listener connection threads
      */
-    private int listenerConcurrency;
+    int listenerConcurrency;
 
     private ApplicationEventPublisher applicationEventPublisher;
 

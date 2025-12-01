@@ -33,6 +33,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import static io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration.KAFKA_CONSUMER_ENABLED_PROPERTY_NAME;
 import static io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration.isEnabled;
 import static io.microsphere.spring.test.util.SpringTestUtils.testInSpringContainer;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -54,7 +55,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @TestPropertySource(properties = {
         "microsphere.redis.replicator.kafka.consumer.enabled=true",
         "microsphere.redis.replicator.kafka.listener.poll-timeout=5000",
-        "microsphere.redis.replicator.kafka.listener.concurrency=2"
+        "microsphere.redis.replicator.kafka.listener.concurrency=3"
 
 })
 class KafkaConsumerRedisReplicatorConfigurationTest {
@@ -66,8 +67,10 @@ class KafkaConsumerRedisReplicatorConfigurationTest {
     private ApplicationContext context;
 
     @Test
-    void testIsEnabled() {
+    void testProperties() {
         assertTrue(isEnabled(this.context));
+        assertEquals(5000, kafkaConsumerRedisReplicatorConfiguration.listenerPollTimeOut);
+        assertEquals(3, kafkaConsumerRedisReplicatorConfiguration.listenerConcurrency);
 
         testInSpringContainer((context, environment) -> {
             assertTrue(isEnabled(context));
