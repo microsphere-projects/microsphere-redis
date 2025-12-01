@@ -15,6 +15,7 @@ import static io.microsphere.redis.spring.serializer.ByteArraySerializer.BYTE_AR
 import static io.microsphere.redis.spring.serializer.LongSerializer.LONG_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.Serializers.defaultSerialize;
 import static io.microsphere.redis.spring.serializer.SortParametersSerializer.RangeSerializer.RANGE_SERIALIZER;
+import static io.microsphere.util.ArrayUtils.isNotEmpty;
 
 /**
  * {@link SortParameters} {@link RedisSerializer} Class
@@ -59,7 +60,7 @@ public class SortParametersSerializer extends AbstractSerializer<SortParameters>
         }
 
         byte[][] getPattern = sortParameters.getGetPattern();
-        if (getPattern != null) {
+        if (isNotEmpty(getPattern)) {
             data.put(GET_PATTERN_KEY, defaultSerialize(getPattern));
         }
 
