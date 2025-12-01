@@ -3,7 +3,6 @@ package io.microsphere.redis.replicator.spring.kafka;
 import io.microsphere.annotation.ConfigurationProperty;
 import io.microsphere.logging.Logger;
 import io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration;
-import io.microsphere.util.StringUtils;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +14,8 @@ import java.util.List;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.spring.core.env.EnvironmentUtils.asConfigurableEnvironment;
+import static io.microsphere.util.ArrayUtils.arrayToString;
+import static io.microsphere.util.StringUtils.substringAfter;
 import static org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG;
 
 
@@ -77,27 +78,12 @@ public class KafkaRedisReplicatorConfiguration implements EnvironmentAware, Init
 
     protected String[] topics;
 
-    public void initTopics() {
-        List<String> domains = this.redisReplicatorConfiguration.getDomains();
-        int size = domains.size();
-        String[] topics = new String[size];
-        for (int i = 0; i < size; i++) {
-            String domain = domains.get(i);
-            String topic = createTopic(domain);
-            topics[i] = topic;
-        }
-        this.topics = topics;
-    }
-
     public String createTopic(String domain) {
         return this.topicPrefix + domain;
     }
 
     public String getDomain(String topic) {
-        if (topic == null) {
-            return null;
-        }
-        return StringUtils.substringAfter(topic, this.topicPrefix);
+        return substringAfter(topic, this.topicPrefix);
     }
 
     public String[] getTopics() {
@@ -126,6 +112,19 @@ public class KafkaRedisReplicatorConfiguration implements EnvironmentAware, Init
         String topicPrefix = this.environment.getProperty(KAFKA_TOPIC_PREFIX_PROPERTY_NAME, DEFAULT_KAFKA_TOPIC_PREFIX_PROPERTY_VALUE);
         logger.trace("Kafka Topic prefix : {}", topicPrefix);
         this.topicPrefix = topicPrefix;
+    }
+
+    private void initTopics() {
+        List<String> domains = this.redisReplicatorConfiguration.getDomains();
+        int size = domains.size();
+        String[] topics = new String[size];
+        for (int i = 0; i < size; i++) {
+            String domain = domains.get(i);
+            String topic = createTopic(domain);
+            topics[i] = topic;
+        }
+        logger.trace("The Kafka topics for Redis Replicator : {}", arrayToString(topics));
+        this.topics = topics;
     }
 
     @Override
