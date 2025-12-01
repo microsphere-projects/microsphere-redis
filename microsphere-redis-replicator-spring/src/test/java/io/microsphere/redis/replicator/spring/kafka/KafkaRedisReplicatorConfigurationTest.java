@@ -18,8 +18,15 @@
 package io.microsphere.redis.replicator.spring.kafka;
 
 
-import org.junit.jupiter.api.BeforeEach;
+import io.microsphere.redis.replicator.spring.config.FullRedisReplicationConfig;
+import io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+
+import static io.microsphere.util.ArrayUtils.ofArray;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * {@link KafkaRedisReplicatorConfiguration} Test
@@ -28,21 +35,40 @@ import org.junit.jupiter.api.Test;
  * @see KafkaRedisReplicatorConfiguration
  * @since 1.0.0
  */
+@SpringJUnitConfig(
+        classes = {
+                RedisReplicatorConfiguration.class,
+                KafkaRedisReplicatorConfiguration.class,
+                FullRedisReplicationConfig.class
+        }
+)
 class KafkaRedisReplicatorConfigurationTest {
 
-    @BeforeEach
-    void setUp() {
+    @Autowired
+    private KafkaRedisReplicatorConfiguration kafkaRedisReplicatorConfiguration;
+
+    @AfterEach
+    void tearDown() throws Exception {
+        this.kafkaRedisReplicatorConfiguration.destroy();
     }
 
     @Test
     void testCreateTopic() {
+        assertEquals("redis-replicator-event-topic-default", this.kafkaRedisReplicatorConfiguration.createTopic("default"));
     }
 
     @Test
     void testGetDomain() {
+        assertEquals("default", this.kafkaRedisReplicatorConfiguration.getDomain("redis-replicator-event-topic-default"));
     }
 
     @Test
     void testGetTopics() {
+        // default,test,fixed,duplicated
+        String[] domains = ofArray("default", "test", "fixed", "duplicated");
+        String[] topics = this.kafkaRedisReplicatorConfiguration.getTopics();
+        for (int i = 0; i < domains.length; i++) {
+            assertEquals(this.kafkaRedisReplicatorConfiguration.createTopic(domains[i]), topics[i]);
+        }
     }
 }
