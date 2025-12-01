@@ -23,8 +23,17 @@ import io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguratio
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mock.env.MockEnvironment;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
+import static io.microsphere.redis.replicator.spring.kafka.KafkaRedisReplicatorConfiguration.DEFAULT_KAFKA_TOPIC_PREFIX_PROPERTY_VALUE;
+import static io.microsphere.redis.replicator.spring.kafka.KafkaRedisReplicatorConfiguration.DEFAULT_SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_VALUE;
+import static io.microsphere.redis.replicator.spring.kafka.KafkaRedisReplicatorConfiguration.KAFKA_BOOTSTRAP_SERVERS_PROPERTY_NAME;
+import static io.microsphere.redis.replicator.spring.kafka.KafkaRedisReplicatorConfiguration.KAFKA_BOOTSTRAP_SERVERS_PROPERTY_PLACEHOLDER;
+import static io.microsphere.redis.replicator.spring.kafka.KafkaRedisReplicatorConfiguration.KAFKA_PROPERTY_NAME_PREFIX;
+import static io.microsphere.redis.replicator.spring.kafka.KafkaRedisReplicatorConfiguration.KAFKA_TOPIC_PREFIX_PROPERTY_NAME;
+import static io.microsphere.redis.replicator.spring.kafka.KafkaRedisReplicatorConfiguration.SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_NAME;
+import static io.microsphere.redis.replicator.spring.kafka.KafkaRedisReplicatorConfiguration.SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_PLACEHOLDER;
 import static io.microsphere.util.ArrayUtils.ofArray;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -50,6 +59,22 @@ class KafkaRedisReplicatorConfigurationTest {
     @AfterEach
     void tearDown() throws Exception {
         this.kafkaRedisReplicatorConfiguration.destroy();
+    }
+
+    @Test
+    void testConstants() {
+        assertEquals("127.0.0.1:9092", DEFAULT_SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_VALUE);
+        assertEquals("spring.kafka.bootstrap-servers", SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_NAME);
+        assertEquals("${spring.kafka.bootstrap-servers:127.0.0.1:9092}", SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_PLACEHOLDER);
+        assertEquals("microsphere.redis.replicator.kafka.", KAFKA_PROPERTY_NAME_PREFIX);
+        assertEquals("microsphere.redis.replicator.kafka.bootstrap.servers", KAFKA_BOOTSTRAP_SERVERS_PROPERTY_NAME);
+        assertEquals("${microsphere.redis.replicator.kafka.bootstrap.servers:${spring.kafka.bootstrap-servers:127.0.0.1:9092}}", KAFKA_BOOTSTRAP_SERVERS_PROPERTY_PLACEHOLDER);
+        assertEquals("redis-replicator-event-topic-", DEFAULT_KAFKA_TOPIC_PREFIX_PROPERTY_VALUE);
+        assertEquals("microsphere.redis.replicator.kafka.topic-prefix", KAFKA_TOPIC_PREFIX_PROPERTY_NAME);
+
+        MockEnvironment mockEnvironment = new MockEnvironment();
+        assertEquals(DEFAULT_SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_VALUE, mockEnvironment.resolvePlaceholders(SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_PLACEHOLDER));
+        assertEquals(DEFAULT_SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_VALUE, mockEnvironment.resolvePlaceholders(KAFKA_BOOTSTRAP_SERVERS_PROPERTY_PLACEHOLDER));
     }
 
     @Test
