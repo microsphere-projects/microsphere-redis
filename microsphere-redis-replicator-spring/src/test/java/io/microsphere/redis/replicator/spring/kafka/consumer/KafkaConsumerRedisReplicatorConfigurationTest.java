@@ -25,9 +25,12 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.MutablePropertySources;
+import org.springframework.mock.env.MockPropertySource;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
+import static io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration.KAFKA_CONSUMER_ENABLED_PROPERTY_NAME;
 import static io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration.isEnabled;
 import static io.microsphere.spring.test.util.SpringTestUtils.testInSpringContainer;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -65,8 +68,15 @@ class KafkaConsumerRedisReplicatorConfigurationTest {
     @Test
     void testIsEnabled() {
         assertTrue(isEnabled(this.context));
-        testInSpringContainer(context -> {
-            assertFalse(isEnabled(this.context));
+
+        testInSpringContainer((context, environment) -> {
+            assertTrue(isEnabled(context));
+
+            MutablePropertySources propertySources = environment.getPropertySources();
+            MockPropertySource mockPropertySource = new MockPropertySource();
+            mockPropertySource.setProperty(KAFKA_CONSUMER_ENABLED_PROPERTY_NAME, false);
+            propertySources.addFirst(mockPropertySource);
+            assertFalse(isEnabled(context));
         });
     }
 
