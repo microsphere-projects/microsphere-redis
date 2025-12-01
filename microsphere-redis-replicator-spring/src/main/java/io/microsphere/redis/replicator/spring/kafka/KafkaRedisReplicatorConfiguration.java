@@ -32,16 +32,21 @@ public class KafkaRedisReplicatorConfiguration implements EnvironmentAware, Init
     private static final Logger logger = getLogger(KafkaRedisReplicatorConfiguration.class);
 
     /**
+     * The default value of Kafka Broker list
+     */
+    public static final String DEFAULT_SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_VALUE = "127.0.0.1:9092";
+
+    /**
      * The Microsphere Property name of Kafka Broker list
      */
     @ConfigurationProperty(
             type = String[].class,
-            defaultValue = "127.0.0.1:9092",
+            defaultValue = DEFAULT_SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_VALUE,
             source = APPLICATION_SOURCE
     )
     public static final String SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_NAME = "spring.kafka.bootstrap-servers";
 
-    public static final String SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_PLACEHOLDER = "${" + SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_NAME + "}";
+    public static final String SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_PLACEHOLDER = "${" + SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_NAME + ":" + DEFAULT_SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_VALUE + "}";
 
     public static final String KAFKA_PROPERTY_NAME_PREFIX = RedisReplicatorConfiguration.PROPERTY_NAME_PREFIX + "kafka.";
 
