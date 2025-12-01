@@ -18,7 +18,20 @@
 package io.microsphere.redis.replicator.spring.kafka.consumer;
 
 
+import io.microsphere.redis.replicator.spring.config.FullRedisReplicationConfig;
+import io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration;
+import io.microsphere.redis.replicator.spring.kafka.KafkaRedisReplicatorConfiguration;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+
+import static io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration.isEnabled;
+import static io.microsphere.spring.test.util.SpringTestUtils.testInSpringContainer;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * {@link KafkaConsumerRedisReplicatorConfiguration} Test
@@ -27,14 +40,39 @@ import org.junit.jupiter.api.Test;
  * @see KafkaConsumerRedisReplicatorConfiguration
  * @since 1.0.0
  */
+@SpringJUnitConfig(
+        classes = {
+                RedisReplicatorConfiguration.class,
+                KafkaRedisReplicatorConfiguration.class,
+                KafkaConsumerRedisReplicatorConfiguration.class,
+                FullRedisReplicationConfig.class
+        }
+)
+@TestPropertySource(properties = {
+        "microsphere.redis.replicator.kafka.consumer.enabled=true",
+        "microsphere.redis.replicator.kafka.listener.poll-timeout=5000",
+        "microsphere.redis.replicator.kafka.listener.concurrency=2"
+
+})
 class KafkaConsumerRedisReplicatorConfigurationTest {
+
+    @Autowired
+    private KafkaConsumerRedisReplicatorConfiguration kafkaConsumerRedisReplicatorConfiguration;
+
+    @Autowired
+    private ApplicationContext context;
 
     @Test
     void testIsEnabled() {
-        
+        assertTrue(isEnabled(this.context));
+        testInSpringContainer(context -> {
+            assertFalse(isEnabled(this.context));
+        });
     }
 
     @Test
-    void testRedisReplicatorConcurrentMessageListenerContainer() {
+    void testConsumeRecordOnFailed() {
+        ConsumerRecord<byte[], byte[]> consumerRecord = new ConsumerRecord<>("topic", 0, 0, null, null);
+        kafkaConsumerRedisReplicatorConfiguration.consumeRecord(consumerRecord);
     }
 }
