@@ -49,6 +49,20 @@ public interface RedisConstants {
     String STRING_REDIS_TEMPLATE_BEAN_NAME = "stringRedisTemplate";
 
     /**
+     * The default property value of Spring Application Name.
+     */
+    String DEFAULT_SPRING_APPLICATION_NAME_PROPERTY_VALUE = "application";
+
+    /**
+     * The property name of Spring Application Name.
+     */
+    @ConfigurationProperty(
+            defaultValue = DEFAULT_SPRING_APPLICATION_NAME_PROPERTY_VALUE,
+            source = APPLICATION_SOURCE
+    )
+    String SPRING_APPLICATION_NAME_PROPERTY_NAME = "spring.application.name";
+
+    /**
      * The property name prefix of Microsphere Redis.
      */
     String MICROSPHERE_REDIS_PROPERTY_NAME_PREFIX = "microsphere.redis.";
