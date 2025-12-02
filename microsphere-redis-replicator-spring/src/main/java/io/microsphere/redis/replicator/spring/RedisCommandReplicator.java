@@ -22,6 +22,7 @@ import static org.springframework.util.ReflectionUtils.invokeMethod;
  * Redis Command Replicator
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
+ * @see RedisCommandReplicatedEvent
  * @since 1.0.0
  */
 public class RedisCommandReplicator implements ApplicationListener<RedisCommandReplicatedEvent> {
@@ -33,7 +34,8 @@ public class RedisCommandReplicator implements ApplicationListener<RedisCommandR
     private final RedisConnectionFactory redisConnectionFactory;
 
     public RedisCommandReplicator(RedisConnectionFactory redisConnectionFactory) {
-        this.redisConnectionFactory = tryUnwrap(redisConnectionFactory, RedisConnectionFactory.class);
+        RedisConnectionFactory unwrappedRedisConnectionFactory = tryUnwrap(redisConnectionFactory, RedisConnectionFactory.class);
+        this.redisConnectionFactory = unwrappedRedisConnectionFactory == null ? redisConnectionFactory : unwrappedRedisConnectionFactory;
     }
 
     @Override
@@ -48,19 +50,17 @@ public class RedisCommandReplicator implements ApplicationListener<RedisCommandR
     private void handleRedisCommandEvent(RedisCommandReplicatedEvent event) throws Throwable {
         RedisCommandEvent redisCommandEvent = event.getSourceEvent();
         Method method = findWriteCommandMethod(redisCommandEvent);
-        if (method != null) {
-            String interfaceNme = redisCommandEvent.getInterfaceName();
-            RedisConnection redisConnection = getRedisConnection();
-            Object[] args = redisCommandEvent.getArgs();
-            Function<RedisConnection, Object> bindingFunction = getRedisCommandBindingFunction(interfaceNme);
-            Object redisCommandObject = bindingFunction.apply(redisConnection);
-            // TODO: Native method implementation
-            trySetAccessible(method);
-            invokeMethod(method, redisCommandObject, args);
-        }
+        String interfaceNme = redisCommandEvent.getInterfaceName();
+        RedisConnection redisConnection = getRedisConnection();
+        Object[] args = redisCommandEvent.getArgs();
+        Function<RedisConnection, Object> bindingFunction = getRedisCommandBindingFunction(interfaceNme);
+        Object redisCommandObject = bindingFunction.apply(redisConnection);
+        // TODO: Native method implementation
+        trySetAccessible(method);
+        invokeMethod(method, redisCommandObject, args);
     }
 
-    private RedisConnection getRedisConnection() {
+    RedisConnection getRedisConnection() {
         return redisConnectionFactory.getConnection();
     }
 }

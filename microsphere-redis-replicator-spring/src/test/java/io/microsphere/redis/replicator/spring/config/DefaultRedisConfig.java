@@ -18,40 +18,48 @@
 package io.microsphere.redis.replicator.spring.config;
 
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 /**
- * Full Redis Replication Config
+ * The default Redis Config
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
- * @see DefaultRedisReplicationConfig
+ * @see RedisConnectionFactory
+ * @see RedisTemplate
  * @since 1.0.0
  */
-@PropertySource(
-        RedisReplicatorConfigurationTest.TEST_PROPERTY_SOURCE_LOCATION
-)
-public class FullRedisReplicationConfig extends DefaultRedisReplicationConfig {
+public class DefaultRedisConfig {
 
     @Bean
-    public RedisTemplate defaultRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+    public RedisTemplate redisTemplate(RedisConnectionFactory redisConnectionFactory) {
         return newRedisTemplate(redisConnectionFactory);
     }
 
     @Bean
-    public StringRedisTemplate defaultStringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+    public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
         return newStringRedisTemplate(redisConnectionFactory);
     }
 
     @Bean
-    public RedisTemplate testRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        return newRedisTemplate(redisConnectionFactory);
+    public RedisConnectionFactory redisConnectionFactory() {
+        LettuceConnectionFactory redisConnectionFactory = new LettuceConnectionFactory("127.0.0.1", 6379);
+        redisConnectionFactory.afterPropertiesSet();
+        redisConnectionFactory.validateConnection();
+        return redisConnectionFactory;
     }
 
-    @Bean
-    public StringRedisTemplate testStringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        return newStringRedisTemplate(redisConnectionFactory);
+    protected RedisTemplate newRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate redisTemplate = new RedisTemplate();
+        redisTemplate.setConnectionFactory(redisConnectionFactory);
+        return redisTemplate;
+    }
+
+    protected StringRedisTemplate newStringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        StringRedisTemplate stringRedisTemplate = new StringRedisTemplate();
+        stringRedisTemplate.setConnectionFactory(redisConnectionFactory);
+        return stringRedisTemplate;
     }
 }

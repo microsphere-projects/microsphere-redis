@@ -31,7 +31,7 @@ import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfi
  * @see RedisReplicatorConfiguration
  * @since 1.0.0
  */
-public class DefaultRedisReplicationConfig {
+public class DefaultRedisReplicationConfig extends DefaultRedisConfig {
 
     @Bean(BEAN_NAME)
     public RedisReplicatorConfiguration redisReplicatorConfiguration(ConfigurableApplicationContext context) {
