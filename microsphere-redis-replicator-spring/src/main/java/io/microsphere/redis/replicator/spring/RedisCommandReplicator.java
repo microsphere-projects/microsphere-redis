@@ -14,6 +14,7 @@ import static io.microsphere.lang.Wrapper.tryUnwrap;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.findWriteCommandMethod;
 import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.getRedisCommandBindingFunction;
+import static io.microsphere.reflect.AccessibleObjectUtils.trySetAccessible;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
 
 
@@ -54,6 +55,7 @@ public class RedisCommandReplicator implements ApplicationListener<RedisCommandR
             Function<RedisConnection, Object> bindingFunction = getRedisCommandBindingFunction(interfaceNme);
             Object redisCommandObject = bindingFunction.apply(redisConnection);
             // TODO: Native method implementation
+            trySetAccessible(method);
             invokeMethod(method, redisCommandObject, args);
         }
     }
