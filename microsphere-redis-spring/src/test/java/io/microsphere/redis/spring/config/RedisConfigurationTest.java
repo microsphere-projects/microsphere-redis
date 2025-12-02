@@ -31,7 +31,7 @@ import org.springframework.test.context.TestPropertySource;
 
 import static io.microsphere.collection.Sets.ofSet;
 import static io.microsphere.redis.spring.config.RedisConfiguration.BEAN_NAME;
-import static io.microsphere.redis.spring.util.RedisConstants.ENABLED_PROPERTY_NAME;
+import static io.microsphere.redis.spring.util.RedisConstants.MICROSPHERE_REDIS_ENABLED_PROPERTY_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -78,10 +78,10 @@ class RedisConfigurationTest extends AbstractRedisTest {
         assertFalse(this.redisConfiguration.isEnabled());
 
         MockPropertySource propertySource = new MockPropertySource();
-        propertySource.setProperty(ENABLED_PROPERTY_NAME, "true");
+        propertySource.setProperty(MICROSPHERE_REDIS_ENABLED_PROPERTY_NAME, "true");
         this.environment.getPropertySources().addFirst(propertySource);
 
-        event = new RedisConfigurationPropertyChangedEvent(this.context, ofSet(ENABLED_PROPERTY_NAME));
+        event = new RedisConfigurationPropertyChangedEvent(this.context, ofSet(MICROSPHERE_REDIS_ENABLED_PROPERTY_NAME));
         this.context.publishEvent(event);
         assertTrue(this.redisConfiguration.isEnabled());
     }

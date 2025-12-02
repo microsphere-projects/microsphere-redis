@@ -26,7 +26,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.data.redis.connection.RedisCommands;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
-import static io.microsphere.redis.spring.util.RedisConstants.COMMAND_EVENT_EXPOSED_PROPERTY_NAME;
+import static io.microsphere.redis.spring.util.RedisConstants.MICROSPHERE_REDIS_COMMAND_EVENT_EXPOSED_PROPERTY_NAME;
 
 /**
  * {@link RedisCommandInterceptor} publishes {@link RedisCommandEvent}
@@ -87,7 +87,7 @@ public class EventPublishingRedisCommandInterceptor implements RedisCommandInter
 
     @Override
     public void onApplicationEvent(RedisConfigurationPropertyChangedEvent event) {
-        if (event.hasProperty(COMMAND_EVENT_EXPOSED_PROPERTY_NAME)) {
+        if (event.hasProperty(MICROSPHERE_REDIS_COMMAND_EVENT_EXPOSED_PROPERTY_NAME)) {
             this.setEnabled();
         }
     }

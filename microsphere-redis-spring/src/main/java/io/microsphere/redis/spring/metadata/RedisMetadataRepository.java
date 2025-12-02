@@ -26,8 +26,8 @@ import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.buildCommandMethodId;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.buildParameterMetadata;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.loadParameterClasses;
-import static io.microsphere.redis.spring.util.RedisConstants.FAIL_FAST_ENABLED;
-import static io.microsphere.redis.spring.util.RedisConstants.FAIL_FAST_ENABLED_PROPERTY_NAME;
+import static io.microsphere.redis.spring.util.RedisConstants.MICROSPHERE_REDIS_FAIL_FAST_ENABLED;
+import static io.microsphere.redis.spring.util.RedisConstants.MICROSPHERE_REDIS_FAIL_FAST_ENABLED_PROPERTY_NAME;
 import static io.microsphere.reflect.AccessibleObjectUtils.trySetAccessible;
 import static io.microsphere.util.ClassLoaderUtils.resolveClass;
 import static io.microsphere.util.ClassUtils.getAllInterfaces;
@@ -241,7 +241,6 @@ public class RedisMetadataRepository {
         return method;
     }
 
-
     public static Method getWriteCommandMethod(String interfaceName, String methodName, String... parameterTypes) {
         String id = buildCommandMethodId(interfaceName, methodName, parameterTypes);
         return writeCommandMethodsCache.get(id);
@@ -288,8 +287,8 @@ public class RedisMetadataRepository {
             }
         } catch (Throwable e) {
             logger.error("Unable to initialize write command method['{}'], Reason: {}", method, e.getMessage());
-            if (FAIL_FAST_ENABLED) {
-                logger.error("Fail-Fast mode is activated and an exception is about to be thrown. You can disable Fail-Fast mode with the JVM startup parameter -D{}=false", FAIL_FAST_ENABLED_PROPERTY_NAME);
+            if (MICROSPHERE_REDIS_FAIL_FAST_ENABLED) {
+                logger.error("Fail-Fast mode is activated and an exception is about to be thrown. You can disable Fail-Fast mode with the JVM startup parameter -D{}=false", MICROSPHERE_REDIS_FAIL_FAST_ENABLED_PROPERTY_NAME);
                 throw new IllegalArgumentException(e);
             }
         }

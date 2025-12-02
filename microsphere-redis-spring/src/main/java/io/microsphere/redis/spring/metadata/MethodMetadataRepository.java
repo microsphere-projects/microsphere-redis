@@ -42,8 +42,9 @@ import java.util.function.Function;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.buildCommandMethodId;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.buildParameterMetadata;
-import static io.microsphere.redis.spring.util.RedisConstants.FAIL_FAST_ENABLED;
-import static io.microsphere.redis.spring.util.RedisConstants.FAIL_FAST_ENABLED_PROPERTY_NAME;
+import static io.microsphere.redis.spring.util.RedisConstants.MICROSPHERE_REDIS_FAIL_FAST_ENABLED;
+import static io.microsphere.redis.spring.util.RedisConstants.MICROSPHERE_REDIS_FAIL_FAST_ENABLED_PROPERTY_NAME;
+import static io.microsphere.reflect.AccessibleObjectUtils.trySetAccessible;
 import static io.microsphere.util.ClassUtils.getAllInterfaces;
 import static org.springframework.core.io.support.ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX;
 import static org.springframework.util.ClassUtils.forName;
@@ -872,17 +873,17 @@ public class MethodMetadataRepository {
         try {
             logger.debug("Initializes the write command method[Declared Class: {} , Method: {}, Parameter types: {}]...", declaredClass.getName(), methodName, Arrays.toString(parameterTypes));
             Method method = findMethod(declaredClass, methodName, parameterTypes);
-            // Reduced Method runtime checks
-            if (!method.isAccessible()) {
-                method.setAccessible(true);
-            }
-            if (initWriteCommandMethodMethod(method, parameterTypes)) {
-                initWriteCommandMethodCache(declaredClass, method, parameterTypes);
+            if (method != null) {
+                // Reduced Method runtime checks
+                trySetAccessible(method);
+                if (initWriteCommandMethodMethod(method, parameterTypes)) {
+                    initWriteCommandMethodCache(declaredClass, method, parameterTypes);
+                }
             }
         } catch (Throwable e) {
             logger.error("Unable to initialize write command method[Declared Class: {}, Method: {}, Parameter types: {}], Reason: {}", declaredClass.getName(), methodName, Arrays.toString(parameterTypes), e.getMessage());
-            if (FAIL_FAST_ENABLED) {
-                logger.error("Fail-Fast mode is activated and an exception is about to be thrown. You can disable Fail-Fast mode with the JVM startup parameter -D{}=false", FAIL_FAST_ENABLED_PROPERTY_NAME);
+            if (MICROSPHERE_REDIS_FAIL_FAST_ENABLED) {
+                logger.error("Fail-Fast mode is activated and an exception is about to be thrown. You can disable Fail-Fast mode with the JVM startup parameter -D{}=false", MICROSPHERE_REDIS_FAIL_FAST_ENABLED_PROPERTY_NAME);
                 throw new IllegalArgumentException(e);
             }
         }

@@ -10,7 +10,7 @@ import org.springframework.context.event.SmartApplicationListener;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static io.microsphere.redis.spring.util.RedisConstants.PROPERTY_NAME_PREFIX;
+import static io.microsphere.redis.spring.util.RedisConstants.MICROSPHERE_REDIS_PROPERTY_NAME_PREFIX;
 import static io.microsphere.util.ClassLoaderUtils.isPresent;
 import static io.microsphere.util.ClassLoaderUtils.resolveClass;
 
@@ -47,7 +47,7 @@ public class PropagatingRedisConfigurationPropertyChangedEventApplicationListene
     }
 
     private boolean isRedisPropertyName(String key) {
-        return key != null && key.startsWith(PROPERTY_NAME_PREFIX);
+        return key != null && key.startsWith(MICROSPHERE_REDIS_PROPERTY_NAME_PREFIX);
     }
 
     @Override

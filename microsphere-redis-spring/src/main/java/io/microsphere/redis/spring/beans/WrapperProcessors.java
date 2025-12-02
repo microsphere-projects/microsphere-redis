@@ -27,12 +27,16 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.core.ResolvableType;
 
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import static io.microsphere.spring.beans.BeanUtils.getSortedBeans;
+import static io.microsphere.collection.CollectionUtils.size;
+import static io.microsphere.collection.ListUtils.newArrayList;
 import static io.microsphere.spring.beans.factory.BeanFactoryUtils.asConfigurableListableBeanFactory;
 import static java.util.Collections.emptyList;
+import static org.springframework.core.annotation.AnnotationAwareOrderComparator.sort;
 
 /**
  * The composite class of {@link WrapperProcessor}
@@ -46,12 +50,11 @@ public class WrapperProcessors implements InitializingBean, BeanFactoryAware {
 
     private ConfigurableListableBeanFactory beanFactory;
 
-    private Map<Class<?>, List<WrapperProcessor>> wrapperProcessorsMap;
+    private Map<Class<?>, Set<String>> wrapperProcessorsMap;
 
     public <W extends Wrapper> W process(W wrapper) {
         Class<?> wrapperType = wrapper.getClass();
-        List<WrapperProcessor> wrapperProcessors = wrapperProcessorsMap.getOrDefault(wrapperType, emptyList());
-        for (WrapperProcessor<W> wrapperProcessor : wrapperProcessors) {
+        for (WrapperProcessor<W> wrapperProcessor : getWrapperProcessors(wrapperType)) {
             wrapper = wrapperProcessor.process(wrapper);
         }
         return wrapper;
@@ -64,22 +67,35 @@ public class WrapperProcessors implements InitializingBean, BeanFactoryAware {
 
     @Override
     public void afterPropertiesSet() {
-        this.wrapperProcessorsMap = initWrapperProcessorsMap();
+        this.wrapperProcessorsMap = initWrapperProcessorBeanNamesMap();
     }
 
-    private Map<Class<?>, List<WrapperProcessor>> initWrapperProcessorsMap() {
-        Map<Class<?>, List<WrapperProcessor>> wrapperHandlersMap = new HashMap<>(2);
+    private List<WrapperProcessor> getWrapperProcessors(Class<?> wrapperType) {
+        Set<String> wrapperProcessorBeanNames = wrapperProcessorsMap.get(wrapperType);
+        int size = size(wrapperProcessorBeanNames);
+        if (size == 0) {
+            return emptyList();
+        }
+        List<WrapperProcessor> wrapperProcessors = newArrayList(size);
+        for (String wrapperProcessorBeanName : wrapperProcessorBeanNames) {
+            WrapperProcessor wrapperProcessor = beanFactory.getBean(wrapperProcessorBeanName, WrapperProcessor.class);
+            wrapperProcessors.add(wrapperProcessor);
+        }
+        sort(wrapperProcessors);
+        return wrapperProcessors;
+    }
+
+    private Map<Class<?>, Set<String>> initWrapperProcessorBeanNamesMap() {
+        Map<Class<?>, Set<String>> wrapperProcessorBeanNamesMap = new HashMap<>(2);
         ConfigurableListableBeanFactory beanFactory = this.beanFactory;
         String[] beanNames = beanFactory.getBeanNamesForType(WrapperProcessor.class);
         for (String beanName : beanNames) {
             BeanDefinition beanDefinition = beanFactory.getBeanDefinition(beanName);
             ResolvableType resolvableType = beanDefinition.getResolvableType();
             Class<?> wrapperClass = resolvableType.as(WrapperProcessor.class).getGeneric(0).resolve();
-            wrapperHandlersMap.computeIfAbsent(wrapperClass, k -> {
-                Class<WrapperProcessor> wrapperProcessorClass = (Class<WrapperProcessor>) resolvableType.getRawClass();
-                return getSortedBeans(beanFactory, wrapperProcessorClass);
-            });
+            Set<String> wrapperProcessorBeanNames = wrapperProcessorBeanNamesMap.computeIfAbsent(wrapperClass, k -> new LinkedHashSet<>());
+            wrapperProcessorBeanNames.add(beanName);
         }
-        return wrapperHandlersMap;
+        return wrapperProcessorBeanNamesMap;
     }
 }

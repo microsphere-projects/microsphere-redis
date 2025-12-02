@@ -8,20 +8,14 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.core.env.Environment;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
-import static io.microsphere.redis.spring.util.RedisConstants.ALL_WRAPPED_REDIS_TEMPLATE_BEAN_NAMES;
-import static io.microsphere.redis.spring.util.RedisConstants.WRAPPED_REDIS_TEMPLATE_BEAN_NAMES_PROPERTY_NAME;
+import static io.microsphere.collection.SetUtils.ofSet;
 import static io.microsphere.spring.context.ApplicationContextUtils.asConfigurableApplicationContext;
-import static java.util.Collections.emptySet;
-import static java.util.Collections.unmodifiableSet;
 import static org.springframework.aop.framework.AopProxyUtils.ultimateTargetClass;
 
 /**
@@ -41,15 +35,12 @@ public class RedisTemplateWrapperBeanPostProcessor implements BeanPostProcessor,
 
     private RedisContext redisContext;
 
-    private Set<String> wrappedRedisTemplateBeanNames;
+    private final Set<String> wrappedRedisTemplateBeanNames;
 
     private WrapperProcessors wrapperProcessors;
 
-    public RedisTemplateWrapperBeanPostProcessor() {
-    }
-
     public RedisTemplateWrapperBeanPostProcessor(Collection<String> wrappedRedisTemplateBeanNames) {
-        this.wrappedRedisTemplateBeanNames = new HashSet<>(wrappedRedisTemplateBeanNames);
+        this.wrappedRedisTemplateBeanNames = ofSet(wrappedRedisTemplateBeanNames);
     }
 
     @Override
@@ -77,30 +68,9 @@ public class RedisTemplateWrapperBeanPostProcessor implements BeanPostProcessor,
         this.context = asConfigurableApplicationContext(context);
     }
 
-    /**
-     * Resolve the wrapped {@link RedisTemplate} Bean Name list, the default value is from {@link Collections#emptySet()}
-     *
-     * @param context {@link ConfigurableApplicationContext}
-     * @return If no configuration is found, {@link Collections#emptySet()} is returned
-     */
-    private Set<String> resolveWrappedRedisTemplateBeanNames(ConfigurableApplicationContext context) {
-        Environment environment = context.getEnvironment();
-        Set<String> wrappedRedisTemplateBeanNames = environment.getProperty(WRAPPED_REDIS_TEMPLATE_BEAN_NAMES_PROPERTY_NAME, Set.class);
-        if (wrappedRedisTemplateBeanNames == null) {
-            return emptySet();
-        } else if (ALL_WRAPPED_REDIS_TEMPLATE_BEAN_NAMES.equals(wrappedRedisTemplateBeanNames)) {
-            return redisContext.getRedisTemplateBeanNames();
-        } else {
-            return unmodifiableSet(wrappedRedisTemplateBeanNames);
-        }
-    }
-
     @Override
     public void afterPropertiesSet() throws Exception {
         this.redisContext = RedisContext.get(context);
-        if (this.wrappedRedisTemplateBeanNames == null) {
-            this.wrappedRedisTemplateBeanNames = resolveWrappedRedisTemplateBeanNames(context);
-        }
         this.wrapperProcessors = context.getBean(WrapperProcessors.BEAN_NAME, WrapperProcessors.class);
     }
 

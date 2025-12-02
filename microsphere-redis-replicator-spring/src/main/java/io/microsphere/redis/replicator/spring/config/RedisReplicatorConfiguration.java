@@ -58,7 +58,7 @@ public class RedisReplicatorConfiguration implements ApplicationListener<RedisCo
 
     public static final String BEAN_NAME = "redisReplicatorConfiguration";
 
-    public static final String PROPERTY_NAME_PREFIX = RedisConstants.PROPERTY_NAME_PREFIX + "replicator.";
+    public static final String PROPERTY_NAME_PREFIX = RedisConstants.MICROSPHERE_REDIS_PROPERTY_NAME_PREFIX + "replicator.";
 
     public static final String DEFAULT_ENABLED_PROPERTY_VALUE = "true";
 
