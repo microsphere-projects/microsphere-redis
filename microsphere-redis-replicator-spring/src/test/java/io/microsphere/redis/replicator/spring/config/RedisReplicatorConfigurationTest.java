@@ -74,7 +74,7 @@ class RedisReplicatorConfigurationTest {
 
     @Test
     void testConstants() {
-        assertEquals("redisReplicatorConfiguration", BEAN_NAME);
+        assertEquals("microsphere:redisReplicatorConfiguration", BEAN_NAME);
         assertEquals("microsphere.redis.replicator.", PROPERTY_NAME_PREFIX);
         assertEquals("true", DEFAULT_ENABLED_PROPERTY_VALUE);
         assertEquals(true, DEFAULT_ENABLED);
