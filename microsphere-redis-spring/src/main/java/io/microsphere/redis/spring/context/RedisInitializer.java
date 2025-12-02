@@ -6,15 +6,15 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigRegistry;
-import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.core.env.ConfigurableEnvironment;
 
 import java.util.List;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
-import static io.microsphere.redis.spring.config.RedisConfiguration.isEnabled;
 import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.init;
+import static io.microsphere.redis.spring.util.RedisUtils.isMicrosphereRedisEnabled;
 import static io.microsphere.spring.core.env.PropertySourcesUtils.containsBootstrapPropertySource;
+import static org.springframework.core.annotation.AnnotationAwareOrderComparator.sort;
 import static org.springframework.core.io.support.SpringFactoriesLoader.loadFactories;
 
 /**
@@ -38,7 +38,7 @@ public class RedisInitializer implements ApplicationContextInitializer<Configura
             // Load RedisModuleInitializer list
             List<RedisModuleInitializer> redisModuleInitializers = loadFactories(RedisModuleInitializer.class, classLoader);
             // Sort RedisModuleInitializer list
-            AnnotationAwareOrderComparator.sort(redisModuleInitializers);
+            sort(redisModuleInitializers);
             ConfigurableListableBeanFactory beanFactory = context.getBeanFactory();
             BeanDefinitionRegistry registry = (BeanDefinitionRegistry) beanFactory;
             for (RedisModuleInitializer redisModuleInitializer : redisModuleInitializers) {
@@ -58,17 +58,17 @@ public class RedisInitializer implements ApplicationContextInitializer<Configura
             logger.warn("The application context [id: {}, class: {}]'s BeanFactory[class : {}] is not a {} type", context.getId(), context.getClass(), beanFactory.getClass(), AnnotationConfigRegistry.class);
             return false;
         }
-        if (!isEnabled(context)) {
+        ConfigurableEnvironment environment = context.getEnvironment();
+        if (!isMicrosphereRedisEnabled(environment)) {
             return false;
         }
-        if (isBootstrapContext(context)) {
+        if (isBootstrapContext(environment)) {
             return false;
         }
         return true;
     }
 
-    private boolean isBootstrapContext(ConfigurableApplicationContext context) {
-        ConfigurableEnvironment environment = context.getEnvironment();
+    private boolean isBootstrapContext(ConfigurableEnvironment environment) {
         return containsBootstrapPropertySource(environment);
     }
 }
