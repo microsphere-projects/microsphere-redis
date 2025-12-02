@@ -82,7 +82,7 @@ class EnableRedisContextTest extends AbstractRedisTest {
         assertSame(redisTemplate, redisContext.getRedisTemplate("redisTemplate"));
         assertSame(stringRedisTemplate, redisContext.getRedisTemplate("stringRedisTemplate"));
 
-        assertEquals("default", redisConfiguration.getApplicationName());
+        assertEquals("application", redisConfiguration.getApplicationName());
         assertEquals(new HashSet<>(asList("redisTemplate", "stringRedisTemplate")), redisContext.getRedisTemplateBeanNames());
         assertTrue(redisContext.isEnabled());
         assertTrue(redisContext.isCommandEventExposed());
