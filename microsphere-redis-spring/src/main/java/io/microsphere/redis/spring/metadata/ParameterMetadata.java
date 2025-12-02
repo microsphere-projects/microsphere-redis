@@ -20,6 +20,10 @@ public final class ParameterMetadata {
 
     private final @Nullable String parameterName;
 
+    public ParameterMetadata(int parameterIndex, String parameterType) {
+        this(parameterIndex, parameterType, "arg" + parameterIndex);
+    }
+
     public ParameterMetadata(int parameterIndex, String parameterType, @Nullable String parameterName) {
         this.parameterIndex = parameterIndex;
         this.parameterType = parameterType;
