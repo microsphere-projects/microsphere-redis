@@ -8,10 +8,10 @@ import org.springframework.context.annotation.AnnotatedBeanDefinitionReader;
 import org.springframework.core.env.ConfigurableEnvironment;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
-import static io.microsphere.redis.spring.config.RedisConfiguration.isCommandEventExposed;
 import static io.microsphere.redis.spring.util.RedisConstants.DEFAULT_MICROSPHERE_REDIS_INTERCEPTOR_ENABLED;
 import static io.microsphere.redis.spring.util.RedisConstants.DEFAULT_WRAP_REDIS_TEMPLATE_PLACEHOLDER;
 import static io.microsphere.redis.spring.util.RedisConstants.MICROSPHERE_REDIS_INTERCEPTOR_ENABLED_PROPERTY_NAME;
+import static io.microsphere.redis.spring.util.RedisUtils.isMicrosphereRedisCommandEventExposed;
 
 /**
  * {@link RedisModuleInitializer RedisModuleInitializer} Interceptor
@@ -37,7 +37,7 @@ public class RedisInterceptorModuleInitializer implements RedisModuleInitializer
     public void initialize(ConfigurableApplicationContext context, BeanDefinitionRegistry registry) {
         ConfigurableEnvironment environment = context.getEnvironment();
         AnnotatedBeanDefinitionReader reader = new AnnotatedBeanDefinitionReader(registry, environment);
-        Class<?> configClass = isCommandEventExposed(context) ? Config.class : NoExposingCommandEventConfig.class;
+        Class<?> configClass = isMicrosphereRedisCommandEventExposed(environment) ? Config.class : NoExposingCommandEventConfig.class;
         reader.register(configClass);
     }
 
