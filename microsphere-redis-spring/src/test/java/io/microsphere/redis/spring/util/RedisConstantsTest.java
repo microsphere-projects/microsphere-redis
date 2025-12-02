@@ -28,6 +28,7 @@ import static io.microsphere.redis.spring.util.RedisConstants.DEFAULT_MICROSPHER
 import static io.microsphere.redis.spring.util.RedisConstants.DEFAULT_MICROSPHERE_REDIS_FAIL_FAST_ENABLED_PROPERTY_VALUE;
 import static io.microsphere.redis.spring.util.RedisConstants.DEFAULT_MICROSPHERE_REDIS_INTERCEPTOR_ENABLED;
 import static io.microsphere.redis.spring.util.RedisConstants.DEFAULT_MICROSPHERE_REDIS_INTERCEPTOR_ENABLED_PROPERTY_VALUE;
+import static io.microsphere.redis.spring.util.RedisConstants.DEFAULT_SPRING_APPLICATION_NAME_PROPERTY_VALUE;
 import static io.microsphere.redis.spring.util.RedisConstants.DEFAULT_WRAPPED_REDIS_TEMPLATE_BEAN_NAMES_PROPERTY_VALUE;
 import static io.microsphere.redis.spring.util.RedisConstants.DEFAULT_WRAP_REDIS_TEMPLATE_PLACEHOLDER;
 import static io.microsphere.redis.spring.util.RedisConstants.MICROSPHERE_REDIS_COMMAND_EVENT_EXPOSED_PROPERTY_NAME;
@@ -39,6 +40,7 @@ import static io.microsphere.redis.spring.util.RedisConstants.MICROSPHERE_REDIS_
 import static io.microsphere.redis.spring.util.RedisConstants.MICROSPHERE_REDIS_INTERCEPTOR_PROPERTY_NAME_PREFIX;
 import static io.microsphere.redis.spring.util.RedisConstants.MICROSPHERE_REDIS_PROPERTY_NAME_PREFIX;
 import static io.microsphere.redis.spring.util.RedisConstants.REDIS_TEMPLATE_BEAN_NAME;
+import static io.microsphere.redis.spring.util.RedisConstants.SPRING_APPLICATION_NAME_PROPERTY_NAME;
 import static io.microsphere.redis.spring.util.RedisConstants.STRING_REDIS_TEMPLATE_BEAN_NAME;
 import static io.microsphere.redis.spring.util.RedisConstants.WRAPPED_REDIS_TEMPLATE_BEAN_NAMES_PROPERTY_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -58,6 +60,8 @@ class RedisConstantsTest {
     void testConstants() {
         assertEquals("redisTemplate", REDIS_TEMPLATE_BEAN_NAME);
         assertEquals("stringRedisTemplate", STRING_REDIS_TEMPLATE_BEAN_NAME);
+        assertEquals("application", DEFAULT_SPRING_APPLICATION_NAME_PROPERTY_VALUE);
+        assertEquals("spring.application.name", SPRING_APPLICATION_NAME_PROPERTY_NAME);
         assertEquals("microsphere.redis.", MICROSPHERE_REDIS_PROPERTY_NAME_PREFIX);
         assertEquals("microsphere.redis.enabled", MICROSPHERE_REDIS_ENABLED_PROPERTY_NAME);
         assertFalse(DEFAULT_MICROSPHERE_REDIS_ENABLED);
