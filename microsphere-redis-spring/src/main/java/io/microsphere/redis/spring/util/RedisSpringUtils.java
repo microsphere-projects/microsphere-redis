@@ -20,17 +20,23 @@ package io.microsphere.redis.spring.util;
 import io.microsphere.annotation.Immutable;
 import io.microsphere.annotation.Nonnull;
 import io.microsphere.logging.Logger;
+import io.microsphere.redis.spring.interceptor.RedisCommandInterceptor;
+import io.microsphere.redis.spring.interceptor.RedisConnectionInterceptor;
 import io.microsphere.util.Utils;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.core.env.Environment;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import static io.microsphere.collection.SetUtils.newLinkedHashSet;
+import static io.microsphere.collection.SetUtils.ofSet;
 import static io.microsphere.logging.LoggerFactory.getLogger;
-import static io.microsphere.redis.spring.context.RedisContext.findRestTemplateBeanNames;
 import static io.microsphere.redis.spring.util.RedisConstants.ALL_WRAPPED_REDIS_TEMPLATE_BEAN_NAMES;
 import static io.microsphere.redis.spring.util.RedisConstants.DEFAULT_MICROSPHERE_REDIS_COMMAND_EVENT_EXPOSED;
 import static io.microsphere.redis.spring.util.RedisConstants.DEFAULT_MICROSPHERE_REDIS_ENABLED;
@@ -39,6 +45,8 @@ import static io.microsphere.redis.spring.util.RedisConstants.MICROSPHERE_REDIS_
 import static io.microsphere.redis.spring.util.RedisConstants.MICROSPHERE_REDIS_ENABLED_PROPERTY_NAME;
 import static io.microsphere.redis.spring.util.RedisConstants.SPRING_APPLICATION_NAME_PROPERTY_NAME;
 import static io.microsphere.redis.spring.util.RedisConstants.WRAPPED_REDIS_TEMPLATE_BEAN_NAMES_PROPERTY_NAME;
+import static io.microsphere.spring.beans.BeanUtils.getBeanNames;
+import static io.microsphere.spring.beans.BeanUtils.getSortedBeans;
 import static io.microsphere.util.ArrayUtils.EMPTY_STRING_ARRAY;
 import static io.microsphere.util.ArrayUtils.isEmpty;
 import static java.util.Collections.emptySet;
@@ -48,15 +56,15 @@ import static org.springframework.util.StringUtils.hasText;
 import static org.springframework.util.StringUtils.trimAllWhitespace;
 
 /**
- * The utils class for Microsphere Redis
+ * The utils class for Microsphere Redis Spring
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @see Utils
  * @since 1.0.0
  */
-public abstract class RedisUtils implements Utils {
+public abstract class RedisSpringUtils implements Utils {
 
-    private static final Logger logger = getLogger(RedisUtils.class);
+    private static final Logger logger = getLogger(RedisSpringUtils.class);
 
     @Nonnull
     public static String getApplicationName(Environment environment) {
@@ -74,12 +82,39 @@ public abstract class RedisUtils implements Utils {
     @Nonnull
     @Immutable
     public static Set<String> getWrappedRedisTemplateBeanNames(ConfigurableListableBeanFactory beanFactory,
-                                                               Environment environment, String[] wrapRedisTemplates) {
+                                                               Environment environment, String... wrapRedisTemplates) {
         if (isEmpty(wrapRedisTemplates)) {
             return resolveWrappedRedisTemplateBeanNames(beanFactory, environment);
         } else {
             return resolveWrappedRedisTemplateBeanNames(environment, wrapRedisTemplates);
         }
+    }
+
+    public static RedisTemplate<?, ?> findRedisTemplate(BeanFactory beanFactory, String redisTemplateBeanName) {
+        if (beanFactory.containsBean(redisTemplateBeanName)) {
+            return beanFactory.getBean(redisTemplateBeanName, RedisTemplate.class);
+        }
+        return null;
+    }
+
+    public static Set<String> findRestTemplateBeanNames(ConfigurableListableBeanFactory beanFactory) {
+        Set<String> redisTemplateBeanNames = ofSet(getBeanNames(beanFactory, RedisTemplate.class));
+        logger.trace("The all bean names of RedisTemplate : {}", redisTemplateBeanNames);
+        return redisTemplateBeanNames;
+    }
+
+    public static Set<String> findRedisConnectionFactoryBeanNames(ConfigurableListableBeanFactory beanFactory) {
+        Set<String> redisConnectionFactoryBeanNames = ofSet(getBeanNames(beanFactory, RedisConnectionFactory.class));
+        logger.trace("The all bean names of RedisConnectionFactory : {}", redisConnectionFactoryBeanNames);
+        return redisConnectionFactoryBeanNames;
+    }
+
+    public static List<RedisCommandInterceptor> findRedisCommandInterceptors(ListableBeanFactory beanFactory) {
+        return getSortedBeans(beanFactory, RedisCommandInterceptor.class);
+    }
+
+    public static List<RedisConnectionInterceptor> findRedisConnectionInterceptors(ListableBeanFactory beanFactory) {
+        return getSortedBeans(beanFactory, RedisConnectionInterceptor.class);
     }
 
     /**
@@ -90,7 +125,7 @@ public abstract class RedisUtils implements Utils {
      * @return non-null
      */
     @Nonnull
-    static Set<String> resolveWrappedRedisTemplateBeanNames(Environment environment, String[] wrapRedisTemplates) {
+    static Set<String> resolveWrappedRedisTemplateBeanNames(Environment environment, String... wrapRedisTemplates) {
         Set<String> wrappedRedisTemplateBeanNames = newLinkedHashSet(wrapRedisTemplates.length);
         for (String wrapRedisTemplate : wrapRedisTemplates) {
             String wrappedRedisTemplateBeanName = environment.resolveRequiredPlaceholders(wrapRedisTemplate);
@@ -124,7 +159,7 @@ public abstract class RedisUtils implements Utils {
         }
     }
 
-    static boolean getBoolean(Environment environment, String propertyName, boolean defaultValue, String feature, String statusIfTrue) {
+    public static boolean getBoolean(Environment environment, String propertyName, boolean defaultValue, String feature, String statusIfTrue) {
         Boolean propertyValue = environment.getProperty(propertyName, Boolean.class);
         boolean value = propertyValue == null ? defaultValue : propertyValue.booleanValue();
         logger.trace("Microsphere Redis {} is '{}' in the Spring Environment[property name: '{}' , property value: {} , default value: {}",
@@ -132,6 +167,6 @@ public abstract class RedisUtils implements Utils {
         return value;
     }
 
-    private RedisUtils() {
+    private RedisSpringUtils() {
     }
 }

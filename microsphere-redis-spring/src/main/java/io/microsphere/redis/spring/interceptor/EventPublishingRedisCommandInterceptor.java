@@ -38,7 +38,7 @@ public class EventPublishingRedisCommandInterceptor implements RedisCommandInter
 
     private static final Logger logger = getLogger(EventPublishingRedisCommandInterceptor.class);
 
-    public static final String BEAN_NAME = "eventPublishingRedisCommendInterceptor";
+    public static final String BEAN_NAME = "microsphere:eventPublishingRedisCommendInterceptor";
 
     private final RedisContext redisContext;
 

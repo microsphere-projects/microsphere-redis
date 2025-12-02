@@ -2,7 +2,7 @@ package io.microsphere.redis.spring.config;
 
 import io.microsphere.logging.Logger;
 import io.microsphere.redis.spring.event.RedisConfigurationPropertyChangedEvent;
-import io.microsphere.redis.spring.util.RedisUtils;
+import io.microsphere.redis.spring.util.RedisSpringUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.ApplicationContext;
@@ -13,8 +13,8 @@ import org.springframework.core.env.ConfigurableEnvironment;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.util.RedisConstants.MICROSPHERE_REDIS_ENABLED_PROPERTY_NAME;
-import static io.microsphere.redis.spring.util.RedisUtils.isMicrosphereRedisCommandEventExposed;
-import static io.microsphere.redis.spring.util.RedisUtils.isMicrosphereRedisEnabled;
+import static io.microsphere.redis.spring.util.RedisSpringUtils.isMicrosphereRedisCommandEventExposed;
+import static io.microsphere.redis.spring.util.RedisSpringUtils.isMicrosphereRedisEnabled;
 import static io.microsphere.spring.context.ApplicationContextUtils.asConfigurableApplicationContext;
 import static io.microsphere.spring.core.env.EnvironmentUtils.asConfigurableEnvironment;
 
@@ -73,7 +73,7 @@ public class RedisConfiguration implements ApplicationListener<RedisConfiguratio
     public void setApplicationContext(ApplicationContext context) throws BeansException {
         this.context = asConfigurableApplicationContext(context);
         this.environment = asConfigurableEnvironment(context.getEnvironment());
-        this.applicationName = RedisUtils.getApplicationName(this.environment);
+        this.applicationName = RedisSpringUtils.getApplicationName(this.environment);
         setEnabled();
     }
 

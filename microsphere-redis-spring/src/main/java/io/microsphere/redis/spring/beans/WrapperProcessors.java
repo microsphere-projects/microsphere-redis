@@ -46,7 +46,7 @@ import static org.springframework.core.annotation.AnnotationAwareOrderComparator
  */
 public class WrapperProcessors implements InitializingBean, BeanFactoryAware {
 
-    public static final String BEAN_NAME = "wrapperProcessors";
+    public static final String BEAN_NAME = "microsphere:wrapperProcessors";
 
     private ConfigurableListableBeanFactory beanFactory;
 

@@ -12,7 +12,7 @@ import java.util.List;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.init;
-import static io.microsphere.redis.spring.util.RedisUtils.isMicrosphereRedisEnabled;
+import static io.microsphere.redis.spring.util.RedisSpringUtils.isMicrosphereRedisEnabled;
 import static io.microsphere.spring.core.env.PropertySourcesUtils.containsBootstrapPropertySource;
 import static org.springframework.core.annotation.AnnotationAwareOrderComparator.sort;
 import static org.springframework.core.io.support.SpringFactoriesLoader.loadFactories;

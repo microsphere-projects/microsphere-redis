@@ -35,7 +35,7 @@ import java.util.Set;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.interceptor.EventPublishingRedisCommandInterceptor.BEAN_NAME;
-import static io.microsphere.redis.spring.util.RedisUtils.getWrappedRedisTemplateBeanNames;
+import static io.microsphere.redis.spring.util.RedisSpringUtils.getWrappedRedisTemplateBeanNames;
 import static io.microsphere.spring.beans.factory.BeanFactoryUtils.asConfigurableBeanFactory;
 import static io.microsphere.spring.beans.factory.BeanFactoryUtils.asConfigurableListableBeanFactory;
 import static io.microsphere.spring.beans.factory.support.BeanRegistrar.registerBeanDefinition;

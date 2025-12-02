@@ -29,7 +29,7 @@ public class RedisCommandReplicator implements ApplicationListener<RedisCommandR
 
     private static final Logger logger = getLogger(RedisCommandReplicator.class);
 
-    public static final String BEAN_NAME = "redisCommandReplicator";
+    public static final String BEAN_NAME = "microsphere:redisCommandReplicator";
 
     private final RedisConnectionFactory redisConnectionFactory;
 

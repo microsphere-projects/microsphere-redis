@@ -29,7 +29,7 @@ import static org.springframework.aop.framework.AopProxyUtils.ultimateTargetClas
  */
 public class RedisTemplateWrapperBeanPostProcessor implements BeanPostProcessor, InitializingBean, ApplicationContextAware {
 
-    public static final String BEAN_NAME = "redisTemplateWrapperBeanPostProcessor";
+    public static final String BEAN_NAME = "microsphere:redisTemplateWrapperBeanPostProcessor";
 
     private ConfigurableApplicationContext context;
 

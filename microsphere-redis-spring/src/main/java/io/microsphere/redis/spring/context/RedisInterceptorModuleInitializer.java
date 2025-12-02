@@ -11,7 +11,7 @@ import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.util.RedisConstants.DEFAULT_MICROSPHERE_REDIS_INTERCEPTOR_ENABLED;
 import static io.microsphere.redis.spring.util.RedisConstants.DEFAULT_WRAP_REDIS_TEMPLATE_PLACEHOLDER;
 import static io.microsphere.redis.spring.util.RedisConstants.MICROSPHERE_REDIS_INTERCEPTOR_ENABLED_PROPERTY_NAME;
-import static io.microsphere.redis.spring.util.RedisUtils.isMicrosphereRedisCommandEventExposed;
+import static io.microsphere.redis.spring.util.RedisSpringUtils.isMicrosphereRedisCommandEventExposed;
 
 /**
  * {@link RedisModuleInitializer RedisModuleInitializer} Interceptor

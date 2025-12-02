@@ -39,7 +39,7 @@ import java.util.Set;
 import static io.microsphere.annotation.ConfigurationProperty.APPLICATION_SOURCE;
 import static io.microsphere.collection.Lists.ofList;
 import static io.microsphere.logging.LoggerFactory.getLogger;
-import static io.microsphere.redis.spring.config.RedisConfiguration.getBoolean;
+import static io.microsphere.redis.spring.util.RedisSpringUtils.getBoolean;
 import static java.lang.Boolean.parseBoolean;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
@@ -56,7 +56,7 @@ public class RedisReplicatorConfiguration implements ApplicationListener<RedisCo
 
     private static final Logger logger = getLogger(RedisReplicatorConfiguration.class);
 
-    public static final String BEAN_NAME = "redisReplicatorConfiguration";
+    public static final String BEAN_NAME = "microsphere:redisReplicatorConfiguration";
 
     public static final String PROPERTY_NAME_PREFIX = RedisConstants.MICROSPHERE_REDIS_PROPERTY_NAME_PREFIX + "replicator.";
 
@@ -234,11 +234,11 @@ public class RedisReplicatorConfiguration implements ApplicationListener<RedisCo
     }
 
     public static boolean isEnabled(ApplicationContext context) {
-        return getBoolean(context, ENABLED_PROPERTY_NAME, DEFAULT_ENABLED, "Replicator", "enabled");
+        return getBoolean(context.getEnvironment(), ENABLED_PROPERTY_NAME, DEFAULT_ENABLED, "Replicator", "enabled");
     }
 
     public static boolean isConsumerEnabled(ApplicationContext context) {
-        return getBoolean(context, CONSUMER_ENABLED_PROPERTY_NAME, DEFAULT_CONSUMER_ENABLED, "Replicator Consumer", "enabled");
+        return getBoolean(context.getEnvironment(), CONSUMER_ENABLED_PROPERTY_NAME, DEFAULT_CONSUMER_ENABLED, "Replicator Consumer", "enabled");
     }
 
     public static RedisReplicatorConfiguration get(BeanFactory beanFactory) {
