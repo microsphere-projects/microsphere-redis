@@ -18,6 +18,7 @@
 package io.microsphere.redis.spring.util;
 
 
+import io.microsphere.redis.spring.config.RedisConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -26,14 +27,18 @@ import org.springframework.mock.env.MockEnvironment;
 import java.util.Set;
 
 import static io.microsphere.collection.Sets.ofSet;
+import static io.microsphere.redis.spring.util.RedisSpringUtils.findRedisTemplate;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.getApplicationName;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.getWrappedRedisTemplateBeanNames;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.isMicrosphereRedisCommandEventExposed;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.isMicrosphereRedisEnabled;
+import static io.microsphere.spring.test.util.SpringTestUtils.testInSpringContainer;
 import static io.microsphere.util.ArrayUtils.ofArray;
 import static java.util.Collections.emptySet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.util.StringUtils.arrayToCommaDelimitedString;
@@ -103,5 +108,46 @@ class RedisSpringUtilsTest {
         this.environment.setProperty("microsphere.redis.wrapped-redis-templates", arrayToCommaDelimitedString(REDIS_TEMPLATE_BEAN_NAMES));
         beanNames = getWrappedRedisTemplateBeanNames(beanFactory, this.environment);
         assertEquals(ofSet("redisTemplate", "stringRedisTemplate"), beanNames);
+
+        beanNames = getWrappedRedisTemplateBeanNames(beanFactory, this.environment, "redisTemplate", "stringRedisTemplate");
+        assertEquals(ofSet("redisTemplate", "stringRedisTemplate"), beanNames);
+
+        beanNames = getWrappedRedisTemplateBeanNames(beanFactory, this.environment, REDIS_TEMPLATE_BEAN_NAMES);
+        assertEquals(ofSet("redisTemplate", "stringRedisTemplate"), beanNames);
+    }
+
+    @Test
+    void testFindRedisTemplate() {
+        testInSpringContainer(context -> {
+            assertNotNull(findRedisTemplate(context, "redisTemplate"));
+            assertNotNull(findRedisTemplate(context, "stringRedisTemplate"));
+            assertNull(findRedisTemplate(context, "notFoundRedisTemplate"));
+        }, RedisConfig.class);
+    }
+
+    @Test
+    void testFindRestTemplateBeanNames() {
+        testInSpringContainer(context -> {
+
+        });
+
+        testInSpringContainer(context -> {
+
+        }, RedisConfig.class);
+    }
+
+    @Test
+    void testFindRedisConnectionFactoryBeanNames() {
+
+    }
+
+    @Test
+    void testFindRedisCommandInterceptors() {
+
+    }
+
+    @Test
+    void testFindRedisConnectionInterceptors() {
+
     }
 }

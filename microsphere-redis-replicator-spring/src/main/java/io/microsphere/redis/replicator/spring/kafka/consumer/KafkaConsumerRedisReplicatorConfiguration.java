@@ -26,7 +26,7 @@ import java.util.Map;
 
 import static io.microsphere.annotation.ConfigurationProperty.APPLICATION_SOURCE;
 import static io.microsphere.logging.LoggerFactory.getLogger;
-import static io.microsphere.redis.spring.config.RedisConfiguration.getBoolean;
+import static io.microsphere.redis.spring.util.RedisSpringUtils.getBoolean;
 import static io.microsphere.spring.core.env.PropertySourcesUtils.getSubProperties;
 import static io.microsphere.util.ArrayUtils.length;
 import static java.lang.Boolean.parseBoolean;
@@ -110,8 +110,9 @@ public class KafkaConsumerRedisReplicatorConfiguration extends KafkaRedisReplica
 
     private ApplicationEventPublisher applicationEventPublisher;
 
-    public static boolean isEnabled(ApplicationContext applicationContext) {
-        return getBoolean(applicationContext, KAFKA_CONSUMER_ENABLED_PROPERTY_NAME, DEFAULT_KAFKA_CONSUMER_ENABLED, "Kafka Consumer", "enabled");
+    public static boolean isEnabled(ApplicationContext context) {
+        return getBoolean(context.getEnvironment(), KAFKA_CONSUMER_ENABLED_PROPERTY_NAME, DEFAULT_KAFKA_CONSUMER_ENABLED,
+                "Kafka Consumer", "enabled");
     }
 
     @Bean

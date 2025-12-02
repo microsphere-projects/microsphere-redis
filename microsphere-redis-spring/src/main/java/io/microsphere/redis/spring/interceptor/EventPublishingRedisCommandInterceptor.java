@@ -34,7 +34,8 @@ import static io.microsphere.redis.spring.util.RedisConstants.MICROSPHERE_REDIS_
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
-public class EventPublishingRedisCommandInterceptor implements RedisCommandInterceptor, ApplicationListener<RedisConfigurationPropertyChangedEvent>, ApplicationEventPublisherAware {
+public class EventPublishingRedisCommandInterceptor implements RedisCommandInterceptor,
+        ApplicationListener<RedisConfigurationPropertyChangedEvent>, ApplicationEventPublisherAware {
 
     private static final Logger logger = getLogger(EventPublishingRedisCommandInterceptor.class);
 
@@ -95,5 +96,10 @@ public class EventPublishingRedisCommandInterceptor implements RedisCommandInter
     @Override
     public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
         this.applicationEventPublisher = applicationEventPublisher;
+    }
+
+    @Override
+    public int getOrder() {
+        return 0;
     }
 }

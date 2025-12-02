@@ -19,12 +19,14 @@ package io.microsphere.redis.spring.util;
 
 import io.microsphere.annotation.Immutable;
 import io.microsphere.annotation.Nonnull;
+import io.microsphere.annotation.Nullable;
 import io.microsphere.logging.Logger;
 import io.microsphere.redis.spring.interceptor.RedisCommandInterceptor;
 import io.microsphere.redis.spring.interceptor.RedisConnectionInterceptor;
 import io.microsphere.util.Utils;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -66,19 +68,48 @@ public abstract class RedisSpringUtils implements Utils {
 
     private static final Logger logger = getLogger(RedisSpringUtils.class);
 
+    /**
+     * Get the application name from the {@link Environment}
+     *
+     * @param environment {@link Environment}
+     * @return {@link RedisConstants#DEFAULT_SPRING_APPLICATION_NAME_PROPERTY_VALUE} as default if the property name
+     * {@link RedisConstants#SPRING_APPLICATION_NAME_PROPERTY_NAME} was not found in the {@link Environment}.
+     */
     @Nonnull
     public static String getApplicationName(Environment environment) {
         return environment.getProperty(SPRING_APPLICATION_NAME_PROPERTY_NAME, DEFAULT_SPRING_APPLICATION_NAME_PROPERTY_VALUE);
     }
 
+    /**
+     * Test Microsphere Redis enabled or not.
+     *
+     * @param environment {@link Environment}
+     * @return <code>true</code> if enabled , or <code>false</code>
+     */
     public static boolean isMicrosphereRedisEnabled(Environment environment) {
-        return getBoolean(environment, MICROSPHERE_REDIS_ENABLED_PROPERTY_NAME, DEFAULT_MICROSPHERE_REDIS_ENABLED, "Configuration", "enabled");
+        return getBoolean(environment, MICROSPHERE_REDIS_ENABLED_PROPERTY_NAME, DEFAULT_MICROSPHERE_REDIS_ENABLED,
+                "Configuration", "enabled");
     }
 
+    /**
+     * Test Microsphere Redis Command Event exposed or not.
+     *
+     * @param environment {@link Environment}
+     * @return <code>true</code> if exposed , or <code>false</code>
+     */
     public static boolean isMicrosphereRedisCommandEventExposed(Environment environment) {
-        return getBoolean(environment, MICROSPHERE_REDIS_COMMAND_EVENT_EXPOSED_PROPERTY_NAME, DEFAULT_MICROSPHERE_REDIS_COMMAND_EVENT_EXPOSED, "Command Event", "exposed");
+        return getBoolean(environment, MICROSPHERE_REDIS_COMMAND_EVENT_EXPOSED_PROPERTY_NAME,
+                DEFAULT_MICROSPHERE_REDIS_COMMAND_EVENT_EXPOSED, "Command Event", "exposed");
     }
 
+    /**
+     * Get the wrapped RedisTemplate bean names from the Spring container.
+     *
+     * @param beanFactory        {@link ConfigurableListableBeanFactory}
+     * @param environment        {@link Environment}
+     * @param wrapRedisTemplates the RedisTemplate bean names to be wrapped
+     * @return non-null
+     */
     @Nonnull
     @Immutable
     public static Set<String> getWrappedRedisTemplateBeanNames(ConfigurableListableBeanFactory beanFactory,
@@ -90,6 +121,14 @@ public abstract class RedisSpringUtils implements Utils {
         }
     }
 
+    /**
+     * Find the {@link RedisTemplate} bean
+     *
+     * @param beanFactory           {@link BeanFactory}
+     * @param redisTemplateBeanName the bean name of {@link RedisTemplate}
+     * @return null if not found
+     */
+    @Nullable
     public static RedisTemplate<?, ?> findRedisTemplate(BeanFactory beanFactory, String redisTemplateBeanName) {
         if (beanFactory.containsBean(redisTemplateBeanName)) {
             return beanFactory.getBean(redisTemplateBeanName, RedisTemplate.class);
@@ -97,22 +136,54 @@ public abstract class RedisSpringUtils implements Utils {
         return null;
     }
 
+    /**
+     * Find the bean names from the {@link BeanDefinition} of {@link RedisTemplate}
+     *
+     * @param beanFactory {@link ConfigurableListableBeanFactory}
+     * @return non-null
+     */
+    @Nonnull
+    @Immutable
     public static Set<String> findRestTemplateBeanNames(ConfigurableListableBeanFactory beanFactory) {
         Set<String> redisTemplateBeanNames = ofSet(getBeanNames(beanFactory, RedisTemplate.class));
         logger.trace("The all bean names of RedisTemplate : {}", redisTemplateBeanNames);
         return redisTemplateBeanNames;
     }
 
+    /**
+     * Find the bean names from the {@link BeanDefinition} of {@link RedisConnectionFactory}
+     *
+     * @param beanFactory {@link ConfigurableListableBeanFactory}
+     * @return non-null
+     */
+    @Nonnull
+    @Immutable
     public static Set<String> findRedisConnectionFactoryBeanNames(ConfigurableListableBeanFactory beanFactory) {
         Set<String> redisConnectionFactoryBeanNames = ofSet(getBeanNames(beanFactory, RedisConnectionFactory.class));
         logger.trace("The all bean names of RedisConnectionFactory : {}", redisConnectionFactoryBeanNames);
         return redisConnectionFactoryBeanNames;
     }
 
+    /**
+     * Find the {@link RedisCommandInterceptor} Beans from the {@link BeanFactory}
+     *
+     * @param beanFactory {@link ListableBeanFactory}
+     * @return non-null
+     */
+    @Nonnull
+    @Immutable
     public static List<RedisCommandInterceptor> findRedisCommandInterceptors(ListableBeanFactory beanFactory) {
         return getSortedBeans(beanFactory, RedisCommandInterceptor.class);
     }
 
+    /**
+     * Find the {@link RedisConnectionInterceptor} Beans from the {@link BeanFactory}
+     *
+     * @param beanFactory {@link ListableBeanFactory}
+     * @return non-null
+     */
+    @Nonnull
+    @Immutable
     public static List<RedisConnectionInterceptor> findRedisConnectionInterceptors(ListableBeanFactory beanFactory) {
         return getSortedBeans(beanFactory, RedisConnectionInterceptor.class);
     }
@@ -162,8 +233,7 @@ public abstract class RedisSpringUtils implements Utils {
     public static boolean getBoolean(Environment environment, String propertyName, boolean defaultValue, String feature, String statusIfTrue) {
         Boolean propertyValue = environment.getProperty(propertyName, Boolean.class);
         boolean value = propertyValue == null ? defaultValue : propertyValue.booleanValue();
-        logger.trace("Microsphere Redis {} is '{}' in the Spring Environment[property name: '{}' , property value: {} , default value: {}",
-                feature, (value ? statusIfTrue : "not " + statusIfTrue), propertyName, propertyValue, defaultValue);
+        logger.trace("Microsphere Redis {} is '{}' in the Spring Environment[property name: '{}' , property value: {} , default value: {}", feature, (value ? statusIfTrue : "not " + statusIfTrue), propertyName, propertyValue, defaultValue);
         return value;
     }
 

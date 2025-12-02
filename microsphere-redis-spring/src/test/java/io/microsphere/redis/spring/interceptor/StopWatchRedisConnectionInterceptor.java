@@ -42,4 +42,9 @@ public class StopWatchRedisConnectionInterceptor implements RedisConnectionInter
         context.stop();
         logger.info("{} , result : {} , failure : {}", context, result, failure);
     }
+
+    @Override
+    public int getOrder() {
+        return 2;
+    }
 }

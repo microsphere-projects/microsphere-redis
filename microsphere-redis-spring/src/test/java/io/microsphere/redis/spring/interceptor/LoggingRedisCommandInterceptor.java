@@ -39,4 +39,9 @@ public class LoggingRedisCommandInterceptor implements RedisCommandInterceptor {
     public void afterExecute(RedisMethodContext redisMethodContext, Object result, Throwable failure) throws Throwable {
         logger.info("afterExecute");
     }
+
+    @Override
+    public int getOrder() {
+        return 1;
+    }
 }
