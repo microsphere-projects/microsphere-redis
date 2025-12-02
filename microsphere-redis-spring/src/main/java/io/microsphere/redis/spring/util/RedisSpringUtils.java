@@ -144,7 +144,7 @@ public abstract class RedisSpringUtils implements Utils {
      */
     @Nonnull
     @Immutable
-    public static Set<String> findRestTemplateBeanNames(ConfigurableListableBeanFactory beanFactory) {
+    public static Set<String> findRedisTemplateBeanNames(ConfigurableListableBeanFactory beanFactory) {
         Set<String> redisTemplateBeanNames = ofSet(getBeanNames(beanFactory, RedisTemplate.class));
         logger.trace("The all bean names of RedisTemplate : {}", redisTemplateBeanNames);
         return redisTemplateBeanNames;
@@ -223,7 +223,7 @@ public abstract class RedisSpringUtils implements Utils {
         if (wrappedRedisTemplateBeanNames == null) {
             return emptySet();
         } else if (ALL_WRAPPED_REDIS_TEMPLATE_BEAN_NAMES.equals(wrappedRedisTemplateBeanNames)) {
-            return findRestTemplateBeanNames(beanFactory);
+            return findRedisTemplateBeanNames(beanFactory);
         } else {
             String[] beanNames = wrappedRedisTemplateBeanNames.toArray(EMPTY_STRING_ARRAY);
             return resolveWrappedRedisTemplateBeanNames(environment, beanNames);

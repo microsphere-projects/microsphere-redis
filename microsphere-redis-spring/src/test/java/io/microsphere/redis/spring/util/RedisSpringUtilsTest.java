@@ -19,15 +19,26 @@ package io.microsphere.redis.spring.util;
 
 
 import io.microsphere.redis.spring.config.RedisConfig;
+import io.microsphere.redis.spring.config.RedisContextConfig;
+import io.microsphere.redis.spring.interceptor.EventPublishingRedisCommandInterceptor;
+import io.microsphere.redis.spring.interceptor.LoggingRedisCommandInterceptor;
+import io.microsphere.redis.spring.interceptor.RedisCommandInterceptor;
+import io.microsphere.redis.spring.interceptor.RedisConnectionInterceptor;
+import io.microsphere.redis.spring.interceptor.StopWatchRedisConnectionInterceptor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.mock.env.MockEnvironment;
 
+import java.util.List;
 import java.util.Set;
 
 import static io.microsphere.collection.Sets.ofSet;
+import static io.microsphere.redis.spring.util.RedisSpringUtils.findRedisCommandInterceptors;
+import static io.microsphere.redis.spring.util.RedisSpringUtils.findRedisConnectionFactoryBeanNames;
+import static io.microsphere.redis.spring.util.RedisSpringUtils.findRedisConnectionInterceptors;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.findRedisTemplate;
+import static io.microsphere.redis.spring.util.RedisSpringUtils.findRedisTemplateBeanNames;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.getApplicationName;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.getWrappedRedisTemplateBeanNames;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.isMicrosphereRedisCommandEventExposed;
@@ -126,28 +137,54 @@ class RedisSpringUtilsTest {
     }
 
     @Test
-    void testFindRestTemplateBeanNames() {
+    void testFindRedisTemplateBeanNames() {
         testInSpringContainer(context -> {
-
+            Set<String> redisTemplateBeanNames = findRedisTemplateBeanNames(context.getBeanFactory());
+            assertEquals(emptySet(), redisTemplateBeanNames);
         });
 
         testInSpringContainer(context -> {
-
+            Set<String> redisTemplateBeanNames = findRedisTemplateBeanNames(context.getBeanFactory());
+            assertEquals(ofSet("redisTemplate", "stringRedisTemplate"), redisTemplateBeanNames);
         }, RedisConfig.class);
     }
 
     @Test
     void testFindRedisConnectionFactoryBeanNames() {
+        testInSpringContainer(context -> {
+            Set<String> redisConnectionFactoryBeanNames = findRedisConnectionFactoryBeanNames(context.getBeanFactory());
+            assertEquals(emptySet(), redisConnectionFactoryBeanNames);
+        });
 
+        testInSpringContainer(context -> {
+            Set<String> redisConnectionFactoryBeanNames = findRedisConnectionFactoryBeanNames(context.getBeanFactory());
+            assertEquals(ofSet("redisConnectionFactory"), redisConnectionFactoryBeanNames);
+        }, RedisConfig.class);
     }
 
     @Test
     void testFindRedisCommandInterceptors() {
+        testInSpringContainer(context -> {
+            List<RedisCommandInterceptor> redisCommandInterceptors = findRedisCommandInterceptors(context);
+            assertEquals(0, redisCommandInterceptors.size());
+        });
 
+        testInSpringContainer(context -> {
+            List<RedisCommandInterceptor> redisCommandInterceptors = findRedisCommandInterceptors(context);
+            assertEquals(2, redisCommandInterceptors.size());
+        }, RedisContextConfig.class, EventPublishingRedisCommandInterceptor.class, LoggingRedisCommandInterceptor.class);
     }
 
     @Test
     void testFindRedisConnectionInterceptors() {
+        testInSpringContainer(context -> {
+            List<RedisConnectionInterceptor> redisConnectionInterceptors = findRedisConnectionInterceptors(context);
+            assertEquals(0, redisConnectionInterceptors.size());
+        });
 
+        testInSpringContainer(context -> {
+            List<RedisConnectionInterceptor> redisConnectionInterceptors = findRedisConnectionInterceptors(context);
+            assertEquals(1, redisConnectionInterceptors.size());
+        }, StopWatchRedisConnectionInterceptor.class);
     }
 }

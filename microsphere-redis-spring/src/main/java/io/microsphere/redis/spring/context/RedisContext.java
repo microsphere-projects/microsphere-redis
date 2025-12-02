@@ -41,7 +41,7 @@ import static io.microsphere.redis.spring.util.RedisSpringUtils.findRedisCommand
 import static io.microsphere.redis.spring.util.RedisSpringUtils.findRedisConnectionFactoryBeanNames;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.findRedisConnectionInterceptors;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.findRedisTemplate;
-import static io.microsphere.redis.spring.util.RedisSpringUtils.findRestTemplateBeanNames;
+import static io.microsphere.redis.spring.util.RedisSpringUtils.findRedisTemplateBeanNames;
 import static io.microsphere.spring.beans.factory.BeanFactoryUtils.asConfigurableListableBeanFactory;
 import static io.microsphere.spring.context.ApplicationContextUtils.asConfigurableApplicationContext;
 
@@ -76,7 +76,7 @@ public class RedisContext implements SmartInitializingSingleton, ApplicationCont
     @Override
     public void afterSingletonsInstantiated() {
         this.redisConfiguration = getRedisConfiguration();
-        this.redisTemplateBeanNames = findRestTemplateBeanNames(beanFactory);
+        this.redisTemplateBeanNames = findRedisTemplateBeanNames(beanFactory);
         this.redisConnectionFactoryBeanNames = findRedisConnectionFactoryBeanNames(beanFactory);
         this.redisConnectionInterceptors = findRedisConnectionInterceptors(beanFactory);
         this.redisCommandInterceptors = findRedisCommandInterceptors(beanFactory);
