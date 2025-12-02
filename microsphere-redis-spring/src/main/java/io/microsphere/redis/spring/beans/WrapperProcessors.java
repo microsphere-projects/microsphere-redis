@@ -22,16 +22,17 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.MergedBeanDefinitionPostProcessor;
-import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.core.ResolvableType;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import static io.microsphere.spring.beans.BeanUtils.getSortedBeans;
 import static io.microsphere.spring.beans.factory.BeanFactoryUtils.asConfigurableListableBeanFactory;
+import static java.util.Collections.emptyList;
 
 /**
  * The composite class of {@link WrapperProcessor}
@@ -39,32 +40,21 @@ import static io.microsphere.spring.beans.factory.BeanFactoryUtils.asConfigurabl
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
-public class WrapperProcessors implements MergedBeanDefinitionPostProcessor, InitializingBean, BeanFactoryAware {
+public class WrapperProcessors implements InitializingBean, BeanFactoryAware {
 
     public static final String BEAN_NAME = "wrapperProcessors";
 
     private ConfigurableListableBeanFactory beanFactory;
 
-    private Map<Class<?>, ObjectProvider<WrapperProcessor>> wrapperHandlersMap;
+    private Map<Class<?>, List<WrapperProcessor>> wrapperProcessorsMap;
 
     public <W extends Wrapper> W process(W wrapper) {
         Class<?> wrapperType = wrapper.getClass();
-        ObjectProvider<WrapperProcessor> processors = wrapperHandlersMap.get(wrapperType);
-        if (processors != null) {
-            for (WrapperProcessor<W> processor : processors) {
-                wrapper = processor.process(wrapper);
-            }
+        List<WrapperProcessor> wrapperProcessors = wrapperProcessorsMap.getOrDefault(wrapperType, emptyList());
+        for (WrapperProcessor<W> wrapperProcessor : wrapperProcessors) {
+            wrapper = wrapperProcessor.process(wrapper);
         }
         return wrapper;
-    }
-
-    @Override
-    public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Class<?> beanType, String beanName) {
-        if (WrapperProcessor.class.isAssignableFrom(beanType)) {
-            ResolvableType resolvableType = beanDefinition.getResolvableType();
-            Class<?> redisTemplateClass = resolvableType.as(WrapperProcessor.class).getGeneric(0).getRawClass();
-            wrapperHandlersMap.computeIfAbsent(redisTemplateClass, type -> beanFactory.getBeanProvider(resolvableType));
-        }
     }
 
     @Override
@@ -73,7 +63,23 @@ public class WrapperProcessors implements MergedBeanDefinitionPostProcessor, Ini
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
-        this.wrapperHandlersMap = new HashMap<>(2);
+    public void afterPropertiesSet() {
+        this.wrapperProcessorsMap = initWrapperProcessorsMap();
+    }
+
+    private Map<Class<?>, List<WrapperProcessor>> initWrapperProcessorsMap() {
+        Map<Class<?>, List<WrapperProcessor>> wrapperHandlersMap = new HashMap<>(2);
+        ConfigurableListableBeanFactory beanFactory = this.beanFactory;
+        String[] beanNames = beanFactory.getBeanNamesForType(WrapperProcessor.class);
+        for (String beanName : beanNames) {
+            BeanDefinition beanDefinition = beanFactory.getBeanDefinition(beanName);
+            ResolvableType resolvableType = beanDefinition.getResolvableType();
+            Class<?> wrapperClass = resolvableType.as(WrapperProcessor.class).getGeneric(0).resolve();
+            wrapperHandlersMap.computeIfAbsent(wrapperClass, k -> {
+                Class<WrapperProcessor> wrapperProcessorClass = (Class<WrapperProcessor>) resolvableType.getRawClass();
+                return getSortedBeans(beanFactory, wrapperProcessorClass);
+            });
+        }
+        return wrapperHandlersMap;
     }
 }

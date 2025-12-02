@@ -11,7 +11,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.Environment;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.util.Assert;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -20,6 +19,7 @@ import java.util.Set;
 
 import static io.microsphere.redis.spring.util.RedisConstants.ALL_WRAPPED_REDIS_TEMPLATE_BEAN_NAMES;
 import static io.microsphere.redis.spring.util.RedisConstants.WRAPPED_REDIS_TEMPLATE_BEAN_NAMES_PROPERTY_NAME;
+import static io.microsphere.spring.context.ApplicationContextUtils.asConfigurableApplicationContext;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.unmodifiableSet;
 import static org.springframework.aop.framework.AopProxyUtils.ultimateTargetClass;
@@ -74,8 +74,7 @@ public class RedisTemplateWrapperBeanPostProcessor implements BeanPostProcessor,
 
     @Override
     public void setApplicationContext(ApplicationContext context) throws BeansException {
-        Assert.isInstanceOf(ConfigurableApplicationContext.class, context, "The 'context' argument must be an instance of ConfigurableApplicationContext");
-        this.context = (ConfigurableApplicationContext) context;
+        this.context = asConfigurableApplicationContext(context);
     }
 
     /**
