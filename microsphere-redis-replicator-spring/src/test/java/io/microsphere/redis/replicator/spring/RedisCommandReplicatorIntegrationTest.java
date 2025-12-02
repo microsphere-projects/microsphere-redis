@@ -31,10 +31,10 @@ import org.springframework.test.context.TestPropertySource;
 @ContextConfiguration(classes = {
         KafkaConsumerRedisReplicatorConfiguration.class,
         RedisCommandReplicator.class,
-        RedisCommandReplicatorTest.class},
+        RedisCommandReplicatorIntegrationTest.class},
         initializers = RedisInitializer.class)
 @TestPropertySource(properties = {
         "microsphere.redis.enabled=true"
 })
-public class RedisCommandReplicatorTest extends AbstractRedisReplicatorTest {
+public class RedisCommandReplicatorIntegrationTest extends AbstractRedisReplicatorTest {
 }
