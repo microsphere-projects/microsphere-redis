@@ -110,7 +110,7 @@ public class KafkaConsumerRedisReplicatorConfiguration extends KafkaRedisReplica
 
     private ApplicationEventPublisher applicationEventPublisher;
 
-    public static boolean isEnabled(ApplicationContext context) {
+    public static boolean isKafkaConsumerEnabled(ApplicationContext context) {
         return getBoolean(context.getEnvironment(), KAFKA_CONSUMER_ENABLED_PROPERTY_NAME, DEFAULT_KAFKA_CONSUMER_ENABLED,
                 "Kafka Consumer", "enabled");
     }
