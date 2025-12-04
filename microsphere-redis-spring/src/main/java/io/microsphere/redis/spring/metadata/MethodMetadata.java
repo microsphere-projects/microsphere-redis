@@ -20,6 +20,13 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.StringJoiner;
 
+import static io.microsphere.constants.SymbolConstants.COMMA;
+import static io.microsphere.constants.SymbolConstants.LEFT_SQUARE_BRACKET;
+import static io.microsphere.constants.SymbolConstants.RIGHT_SQUARE_BRACKET;
+import static io.microsphere.util.ArrayUtils.arrayEquals;
+import static io.microsphere.util.ArrayUtils.arrayToString;
+import static java.util.Objects.hash;
+
 /**
  * Method metadata
  *
@@ -81,29 +88,31 @@ public class MethodMetadata {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof MethodMetadata)) {
+            return false;
+        }
         MethodMetadata that = (MethodMetadata) o;
         return index == that.index &&
                 write == that.write &&
                 Objects.equals(interfaceName, that.interfaceName) &&
                 Objects.equals(methodName, that.methodName) &&
-                Arrays.equals(parameterTypes, that.parameterTypes);
+                arrayEquals(parameterTypes, that.parameterTypes);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(index, interfaceName, methodName, write);
+        int result = hash(index, interfaceName, methodName, write);
         result = 31 * result + Arrays.hashCode(parameterTypes);
         return result;
     }
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", MethodMetadata.class.getSimpleName() + "[", "]")
+        return new StringJoiner(COMMA, MethodMetadata.class.getSimpleName() + LEFT_SQUARE_BRACKET, RIGHT_SQUARE_BRACKET)
                 .add("id=" + index)
                 .add("interfaceName='" + interfaceName + "'")
                 .add("methodName='" + methodName + "'")
-                .add("parameterTypes=" + Arrays.toString(parameterTypes))
+                .add("parameterTypes=" + arrayToString(parameterTypes))
                 .add("write=" + write)
                 .toString();
     }
