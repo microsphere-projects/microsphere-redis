@@ -8,11 +8,12 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.event.SmartApplicationListener;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
+import static io.microsphere.lang.function.Streams.filterSet;
 import static io.microsphere.redis.spring.util.RedisConstants.MICROSPHERE_REDIS_PROPERTY_NAME_PREFIX;
 import static io.microsphere.util.ClassLoaderUtils.isPresent;
 import static io.microsphere.util.ClassLoaderUtils.resolveClass;
+import static io.microsphere.util.StringUtils.startsWith;
 
 /**
  * {@link EnvironmentChangeEvent} {@link ApplicationListener} propagates {@link RedisConfigurationPropertyChangedEvent}
@@ -41,13 +42,14 @@ public class PropagatingRedisConfigurationPropertyChangedEventApplicationListene
     @Override
     public void onApplicationEvent(ApplicationEvent e) {
         EnvironmentChangeEvent environmentChangeEvent = (EnvironmentChangeEvent) e;
-        Set<String> keys = environmentChangeEvent.getKeys().stream().filter(this::isRedisPropertyName).collect(Collectors.toSet());
-        RedisConfigurationPropertyChangedEvent event = new RedisConfigurationPropertyChangedEvent(context, keys);
-        context.publishEvent(event);
+        Set<String> keys = filterSet(environmentChangeEvent.getKeys(), this::isRedisPropertyName);
+
+        RedisConfigurationPropertyChangedEvent event = new RedisConfigurationPropertyChangedEvent(this.context, keys);
+        this.context.publishEvent(event);
     }
 
-    private boolean isRedisPropertyName(String key) {
-        return key != null && key.startsWith(MICROSPHERE_REDIS_PROPERTY_NAME_PREFIX);
+    boolean isRedisPropertyName(String key) {
+        return startsWith(key, MICROSPHERE_REDIS_PROPERTY_NAME_PREFIX);
     }
 
     @Override
