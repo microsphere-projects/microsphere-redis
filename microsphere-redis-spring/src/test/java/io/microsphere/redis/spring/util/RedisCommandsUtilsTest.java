@@ -25,8 +25,12 @@ import io.microsphere.redis.spring.event.RedisCommandEvent;
 import io.microsphere.redis.spring.interceptor.RedisMethodContext;
 import io.microsphere.redis.spring.metadata.ParameterMetadata;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisKeyCommands;
+
+import java.lang.reflect.Method;
 
 import static io.microsphere.redis.spring.AbstractRedisTest.SET_METHOD;
 import static io.microsphere.redis.spring.AbstractRedisTest.SET_METHOD_ARGS;
@@ -51,11 +55,16 @@ import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_ZSET_COM
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.buildCommandMethodId;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.getRedisCommands;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.initializeParameters;
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.loadParameterClasses;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.resolveInterfaceName;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.resolveSimpleInterfaceName;
+import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.spring.test.util.SpringTestUtils.testInSpringContainer;
+import static io.microsphere.util.ArrayUtils.EMPTY_OBJECT_ARRAY;
+import static java.util.stream.Stream.of;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -175,18 +184,28 @@ class RedisCommandsUtilsTest {
         }, (parameter, integer) -> {
             assertArrayEquals((byte[]) parameter.getValue(), parameter.getRawValue());
         }));
-    }
 
-    @Test
-    void testBuildParameterMetadataList() {
-    }
+        assertTrue(initializeParameters(SET_METHOD, SET_METHOD_ARGS, (parameter, integer) -> {
+            throw new RuntimeException("For testing");
+        }));
 
-    @Test
-    void testBuildParameterMetadata() {
+        Method randomKeyMethod = findMethod(RedisKeyCommands.class, "randomKey");
+
+        assertFalse(initializeParameters(randomKeyMethod, EMPTY_OBJECT_ARRAY, (parameter, integer) -> {
+        }));
     }
 
     @Test
     void testLoadParameterClasses() {
+        assertLoadParameterClasses();
+        assertLoadParameterClasses(String.class);
+        assertLoadParameterClasses(String.class, Integer.class);
+        assertLoadParameterClasses(String.class, Integer.class, ApplicationContext.class);
+        assertLoadParameterClasses(String.class, Integer.class, ApplicationContext.class, this.getClass());
+    }
+
+    private void assertLoadParameterClasses(Class<?>... classes) {
+        assertArrayEquals(classes, loadParameterClasses(of(classes).map(Class::getName).toArray(String[]::new)));
     }
 
     void assertInterfaceName(String interfaceName) {
