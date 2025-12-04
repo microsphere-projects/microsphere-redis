@@ -10,6 +10,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import java.util.List;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
+import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.isEnabled;
 import static io.microsphere.spring.beans.factory.support.BeanRegistrar.registerBeanDefinition;
 import static org.springframework.core.io.support.SpringFactoriesLoader.loadFactories;
 
@@ -25,7 +26,7 @@ public class RedisReplicatorInitializer implements RedisModuleInitializer {
 
     @Override
     public boolean supports(ConfigurableApplicationContext context, BeanDefinitionRegistry registry) {
-        return RedisReplicatorConfiguration.isEnabled(context);
+        return isEnabled(context);
     }
 
     @Override
