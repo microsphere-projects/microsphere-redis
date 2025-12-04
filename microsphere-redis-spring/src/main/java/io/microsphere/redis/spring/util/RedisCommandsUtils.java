@@ -152,7 +152,8 @@ public abstract class RedisCommandsUtils {
      * @param otherConsumers The others {@link BiConsumer BiConsumers} of {@link Parameter} and its index
      * @return if the parameters from the write method, return <code>true</code>, or <code>false</code>
      */
-    public static boolean initParameters(Method method, Object[] args, BiConsumer<Parameter, Integer> consumer, BiConsumer<Parameter, Integer>... otherConsumers) {
+    public static boolean initializeParameters(Method method, Object[] args, BiConsumer<Parameter, Integer> consumer,
+                                               BiConsumer<Parameter, Integer>... otherConsumers) {
 
         boolean sourceFromWriteMethod = true;
 

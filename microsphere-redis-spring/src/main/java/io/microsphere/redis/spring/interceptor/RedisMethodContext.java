@@ -16,29 +16,33 @@
  */
 package io.microsphere.redis.spring.interceptor;
 
+import io.microsphere.annotation.Nullable;
 import io.microsphere.logging.Logger;
 import io.microsphere.redis.spring.config.RedisConfiguration;
 import io.microsphere.redis.spring.context.RedisContext;
 import io.microsphere.redis.spring.metadata.Parameter;
-import io.microsphere.redis.spring.util.RedisCommandsUtils;
+import io.microsphere.redis.spring.metadata.ParameterMetadata;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.lang.NonNull;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
-import static io.microsphere.collection.MapUtils.newFixedHashMap;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.isWriteCommandMethod;
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.initializeParameters;
+import static io.microsphere.util.ArrayUtils.arrayToString;
 import static io.microsphere.util.ArrayUtils.length;
+import static io.microsphere.util.Assert.assertTrue;
+import static java.lang.System.nanoTime;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableMap;
 
@@ -63,10 +67,6 @@ public class RedisMethodContext<T> {
     private final Object[] args;
 
     private Parameter[] parameters = null;
-
-    private Map<Object, Parameter> parametersMap = null;
-
-    private Integer parameterCount = null;
 
     private Boolean write = null;
 
@@ -97,46 +97,41 @@ public class RedisMethodContext<T> {
     }
 
     public T getTarget() {
-        return target;
+        return this.target;
     }
 
     public Method getMethod() {
-        return method;
+        return this.method;
     }
 
     public Object[] getArgs() {
-        return args;
+        return this.args;
     }
 
     public String getSourceBeanName() {
-        return sourceBeanName;
+        return this.sourceBeanName;
     }
 
     public RedisContext getRedisContext() {
-        return redisContext;
+        return this.redisContext;
     }
 
     private void initParameters() {
         int size = length(args);
         final Parameter[] parameters;
-        final Map<Object, Parameter> parametersMap;
         final boolean write;
 
         if (size > 1) {
             parameters = new Parameter[size];
-            parametersMap = newFixedHashMap(size);
-            write = RedisCommandsUtils.initParameters(method, args, (parameter, index) -> {
+            write = initializeParameters(method, args, (parameter, index) -> {
                 parameters[index] = parameter;
-                parametersMap.put(parameter.getValue(), parameter);
             });
         } else {
             parameters = EMPTY_PARAMETERS;
-            parametersMap = emptyMap();
             write = false;
         }
 
         this.parameters = parameters;
-        this.parametersMap = unmodifiableMap(parametersMap);
         this.write = write;
     }
 
@@ -144,19 +139,17 @@ public class RedisMethodContext<T> {
      * Start and record the time in nano seconds, the initialized value is negative
      */
     public void start() {
-        this.startTimeNanos = System.nanoTime();
+        this.startTimeNanos = nanoTime();
     }
 
     /**
      * Stop and record the time in nano seconds, the initialized value is negative
      *
-     * @throws IllegalStateException if {@link #start()} is not execute before
+     * @throws IllegalArgumentException if {@link #start()} is not execute before
      */
-    public void stop() {
-        if (startTimeNanos < 0) {
-            throw new IllegalStateException("'stop()' method must not be invoked before the execution of 'start()' method");
-        }
-        this.durationNanos = System.nanoTime() - startTimeNanos;
+    public void stop() throws IllegalArgumentException {
+        assertTrue(startTimeNanos > 0, () -> "'stop()' method must not be invoked before the execution of 'start()' method");
+        this.durationNanos = nanoTime() - startTimeNanos;
     }
 
     /**
@@ -168,10 +161,6 @@ public class RedisMethodContext<T> {
      */
     public <T> void setAttribute(String name, T value) {
         Map<String, Object> attributes = getAttributes(true);
-        if (attributes == null) {
-            attributes = new HashMap<>();
-            this.attributes = attributes;
-        }
         attributes.put(name, value);
     }
 
@@ -265,9 +254,6 @@ public class RedisMethodContext<T> {
      */
     public long getDuration(TimeUnit timeUnit) {
         long durationNanos = getDurationNanos();
-        if (durationNanos < 0) {
-            return durationNanos;
-        }
         return timeUnit.convert(durationNanos, TimeUnit.NANOSECONDS);
     }
 
@@ -287,13 +273,6 @@ public class RedisMethodContext<T> {
         return this.write;
     }
 
-    public Map<Object, Parameter> getParametersMap() {
-        if (parametersMap == null) {
-            initParameters();
-        }
-        return parametersMap;
-    }
-
     public Parameter[] getParameters() {
         if (parameters == null) {
             initParameters();
@@ -302,14 +281,19 @@ public class RedisMethodContext<T> {
     }
 
     public int getParameterCount() {
-        if (parameterCount == null) {
-            initParameters();
-        }
-        return parameterCount.intValue();
+        return getParameters().length;
     }
 
-    public Parameter getParameterMap(Object parameterValue) {
-        return getParametersMap().get(parameterValue);
+    @Nullable
+    public Parameter getParameter(Object parameterName) {
+        Parameter[] parameters = getParameters();
+        for (Parameter parameter : parameters) {
+            ParameterMetadata metadata = parameter.getMetadata();
+            if (Objects.equals(parameterName, metadata.getParameterName())) {
+                return parameter;
+            }
+        }
+        return null;
     }
 
     public Parameter getParameter(int index) {
@@ -375,22 +359,24 @@ public class RedisMethodContext<T> {
         return sourceFromRedisConnectionFactory;
     }
 
-    public void setParameters(Parameter[] parameters) {
-        this.parameters = parameters;
-    }
-
-    public void setParametersMap(Map<Object, Parameter> parametersMap) {
-        this.parametersMap = parametersMap;
-    }
-
     @Override
     public String toString() {
-        return new StringJoiner(", ", RedisMethodContext.class.getSimpleName() + "[", "]").add("target=" + target).add("method=" + method).add("args=" + Arrays.toString(args)).add("write=" + write).add("parameters=" + parameters).add("redisContext=" + redisContext).add("sourceBeanName='" + sourceBeanName + "'").add("startTimeNanos=" + startTimeNanos).add("durationNanos=" + durationNanos).toString();
+        return new StringJoiner(", ", RedisMethodContext.class.getSimpleName() + "[", "]")
+                .add("target=" + this.target)
+                .add("method=" + this.method)
+                .add("args=" + arrayToString(this.getArgs()))
+                .add("write=" + this.isWriteMethod())
+                .add("parameters=" + arrayToString(this.getParameters()))
+                .add("redisContext=" + this.redisContext)
+                .add("sourceBeanName='" + this.sourceBeanName + "'")
+                .add("startTimeNanos=" + this.startTimeNanos)
+                .add("durationNanos=" + this.durationNanos)
+                .toString();
     }
 
     public static void set(RedisMethodContext redisMethodContext) {
         redisMethodContextThreadLocal.set(redisMethodContext);
-        logger.debug("{} stores into ThreadLocal", redisMethodContext);
+        logger.trace("{} stores into ThreadLocal", redisMethodContext);
     }
 
     public static <T> RedisMethodContext<T> get() {
