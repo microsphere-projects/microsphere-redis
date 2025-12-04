@@ -10,7 +10,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import java.util.List;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
-import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.isEnabled;
+import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.isRedisReplicatorEnabled;
 import static io.microsphere.spring.beans.factory.support.BeanRegistrar.registerBeanDefinition;
 import static org.springframework.core.io.support.SpringFactoriesLoader.loadFactories;
 
@@ -26,7 +26,7 @@ public class RedisReplicatorInitializer implements RedisModuleInitializer {
 
     @Override
     public boolean supports(ConfigurableApplicationContext context, BeanDefinitionRegistry registry) {
-        return isEnabled(context);
+        return isRedisReplicatorEnabled(context.getEnvironment());
     }
 
     @Override
@@ -78,7 +78,7 @@ public class RedisReplicatorInitializer implements RedisModuleInitializer {
                 } else {
                     redisReplicatorModuleInitializer.initializeProducerModule(context, registry);
                 }
-                logger.debug("Application context [id: {}] Initializes Redis Replicator {} module [{}]!",
+                logger.trace("Application context [id: {}] Initializes Redis Replicator {} module [{}]!",
                         context.getId(),
                         isConsumerModule ? "Consumer" : "Producer",
                         redisReplicatorModuleInitializer.getClass().getName()

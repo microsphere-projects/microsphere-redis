@@ -36,19 +36,19 @@ import java.util.Set;
 import static io.microsphere.collection.Lists.ofList;
 import static io.microsphere.collection.Sets.ofSet;
 import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.BEAN_NAME;
-import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.CONSUMER_ENABLED_PROPERTY_NAME;
-import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.CONSUMER_PROPERTY_NAME_PREFIX;
-import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.DEFAULT_CONSUMER_ENABLED;
-import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.DEFAULT_CONSUMER_ENABLED_PROPERTY_VALUE;
-import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.DEFAULT_DOMAIN;
-import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.DEFAULT_DOMAINS;
+import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.REDIS_REPLICATOR_CONSUMER_ENABLED_PROPERTY_NAME;
+import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.REDIS_REPLICATOR_CONSUMER_PROPERTY_NAME_PREFIX;
+import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.DEFAULT_REDIS_REPLICATOR_CONSUMER_ENABLED;
+import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.DEFAULT_REDIS_REPLICATOR_CONSUMER_ENABLED_PROPERTY_VALUE;
+import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.REDIS_REPLICATOR_DEFAULT_DOMAIN;
+import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.REDIS_REPLICATOR_DEFAULT_DOMAINS;
 import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.DEFAULT_ENABLED;
 import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.DEFAULT_ENABLED_PROPERTY_VALUE;
-import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.DOMAINS_PROPERTY_NAME;
+import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.REDIS_REPLICATOR_DOMAINS_PROPERTY_NAME;
 import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.DOMAIN_REDIS_TEMPLATE_BEAN_NAMES_PROPERTY_NAME_PREFIX;
 import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.DOMAIN_REDIS_TEMPLATE_BEAN_NAMES_PROPERTY_NAME_SUFFIX;
-import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.ENABLED_PROPERTY_NAME;
-import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.PROPERTY_NAME_PREFIX;
+import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.REDIS_REPLICATOR_ENABLED_PROPERTY_NAME;
+import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.REDIS_REPLICATOR_PROPERTY_NAME_PREFIX;
 import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.get;
 import static io.microsphere.spring.core.env.PropertySourcesUtils.getSubProperties;
 import static io.microsphere.spring.test.util.SpringTestUtils.testInSpringContainer;
@@ -75,19 +75,19 @@ class RedisReplicatorConfigurationTest {
     @Test
     void testConstants() {
         assertEquals("microsphere:redisReplicatorConfiguration", BEAN_NAME);
-        assertEquals("microsphere.redis.replicator.", PROPERTY_NAME_PREFIX);
+        assertEquals("microsphere.redis.replicator.", REDIS_REPLICATOR_PROPERTY_NAME_PREFIX);
         assertEquals("true", DEFAULT_ENABLED_PROPERTY_VALUE);
         assertEquals(true, DEFAULT_ENABLED);
-        assertEquals("microsphere.redis.replicator.enabled", ENABLED_PROPERTY_NAME);
+        assertEquals("microsphere.redis.replicator.enabled", REDIS_REPLICATOR_ENABLED_PROPERTY_NAME);
 
-        assertEquals("microsphere.redis.replicator.consumer.", CONSUMER_PROPERTY_NAME_PREFIX);
-        assertEquals("false", DEFAULT_CONSUMER_ENABLED_PROPERTY_VALUE);
-        assertEquals(false, DEFAULT_CONSUMER_ENABLED);
-        assertEquals("microsphere.redis.replicator.consumer.enabled", CONSUMER_ENABLED_PROPERTY_NAME);
+        assertEquals("microsphere.redis.replicator.consumer.", REDIS_REPLICATOR_CONSUMER_PROPERTY_NAME_PREFIX);
+        assertEquals("false", DEFAULT_REDIS_REPLICATOR_CONSUMER_ENABLED_PROPERTY_VALUE);
+        assertEquals(false, DEFAULT_REDIS_REPLICATOR_CONSUMER_ENABLED);
+        assertEquals("microsphere.redis.replicator.consumer.enabled", REDIS_REPLICATOR_CONSUMER_ENABLED_PROPERTY_NAME);
 
-        assertEquals("default", DEFAULT_DOMAIN);
-        assertEquals(ofList("default"), DEFAULT_DOMAINS);
-        assertEquals("microsphere.redis.replicator.domains", DOMAINS_PROPERTY_NAME);
+        assertEquals("default", REDIS_REPLICATOR_DEFAULT_DOMAIN);
+        assertEquals(ofList("default"), REDIS_REPLICATOR_DEFAULT_DOMAINS);
+        assertEquals("microsphere.redis.replicator.domains", REDIS_REPLICATOR_DOMAINS_PROPERTY_NAME);
 
         assertEquals("microsphere.redis.replicator.domains.", DOMAIN_REDIS_TEMPLATE_BEAN_NAMES_PROPERTY_NAME_PREFIX);
         assertEquals(".redis-templates", DOMAIN_REDIS_TEMPLATE_BEAN_NAMES_PROPERTY_NAME_SUFFIX);
@@ -125,10 +125,10 @@ class RedisReplicatorConfigurationTest {
             MutablePropertySources propertySources = environment.getPropertySources();
             propertySources.addLast(propertySource);
 
-            Map<String, Object> properties = getSubProperties(propertySources, PROPERTY_NAME_PREFIX);
+            Map<String, Object> properties = getSubProperties(propertySources, REDIS_REPLICATOR_PROPERTY_NAME_PREFIX);
             Set<String> propertyNames = properties.keySet()
                     .stream()
-                    .map(k -> PROPERTY_NAME_PREFIX + k)
+                    .map(k -> REDIS_REPLICATOR_PROPERTY_NAME_PREFIX + k)
                     .collect(toSet());
 
             event = new RedisConfigurationPropertyChangedEvent(context, propertyNames);

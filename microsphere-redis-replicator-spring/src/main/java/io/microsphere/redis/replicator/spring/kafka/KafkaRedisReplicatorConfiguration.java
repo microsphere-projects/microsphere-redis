@@ -14,7 +14,7 @@ import java.util.List;
 
 import static io.microsphere.annotation.ConfigurationProperty.APPLICATION_SOURCE;
 import static io.microsphere.logging.LoggerFactory.getLogger;
-import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.PROPERTY_NAME_PREFIX;
+import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.REDIS_REPLICATOR_PROPERTY_NAME_PREFIX;
 import static io.microsphere.spring.core.env.EnvironmentUtils.asConfigurableEnvironment;
 import static io.microsphere.util.ArrayUtils.arrayToString;
 import static io.microsphere.util.StringUtils.substringAfter;
@@ -49,7 +49,7 @@ public class KafkaRedisReplicatorConfiguration implements EnvironmentAware, Init
 
     public static final String SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_PLACEHOLDER = "${" + SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_NAME + ":" + DEFAULT_SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_VALUE + "}";
 
-    public static final String KAFKA_PROPERTY_NAME_PREFIX = PROPERTY_NAME_PREFIX + "kafka.";
+    public static final String KAFKA_PROPERTY_NAME_PREFIX = REDIS_REPLICATOR_PROPERTY_NAME_PREFIX + "kafka.";
 
     /**
      * The Microsphere Property name of Kafka Broker list
