@@ -21,10 +21,16 @@ import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
 
+import static io.microsphere.constants.SymbolConstants.COMMA;
+import static io.microsphere.constants.SymbolConstants.LEFT_SQUARE_BRACKET;
+import static io.microsphere.constants.SymbolConstants.RIGHT_SQUARE_BRACKET;
+import static java.util.Objects.hash;
+
 /**
  * Redis Metadata
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
+ * @see MethodMetadata
  * @since 1.0.0
  */
 public class RedisMetadata {
@@ -54,18 +60,21 @@ public class RedisMetadata {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof RedisMetadata)) {
+            return false;
+        }
         RedisMetadata that = (RedisMetadata) o;
-        return Objects.equals(methods, that.methods);
+        return Objects.equals(this.methods, that.methods);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(methods);
+        return hash(this.methods);
     }
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", RedisMetadata.class.getSimpleName() + "[", "]").add("methods=" + methods).toString();
+        return new StringJoiner(COMMA, RedisMetadata.class.getSimpleName() + LEFT_SQUARE_BRACKET, RIGHT_SQUARE_BRACKET)
+                .add("methods=" + this.methods).toString();
     }
 }
