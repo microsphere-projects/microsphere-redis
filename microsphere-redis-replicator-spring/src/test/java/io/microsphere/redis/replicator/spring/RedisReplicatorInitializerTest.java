@@ -27,6 +27,9 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static io.microsphere.collection.MapUtils.ofMap;
 import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.REDIS_REPLICATOR_CONSUMER_ENABLED_PROPERTY_NAME;
 import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.REDIS_REPLICATOR_ENABLED_PROPERTY_NAME;
@@ -67,21 +70,25 @@ class RedisReplicatorInitializerTest {
 
     @Test
     void testInitialize() {
-        assertInitialize(false);
+        assertInitialize(false, null);
+        assertInitialize(false, DEFAULT_SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_VALUE);
     }
 
     @Test
     void testInitializeOnConsumerEnabled() {
-        assertInitialize(true);
+        assertInitialize(true, DEFAULT_SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_VALUE);
+        assertInitialize(true, null);
     }
 
-    void assertInitialize(boolean consumerEnabled) {
+    void assertInitialize(boolean consumerEnabled, String bootstrapServers) {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
         BeanDefinitionRegistry registry = (BeanDefinitionRegistry) context.getBeanFactory();
-        setProperties(context,
-                REDIS_REPLICATOR_CONSUMER_ENABLED_PROPERTY_NAME, valueOf(consumerEnabled),
-                KAFKA_BOOTSTRAP_SERVERS_PROPERTY_NAME, DEFAULT_SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_VALUE
-        );
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(REDIS_REPLICATOR_CONSUMER_ENABLED_PROPERTY_NAME, valueOf(consumerEnabled));
+        if (bootstrapServers != null) {
+            properties.put(KAFKA_BOOTSTRAP_SERVERS_PROPERTY_NAME, bootstrapServers);
+        }
+        setProperties(context, properties);
 
         this.initializer.initialize(context, registry);
 
@@ -91,8 +98,12 @@ class RedisReplicatorInitializerTest {
     }
 
     void setProperties(ConfigurableApplicationContext context, String... properties) {
+        setProperties(context, ofMap(properties));
+    }
+
+    void setProperties(ConfigurableApplicationContext context, Map<String, Object> properties) {
         ConfigurableEnvironment environment = context.getEnvironment();
-        MapPropertySource testPropertySource = new MapPropertySource("testPropertySource", ofMap(properties));
+        MapPropertySource testPropertySource = new MapPropertySource("testPropertySource", properties);
         environment.getPropertySources().addFirst(testPropertySource);
     }
 
