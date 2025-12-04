@@ -5,7 +5,6 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigRegistry;
 import org.springframework.core.env.ConfigurableEnvironment;
 
 import java.util.List;
@@ -43,7 +42,7 @@ public class RedisInitializer implements ApplicationContextInitializer<Configura
             BeanDefinitionRegistry registry = (BeanDefinitionRegistry) beanFactory;
             for (RedisModuleInitializer redisModuleInitializer : redisModuleInitializers) {
                 boolean supports = redisModuleInitializer.supports(context, registry);
-                logger.debug("ApplicationContext[id : '{}'] {} support to initialize RedisModuleInitializer[class : {} , order : {}]",
+                logger.trace("ApplicationContext[id : '{}'] {} support to initialize RedisModuleInitializer[class : {} , order : {}]",
                         context.getId(), supports ? "does" : "does not", redisModuleInitializer.getClass(), redisModuleInitializer.getOrder());
                 if (supports) {
                     redisModuleInitializer.initialize(context, registry);
@@ -53,16 +52,12 @@ public class RedisInitializer implements ApplicationContextInitializer<Configura
     }
 
     private boolean supports(ConfigurableApplicationContext context) {
-        ConfigurableListableBeanFactory beanFactory = context.getBeanFactory();
-        if (!(beanFactory instanceof BeanDefinitionRegistry)) {
-            logger.warn("The application context [id: {}, class: {}]'s BeanFactory[class : {}] is not a {} type", context.getId(), context.getClass(), beanFactory.getClass(), AnnotationConfigRegistry.class);
-            return false;
-        }
         ConfigurableEnvironment environment = context.getEnvironment();
         if (!isMicrosphereRedisEnabled(environment)) {
             return false;
         }
         if (isBootstrapContext(environment)) {
+            logger.warn("The application context [id: {}, class: {}] is a BootstrapContext", context.getId(), context.getClass());
             return false;
         }
         return true;
