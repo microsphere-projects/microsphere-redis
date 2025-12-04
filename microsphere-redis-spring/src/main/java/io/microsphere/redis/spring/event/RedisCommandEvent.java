@@ -1,5 +1,6 @@
 package io.microsphere.redis.spring.event;
 
+import io.microsphere.annotation.Nonnull;
 import io.microsphere.redis.spring.interceptor.RedisMethodContext;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.data.redis.connection.RedisCommands;
@@ -81,7 +82,7 @@ public class RedisCommandEvent extends ApplicationEvent {
         this.args = args;
     }
 
-    public RedisCommandEvent(@NonNull RedisMethodContext redisMethodContext) {
+    public RedisCommandEvent(@Nonnull RedisMethodContext redisMethodContext) {
         this(redisMethodContext, redisMethodContext.getApplicationName(), redisMethodContext.getSourceBeanName(), redisMethodContext.getMethod(), redisMethodContext.getArgs());
     }
 

@@ -39,8 +39,6 @@ import static io.microsphere.redis.spring.interceptor.RedisMethodContext.set;
 import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.isWriteCommandMethod;
 import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.util.ArrayUtils.EMPTY_OBJECT_ARRAY;
-import static io.microsphere.util.ArrayUtils.ofArray;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.MICROSECONDS;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -69,22 +67,16 @@ class RedisMethodContextTest extends AbstractRedisTest {
 
     private RedisConnection redisConnection;
 
-    private Method setMethod = findMethod(RedisConnection.class, "set", byte[].class, byte[].class);
-
-    private Object[] args = ofArray("key".getBytes(UTF_8), "value".getBytes(UTF_8));
-
     @Autowired
     @Qualifier(BEAN_NAME)
     private RedisContext redisContext;
-
-    private String sourceBeanName = "redisTemplate";
 
     private RedisMethodContext context;
 
     @BeforeEach
     void setUp() {
         this.redisConnection = redisConnectionFactory.getConnection();
-        this.context = new RedisMethodContext(this.redisConnection, this.setMethod, this.args, this.redisContext, this.sourceBeanName);
+        this.context = new RedisMethodContext(this.redisConnection, SET_METHOD, SET_METHOD_ARGS, this.redisContext, SOURCE_BEAN_NAME_FOR_REDIS_TEMPLATE);
     }
 
     @AfterEach
@@ -94,7 +86,7 @@ class RedisMethodContextTest extends AbstractRedisTest {
 
     @Test
     void test() {
-        assertRedisMethodContextCommons(this.context, this.sourceBeanName, setMethod, args);
+        assertRedisMethodContextCommons(this.context, SOURCE_BEAN_NAME_FOR_REDIS_TEMPLATE, SET_METHOD, SET_METHOD_ARGS);
     }
 
     @Test

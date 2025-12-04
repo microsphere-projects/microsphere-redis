@@ -1,5 +1,6 @@
 package io.microsphere.redis.spring.util;
 
+import io.microsphere.annotation.Nonnull;
 import io.microsphere.logging.Logger;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
 import io.microsphere.redis.spring.metadata.Parameter;
@@ -15,11 +16,17 @@ import java.util.StringJoiner;
 import java.util.function.BiConsumer;
 
 import static io.microsphere.collection.ListUtils.newArrayList;
+import static io.microsphere.constants.SymbolConstants.COMMA;
+import static io.microsphere.constants.SymbolConstants.DOT_CHAR;
+import static io.microsphere.constants.SymbolConstants.LEFT_PARENTHESIS;
+import static io.microsphere.constants.SymbolConstants.RIGHT_PARENTHESIS;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.getWriteParameterMetadataList;
 import static io.microsphere.redis.spring.serializer.Serializers.getSerializer;
 import static io.microsphere.redis.spring.serializer.Serializers.serializeRawParameter;
 import static io.microsphere.util.ClassLoaderUtils.resolveClass;
+import static io.microsphere.util.StringUtils.INDEX_NOT_FOUND;
+import static io.microsphere.util.StringUtils.isNotBlank;
 import static java.util.Collections.unmodifiableList;
 
 /**
@@ -32,39 +39,39 @@ public abstract class RedisCommandsUtils {
 
     private static final Logger logger = getLogger(RedisCommandsUtils.class);
 
-    private static final String REDIS_COMMANDS_PACKAGE_NAME = "org.springframework.data.redis.connection.";
+    static final String REDIS_COMMANDS_PACKAGE_NAME = "org.springframework.data.redis.connection.";
 
-    private static final int REDIS_COMMANDS_PACKAGE_NAME_LENGTH = REDIS_COMMANDS_PACKAGE_NAME.length();
+    static final int REDIS_COMMANDS_PACKAGE_NAME_LENGTH = REDIS_COMMANDS_PACKAGE_NAME.length();
 
     private static final ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
-    public static final String REDIS_GEO_COMMANDS_INTERFACE_NAME = "org.springframework.data.redis.connection.RedisGeoCommands";
-
-    public static final String REDIS_HASH_COMMANDS_INTERFACE_NAME = "org.springframework.data.redis.connection.RedisHashCommands";
-
-    public static final String REDIS_HYPER_LOG_LOG_COMMANDS_INTERFACE_NAME = "org.springframework.data.redis.connection.RedisHyperLogLogCommands";
-
     public static final String REDIS_KEY_COMMANDS_INTERFACE_NAME = "org.springframework.data.redis.connection.RedisKeyCommands";
+
+    public static final String REDIS_STRING_COMMANDS_INTERFACE_NAME = "org.springframework.data.redis.connection.RedisStringCommands";
 
     public static final String REDIS_LIST_COMMANDS_INTERFACE_NAME = "org.springframework.data.redis.connection.RedisListCommands";
 
     public static final String REDIS_SET_COMMANDS_INTERFACE_NAME = "org.springframework.data.redis.connection.RedisSetCommands";
 
-    public static final String REDIS_SCRIPTING_COMMANDS_INTERFACE_NAME = "org.springframework.data.redis.connection.RedisScriptingCommands";
-
-    public static final String REDIS_SERVER_COMMANDS_INTERFACE_NAME = "org.springframework.data.redis.connection.RedisServerCommands";
-
-    public static final String REDIS_STREAM_COMMANDS_INTERFACE_NAME = "org.springframework.data.redis.connection.RedisStreamCommands";
-
-    public static final String REDIS_STRING_COMMANDS_INTERFACE_NAME = "org.springframework.data.redis.connection.RedisStringCommands";
-
     public static final String REDIS_ZSET_COMMANDS_INTERFACE_NAME = "org.springframework.data.redis.connection.RedisZSetCommands";
+
+    public static final String REDIS_HASH_COMMANDS_INTERFACE_NAME = "org.springframework.data.redis.connection.RedisHashCommands";
 
     public static final String REDIS_TX_COMMANDS_INTERFACE_NAME = "org.springframework.data.redis.connection.RedisTxCommands";
 
     public static final String REDIS_PUB_SUB_COMMANDS_INTERFACE_NAME = "org.springframework.data.redis.connection.RedisPubSubCommands";
 
     public static final String REDIS_CONNECTION_COMMANDS_INTERFACE_NAME = "org.springframework.data.redis.connection.RedisConnectionCommands";
+
+    public static final String REDIS_SERVER_COMMANDS_INTERFACE_NAME = "org.springframework.data.redis.connection.RedisServerCommands";
+
+    public static final String REDIS_STREAM_COMMANDS_INTERFACE_NAME = "org.springframework.data.redis.connection.RedisStreamCommands";
+
+    public static final String REDIS_SCRIPTING_COMMANDS_INTERFACE_NAME = "org.springframework.data.redis.connection.RedisScriptingCommands";
+
+    public static final String REDIS_GEO_COMMANDS_INTERFACE_NAME = "org.springframework.data.redis.connection.RedisGeoCommands";
+
+    public static final String REDIS_HYPER_LOG_LOG_COMMANDS_INTERFACE_NAME = "org.springframework.data.redis.connection.RedisHyperLogLogCommands";
 
     public static String resolveSimpleInterfaceName(String interfaceName) {
         int index = interfaceName.indexOf(REDIS_COMMANDS_PACKAGE_NAME);
@@ -76,42 +83,37 @@ public abstract class RedisCommandsUtils {
     }
 
     public static String resolveInterfaceName(String interfaceName) {
-        int index = interfaceName.indexOf('.');
-        if (index == -1) {
+        int index = interfaceName.indexOf(DOT_CHAR);
+        if (index == INDEX_NOT_FOUND) {
             return REDIS_COMMANDS_PACKAGE_NAME + interfaceName;
         } else {
             return interfaceName;
         }
     }
 
+    @Nonnull
     public static Object getRedisCommands(RedisConnection redisConnection, String interfaceName) {
-        switch (interfaceName) {
-            case REDIS_STRING_COMMANDS_INTERFACE_NAME:
-                return redisConnection.stringCommands();
-            case REDIS_HASH_COMMANDS_INTERFACE_NAME:
-                return redisConnection.hashCommands();
-            case REDIS_LIST_COMMANDS_INTERFACE_NAME:
-                return redisConnection.listCommands();
-            case REDIS_SET_COMMANDS_INTERFACE_NAME:
-                return redisConnection.setCommands();
-            case REDIS_ZSET_COMMANDS_INTERFACE_NAME:
-                return redisConnection.zSetCommands();
-            case REDIS_KEY_COMMANDS_INTERFACE_NAME:
-                return redisConnection.keyCommands();
-            case REDIS_SCRIPTING_COMMANDS_INTERFACE_NAME:
-                return redisConnection.scriptingCommands();
-
-            case REDIS_GEO_COMMANDS_INTERFACE_NAME:
-                return redisConnection.geoCommands();
-            case REDIS_SERVER_COMMANDS_INTERFACE_NAME:
-                return redisConnection.serverCommands();
-            case REDIS_STREAM_COMMANDS_INTERFACE_NAME:
-                // TODO The Redis Spring Data version needs to be upgraded
-                // return redisConnection.streamCommands();
-            default:
-                throw new UnsupportedOperationException(interfaceName);
+        Object redisCommands = null;
+        if (isNotBlank(interfaceName)) {
+            switch (interfaceName) {
+                case REDIS_KEY_COMMANDS_INTERFACE_NAME -> redisCommands = redisConnection.keyCommands();
+                case REDIS_STRING_COMMANDS_INTERFACE_NAME -> redisCommands = redisConnection.stringCommands();
+                case REDIS_LIST_COMMANDS_INTERFACE_NAME -> redisCommands = redisConnection.listCommands();
+                case REDIS_SET_COMMANDS_INTERFACE_NAME -> redisCommands = redisConnection.setCommands();
+                case REDIS_ZSET_COMMANDS_INTERFACE_NAME -> redisCommands = redisConnection.zSetCommands();
+                case REDIS_HASH_COMMANDS_INTERFACE_NAME -> redisCommands = redisConnection.hashCommands();
+                case REDIS_TX_COMMANDS_INTERFACE_NAME, REDIS_PUB_SUB_COMMANDS_INTERFACE_NAME,
+                     REDIS_CONNECTION_COMMANDS_INTERFACE_NAME -> redisCommands = redisConnection.commands();
+                case REDIS_SERVER_COMMANDS_INTERFACE_NAME -> redisCommands = redisConnection.serverCommands();
+                case REDIS_STREAM_COMMANDS_INTERFACE_NAME -> redisCommands = redisConnection.streamCommands();
+                case REDIS_SCRIPTING_COMMANDS_INTERFACE_NAME -> redisCommands = redisConnection.scriptingCommands();
+                case REDIS_GEO_COMMANDS_INTERFACE_NAME -> redisCommands = redisConnection.geoCommands();
+                case REDIS_HYPER_LOG_LOG_COMMANDS_INTERFACE_NAME ->
+                        redisCommands = redisConnection.hyperLogLogCommands();
+                default -> redisCommands = redisConnection.commands();
+            }
         }
-
+        return redisCommands == null ? redisConnection.commands() : redisCommands;
     }
 
     public static String buildCommandMethodId(RedisCommandEvent event) {
@@ -136,8 +138,8 @@ public abstract class RedisCommandsUtils {
 
     public static String buildCommandMethodId(String interfaceName, String methodName, String... parameterTypes) {
         StringBuilder infoBuilder = new StringBuilder(interfaceName);
-        infoBuilder.append(".").append(methodName);
-        StringJoiner paramTypesInfo = new StringJoiner(",", "(", ")");
+        infoBuilder.append(DOT_CHAR).append(methodName);
+        StringJoiner paramTypesInfo = new StringJoiner(COMMA, LEFT_PARENTHESIS, RIGHT_PARENTHESIS);
         for (String parameterType : parameterTypes) {
             paramTypesInfo.add(parameterType);
         }
@@ -172,7 +174,6 @@ public abstract class RedisCommandsUtils {
             int otherConsumerCount = otherConsumers.length;
 
             if (size > 0) {
-
                 for (int i = 0; i < size; i++) {
                     Object parameterValue = args[i];
                     ParameterMetadata parameterMetadata = parameterMetadataList.get(i);
@@ -224,5 +225,8 @@ public abstract class RedisCommandsUtils {
             parameterClasses[i] = parameterClass;
         }
         return parameterClasses;
+    }
+
+    private RedisCommandsUtils() {
     }
 }
