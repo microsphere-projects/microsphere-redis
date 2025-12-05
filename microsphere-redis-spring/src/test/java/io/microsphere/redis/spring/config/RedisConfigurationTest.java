@@ -31,6 +31,7 @@ import org.springframework.test.context.TestPropertySource;
 
 import static io.microsphere.collection.Sets.ofSet;
 import static io.microsphere.redis.spring.config.RedisConfiguration.BEAN_NAME;
+import static io.microsphere.redis.spring.util.RedisConstants.MICROSPHERE_REDIS_COMMAND_EVENT_EXPOSED_PROPERTY_NAME;
 import static io.microsphere.redis.spring.util.RedisConstants.MICROSPHERE_REDIS_ENABLED_PROPERTY_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -84,5 +85,9 @@ class RedisConfigurationTest extends AbstractRedisTest {
         event = new RedisConfigurationPropertyChangedEvent(this.context, ofSet(MICROSPHERE_REDIS_ENABLED_PROPERTY_NAME));
         this.context.publishEvent(event);
         assertTrue(this.redisConfiguration.isEnabled());
+
+        event = new RedisConfigurationPropertyChangedEvent(this.context, ofSet(MICROSPHERE_REDIS_COMMAND_EVENT_EXPOSED_PROPERTY_NAME));
+        this.context.publishEvent(event);
+        assertTrue(this.redisConfiguration.isCommandEventExposed());
     }
 }
