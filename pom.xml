@@ -52,7 +52,7 @@
     </scm>
 
     <properties>
-        <revision>0.0.1-SNAPSHOT</revision>
+        <revision>0.2.0-SNAPSHOT</revision>
         <java.version>17</java.version>
     </properties>
 
