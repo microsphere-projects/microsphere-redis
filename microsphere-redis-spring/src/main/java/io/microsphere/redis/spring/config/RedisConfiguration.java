@@ -12,6 +12,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
+import static io.microsphere.redis.spring.util.RedisConstants.MICROSPHERE_REDIS_COMMAND_EVENT_EXPOSED_PROPERTY_NAME;
 import static io.microsphere.redis.spring.util.RedisConstants.MICROSPHERE_REDIS_ENABLED_PROPERTY_NAME;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.isMicrosphereRedisCommandEventExposed;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.isMicrosphereRedisEnabled;
@@ -41,16 +42,24 @@ public class RedisConfiguration implements ApplicationListener<RedisConfiguratio
 
     protected volatile boolean enabled;
 
+    protected volatile boolean commandEventExposed;
+
     @Override
     public void onApplicationEvent(RedisConfigurationPropertyChangedEvent event) {
         logger.trace("onApplicationEvent : {}", event);
         if (event.hasProperty(MICROSPHERE_REDIS_ENABLED_PROPERTY_NAME)) {
             setEnabled();
+        } else if (event.hasProperty(MICROSPHERE_REDIS_COMMAND_EVENT_EXPOSED_PROPERTY_NAME)) {
+            setCommandEventExposed();
         }
     }
 
     public void setEnabled() {
-        this.enabled = isMicrosphereRedisEnabled(environment);
+        this.enabled = isMicrosphereRedisEnabled(this.environment);
+    }
+
+    public void setCommandEventExposed() {
+        this.commandEventExposed = isMicrosphereRedisCommandEventExposed(this.environment);
     }
 
     public ConfigurableEnvironment getEnvironment() {
@@ -66,7 +75,7 @@ public class RedisConfiguration implements ApplicationListener<RedisConfiguratio
     }
 
     public boolean isCommandEventExposed() {
-        return isMicrosphereRedisCommandEventExposed(this.environment);
+        return this.commandEventExposed;
     }
 
     @Override
@@ -75,6 +84,7 @@ public class RedisConfiguration implements ApplicationListener<RedisConfiguratio
         this.environment = asConfigurableEnvironment(context.getEnvironment());
         this.applicationName = RedisSpringUtils.getApplicationName(this.environment);
         setEnabled();
+        setCommandEventExposed();
     }
 
     public static RedisConfiguration get(BeanFactory beanFactory) {
