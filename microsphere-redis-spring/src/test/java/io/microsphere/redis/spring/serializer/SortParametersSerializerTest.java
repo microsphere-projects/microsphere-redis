@@ -29,11 +29,25 @@ class SortParametersSerializerTest extends AbstractSerializerTest<SortParameters
         return SORT_PARAMETERS_SERIALIZER;
     }
 
+    @Test
+    void test() {
+        test(this::getValue);
+        test(this::getSortParameters);
+    }
+
     @Override
     protected SortParameters getValue() {
         return new DefaultSortParameters("a".getBytes(UTF_8),
                 new SortParameters.Range(0, 10),
                 new byte[0][0],
+                ASC,
+                true);
+    }
+
+    SortParameters getSortParameters() {
+        return new DefaultSortParameters("a".getBytes(UTF_8),
+                new SortParameters.Range(0, 10),
+                new byte[][]{new byte[]{1, 2, 3}},
                 ASC,
                 true);
     }
