@@ -39,6 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 
 /**
  * {@link DynamicRedisConnectionFactory} Test
@@ -54,15 +55,28 @@ class DynamicRedisConnectionFactoryTest extends AbstractRedisTest {
 
     private static final String REDIS_CONNECTION_FACTORY_BEAN_NAME = "redisConnectionFactory";
 
+    private static final String MOCK_REDIS_CONNECTION_FACTORY_BEAN_NAME = "mockRedisConnectionFactory";
+
+
     @Bean
     @Primary
     public static DynamicRedisConnectionFactory dynamicRedisConnectionFactory() {
         return new DynamicRedisConnectionFactory();
     }
 
+    @Bean(MOCK_REDIS_CONNECTION_FACTORY_BEAN_NAME)
+    public static RedisConnectionFactory mockRedisConnectionFactory() {
+        RedisConnectionFactory mockRedisConnectionFactory = mock(RedisConnectionFactory.class);
+        return mockRedisConnectionFactory;
+    }
+
     @Autowired
     @Qualifier(REDIS_CONNECTION_FACTORY_BEAN_NAME)
     private RedisConnectionFactory redisConnectionFactory;
+
+    @Autowired
+    @Qualifier(MOCK_REDIS_CONNECTION_FACTORY_BEAN_NAME)
+    private RedisConnectionFactory mockRedisConnectionFactory;
 
     @Autowired
     private DynamicRedisConnectionFactory dynamicRedisConnectionFactory;
@@ -87,13 +101,16 @@ class DynamicRedisConnectionFactoryTest extends AbstractRedisTest {
 
         switchTarget(REDIS_CONNECTION_FACTORY_BEAN_NAME);
         assertRedisConnectionFactory();
+
+        switchTarget(MOCK_REDIS_CONNECTION_FACTORY_BEAN_NAME);
+        assertNull(this.dynamicRedisConnectionFactory.getClusterConnection());
     }
 
     void assertRedisConnectionFactory() {
         assertEquals(REDIS_CONNECTION_FACTORY_BEAN_NAME, DEFAULT_REDIS_CONNECTION_FACTORY_BEAN_NAME);
         assertSame(this.redisConnectionFactory, this.dynamicRedisConnectionFactory.determineTargetRedisConnectionFactory());
         assertSame(this.redisConnectionFactory, this.dynamicRedisConnectionFactory.getDefaultRedisConnectionFactory());
-        assertEquals(ofMap(REDIS_CONNECTION_FACTORY_BEAN_NAME, this.redisConnectionFactory), this.dynamicRedisConnectionFactory.getRedisConnectionFactories());
+        assertEquals(ofMap(REDIS_CONNECTION_FACTORY_BEAN_NAME, this.redisConnectionFactory, MOCK_REDIS_CONNECTION_FACTORY_BEAN_NAME, this.mockRedisConnectionFactory), this.dynamicRedisConnectionFactory.getRedisConnectionFactories());
         assertNotNull(this.dynamicRedisConnectionFactory.getConnection());
         assertThrows(RuntimeException.class, this.dynamicRedisConnectionFactory::getClusterConnection);
         assertNotNull(this.dynamicRedisConnectionFactory.getSentinelConnection());
