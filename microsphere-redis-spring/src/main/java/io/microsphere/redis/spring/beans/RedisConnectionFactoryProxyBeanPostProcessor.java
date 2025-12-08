@@ -47,6 +47,8 @@ import static java.lang.reflect.Proxy.newProxyInstance;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @see RedisConnectionFactory
  * @see ReactiveRedisConnectionFactory
+ * @see RedisConnection
+ * @see DelegatingWrapper
  * @since 1.0.0
  */
 public class RedisConnectionFactoryProxyBeanPostProcessor extends GenericBeanPostProcessorAdapter<RedisConnectionFactory> {
