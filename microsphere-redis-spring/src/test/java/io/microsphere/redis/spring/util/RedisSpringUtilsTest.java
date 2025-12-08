@@ -18,6 +18,7 @@
 package io.microsphere.redis.spring.util;
 
 
+import io.microsphere.redis.spring.annotation.EnableRedisInterceptor;
 import io.microsphere.redis.spring.config.RedisConfig;
 import io.microsphere.redis.spring.config.RedisContextConfig;
 import io.microsphere.redis.spring.interceptor.EventPublishingRedisCommandInterceptor;
@@ -28,6 +29,9 @@ import io.microsphere.redis.spring.interceptor.StopWatchRedisConnectionIntercept
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.mock.env.MockEnvironment;
 
 import java.util.List;
@@ -40,6 +44,7 @@ import static io.microsphere.redis.spring.util.RedisSpringUtils.findRedisConnect
 import static io.microsphere.redis.spring.util.RedisSpringUtils.findRedisTemplate;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.findRedisTemplateBeanNames;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.getApplicationName;
+import static io.microsphere.redis.spring.util.RedisSpringUtils.getRawRedisConnection;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.getWrappedRedisTemplateBeanNames;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.isMicrosphereRedisCommandEventExposed;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.isMicrosphereRedisEnabled;
@@ -49,6 +54,7 @@ import static java.util.Collections.emptySet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -61,6 +67,10 @@ import static org.springframework.util.StringUtils.arrayToCommaDelimitedString;
  * @see RedisSpringUtils
  * @since 1.0.0
  */
+@PropertySource(
+        value = "classpath:/META-INF/test-redis.properties"
+)
+@EnableRedisInterceptor
 class RedisSpringUtilsTest {
 
     private static final String[] REDIS_TEMPLATE_BEAN_NAMES = ofArray(
@@ -186,5 +196,22 @@ class RedisSpringUtilsTest {
             List<RedisConnectionInterceptor> redisConnectionInterceptors = findRedisConnectionInterceptors(context);
             assertEquals(1, redisConnectionInterceptors.size());
         }, StopWatchRedisConnectionInterceptor.class);
+    }
+
+    @Test
+    void testGetRawRedisConnection() {
+        testInSpringContainer(context -> {
+            RedisConnectionFactory redisConnectionFactory = context.getBean(RedisConnectionFactory.class);
+            RedisConnection redisConnection = redisConnectionFactory.getConnection();
+            RedisConnection rawRedisConnection = getRawRedisConnection(redisConnection);
+            assertSame(redisConnection, rawRedisConnection);
+        }, RedisConfig.class);
+
+        testInSpringContainer(context -> {
+            RedisConnectionFactory redisConnectionFactory = context.getBean(RedisConnectionFactory.class);
+            RedisConnection redisConnection = redisConnectionFactory.getConnection();
+            RedisConnection rawRedisConnection = getRawRedisConnection(redisConnection);
+            assertNotSame(redisConnection, rawRedisConnection);
+        }, RedisContextConfig.class, RedisSpringUtilsTest.class);
     }
 }
