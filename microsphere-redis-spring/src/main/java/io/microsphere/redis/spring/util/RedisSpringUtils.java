@@ -20,15 +20,19 @@ package io.microsphere.redis.spring.util;
 import io.microsphere.annotation.Immutable;
 import io.microsphere.annotation.Nonnull;
 import io.microsphere.annotation.Nullable;
+import io.microsphere.lang.DelegatingWrapper;
 import io.microsphere.logging.Logger;
+import io.microsphere.redis.spring.beans.RedisConnectionFactoryProxyBeanPostProcessor;
 import io.microsphere.redis.spring.interceptor.RedisCommandInterceptor;
 import io.microsphere.redis.spring.interceptor.RedisConnectionInterceptor;
 import io.microsphere.util.Utils;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.core.env.Environment;
+import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 
@@ -228,6 +232,23 @@ public abstract class RedisSpringUtils implements Utils {
             String[] beanNames = wrappedRedisTemplateBeanNames.toArray(EMPTY_STRING_ARRAY);
             return resolveWrappedRedisTemplateBeanNames(environment, beanNames);
         }
+    }
+
+    /**
+     * Get the raw {@link RedisConnection} from {@link RedisConnection}
+     *
+     * @param redisConnection {@link RedisConnection}
+     * @return non-null
+     * @see DelegatingWrapper
+     * @see RedisConnectionFactoryProxyBeanPostProcessor
+     * @see RedisConnectionFactoryProxyBeanPostProcessor#getRawRedisConnectionFactory(ConfigurableBeanFactory, String)
+     */
+    @Nonnull
+    public static RedisConnection getRawRedisConnection(@Nonnull RedisConnection redisConnection) {
+        if (redisConnection instanceof DelegatingWrapper) {
+            return (RedisConnection) ((DelegatingWrapper) redisConnection).getDelegate();
+        }
+        return redisConnection;
     }
 
     public static boolean getBoolean(Environment environment, String propertyName, boolean defaultValue, String feature, String statusIfTrue) {
