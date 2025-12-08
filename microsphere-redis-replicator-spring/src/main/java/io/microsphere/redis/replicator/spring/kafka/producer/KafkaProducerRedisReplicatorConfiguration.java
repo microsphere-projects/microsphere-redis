@@ -66,21 +66,43 @@ public class KafkaProducerRedisReplicatorConfiguration extends KafkaRedisReplica
         initRedisReplicatorKafkaTemplate();
     }
 
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.context = applicationContext;
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        super.destroy();
+        this.destroyProducerFactory();
+        this.destroyRedisReplicatorKafkaTemplate();
+    }
+
+    /**
+     * @return Redis Replicator {@link KafkaTemplate} (For internal use)
+     */
+    protected KafkaTemplate<byte[], byte[]> getRedisReplicatorKafkaTemplate() {
+        return this.redisReplicatorKafkaTemplate;
+    }
+
+    protected String getKeyPrefix() {
+        return this.keyPrefix;
+    }
+
     private void initKeyPrefix() {
-        this.keyPrefix = environment.getProperty(KAFKA_PRODUCER_KEY_PREFIX_PROPERTY_NAME, DEFAULT_KAFKA_PRODUCER_KEY_PREFIX);
+        this.keyPrefix = this.environment.getProperty(KAFKA_PRODUCER_KEY_PREFIX_PROPERTY_NAME, DEFAULT_KAFKA_PRODUCER_KEY_PREFIX);
         logger.trace("The Kafka key prefix : '{}'", this.keyPrefix);
     }
 
     private void initProducerConfigs() {
         Map<String, Object> producerConfigs = new HashMap<>();
-        producerConfigs.put(BOOTSTRAP_SERVERS_CONFIG, brokerList);
+        producerConfigs.put(BOOTSTRAP_SERVERS_CONFIG, this.brokerList);
         // Kafka Common properties
-        producerConfigs.putAll(getSubProperties(environment, KAFKA_PROPERTY_NAME_PREFIX));
+        producerConfigs.putAll(getSubProperties(this.environment, KAFKA_PROPERTY_NAME_PREFIX));
         // Kafka Producer properties
-        producerConfigs.putAll(getSubProperties(environment, KAFKA_PRODUCER_PROPERTY_NAME_PREFIX));
+        producerConfigs.putAll(getSubProperties(this.environment, KAFKA_PRODUCER_PROPERTY_NAME_PREFIX));
         this.producerConfigs = producerConfigs;
         logger.trace("The Kafka Producer configs : {}", producerConfigs);
-
     }
 
     private void initRedisReplicatorKafkaTemplate() {
@@ -90,22 +112,19 @@ public class KafkaProducerRedisReplicatorConfiguration extends KafkaRedisReplica
         this.redisReplicatorKafkaTemplate.afterSingletonsInstantiated();
     }
 
-    /**
-     * @return Redis Replicator {@link KafkaTemplate} (For internal use)
-     */
-    protected KafkaTemplate<byte[], byte[]> getRedisReplicatorKafkaTemplate() {
-        return redisReplicatorKafkaTemplate;
-    }
-
-    protected String getKeyPrefix() {
-        return keyPrefix;
-    }
-
     private void destroyProducerFactory() {
-        if (redisReplicatorKafkaTemplate != null) {
-            ProducerFactory producerFactory = redisReplicatorKafkaTemplate.getProducerFactory();
+        KafkaTemplate<byte[], byte[]> kafkaTemplate = this.getRedisReplicatorKafkaTemplate();
+        if (kafkaTemplate != null) {
+            ProducerFactory producerFactory = kafkaTemplate.getProducerFactory();
             DefaultKafkaProducerFactory defaultKafkaProducerFactory = (DefaultKafkaProducerFactory) producerFactory;
             defaultKafkaProducerFactory.reset();
+        }
+    }
+
+    private void destroyRedisReplicatorKafkaTemplate() {
+        KafkaTemplate<byte[], byte[]> kafkaTemplate = this.getRedisReplicatorKafkaTemplate();
+        if (kafkaTemplate != null) {
+            kafkaTemplate.destroy();
         }
     }
 
@@ -117,17 +136,6 @@ public class KafkaProducerRedisReplicatorConfiguration extends KafkaRedisReplica
     }
 
     private Map<String, Object> getRedisReplicatorProducerConfigs() {
-        return producerConfigs;
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.context = applicationContext;
-    }
-
-    @Override
-    public void destroy() throws Exception {
-        super.destroy();
-        destroyProducerFactory();
+        return this.producerConfigs;
     }
 }
