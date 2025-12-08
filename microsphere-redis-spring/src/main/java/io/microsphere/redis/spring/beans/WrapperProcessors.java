@@ -98,4 +98,8 @@ public class WrapperProcessors implements InitializingBean, BeanFactoryAware {
         }
         return wrapperProcessorBeanNamesMap;
     }
+
+    public static WrapperProcessors get(BeanFactory beanFactory) {
+        return beanFactory.getBean(BEAN_NAME, WrapperProcessors.class);
+    }
 }
