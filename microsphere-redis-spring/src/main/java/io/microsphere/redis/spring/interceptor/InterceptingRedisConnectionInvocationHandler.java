@@ -1,6 +1,6 @@
 package io.microsphere.redis.spring.interceptor;
 
-import io.microsphere.lang.Wrapper;
+import io.microsphere.lang.DelegatingWrapper;
 import io.microsphere.logging.Logger;
 import io.microsphere.redis.spring.beans.RedisConnectionFactoryProxyBeanPostProcessor;
 import io.microsphere.redis.spring.beans.RedisTemplateWrapper;
@@ -25,7 +25,7 @@ import static java.lang.System.identityHashCode;
  * @see RedisConnectionFactoryProxyBeanPostProcessor
  * @see RedisTemplateWrapper
  * @see StringRedisTemplateWrapper
- * @see Wrapper
+ * @see DelegatingWrapper
  * @since 1.0.0
  */
 public class InterceptingRedisConnectionInvocationHandler implements InvocationHandler {
@@ -41,6 +41,11 @@ public class InterceptingRedisConnectionInvocationHandler implements InvocationH
      * @see Object#equals(Object)
      */
     private static final String EQUALS = "equals";
+
+    /**
+     * @see DelegatingWrapper#getDelegate()
+     */
+    private static final String GET_DELEGATE = "getDelegate";
 
     private final RedisConnection rawRedisConnection;
 
@@ -89,6 +94,8 @@ public class InterceptingRedisConnectionInvocationHandler implements InvocationH
         } else if (HASH_CODE.equals(methodName)) {
             // Use hashCode of proxy.
             return identityHashCode(proxy);
+        } else if (GET_DELEGATE.equals(methodName)) {
+            return this.rawRedisConnection;
         }
 
         trySetAccessible(method);
@@ -99,7 +106,7 @@ public class InterceptingRedisConnectionInvocationHandler implements InvocationH
         Throwable failure = null;
         try {
             beforeExecute(redisMethodContext);
-            result = method.invoke(rawRedisConnection, args);
+            result = method.invoke(this.rawRedisConnection, args);
         } catch (Throwable e) {
             failure = e;
             throw e.getCause();

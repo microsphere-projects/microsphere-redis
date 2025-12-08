@@ -18,6 +18,7 @@ package io.microsphere.redis.spring.beans;
 
 import io.microsphere.annotation.Nonnull;
 import io.microsphere.annotation.Nullable;
+import io.microsphere.lang.DelegatingWrapper;
 import io.microsphere.redis.spring.context.RedisContext;
 import io.microsphere.redis.spring.interceptor.InterceptingRedisConnectionInvocationHandler;
 import io.microsphere.spring.beans.factory.config.GenericBeanPostProcessorAdapter;
@@ -50,7 +51,7 @@ import static java.lang.reflect.Proxy.newProxyInstance;
  */
 public class RedisConnectionFactoryProxyBeanPostProcessor extends GenericBeanPostProcessorAdapter<RedisConnectionFactory> {
 
-    private static final Class[] REDIS_CONNECTION_TYPES = new Class[]{RedisConnection.class};
+    private static final Class[] REDIS_CONNECTION_TYPES = new Class[]{RedisConnection.class, DelegatingWrapper.class};
 
     private static final String SOURCE_BEAN_ATTRIBUTE_NAME = "_sourceBean";
 

@@ -82,7 +82,7 @@ public abstract class AbstractRedisReplicatorTest {
             assertEquals("org.springframework.data.redis.connection.RedisStringCommands", redisCommandEvent.getInterfaceName());
             assertEquals("set", redisCommandEvent.getMethodName());
             assertArrayEquals(ofArray(byte[].class, byte[].class), redisCommandEvent.getParameterTypes());
-            assertEquals("default", redisCommandEvent.getApplicationName());
+            assertEquals("application", redisCommandEvent.getApplicationName());
             latch.countDown();
         });
 

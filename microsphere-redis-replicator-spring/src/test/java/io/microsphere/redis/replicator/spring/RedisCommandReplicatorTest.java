@@ -23,10 +23,12 @@ import io.microsphere.redis.replicator.spring.event.RedisCommandReplicatedEvent;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.lang.reflect.Method;
 
@@ -34,7 +36,6 @@ import static io.microsphere.redis.replicator.spring.RedisCommandReplicator.BEAN
 import static io.microsphere.redis.spring.event.RedisCommandEvent.Builder.source;
 import static io.microsphere.redis.spring.serializer.Serializers.STRING_SERIALIZER;
 import static io.microsphere.reflect.MethodUtils.findMethod;
-import static io.microsphere.spring.test.util.SpringTestUtils.testInSpringContainer;
 import static java.lang.System.currentTimeMillis;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -46,7 +47,11 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * @see RedisCommandReplicator
  * @since 1.0.0
  */
-class RedisCommandReplicatorTest extends DefaultRedisConfig {
+@SpringJUnitConfig(classes = {
+        DefaultRedisConfig.class,
+        RedisCommandReplicatorTest.class
+})
+class RedisCommandReplicatorTest {
 
     private static final Method SET_METHOD = findMethod(RedisConnection.class, "set", byte[].class, byte[].class);
 
@@ -65,6 +70,12 @@ class RedisCommandReplicatorTest extends DefaultRedisConfig {
 
     private RedisCommandEvent.Builder builder;
 
+    @Autowired
+    private ConfigurableApplicationContext context;
+
+    @Autowired
+    private RedisCommandReplicator redisCommandReplicator;
+
     @BeforeEach
     void setUp() {
         long time = currentTimeMillis();
@@ -80,35 +91,31 @@ class RedisCommandReplicatorTest extends DefaultRedisConfig {
 
     @Test
     void testApplicationEvent() {
-        testInSpringContainer(context -> {
-            RedisCommandEvent redisCommandEvent = builder
-                    .args(keyBytes, valueBytes)
-                    .build();
-
-            context.publishEvent(new RedisCommandReplicatedEvent(redisCommandEvent, "default"));
-
-            byte[] valueBytesFromCache = getValueAsBytes(context);
-            assertArrayEquals(valueBytes, valueBytesFromCache);
-
-        }, RedisCommandReplicatorTest.class);
+        testApplicationEvent(true);
     }
 
     @Test
     void testApplicationEventOnFailed() {
-        testInSpringContainer(context -> {
-            RedisCommandEvent redisCommandEvent = builder.build();
-
-            context.publishEvent(new RedisCommandReplicatedEvent(redisCommandEvent, "default"));
-
-            byte[] valueBytesFromCache = getValueAsBytes(context);
-            assertNull(valueBytesFromCache);
-
-        }, RedisCommandReplicatorTest.class);
+        testApplicationEvent(false);
     }
 
-    byte[] getValueAsBytes(ConfigurableApplicationContext context) {
-        RedisCommandReplicator redisCommandReplicator = context.getBean(RedisCommandReplicator.class);
-        RedisConnection redisConnection = redisCommandReplicator.getRedisConnection();
+    void testApplicationEvent(boolean setValue) {
+        RedisCommandEvent redisCommandEvent = setValue ? builder
+                .args(keyBytes, valueBytes)
+                .build() : builder.build();
+
+        context.publishEvent(new RedisCommandReplicatedEvent(redisCommandEvent, "default"));
+
+        byte[] valueBytesFromCache = getValueAsBytes();
+        if (setValue) {
+            assertArrayEquals(valueBytes, valueBytesFromCache);
+        } else {
+            assertNull(valueBytesFromCache);
+        }
+    }
+
+    byte[] getValueAsBytes() {
+        RedisConnection redisConnection = this.redisCommandReplicator.getRedisConnection();
         return redisConnection.get(keyBytes);
     }
 }

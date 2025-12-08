@@ -1,5 +1,6 @@
 package io.microsphere.redis.replicator.spring;
 
+import io.microsphere.lang.DelegatingWrapper;
 import io.microsphere.logging.Logger;
 import io.microsphere.redis.replicator.spring.event.RedisCommandReplicatedEvent;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
@@ -10,7 +11,6 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import java.lang.reflect.Method;
 import java.util.function.Function;
 
-import static io.microsphere.lang.Wrapper.tryUnwrap;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.findWriteCommandMethod;
 import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.getRedisCommandBindingFunction;
@@ -34,8 +34,7 @@ public class RedisCommandReplicator implements ApplicationListener<RedisCommandR
     private final RedisConnectionFactory redisConnectionFactory;
 
     public RedisCommandReplicator(RedisConnectionFactory redisConnectionFactory) {
-        RedisConnectionFactory unwrappedRedisConnectionFactory = tryUnwrap(redisConnectionFactory, RedisConnectionFactory.class);
-        this.redisConnectionFactory = unwrappedRedisConnectionFactory == null ? redisConnectionFactory : unwrappedRedisConnectionFactory;
+        this.redisConnectionFactory = redisConnectionFactory;
     }
 
     @Override
@@ -61,6 +60,10 @@ public class RedisCommandReplicator implements ApplicationListener<RedisCommandR
     }
 
     RedisConnection getRedisConnection() {
-        return redisConnectionFactory.getConnection();
+        RedisConnection redisConnection = this.redisConnectionFactory.getConnection();
+        if (redisConnection instanceof DelegatingWrapper) {
+            return (RedisConnection) ((DelegatingWrapper) redisConnection).getDelegate();
+        }
+        return redisConnection;
     }
 }
