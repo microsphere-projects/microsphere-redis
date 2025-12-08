@@ -5,6 +5,9 @@ import io.microsphere.redis.spring.context.RedisContext;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
+import static io.microsphere.redis.spring.beans.RedisConnectionFactoryProxyBeanPostProcessor.newProxyRedisConnection;
+import static io.microsphere.redis.spring.beans.RedisTemplateWrapper.configure;
+
 
 /**
  * {@link StringRedisTemplate} Wrapper class
@@ -28,23 +31,31 @@ public class StringRedisTemplateWrapper extends StringRedisTemplate implements D
     }
 
     private void init() {
-        RedisTemplateWrapper.configure(delegate, this);
+        configure(this.delegate, this);
     }
 
     @Override
     protected RedisConnection preProcessConnection(RedisConnection connection, boolean existingConnection) {
-        if (isEnabled()) {
-            return RedisTemplateWrapper.newProxyRedisConnection(connection, redisContext, beanName);
+        if (this.isEnabled()) {
+            return newProxyRedisConnection(connection, this.getRedisContext(), this.getDelegate(), this.getBeanName());
         }
         return connection;
     }
 
     public boolean isEnabled() {
-        return redisContext.isEnabled();
+        return this.redisContext.isEnabled();
+    }
+
+    public RedisContext getRedisContext() {
+        return this.redisContext;
     }
 
     @Override
     public Object getDelegate() {
-        return delegate;
+        return this.delegate;
+    }
+
+    public String getBeanName() {
+        return this.beanName;
     }
 }

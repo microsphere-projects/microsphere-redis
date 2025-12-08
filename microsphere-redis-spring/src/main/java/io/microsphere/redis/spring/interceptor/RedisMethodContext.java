@@ -72,6 +72,8 @@ public class RedisMethodContext<T> {
 
     private final RedisContext redisContext;
 
+    private final Object sourceBean;
+
     private final String sourceBeanName;
 
     private Boolean sourceFromRedisTemplate = null;
@@ -85,14 +87,15 @@ public class RedisMethodContext<T> {
     private Map<String, Object> attributes;
 
     public RedisMethodContext(T target, Method method, Object[] args, RedisContext redisContext) {
-        this(target, method, args, redisContext, null);
+        this(target, method, args, redisContext, null, null);
     }
 
-    public RedisMethodContext(T target, Method method, Object[] args, RedisContext redisContext, String sourceBeanName) {
+    public RedisMethodContext(T target, Method method, Object[] args, RedisContext redisContext, Object sourceBean, String sourceBeanName) {
         this.target = target;
         this.method = method;
         this.args = args;
         this.redisContext = redisContext;
+        this.sourceBean = sourceBean;
         this.sourceBeanName = sourceBeanName;
     }
 
@@ -106,6 +109,10 @@ public class RedisMethodContext<T> {
 
     public Object[] getArgs() {
         return this.args;
+    }
+
+    public Object getSourceBean() {
+        return this.sourceBean;
     }
 
     public String getSourceBeanName() {
@@ -368,6 +375,7 @@ public class RedisMethodContext<T> {
                 .add("write=" + this.isWriteMethod())
                 .add("parameters=" + arrayToString(this.getParameters()))
                 .add("redisContext=" + this.redisContext)
+                .add("sourceBean=" + this.sourceBean)
                 .add("sourceBeanName='" + this.sourceBeanName + "'")
                 .add("startTimeNanos=" + this.startTimeNanos)
                 .add("durationNanos=" + this.durationNanos)

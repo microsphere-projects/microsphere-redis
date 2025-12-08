@@ -64,7 +64,7 @@ class RedisMethodInterceptorTest extends AbstractRedisTest {
     void setUp() {
         this.redisConnection = this.redisConnectionFactory.getConnection();
         this.interceptor = new RedisMethodInterceptorImpl();
-        this.context = new RedisMethodContext(this.redisConnection, SET_METHOD, SET_METHOD_ARGS, this.redisContext, SOURCE_BEAN_NAME_FOR_REDIS_TEMPLATE);
+        this.context = new RedisMethodContext(this.redisConnection, SET_METHOD, SET_METHOD_ARGS, this.redisContext, this.redisConnectionFactory, SOURCE_BEAN_NAME_FOR_REDIS_TEMPLATE);
     }
 
     @AfterEach

@@ -86,7 +86,7 @@ class EventPublishingRedisCommandInterceptorTest extends AbstractRedisTest {
     @BeforeEach
     void setUp() {
         this.redisConnection = redisConnectionFactory.getConnection();
-        this.redisMethodContext = new RedisMethodContext(this.redisConnection, SET_METHOD, SET_METHOD_ARGS, this.redisContext, SOURCE_BEAN_NAME_FOR_REDIS_TEMPLATE);
+        this.redisMethodContext = new RedisMethodContext(this.redisConnection, SET_METHOD, SET_METHOD_ARGS, this.redisContext, this.redisConnectionFactory, SOURCE_BEAN_NAME_FOR_REDIS_TEMPLATE);
         this.mockPropertySource = new MockPropertySource();
         this.context.getEnvironment().getPropertySources().addFirst(this.mockPropertySource);
         publishRedisConfigurationPropertyChangedEvent();

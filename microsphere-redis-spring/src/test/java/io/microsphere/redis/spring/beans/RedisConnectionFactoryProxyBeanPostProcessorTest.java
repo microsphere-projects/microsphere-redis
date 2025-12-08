@@ -22,13 +22,20 @@ import io.microsphere.redis.spring.AbstractRedisTest;
 import io.microsphere.redis.spring.config.RedisContextConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.lang.reflect.Proxy;
+import java.util.Map;
 
+import static io.microsphere.redis.spring.beans.RedisConnectionFactoryProxyBeanPostProcessor.getRawRedisConnectionFactory;
+import static io.microsphere.spring.beans.factory.support.BeanRegistrar.registerBean;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
  * {@link RedisConnectionFactoryProxyBeanPostProcessor} Test
@@ -49,9 +56,25 @@ class RedisConnectionFactoryProxyBeanPostProcessorTest extends AbstractRedisTest
     @Autowired
     private RedisConnectionFactory redisConnectionFactory;
 
+    @Autowired
+    private Map<String, RedisConnectionFactory> redisConnectionFactories;
+
+    @Autowired
+    private ConfigurableBeanFactory beanFactory;
+
     @Test
     void test() {
         RedisConnection redisConnection = redisConnectionFactory.getConnection();
         assertFalse(redisConnection instanceof Proxy);
+
+        String beanName = "redisConnectionFactory";
+        RedisConnectionFactory rawRedisConnectionFactory = getRawRedisConnectionFactory(this.beanFactory, beanName);
+        assertNotEquals(this.redisConnectionFactory, rawRedisConnectionFactory);
+
+        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
+        registerBean(beanFactory, beanName, this.redisConnectionFactory);
+        beanFactory.preInstantiateSingletons();
+        rawRedisConnectionFactory = getRawRedisConnectionFactory(beanFactory, beanName);
+        assertSame(this.redisConnectionFactory, rawRedisConnectionFactory);
     }
 }

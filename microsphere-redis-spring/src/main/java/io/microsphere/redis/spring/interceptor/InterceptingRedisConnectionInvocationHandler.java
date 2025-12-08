@@ -1,8 +1,13 @@
 package io.microsphere.redis.spring.interceptor;
 
+import io.microsphere.lang.Wrapper;
 import io.microsphere.logging.Logger;
+import io.microsphere.redis.spring.beans.RedisConnectionFactoryProxyBeanPostProcessor;
+import io.microsphere.redis.spring.beans.RedisTemplateWrapper;
+import io.microsphere.redis.spring.beans.StringRedisTemplateWrapper;
 import io.microsphere.redis.spring.context.RedisContext;
 import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -10,24 +15,38 @@ import java.util.List;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.reflect.AccessibleObjectUtils.trySetAccessible;
+import static java.lang.System.identityHashCode;
 
 /**
  * {@link InvocationHandler} for Intercepting {@link RedisConnection}
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
+ * @see RedisConnectionFactory
+ * @see RedisConnectionFactoryProxyBeanPostProcessor
+ * @see RedisTemplateWrapper
+ * @see StringRedisTemplateWrapper
+ * @see Wrapper
  * @since 1.0.0
  */
 public class InterceptingRedisConnectionInvocationHandler implements InvocationHandler {
 
     private static final Logger logger = getLogger(InterceptingRedisConnectionInvocationHandler.class);
 
+    /**
+     * @see Object#hashCode()
+     */
     private static final String HASH_CODE = "hashCode";
 
+    /**
+     * @see Object#equals(Object)
+     */
     private static final String EQUALS = "equals";
 
     private final RedisConnection rawRedisConnection;
 
     private final RedisContext redisContext;
+
+    private final Object sourceBean;
 
     private final String sourceBeanName;
 
@@ -43,9 +62,11 @@ public class InterceptingRedisConnectionInvocationHandler implements InvocationH
 
     private final boolean hasRedisCommandInterceptors;
 
-    public InterceptingRedisConnectionInvocationHandler(RedisConnection rawRedisConnection, RedisContext redisContext, String sourceBeanName) {
+    public InterceptingRedisConnectionInvocationHandler(RedisConnection rawRedisConnection, RedisContext redisContext,
+                                                        Object sourceBean, String sourceBeanName) {
         this.rawRedisConnection = rawRedisConnection;
         this.redisContext = redisContext;
+        this.sourceBean = sourceBean;
         this.sourceBeanName = sourceBeanName;
         this.redisConnectionInterceptors = redisContext.getRedisConnectionInterceptors();
         this.redisCommandInterceptors = redisContext.getRedisCommandInterceptors();
@@ -66,8 +87,8 @@ public class InterceptingRedisConnectionInvocationHandler implements InvocationH
             // Only consider equal when proxies are identical.
             return (proxy == args[0]);
         } else if (HASH_CODE.equals(methodName)) {
-            // Use hashCode of PersistenceManager proxy.
-            return System.identityHashCode(proxy);
+            // Use hashCode of proxy.
+            return identityHashCode(proxy);
         }
 
         trySetAccessible(method);
@@ -89,10 +110,8 @@ public class InterceptingRedisConnectionInvocationHandler implements InvocationH
     }
 
     private RedisMethodContext<RedisConnection> createRedisMethodContext(Method method, Object[] args) {
-        RedisMethodContext<RedisConnection> redisMethodContext = new RedisMethodContext<>(rawRedisConnection, method, args, redisContext, sourceBeanName);
-        return redisMethodContext;
+        return new RedisMethodContext<>(this.rawRedisConnection, method, args, this.redisContext, this.sourceBean, this.sourceBeanName);
     }
-
 
     private void beforeExecute(RedisMethodContext<RedisConnection> redisMethodContext) {
         beforeExecute(redisConnectionInterceptors, redisConnectionInterceptorCount, hasRedisConnectionInterceptors, redisMethodContext);

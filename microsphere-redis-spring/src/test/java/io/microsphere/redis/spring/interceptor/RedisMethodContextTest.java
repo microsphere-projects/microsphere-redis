@@ -76,7 +76,7 @@ class RedisMethodContextTest extends AbstractRedisTest {
     @BeforeEach
     void setUp() {
         this.redisConnection = redisConnectionFactory.getConnection();
-        this.context = new RedisMethodContext(this.redisConnection, SET_METHOD, SET_METHOD_ARGS, this.redisContext, SOURCE_BEAN_NAME_FOR_REDIS_TEMPLATE);
+        this.context = new RedisMethodContext(this.redisConnection, SET_METHOD, SET_METHOD_ARGS, this.redisContext, this.redisConnectionFactory, SOURCE_BEAN_NAME_FOR_REDIS_TEMPLATE);
     }
 
     @AfterEach
@@ -86,14 +86,14 @@ class RedisMethodContextTest extends AbstractRedisTest {
 
     @Test
     void test() {
-        assertRedisMethodContextCommons(this.context, SOURCE_BEAN_NAME_FOR_REDIS_TEMPLATE, SET_METHOD, SET_METHOD_ARGS);
+        assertRedisMethodContextCommons(this.context, this.redisConnectionFactory, SOURCE_BEAN_NAME_FOR_REDIS_TEMPLATE, SET_METHOD, SET_METHOD_ARGS);
     }
 
     @Test
     void testWithNullBeanName() {
         Method randomKeyMethod = findMethod(RedisKeyCommands.class, "randomKey");
         RedisMethodContext context = new RedisMethodContext(this.redisConnection, randomKeyMethod, EMPTY_OBJECT_ARRAY, this.redisContext);
-        assertRedisMethodContextCommons(context, null, randomKeyMethod, EMPTY_OBJECT_ARRAY);
+        assertRedisMethodContextCommons(context, null, null, randomKeyMethod, EMPTY_OBJECT_ARRAY);
     }
 
     @Test
@@ -110,10 +110,11 @@ class RedisMethodContextTest extends AbstractRedisTest {
         assertNull(context);
     }
 
-    void assertRedisMethodContextCommons(RedisMethodContext context, String sourceBeanName, Method method, Object... args) {
+    void assertRedisMethodContextCommons(RedisMethodContext context, Object sourceBean, String sourceBeanName, Method method, Object... args) {
         assertSame(this.redisConnection, context.getTarget());
         assertSame(method, context.getMethod());
         assertArrayEquals(args, context.getArgs());
+        assertSame(sourceBean, context.getSourceBean());
         assertEquals(sourceBeanName, context.getSourceBeanName());
         assertSame(this.redisContext, context.getRedisContext());
 

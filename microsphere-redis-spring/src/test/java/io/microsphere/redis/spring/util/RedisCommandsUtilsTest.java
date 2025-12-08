@@ -166,7 +166,7 @@ class RedisCommandsUtilsTest {
             RedisConnectionFactory redisConnectionFactory = context.getBean(RedisConnectionFactory.class);
             RedisConnection redisConnection = redisConnectionFactory.getConnection();
             RedisContext redisContext = get(context);
-            RedisMethodContext redisMethodContext = new RedisMethodContext(redisConnection, SET_METHOD, SET_METHOD_ARGS, redisContext, SOURCE_BEAN_NAME_FOR_REDIS_TEMPLATE);
+            RedisMethodContext redisMethodContext = new RedisMethodContext(redisConnection, SET_METHOD, SET_METHOD_ARGS, redisContext, redisConnectionFactory, SOURCE_BEAN_NAME_FOR_REDIS_TEMPLATE);
             RedisCommandEvent event = new RedisCommandEvent(redisMethodContext);
             assertEquals("org.springframework.data.redis.connection.DefaultedRedisConnection.set([B,[B)", buildCommandMethodId(event));
             assertEquals(buildCommandMethodId(event), buildCommandMethodId(SET_METHOD));
