@@ -53,5 +53,4 @@ public class RedisInterceptorModuleInitializer implements RedisModuleInitializer
     @EnableRedisInterceptor(wrapRedisTemplates = DEFAULT_WRAP_REDIS_TEMPLATE_PLACEHOLDER, exposeCommandEvent = false)
     private static class NoExposingCommandEventConfig {
     }
-
 }
