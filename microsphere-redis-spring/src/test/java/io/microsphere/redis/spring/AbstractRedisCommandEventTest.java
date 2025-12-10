@@ -18,16 +18,21 @@ package io.microsphere.redis.spring;
 
 import io.microsphere.redis.spring.context.RedisContext;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.serializer.RedisSerializer;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.microsphere.redis.spring.serializer.Serializers.STRING_SERIALIZER;
+import static io.microsphere.redis.spring.util.RedisConstants.DEFAULT_SPRING_APPLICATION_NAME_PROPERTY_VALUE;
+import static java.lang.System.nanoTime;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -44,12 +49,18 @@ public abstract class AbstractRedisCommandEventTest extends AbstractRedisTest {
     @Autowired
     protected RedisContext redisContext;
 
+    @BeforeEach
+    void setUp() {
+        this.redisTemplate.setKeySerializer(STRING_SERIALIZER);
+        this.redisTemplate.setValueSerializer(STRING_SERIALIZER);
+    }
+
     @Test
     void test() {
         Map<Object, Object> data = new HashMap<>();
         context.addApplicationListener((ApplicationListener<RedisCommandEvent>) event -> {
-            RedisSerializer keySerializer = stringRedisTemplate.getKeySerializer();
-            RedisSerializer valueSerializer = stringRedisTemplate.getValueSerializer();
+            RedisSerializer keySerializer = STRING_SERIALIZER;
+            RedisSerializer valueSerializer = STRING_SERIALIZER;
             Object key = event.getArg(0);
             Object value = event.getArg(1);
             data.put(keySerializer.deserialize((byte[]) key), valueSerializer.deserialize((byte[]) value));
@@ -70,19 +81,29 @@ public abstract class AbstractRedisCommandEventTest extends AbstractRedisTest {
             assertArrayEquals(new Class[]{byte[].class, byte[].class}, event.getParameterTypes());
 
             // assert source application
-            assertEquals("default", event.getApplicationName());
-
+            assertEquals(DEFAULT_SPRING_APPLICATION_NAME_PROPERTY_VALUE, event.getApplicationName());
         });
 
-        ValueOperations<String, String> valueOperations = stringRedisTemplate.opsForValue();
+        String suffix = "-" + nanoTime();
 
-        String key = "Key-1";
-        String value = "Value-1";
+        String key1 = "Key-1" + suffix;
+        String value1 = "Value-1";
+        assertSet(this.redisTemplate, key1, value1);
+        if (!data.isEmpty()) { // Enable RedisCommandEvent
+            assertEquals(value1, data.get(key1));
+        }
 
+        String key2 = "Key-2" + suffix;
+        String value2 = "Value-2";
+        assertSet(this.stringRedisTemplate, key2, value2);
+        if (!data.isEmpty()) {
+            assertEquals(value2, data.get(key2));
+        }
+    }
+
+    void assertSet(RedisTemplate redisTemplate, String key, String value) {
+        ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
         valueOperations.set(key, value);
-
         assertEquals(value, valueOperations.get(key));
-
-        assertEquals(value, data.get(key));
     }
 }
