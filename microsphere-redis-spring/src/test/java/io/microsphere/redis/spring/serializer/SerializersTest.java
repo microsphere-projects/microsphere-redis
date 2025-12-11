@@ -1,7 +1,7 @@
 package io.microsphere.redis.spring.serializer;
 
-import io.microsphere.redis.spring.metadata.Parameter;
-import io.microsphere.redis.spring.metadata.ParameterMetadata;
+import io.microsphere.redis.metadata.Parameter;
+import io.microsphere.redis.metadata.ParameterMetadata;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.geo.Point;
 import org.springframework.data.redis.connection.RedisGeoCommands;

@@ -1,7 +1,11 @@
 package io.microsphere.redis.spring.metadata;
 
 import io.microsphere.logging.Logger;
+import io.microsphere.redis.metadata.MethodMetadata;
+import io.microsphere.redis.metadata.ParameterMetadata;
+import io.microsphere.redis.metadata.RedisMetadata;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
+import io.microsphere.reflect.ReflectionUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -26,7 +30,6 @@ import org.springframework.data.redis.connection.SortParameters;
 import org.springframework.data.redis.connection.zset.Aggregate;
 import org.springframework.data.redis.connection.zset.Weights;
 import org.springframework.data.redis.core.types.Expiration;
-import org.springframework.util.ReflectionUtils;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.IOException;
@@ -40,15 +43,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.buildCommandMethodId;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.buildParameterMetadata;
-import static io.microsphere.redis.spring.util.RedisConstants.MICROSPHERE_REDIS_FAIL_FAST_ENABLED;
-import static io.microsphere.redis.spring.util.RedisConstants.MICROSPHERE_REDIS_FAIL_FAST_ENABLED_PROPERTY_NAME;
 import static io.microsphere.reflect.AccessibleObjectUtils.trySetAccessible;
+import static io.microsphere.util.ClassLoaderUtils.getClassLoader;
+import static io.microsphere.util.ClassLoaderUtils.loadClass;
 import static io.microsphere.util.ClassUtils.getAllInterfaces;
-import static org.springframework.core.io.support.ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX;
-import static org.springframework.util.ClassUtils.forName;
-import static org.springframework.util.ReflectionUtils.findMethod;
 
 /**
  * Redis Method Metadata Repository
@@ -60,6 +58,8 @@ import static org.springframework.util.ReflectionUtils.findMethod;
 public class MethodMetadataRepository {
 
     private static final Logger logger = getLogger(MethodMetadataRepository.class);
+
+    private static final ClassLoader classLoader = getClassLoader(MethodMetadataRepository.class);
 
     private static volatile boolean initialized = false;
 
@@ -109,7 +109,7 @@ public class MethodMetadataRepository {
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         RedisMetadata redisMetadata = new RedisMetadata();
         try {
-            Resource[] resources = resolver.getResources(CLASSPATH_ALL_URL_PREFIX + "/META-INF/redis-metadata.yaml");
+            Resource[] resources = resolver.getResources(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + "/META-INF/redis-metadata.yaml");
             for (Resource resource : resources) {
                 redisMetadata.merge(loadRedisMetadata(resource));
             }
@@ -141,16 +141,16 @@ public class MethodMetadataRepository {
         Method method = getWriteCommandMethod(interfaceNme, methodName, parameterTypes);
         if (method == null) {
             logger.warn("Redis event publishers and consumers have different apis. Please update consumer microsphere-spring-redis artifacts in time!");
-            logger.debug("Redis command methods will use Java reflection to find (interface :{}, method name :{}, parameter list :{})...", interfaceNme, methodName, Arrays.toString(parameterTypes));
+            logger.trace("Redis command methods will use Java reflection to find (interface :{}, method name :{}, parameter list :{})...", interfaceNme, methodName, Arrays.toString(parameterTypes));
             Class<?> interfaceClass = getRedisCommandsInterfaceClass(interfaceNme);
             if (interfaceClass == null) {
                 logger.warn("The current Redis consumer cannot find Redis command interface: {}. Please confirm whether the spring-data artifacts API is compatible.", interfaceNme);
                 return null;
             }
             Class[] parameterClasses = loadParameterClasses(parameterTypes);
-            method = findMethod(interfaceClass, methodName, parameterClasses);
+            method = ReflectionUtils.findMethod(interfaceClass, methodName, parameterClasses);
             if (method == null) {
-                logger.warn("Current Redis consumer Redis command interface (class name: {}) in the method ({}), command method search end!", interfaceNme, buildCommandMethodId(interfaceNme, methodName, parameterTypes));
+                logger.warn("Current Redis consumer Redis command interface (class name: {}) in the method ({}), command method search end!", interfaceNme, RedisCommandsUtils.buildCommandMethodId(interfaceNme, methodName, parameterTypes));
                 return null;
             }
         }
@@ -162,24 +162,14 @@ public class MethodMetadataRepository {
         Class[] parameterClasses = new Class[parameterCount];
         for (int i = 0; i < parameterCount; i++) {
             String parameterType = parameterTypes[i];
-            Class parameterClass = loadClass(parameterType);
+            Class parameterClass = loadClass(classLoader, parameterType);
             parameterClasses[i] = parameterClass;
         }
         return parameterClasses;
     }
 
-    private static Class loadClass(String className) {
-        Class type = null;
-        try {
-            type = forName(className, null);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        return type;
-    }
-
     public static Method getWriteCommandMethod(String interfaceName, String methodName, String... parameterTypes) {
-        String id = buildCommandMethodId(interfaceName, methodName, parameterTypes);
+        String id = RedisCommandsUtils.buildCommandMethodId(interfaceName, methodName, parameterTypes);
         return writeCommandMethodsCache.get(id);
     }
 
@@ -211,9 +201,7 @@ public class MethodMetadataRepository {
 
     private static void initRedisMethodsAccessible(Class<?> interfaceClass) {
         for (Method method : interfaceClass.getMethods()) {
-            if (!method.isAccessible()) {
-                method.setAccessible(true);
-            }
+            trySetAccessible(method);
         }
     }
 
@@ -239,7 +227,7 @@ public class MethodMetadataRepository {
             Class<?> interfaceClass = entry.getValue();
             ReflectionUtils.doWithMethods(redisConnectionClass, method -> {
                 redisCommandBindings.put(interfaceName, redisConnection -> ReflectionUtils.invokeMethod(method, redisConnection));
-                logger.debug("Redis command interface {} Bind RedisConnection command object method {}", interfaceName, method);
+                logger.trace("Redis command interface {} Bind RedisConnection command object method {}", interfaceName, method);
             }, method -> interfaceClass.equals(method.getReturnType()) && method.getParameterCount() < 1);
         }
     }
@@ -304,7 +292,7 @@ public class MethodMetadataRepository {
         for (MethodMetadata methodMetadata : redisMetadata.getMethods()) {
             if (methodMetadata.isWrite()) {
                 String interfaceName = methodMetadata.getInterfaceName();
-                Class<?> declaredClass = loadClass(interfaceName);
+                Class<?> declaredClass = loadClass(classLoader, interfaceName);
                 String methodName = methodMetadata.getMethodName();
                 Class[] parameterTypes = loadParameterClasses(methodMetadata.getParameterTypes());
                 initWriteCommandMethod(declaredClass, methodName, parameterTypes);
@@ -871,8 +859,8 @@ public class MethodMetadataRepository {
 
     private static void initWriteCommandMethod(Class<?> declaredClass, String methodName, Class<?>... parameterTypes) {
         try {
-            logger.debug("Initializes the write command method[Declared Class: {} , Method: {}, Parameter types: {}]...", declaredClass.getName(), methodName, Arrays.toString(parameterTypes));
-            Method method = findMethod(declaredClass, methodName, parameterTypes);
+            logger.trace("Initializes the write command method[Declared Class: {} , Method: {}, Parameter types: {}]...", declaredClass.getName(), methodName, Arrays.toString(parameterTypes));
+            Method method = ReflectionUtils.findMethod(declaredClass, methodName, parameterTypes);
             if (method != null) {
                 // Reduced Method runtime checks
                 trySetAccessible(method);
@@ -882,8 +870,8 @@ public class MethodMetadataRepository {
             }
         } catch (Throwable e) {
             logger.error("Unable to initialize write command method[Declared Class: {}, Method: {}, Parameter types: {}], Reason: {}", declaredClass.getName(), methodName, Arrays.toString(parameterTypes), e.getMessage());
-            if (MICROSPHERE_REDIS_FAIL_FAST_ENABLED) {
-                logger.error("Fail-Fast mode is activated and an exception is about to be thrown. You can disable Fail-Fast mode with the JVM startup parameter -D{}=false", MICROSPHERE_REDIS_FAIL_FAST_ENABLED_PROPERTY_NAME);
+            if (RedisConstants.MICROSPHERE_REDIS_FAIL_FAST_ENABLED) {
+                logger.error("Fail-Fast mode is activated and an exception is about to be thrown. You can disable Fail-Fast mode with the JVM startup parameter -D{}=false", RedisConstants.MICROSPHERE_REDIS_FAIL_FAST_ENABLED_PROPERTY_NAME);
                 throw new IllegalArgumentException(e);
             }
         }
@@ -893,19 +881,18 @@ public class MethodMetadataRepository {
         if (writeCommandMethodsMetadata.containsKey(method)) {
             return false;
         }
-        List<ParameterMetadata> parameterMetadataList = buildParameterMetadata(method, parameterTypes);
+        List<ParameterMetadata> parameterMetadataList = RedisCommandsUtils.buildParameterMetadata(method, parameterTypes);
         writeCommandMethodsMetadata.put(method, parameterMetadataList);
-        logger.debug("Initializing write command method metadata information successfully, Method: {}, parameter Write Command Method metadata information: {}", method.getName(), parameterMetadataList);
+        logger.trace("Initializing write command method metadata information successfully, Method: {}, parameter Write Command Method metadata information: {}", method.getName(), parameterMetadataList);
         return true;
     }
 
     private static void initWriteCommandMethodCache(Class<?> declaredClass, Method method, Class<?>[] parameterTypes) {
-        String id = buildCommandMethodId(declaredClass.getName(), method.getName(), parameterTypes);
+        String id = RedisCommandsUtils.buildCommandMethodId(declaredClass.getName(), method.getName(), parameterTypes);
         if (writeCommandMethodsCache.putIfAbsent(id, method) == null) {
-            logger.debug("Cache write command method[id: {}, Method: {}]", id, method);
+            logger.trace("Cache write command method[id: {}, Method: {}]", id, method);
         } else {
             logger.warn("write command method[id: {}, Method: {}] is cached", id, method);
         }
     }
-
 }

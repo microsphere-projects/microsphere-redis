@@ -2,7 +2,7 @@ package io.microsphere.redis.spring.serializer;
 
 import io.microsphere.annotation.Nullable;
 import io.microsphere.logging.Logger;
-import io.microsphere.redis.spring.metadata.Parameter;
+import io.microsphere.redis.metadata.Parameter;
 import org.springframework.core.ResolvableType;
 import org.springframework.data.domain.Range;
 import org.springframework.data.geo.Point;

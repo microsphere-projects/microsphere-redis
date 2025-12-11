@@ -1,13 +1,12 @@
-package io.microsphere.redis.spring.metadata;
+package io.microsphere.redis.metadata;
 
-import org.springframework.data.redis.connection.RedisCommands;
-import org.springframework.lang.Nullable;
+import io.microsphere.annotation.Nullable;
 
 import java.util.Objects;
 import java.util.StringJoiner;
 
 /**
- * {@link RedisCommands Redis command} Method parameter meta information
+ * Redis Command Method parameter meta information
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @since 1.0.0

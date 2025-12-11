@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.microsphere.redis.spring.metadata;
+package io.microsphere.redis.metadata;
 
 
 import org.junit.jupiter.api.BeforeEach;

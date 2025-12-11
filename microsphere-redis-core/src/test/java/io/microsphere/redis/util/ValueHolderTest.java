@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.microsphere.redis.spring.util;
+package io.microsphere.redis.util;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static io.microsphere.redis.spring.util.ValueHolder.clear;
-import static io.microsphere.redis.spring.util.ValueHolder.get;
+import static io.microsphere.redis.util.ValueHolder.clear;
+import static io.microsphere.redis.util.ValueHolder.get;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -41,7 +41,7 @@ class ValueHolderTest {
 
     @BeforeEach
     void setUp() {
-        valueHolder = new ValueHolder(4);
+        this.valueHolder = new ValueHolder(4);
     }
 
     @AfterEach
@@ -61,28 +61,28 @@ class ValueHolderTest {
         byte[] rawValue = "test-raw-value".getBytes();
 
         // Mock RawValue behavior for testing purposes
-        valueHolder.set(value, rawValue);
+        this.valueHolder.set(value, rawValue);
 
         // Test getValue
-        Object retrievedValue = valueHolder.getValue(rawValue);
+        Object retrievedValue = this.valueHolder.getValue(rawValue);
         assertEquals(value, retrievedValue);
 
         // Test getRawValue
-        byte[] retrievedRawValue = valueHolder.getRawValue(value);
+        byte[] retrievedRawValue = this.valueHolder.getRawValue(value);
         assertArrayEquals(rawValue, retrievedRawValue);
     }
 
     @Test
     void testGetWithNonExistentRawValue() {
         byte[] rawValue = "non-existent".getBytes();
-        Object value = valueHolder.getValue(rawValue);
+        Object value = this.valueHolder.getValue(rawValue);
         assertNull(value);
     }
 
     @Test
     void testGetRawValueWithNonExistentValue() {
         String value = "non-existent";
-        byte[] rawValue = valueHolder.getRawValue(value);
+        byte[] rawValue = this.valueHolder.getRawValue(value);
         assertNull(rawValue);
     }
 

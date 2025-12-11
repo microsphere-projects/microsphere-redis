@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.microsphere.redis.spring.metadata;
+package io.microsphere.redis.metadata;
 
 
 import org.junit.jupiter.api.BeforeEach;
@@ -81,7 +81,7 @@ class MethodMetadataTest {
 
     void setAndAssert(MethodMetadata methodMetadata) {
         short index = 0;
-        String interfaceName = "io.microsphere.redis.spring.metadata.MethodMetadataTest";
+        String interfaceName = "io.microsphere.redis.metadata.MethodMetadataTest";
         String methodName = "test";
         String[] parameterTypes = new String[]{"java.lang.String"};
         boolean write = true;

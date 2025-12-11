@@ -23,7 +23,7 @@ import io.microsphere.redis.spring.config.RedisContextConfig;
 import io.microsphere.redis.spring.context.RedisContext;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
 import io.microsphere.redis.spring.interceptor.RedisMethodContext;
-import io.microsphere.redis.spring.metadata.ParameterMetadata;
+import io.microsphere.redis.metadata.ParameterMetadata;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.redis.connection.RedisConnection;
