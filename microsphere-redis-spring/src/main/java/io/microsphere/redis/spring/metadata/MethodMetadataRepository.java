@@ -5,7 +5,7 @@ import io.microsphere.redis.metadata.MethodMetadata;
 import io.microsphere.redis.metadata.ParameterMetadata;
 import io.microsphere.redis.metadata.RedisMetadata;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
-import io.microsphere.reflect.ReflectionUtils;
+import io.microsphere.redis.spring.util.RedisConstants;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -43,10 +43,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.buildCommandMethodId;
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.buildParameterMetadata;
 import static io.microsphere.reflect.AccessibleObjectUtils.trySetAccessible;
+import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.util.ClassLoaderUtils.getClassLoader;
-import static io.microsphere.util.ClassLoaderUtils.loadClass;
 import static io.microsphere.util.ClassUtils.getAllInterfaces;
+import static org.springframework.util.ClassUtils.resolveClassName;
+import static org.springframework.util.ReflectionUtils.doWithMethods;
+import static org.springframework.util.ReflectionUtils.invokeMethod;
 
 /**
  * Redis Method Metadata Repository
@@ -148,9 +153,9 @@ public class MethodMetadataRepository {
                 return null;
             }
             Class[] parameterClasses = loadParameterClasses(parameterTypes);
-            method = ReflectionUtils.findMethod(interfaceClass, methodName, parameterClasses);
+            method = findMethod(interfaceClass, methodName, parameterClasses);
             if (method == null) {
-                logger.warn("Current Redis consumer Redis command interface (class name: {}) in the method ({}), command method search end!", interfaceNme, RedisCommandsUtils.buildCommandMethodId(interfaceNme, methodName, parameterTypes));
+                logger.warn("Current Redis consumer Redis command interface (class name: {}) in the method ({}), command method search end!", interfaceNme, buildCommandMethodId(interfaceNme, methodName, parameterTypes));
                 return null;
             }
         }
@@ -162,14 +167,14 @@ public class MethodMetadataRepository {
         Class[] parameterClasses = new Class[parameterCount];
         for (int i = 0; i < parameterCount; i++) {
             String parameterType = parameterTypes[i];
-            Class parameterClass = loadClass(classLoader, parameterType);
+            Class parameterClass = resolveClassName(parameterType, classLoader);
             parameterClasses[i] = parameterClass;
         }
         return parameterClasses;
     }
 
     public static Method getWriteCommandMethod(String interfaceName, String methodName, String... parameterTypes) {
-        String id = RedisCommandsUtils.buildCommandMethodId(interfaceName, methodName, parameterTypes);
+        String id = buildCommandMethodId(interfaceName, methodName, parameterTypes);
         return writeCommandMethodsCache.get(id);
     }
 
@@ -225,8 +230,8 @@ public class MethodMetadataRepository {
         for (Map.Entry<String, Class<?>> entry : redisCommandInterfacesCache.entrySet()) {
             String interfaceName = entry.getKey();
             Class<?> interfaceClass = entry.getValue();
-            ReflectionUtils.doWithMethods(redisConnectionClass, method -> {
-                redisCommandBindings.put(interfaceName, redisConnection -> ReflectionUtils.invokeMethod(method, redisConnection));
+            doWithMethods(redisConnectionClass, method -> {
+                redisCommandBindings.put(interfaceName, redisConnection -> invokeMethod(method, redisConnection));
                 logger.trace("Redis command interface {} Bind RedisConnection command object method {}", interfaceName, method);
             }, method -> interfaceClass.equals(method.getReturnType()) && method.getParameterCount() < 1);
         }
@@ -292,7 +297,7 @@ public class MethodMetadataRepository {
         for (MethodMetadata methodMetadata : redisMetadata.getMethods()) {
             if (methodMetadata.isWrite()) {
                 String interfaceName = methodMetadata.getInterfaceName();
-                Class<?> declaredClass = loadClass(classLoader, interfaceName);
+                Class<?> declaredClass = resolveClassName(interfaceName, classLoader);
                 String methodName = methodMetadata.getMethodName();
                 Class[] parameterTypes = loadParameterClasses(methodMetadata.getParameterTypes());
                 initWriteCommandMethod(declaredClass, methodName, parameterTypes);
@@ -860,7 +865,7 @@ public class MethodMetadataRepository {
     private static void initWriteCommandMethod(Class<?> declaredClass, String methodName, Class<?>... parameterTypes) {
         try {
             logger.trace("Initializes the write command method[Declared Class: {} , Method: {}, Parameter types: {}]...", declaredClass.getName(), methodName, Arrays.toString(parameterTypes));
-            Method method = ReflectionUtils.findMethod(declaredClass, methodName, parameterTypes);
+            Method method = findMethod(declaredClass, methodName, parameterTypes);
             if (method != null) {
                 // Reduced Method runtime checks
                 trySetAccessible(method);
@@ -881,14 +886,14 @@ public class MethodMetadataRepository {
         if (writeCommandMethodsMetadata.containsKey(method)) {
             return false;
         }
-        List<ParameterMetadata> parameterMetadataList = RedisCommandsUtils.buildParameterMetadata(method, parameterTypes);
+        List<ParameterMetadata> parameterMetadataList = buildParameterMetadata(method, parameterTypes);
         writeCommandMethodsMetadata.put(method, parameterMetadataList);
         logger.trace("Initializing write command method metadata information successfully, Method: {}, parameter Write Command Method metadata information: {}", method.getName(), parameterMetadataList);
         return true;
     }
 
     private static void initWriteCommandMethodCache(Class<?> declaredClass, Method method, Class<?>[] parameterTypes) {
-        String id = RedisCommandsUtils.buildCommandMethodId(declaredClass.getName(), method.getName(), parameterTypes);
+        String id = buildCommandMethodId(declaredClass.getName(), method.getName(), parameterTypes);
         if (writeCommandMethodsCache.putIfAbsent(id, method) == null) {
             logger.trace("Cache write command method[id: {}, Method: {}]", id, method);
         } else {

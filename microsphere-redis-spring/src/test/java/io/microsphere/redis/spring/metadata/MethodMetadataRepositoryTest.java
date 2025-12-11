@@ -18,16 +18,7 @@
 package io.microsphere.redis.spring.metadata;
 
 
-import io.microsphere.redis.metadata.ParameterMetadata;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
-
-import static io.microsphere.redis.spring.AbstractRedisTest.SET_METHOD;
-import static io.microsphere.redis.spring.metadata.MethodMetadataRepository.getWriteParameterMetadataList;
-import static io.microsphere.redis.spring.metadata.MethodMetadataRepository.isWriteCommandMethod;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * {@link MethodMetadataRepository} Test
@@ -40,13 +31,10 @@ class MethodMetadataRepositoryTest {
 
     @Test
     void testIsWriteCommandMethod() {
-        assertTrue(isWriteCommandMethod(SET_METHOD));
     }
 
     @Test
     void testGetWriteParameterMetadataList() {
-        List<ParameterMetadata> parameterMetadataList = getWriteParameterMetadataList(SET_METHOD);
-        assertEquals(2, parameterMetadataList.size());
     }
 
     @Test

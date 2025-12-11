@@ -7,7 +7,7 @@ import io.microsphere.redis.metadata.ParameterMetadata;
 import io.microsphere.redis.metadata.RedisMetadata;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
 import io.microsphere.redis.spring.util.RedisCommandsUtils;
-import io.microsphere.reflect.ReflectionUtils;
+import io.microsphere.redis.spring.util.RedisConstants;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -28,9 +28,11 @@ import java.util.function.Function;
 import static io.microsphere.collection.MapUtils.newFixedHashMap;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.reflect.AccessibleObjectUtils.trySetAccessible;
+import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.util.ClassLoaderUtils.resolveClass;
 import static io.microsphere.util.ClassUtils.getAllInterfaces;
 import static java.util.Collections.unmodifiableMap;
+import static org.springframework.util.ReflectionUtils.invokeMethod;
 
 /**
  * Redis Metadata Repository
@@ -228,7 +230,7 @@ public class RedisMetadataRepository {
                 return null;
             }
             Class[] parameterClasses = RedisCommandsUtils.loadParameterClasses(parameterTypes);
-            method = ReflectionUtils.findMethod(redisCommandInterfaceClass, methodName, parameterClasses);
+            method = findMethod(redisCommandInterfaceClass, methodName, parameterClasses);
             if (method == null) {
                 logger.warn("Current Redis consumer Redis command interface (class name: {}) in the method ({}), command method search end!", interfaceNme, RedisCommandsUtils.buildCommandMethodId(interfaceNme, methodName, parameterTypes));
                 return null;
@@ -269,7 +271,7 @@ public class RedisMetadataRepository {
         Class<?> returnType = redisCommandMethod.getReturnType();
         if (redisCommandInterfaceClass.equals(returnType) && redisCommandMethod.getParameterCount() < 1) {
             String interfaceName = redisCommandInterfaceClass.getName();
-            redisCommandBindings.put(interfaceName, redisConnection -> ReflectionUtils.invokeMethod(redisCommandMethod, redisConnection));
+            redisCommandBindings.put(interfaceName, redisConnection -> invokeMethod(redisCommandMethod, redisConnection));
             logger.debug("Redis command interface '{}' Bind RedisConnection command method['{}']", interfaceName, redisCommandMethod);
         }
     }
@@ -324,6 +326,6 @@ public class RedisMetadataRepository {
      */
     @Nullable
     private static Method findOverriddenMethod(Method method, Class<?>[] parameterTypes) {
-        return ReflectionUtils.findMethod(DEFAULTED_REDIS_CONNECTION_CLASS, method.getName(), parameterTypes);
+        return findMethod(DEFAULTED_REDIS_CONNECTION_CLASS, method.getName(), parameterTypes);
     }
 }
