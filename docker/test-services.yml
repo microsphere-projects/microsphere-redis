@@ -22,6 +22,6 @@ services:
       TOPIC_AUTO_CREATE: true
 
   redis:
-    image: redis:latest
+    image: redis:8.4.0
     ports:
       - "6379:6379"
