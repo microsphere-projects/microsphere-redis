@@ -60,7 +60,7 @@ public class ValueHolder {
 
     public byte[] getRawValue(Object value) {
         Object rawValue = cache.get(value);
-        return rawValue instanceof RawValue ? ((RawValue) rawValue).getData() : null;
+        return rawValue instanceof RawValue ? ((RawValue) rawValue).data() : null;
     }
 
     public static ValueHolder get() {
