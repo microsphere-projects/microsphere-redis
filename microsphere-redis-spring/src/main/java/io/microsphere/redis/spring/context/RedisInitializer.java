@@ -10,7 +10,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import java.util.List;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
-import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.init;
+import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.init;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.isMicrosphereRedisEnabled;
 import static io.microsphere.spring.core.env.PropertySourcesUtils.containsBootstrapPropertySource;
 import static org.springframework.core.annotation.AnnotationAwareOrderComparator.sort;

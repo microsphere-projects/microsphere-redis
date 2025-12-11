@@ -21,7 +21,7 @@ import static io.microsphere.constants.SymbolConstants.DOT_CHAR;
 import static io.microsphere.constants.SymbolConstants.LEFT_PARENTHESIS;
 import static io.microsphere.constants.SymbolConstants.RIGHT_PARENTHESIS;
 import static io.microsphere.logging.LoggerFactory.getLogger;
-import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.getWriteParameterMetadataList;
+import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.getWriteParameterMetadataList;
 import static io.microsphere.redis.spring.serializer.Serializers.getSerializer;
 import static io.microsphere.redis.spring.serializer.Serializers.serializeRawParameter;
 import static io.microsphere.util.ClassLoaderUtils.resolveClass;

@@ -18,7 +18,7 @@ package io.microsphere.redis.spring.serializer;
 
 import io.microsphere.io.FastByteArrayInputStream;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
-import io.microsphere.redis.spring.metadata.RedisMetadataRepository;
+import io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
 import org.springframework.util.FastByteArrayOutputStream;
@@ -32,8 +32,8 @@ import java.nio.charset.StandardCharsets;
 
 import static io.microsphere.lang.function.ThrowableAction.execute;
 import static io.microsphere.redis.spring.event.RedisCommandEvent.Builder.source;
-import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.findMethodIndex;
-import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.findRedisCommandMethod;
+import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.findMethodIndex;
+import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.findRedisCommandMethod;
 import static io.microsphere.redis.spring.serializer.RedisCommandEventSerializer.VersionedRedisSerializer.valueOf;
 import static io.microsphere.redis.spring.serializer.ShortSerializer.SHORT_SERIALIZER;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.resolveInterfaceName;
@@ -127,7 +127,7 @@ public class RedisCommandEventSerializer extends AbstractSerializer<RedisCommand
                 String methodName = readMethodName(inputStream);
                 int parameterCount = inputStream.read();
                 String[] parameterTypes = readParameterTypes(inputStream, parameterCount);
-                Method method = RedisMetadataRepository.findWriteCommandMethod(interfaceName, methodName, parameterTypes);
+                Method method = SpringRedisMetadataRepository.findWriteCommandMethod(interfaceName, methodName, parameterTypes);
                 builder.method(method);
             }
 

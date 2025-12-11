@@ -11,8 +11,8 @@ import java.lang.reflect.Method;
 import java.util.function.Function;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
-import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.findWriteCommandMethod;
-import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.getRedisCommandBindingFunction;
+import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.findWriteCommandMethod;
+import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.getRedisCommandBindingFunction;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.getRawRedisConnection;
 import static io.microsphere.reflect.AccessibleObjectUtils.trySetAccessible;
 import static org.springframework.util.ReflectionUtils.invokeMethod;

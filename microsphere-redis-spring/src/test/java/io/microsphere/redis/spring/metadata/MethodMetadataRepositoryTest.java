@@ -20,6 +20,13 @@ package io.microsphere.redis.spring.metadata;
 
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Method;
+import java.util.Set;
+
+import static io.microsphere.redis.spring.metadata.MethodMetadataRepository.getWriteCommandMethods;
+import static io.microsphere.redis.spring.metadata.MethodMetadataRepository.isWriteCommandMethod;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /**
  * {@link MethodMetadataRepository} Test
  *
@@ -31,6 +38,10 @@ class MethodMetadataRepositoryTest {
 
     @Test
     void testIsWriteCommandMethod() {
+        Set<Method> writeCommandMethods = getWriteCommandMethods();
+        for (Method writeCommandMethod : writeCommandMethods) {
+            assertTrue(isWriteCommandMethod(writeCommandMethod));
+        }
     }
 
     @Test

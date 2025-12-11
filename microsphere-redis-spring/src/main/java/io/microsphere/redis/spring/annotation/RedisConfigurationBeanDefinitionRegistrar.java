@@ -26,7 +26,7 @@ import org.springframework.core.type.AnnotationMetadata;
 
 import static io.microsphere.redis.spring.config.RedisConfiguration.BEAN_NAME;
 import static io.microsphere.redis.spring.event.PropagatingRedisConfigurationPropertyChangedEventApplicationListener.supports;
-import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.init;
+import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.init;
 import static io.microsphere.spring.beans.factory.support.BeanRegistrar.registerBeanDefinition;
 
 /**

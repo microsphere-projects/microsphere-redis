@@ -36,7 +36,7 @@ import static io.microsphere.redis.spring.context.RedisContext.BEAN_NAME;
 import static io.microsphere.redis.spring.interceptor.RedisMethodContext.clear;
 import static io.microsphere.redis.spring.interceptor.RedisMethodContext.get;
 import static io.microsphere.redis.spring.interceptor.RedisMethodContext.set;
-import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.isWriteCommandMethod;
+import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.isWriteCommandMethod;
 import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.util.ArrayUtils.EMPTY_OBJECT_ARRAY;
 import static java.util.concurrent.TimeUnit.MICROSECONDS;

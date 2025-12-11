@@ -23,7 +23,7 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 import java.lang.reflect.Method;
 
 import static io.microsphere.redis.spring.event.RedisCommandEvent.Builder.source;
-import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.findWriteCommandMethod;
+import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.findWriteCommandMethod;
 import static io.microsphere.redis.spring.serializer.RedisCommandEventSerializer.DEFAULT_REDIS_COMMAND_EVENT_REDIS_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.RedisCommandEventSerializer.VERSION_V1;
 import static org.junit.jupiter.api.Assertions.assertEquals;

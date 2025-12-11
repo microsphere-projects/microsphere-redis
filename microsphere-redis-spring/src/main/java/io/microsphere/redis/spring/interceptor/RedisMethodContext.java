@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
-import static io.microsphere.redis.spring.metadata.RedisMetadataRepository.isWriteCommandMethod;
+import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.isWriteCommandMethod;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.initializeParameters;
 import static io.microsphere.util.ArrayUtils.arrayToString;
 import static io.microsphere.util.ArrayUtils.length;
