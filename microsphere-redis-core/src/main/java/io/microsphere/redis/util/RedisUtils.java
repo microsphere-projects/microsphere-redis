@@ -19,6 +19,7 @@ package io.microsphere.redis.util;
 
 import io.microsphere.io.IOUtils;
 import io.microsphere.lang.function.ThrowableFunction;
+import io.microsphere.logging.Logger;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -33,6 +34,7 @@ import static io.microsphere.constants.SeparatorConstants.LINE_SEPARATOR;
 import static io.microsphere.constants.SymbolConstants.SHARP;
 import static io.microsphere.io.IOUtils.copyToString;
 import static io.microsphere.lang.function.ThrowableSupplier.execute;
+import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.util.ClassLoaderUtils.getDefaultClassLoader;
 import static io.microsphere.util.StringUtils.split;
 import static java.util.Collections.unmodifiableSet;
@@ -45,6 +47,8 @@ import static java.util.Collections.unmodifiableSet;
  * @since 1.0.0
  */
 public abstract class RedisUtils {
+
+    private static final Logger logger = getLogger(RedisUtils.class);
 
     /**
      * The resource path for Redis Commands
@@ -65,6 +69,7 @@ public abstract class RedisUtils {
                 continue;
             }
             redisCommands.add(line);
+            logger.trace("Redis Command : {} ", line);
         }
         return unmodifiableSet(redisCommands);
     };
