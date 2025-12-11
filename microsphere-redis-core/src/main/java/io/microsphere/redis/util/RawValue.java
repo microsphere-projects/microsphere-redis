@@ -23,7 +23,7 @@ package io.microsphere.redis.util;
  * @since 1.0.0
  */
 public record RawValue(byte[] data) {
-    
+
     public static RawValue of(byte[] bytes) {
         return new RawValue(bytes);
     }
