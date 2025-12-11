@@ -37,17 +37,17 @@ public class RedisMetadata {
 
     private List<MethodMetadata> methods;
 
+    public void setMethods(List<MethodMetadata> methods) {
+        this.methods = methods;
+    }
+
     public List<MethodMetadata> getMethods() {
         List<MethodMetadata> methods = this.methods;
         if (methods == null) {
             methods = new LinkedList<>();
-            this.methods = methods;
+            setMethods(methods);
         }
         return methods;
-    }
-
-    public void setMethods(List<MethodMetadata> methods) {
-        this.methods = methods;
     }
 
     public RedisMetadata merge(RedisMetadata another) {
@@ -64,17 +64,17 @@ public class RedisMetadata {
             return false;
         }
         RedisMetadata that = (RedisMetadata) o;
-        return Objects.equals(this.methods, that.methods);
+        return Objects.equals(this.getMethods(), that.getMethods());
     }
 
     @Override
     public int hashCode() {
-        return hash(this.methods);
+        return hash(this.getMethods());
     }
 
     @Override
     public String toString() {
         return new StringJoiner(COMMA, RedisMetadata.class.getSimpleName() + LEFT_SQUARE_BRACKET, RIGHT_SQUARE_BRACKET)
-                .add("methods=" + this.methods).toString();
+                .add("methods=" + this.getMethods()).toString();
     }
 }
