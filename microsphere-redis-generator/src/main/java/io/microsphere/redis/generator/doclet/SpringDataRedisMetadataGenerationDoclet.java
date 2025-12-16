@@ -37,9 +37,13 @@ import java.util.Locale;
 import java.util.Set;
 
 import static com.sun.source.doctree.DocTree.Kind.SEE;
+import static io.microsphere.annotation.processor.util.MethodUtils.getMethodName;
+import static io.microsphere.annotation.processor.util.MethodUtils.getMethodParameterTypeNames;
+import static io.microsphere.annotation.processor.util.TypeUtils.getTypeName;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.util.RedisUtils.getRedisCommands;
 import static io.microsphere.redis.util.RedisUtils.getRedisWriteCommands;
+import static io.microsphere.util.ArrayUtils.arrayToString;
 import static io.microsphere.util.StringUtils.substringBetween;
 import static java.util.Set.of;
 import static javax.lang.model.SourceVersion.latest;
@@ -134,15 +138,18 @@ public class SpringDataRedisMetadataGenerationDoclet implements Doclet {
             DocTree.Kind kind = t.getKind();
             if (SEE.equals(kind)) {
                 String see = t.toString();
-                String command = substringBetween(see, "Redis Documentation:", "<");
-                if (command != null) {
+                String reference = substringBetween(see, "Redis Documentation:", "<");
+                if (reference != null) {
                     Element declaredClass = methodElement.getEnclosingElement();
                     String methodSignature = methodElement.toString();
-                    command = command.trim().toUpperCase(locale);
+                    String className = getTypeName(declaredClass.asType());
+                    String methodName = getMethodName(methodElement);
+                    String[] parameterTypes = getMethodParameterTypeNames(methodElement);
+                    String command = reference.trim().toUpperCase(locale);
                     boolean isCommand = redisCommands.contains(command);
                     boolean isWriteCommand = redisWriteCommands.contains(command);
-                    logger.info("class : {} , method : '{}' , command : '{}' , isCommand : {} , isWriteCommand : {}",
-                            declaredClass, methodSignature, command, isCommand, isWriteCommand);
+                    logger.info("className : {} , method name : '{}' , parameter types : '{}' , method signature : '{}' , command : '{}' , isCommand : {} , isWriteCommand : {}",
+                            className, methodName, arrayToString(parameterTypes), methodSignature, command, isCommand, isWriteCommand);
                     if (isCommand) {
                         allSupportedCommands.add(command);
                         if (isWriteCommand) {
