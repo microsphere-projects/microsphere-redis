@@ -6,7 +6,7 @@
     <parent>
         <groupId>io.github.microsphere-projects</groupId>
         <artifactId>microsphere-build</artifactId>
-        <version>0.2.2</version>
+        <version>0.2.3</version>
     </parent>
 
     <groupId>io.github.microsphere-projects</groupId>
@@ -62,6 +62,7 @@
         <module>microsphere-redis-core</module>
         <module>microsphere-redis-spring</module>
         <module>microsphere-redis-replicator-spring</module>
+        <module>microsphere-redis-generator</module>
     </modules>
 
 </project>

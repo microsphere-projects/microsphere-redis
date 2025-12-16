@@ -1,0 +1,10 @@
+org:
+  springframework:
+    data:
+      redis:
+        connection:
+          RedisKeyCommands:
+            methods:
+              - hash: 1
+                signature: zAdd(org.reactivestreams.Publisher<org.springframework.data.redis.connection.ReactiveZSetCommands.ZAddCommand>)
+                command: RANDOMKEY

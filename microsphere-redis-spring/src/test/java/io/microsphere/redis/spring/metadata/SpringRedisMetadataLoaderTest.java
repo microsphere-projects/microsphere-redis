@@ -120,7 +120,7 @@ class SpringRedisMetadataLoaderTest {
             unsupported.append(format("{} , default : {}", buildCommandMethodId(unsupportedMethod), unsupportedMethod.isDefault()));
         }
 
-        logger.trace("Supported : {}", supported);
-        logger.trace("Unsupported : {}", unsupported);
+        logger.trace("Supported Methods : {}", supported);
+        logger.trace("Unsupported Methods : {}", unsupported);
     }
 }
