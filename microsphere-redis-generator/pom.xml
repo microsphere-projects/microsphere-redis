@@ -83,13 +83,16 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.6.2</version>
                 <goals>
-                    <goal>java</goal>
+                    <goal>exec</goal>
                 </goals>
                 <configuration>
-                    <mainClass>io.microsphere.redis.generator.metadata.SpringDataRedisMetadataGenerator</mainClass>
+                    <executable>java</executable>
                     <arguments>
+                        <argument>-classpath</argument>
+                        <classpath/>
+                        <argument>--add-opens=java.base/java.lang.invoke=ALL-UNNAMED</argument>
+                        <argument>io.microsphere.redis.generator.metadata.SpringDataRedisMetadataGenerator</argument>
                         <argument>${sourcePath}</argument>
-                        <argument>${classPath}</argument>
                     </arguments>
                 </configuration>
             </plugin>
@@ -116,18 +119,6 @@
                                     <outputDirectory>${sourcePath}</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
-                        </configuration>
-                    </execution>
-
-                    <execution>
-                        <id>jar-dependencies</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <includeScope>compile</includeScope>
-                            <outputDirectory>${classPath}</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
