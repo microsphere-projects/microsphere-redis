@@ -73,7 +73,7 @@ public class SpringDataRedisMetadataGenerator {
 
         Path sourcePath = get(args[0]);
 
-        Set<File> classPaths = resolve(args);
+        Set<File> classPaths = resolveClassPaths(args);
 
         List<Path> sourceFiles = new LinkedList<>();
 
@@ -124,7 +124,7 @@ public class SpringDataRedisMetadataGenerator {
         logger.info("The JavaDoc generation result : {}", result);
     }
 
-    private static Set<File> resolve(String[] args) throws IOException {
+    private static Set<File> resolveClassPaths(String[] args) throws IOException {
         if (args.length < 2) {
             return getClassPaths().stream().map(File::new).collect(toSet());
         }
