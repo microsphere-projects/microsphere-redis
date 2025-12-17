@@ -24,7 +24,6 @@ import java.util.StringJoiner;
 import static io.microsphere.constants.SymbolConstants.COMMA;
 import static io.microsphere.constants.SymbolConstants.LEFT_SQUARE_BRACKET;
 import static io.microsphere.constants.SymbolConstants.RIGHT_SQUARE_BRACKET;
-import static java.util.Objects.hash;
 
 /**
  * Redis Metadata
@@ -35,10 +34,16 @@ import static java.util.Objects.hash;
  */
 public class RedisMetadata {
 
+    private String version;
+
     private List<MethodMetadata> methods;
 
-    public void setMethods(List<MethodMetadata> methods) {
-        this.methods = methods;
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
 
     public List<MethodMetadata> getMethods() {
@@ -50,31 +55,41 @@ public class RedisMetadata {
         return methods;
     }
 
+    public void setMethods(List<MethodMetadata> methods) {
+        this.methods = methods;
+    }
+
     public RedisMetadata merge(RedisMetadata another) {
         List<MethodMetadata> methods = getMethods();
+        // Merge the version
+        this.version = another.getVersion();
         // Add another methods
         methods.addAll(another.getMethods());
         return this;
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof RedisMetadata)) {
+    public final boolean equals(Object o) {
+        if (!(o instanceof RedisMetadata that)) {
             return false;
         }
-        RedisMetadata that = (RedisMetadata) o;
-        return Objects.equals(this.getMethods(), that.getMethods());
+
+        return Objects.equals(version, that.version)
+                && Objects.equals(methods, that.methods);
     }
 
     @Override
     public int hashCode() {
-        return hash(this.getMethods());
+        int result = Objects.hashCode(version);
+        result = 31 * result + Objects.hashCode(methods);
+        return result;
     }
 
     @Override
     public String toString() {
         return new StringJoiner(COMMA, RedisMetadata.class.getSimpleName() + LEFT_SQUARE_BRACKET, RIGHT_SQUARE_BRACKET)
-                .add("methods=" + this.getMethods()).toString();
+                .add("version=" + this.getVersion())
+                .add("methods=" + this.getMethods()).toString()
+                ;
     }
 }

@@ -65,10 +65,13 @@ class MethodMetadataTest {
         methodMetadata1.setInterfaceName("");
         assertFalse(this.methodMetadata.equals(methodMetadata1));
 
+        methodMetadata1.setCommand("");
+        assertFalse(this.methodMetadata.equals(methodMetadata1));
+
         methodMetadata1.setWrite(false);
         assertFalse(this.methodMetadata.equals(methodMetadata1));
 
-        methodMetadata1.setIndex((short) -1);
+        methodMetadata1.setIndex(-1);
         assertFalse(this.methodMetadata.equals(methodMetadata1));
     }
 
@@ -84,18 +87,21 @@ class MethodMetadataTest {
         String interfaceName = "io.microsphere.redis.metadata.MethodMetadataTest";
         String methodName = "test";
         String[] parameterTypes = new String[]{"java.lang.String"};
+        String command = "X";
         boolean write = true;
 
         methodMetadata.setIndex(index);
         methodMetadata.setInterfaceName(interfaceName);
         methodMetadata.setMethodName(methodName);
         methodMetadata.setParameterTypes(parameterTypes);
+        methodMetadata.setCommand(command);
         methodMetadata.setWrite(write);
 
         assertEquals(index, methodMetadata.getIndex());
         assertEquals(interfaceName, methodMetadata.getInterfaceName());
         assertEquals(methodName, methodMetadata.getMethodName());
         assertArrayEquals(parameterTypes, methodMetadata.getParameterTypes());
+        assertEquals(command, methodMetadata.getCommand());
         assertEquals(write, methodMetadata.isWrite());
     }
 }

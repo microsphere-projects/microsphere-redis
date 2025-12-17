@@ -33,13 +33,12 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
+import static io.microsphere.redis.generator.doclet.SpringDataRedisMetadataGenerationDoclet.METADATA_FILE_OPTION_NAME;
 import static io.microsphere.util.ClassPathUtils.getClassPaths;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.FileVisitResult.CONTINUE;
-import static java.nio.file.Files.walk;
 import static java.nio.file.Files.walkFileTree;
 import static java.nio.file.Paths.get;
 import static java.util.Locale.ENGLISH;
@@ -67,13 +66,14 @@ public class SpringDataRedisMetadataGenerator {
     public static void main(String[] args) throws Exception {
         int length = args.length;
 
-        if (length < 1) {
-            logger.warn("Usage : SpringDataRedisMetadataGenerator <source-path> <lib-path>(optional)");
+        if (length < 2) {
+            logger.warn("Usage : SpringDataRedisMetadataGenerator <source-path> <target-file-path>");
         }
 
         Path sourcePath = get(args[0]);
+        String targetFilePath = args[1];
 
-        Set<File> classPaths = resolveClassPaths(args);
+        Set<File> classPaths = resolveClassPaths();
 
         List<Path> sourceFiles = new LinkedList<>();
 
@@ -114,7 +114,7 @@ public class SpringDataRedisMetadataGenerator {
 
         var docUtils = standardFileManager.getJavaFileObjects(sourceFiles.toArray(new Path[0]));
 
-        Set<String> options = of();
+        Set<String> options = of(METADATA_FILE_OPTION_NAME + "=" + targetFilePath);
 
         DocumentationTask docTask = documentationTool.getTask(null, standardFileManager, null,
                 SpringDataRedisMetadataGenerationDoclet.class, options, docUtils);
@@ -124,12 +124,7 @@ public class SpringDataRedisMetadataGenerator {
         logger.info("The JavaDoc generation result : {}", result);
     }
 
-    private static Set<File> resolveClassPaths(String[] args) throws IOException {
-        if (args.length < 2) {
-            return getClassPaths().stream().map(File::new).collect(toSet());
-        }
-        Path libraryPath = get(args[1]);
-        Stream<Path> libs = walk(libraryPath, 1);
-        return libs.map(Path::toFile).collect(toSet());
+    private static Set<File> resolveClassPaths() throws IOException {
+        return getClassPaths().stream().map(File::new).collect(toSet());
     }
 }

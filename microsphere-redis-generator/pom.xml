@@ -93,6 +93,7 @@
                         <argument>--add-opens=java.base/java.lang.invoke=ALL-UNNAMED</argument>
                         <argument>io.microsphere.redis.generator.metadata.SpringDataRedisMetadataGenerator</argument>
                         <argument>${sourcePath}</argument>
+                        <argument>${project.basedir}/../microsphere-redis-spring/src/main/resources/META-INF/spring-data-redis-metadata.yaml</argument>
                     </arguments>
                 </configuration>
             </plugin>

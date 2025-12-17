@@ -38,6 +38,7 @@ class RedisMetadataTest {
     @BeforeEach
     void setUp() {
         this.redisMetadata = new RedisMetadata();
+        this.redisMetadata.setVersion("3.5.5");
 
         MethodMetadata methodMetadata = new MethodMetadata();
         this.redisMetadata.getMethods().add(methodMetadata);
@@ -45,6 +46,8 @@ class RedisMetadataTest {
 
     @Test
     void test() {
+        assertEquals("3.5.5", this.redisMetadata.getVersion());
+
         assertEquals(1, this.redisMetadata.getMethods().size());
         this.redisMetadata.setMethods(this.redisMetadata.getMethods());
         assertEquals(1, this.redisMetadata.getMethods().size());
