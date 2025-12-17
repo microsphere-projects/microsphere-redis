@@ -149,7 +149,7 @@ public class SpringRedisMetadataRepository {
                 continue;
             }
 
-            short id = methodMetadata.getIndex();
+            int id = methodMetadata.getIndex();
             // Put id and Method as key
             if (redisMetadataCache.put(id, redisCommandMethod) == null && redisMetadataCache.put(redisCommandMethod, methodMetadata) == null) {
                 if (methodMetadata.isWrite()) {
@@ -198,12 +198,12 @@ public class SpringRedisMetadataRepository {
         return redisMetadata;
     }
 
-    public static Short findMethodIndex(Method redisCommandMethod) {
+    public static Integer findMethodIndex(Method redisCommandMethod) {
         MethodMetadata methodMetadata = (MethodMetadata) methodMetadataCache.get(redisCommandMethod);
         return methodMetadata == null ? null : methodMetadata.getIndex();
     }
 
-    public static Method findRedisCommandMethod(short methodIndex) {
+    public static Method findRedisCommandMethod(int methodIndex) {
         Method redisCommandMethod = (Method) methodMetadataCache.get(methodIndex);
         return redisCommandMethod;
     }
