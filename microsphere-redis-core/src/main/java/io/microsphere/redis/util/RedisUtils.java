@@ -64,6 +64,7 @@ public abstract class RedisUtils {
             while (resources.hasMoreElements()) {
                 URL resource = resources.nextElement();
                 inputStreams.add(resource.openStream());
+                logger.trace("The resource[url : '{}' , name : '{}'] be loaded", resource, resourceName);
             }
             T target;
             try {
