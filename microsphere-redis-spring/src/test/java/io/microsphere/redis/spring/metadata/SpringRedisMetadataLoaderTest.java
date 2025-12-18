@@ -21,7 +21,6 @@ package io.microsphere.redis.spring.metadata;
 import io.microsphere.logging.Logger;
 import io.microsphere.redis.metadata.MethodMetadata;
 import io.microsphere.redis.metadata.RedisMetadata;
-import io.microsphere.redis.util.RedisCommandUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.redis.connection.RedisCommands;
@@ -59,7 +58,7 @@ class SpringRedisMetadataLoaderTest {
     static void beforeAll() {
         Method[] methods = RedisCommands.class.getMethods();
         for (Method method : methods) {
-            String commandMethodId = RedisCommandUtils.buildMethodId(method);
+            String commandMethodId = buildMethodId(method);
             redisCommandMethodIds.add(commandMethodId);
         }
     }
@@ -109,7 +108,7 @@ class SpringRedisMetadataLoaderTest {
         for (Method supportedMethod : supportedMethods) {
             String command = supportedMethod.getName().toUpperCase(ENGLISH);
             supported.append(LINE_SEPARATOR);
-            supported.append(format("{} , command : {} , default : {}", RedisCommandUtils.buildMethodId(supportedMethod), command,
+            supported.append(format("{} , command : {} , default : {}", buildMethodId(supportedMethod), command,
                     redisWriteCommands.contains(command),
                     supportedMethod.isDefault()));
             supportedCommands.add(command);
@@ -118,7 +117,7 @@ class SpringRedisMetadataLoaderTest {
 
         for (Method unsupportedMethod : unsupportedMethods) {
             unsupported.append(LINE_SEPARATOR);
-            unsupported.append(format("{} , default : {}", RedisCommandUtils.buildMethodId(unsupportedMethod), unsupportedMethod.isDefault()));
+            unsupported.append(format("{} , default : {}", buildMethodId(unsupportedMethod), unsupportedMethod.isDefault()));
         }
 
         logger.trace("Supported Methods : {}", supported);
