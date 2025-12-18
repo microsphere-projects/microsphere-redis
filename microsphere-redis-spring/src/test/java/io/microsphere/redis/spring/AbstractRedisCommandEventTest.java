@@ -92,7 +92,7 @@ public abstract class AbstractRedisCommandEventTest extends AbstractRedisTest {
             assertEquals(connection, connection);
             assertNotEquals(connection, this);
             assertEquals(connection.hashCode(), connection.hashCode());
-            
+
             assertThrows(RedisSystemException.class, () -> {
                 connection.execute("Not-Found-Command");
             });
