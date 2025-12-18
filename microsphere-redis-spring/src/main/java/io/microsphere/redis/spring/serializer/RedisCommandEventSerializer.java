@@ -36,7 +36,6 @@ import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository
 import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.findRedisCommandMethod;
 import static io.microsphere.redis.spring.serializer.IntegerSerializer.INTEGER_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.RedisCommandEventSerializer.VersionedRedisSerializer.valueOf;
-import static io.microsphere.redis.spring.serializer.ShortSerializer.SHORT_SERIALIZER;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.resolveInterfaceName;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.resolveSimpleInterfaceName;
 
@@ -161,7 +160,7 @@ public class RedisCommandEventSerializer extends AbstractSerializer<RedisCommand
 
             @Override
             protected void readMethodMetadata(InputStream inputStream, RedisCommandEvent.Builder builder) throws IOException {
-                int bytesLength = SHORT_SERIALIZER.getBytesLength();
+                int bytesLength = INTEGER_SERIALIZER.getBytesLength();
                 byte[] bytes = new byte[bytesLength];
                 inputStream.read(bytes);
                 int methodIndex = INTEGER_SERIALIZER.deserialize(bytes);
