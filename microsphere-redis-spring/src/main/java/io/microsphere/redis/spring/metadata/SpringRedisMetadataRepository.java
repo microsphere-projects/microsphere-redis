@@ -10,8 +10,6 @@ import io.microsphere.redis.spring.util.RedisCommandsUtils;
 import io.microsphere.redis.spring.util.RedisConstants;
 import io.microsphere.redis.util.RedisCommandUtils;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.data.redis.connection.RedisCommands;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.yaml.snakeyaml.Yaml;
@@ -28,6 +26,7 @@ import java.util.function.Function;
 
 import static io.microsphere.collection.MapUtils.newFixedHashMap;
 import static io.microsphere.logging.LoggerFactory.getLogger;
+import static io.microsphere.redis.metadata.RedisMetadataLoader.loadAll;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.loadParameterClasses;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodId;
 import static io.microsphere.reflect.AccessibleObjectUtils.trySetAccessible;
@@ -41,10 +40,8 @@ import static org.springframework.util.ReflectionUtils.invokeMethod;
  * Redis Metadata Repository
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
- * @see RedisMetadataRepository
  * @since 1.0.0
  */
-@Deprecated
 public class SpringRedisMetadataRepository {
 
     private static final Logger logger = getLogger(SpringRedisMetadataRepository.class);
@@ -118,7 +115,7 @@ public class SpringRedisMetadataRepository {
         for (Class<?> redisCommandInterfaceClass : redisCommandInterfaceClasses) {
             Method[] methods = redisCommandInterfaceClass.getMethods();
             for (Method method : methods) {
-                String methodId = RedisCommandUtils.buildMethodId(method);
+                String methodId = buildMethodId(method);
                 redisCommandMethodsCache.put(methodId, method);
                 trySetAccessible(method);
                 logger.debug("Caches the Redis Command Method : {}", methodId);
@@ -166,8 +163,6 @@ public class SpringRedisMetadataRepository {
                         initWriteCommandMethod(overriddenMethod, parameterTypes);
                     }
                 }
-            } else {
-                throw new IllegalStateException("Duplicated Redis Command Method was found, " + methodMetadata);
             }
         }
         return redisMetadataCache;
@@ -181,19 +176,7 @@ public class SpringRedisMetadataRepository {
     }
 
     private static RedisMetadata loadRedisMetadata() {
-        ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-        RedisMetadata redisMetadata = new RedisMetadata();
-        try {
-            Resource[] resources = resolver.getResources(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + "/META-INF/spring-data-redis-metadata.yaml");
-            int size = resources.length;
-            for (int i = 0; i < size; i++) {
-                Resource resource = resources[i];
-                redisMetadata.merge(loadRedisMetadata(resource));
-            }
-        } catch (Throwable e) {
-            throw new RuntimeException(e);
-        }
-        return redisMetadata;
+        return loadAll();
     }
 
     private static RedisMetadata loadRedisMetadata(Resource resource) throws IOException {
@@ -311,7 +294,7 @@ public class SpringRedisMetadataRepository {
 
     private static void initWriteCommandMethodCache(Method method, Class<?>[] parameterTypes) {
         Class<?> declaredClass = method.getDeclaringClass();
-        String id = RedisCommandUtils.buildMethodId(declaredClass.getName(), method.getName(), parameterTypes);
+        String id = buildMethodId(declaredClass, method.getName(), parameterTypes);
         if (writeCommandMethodsCache.putIfAbsent(id, method) == null) {
             logger.debug("Caches the Redis Write Command Method : {}", id);
         } else {
