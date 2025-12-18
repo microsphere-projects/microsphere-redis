@@ -36,6 +36,7 @@ import static io.microsphere.redis.spring.util.RedisConstants.DEFAULT_SPRING_APP
 import static java.lang.System.nanoTime;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
@@ -87,6 +88,7 @@ public abstract class AbstractRedisCommandEventTest extends AbstractRedisTest {
             RedisConnection connection = stringRedisTemplate.execute(c -> c, true);
 
             assertEquals(connection, connection);
+            assertNotEquals(connection, this);
             assertEquals(connection.hashCode(), connection.hashCode());
         });
 
