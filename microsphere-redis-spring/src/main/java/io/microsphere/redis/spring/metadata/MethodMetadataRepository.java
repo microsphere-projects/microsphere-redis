@@ -45,6 +45,7 @@ import java.util.function.Function;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.buildParameterMetadata;
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.loadParameterClasses;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodId;
 import static io.microsphere.reflect.AccessibleObjectUtils.trySetAccessible;
 import static io.microsphere.reflect.MethodUtils.findMethod;
@@ -115,7 +116,7 @@ public class MethodMetadataRepository {
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         RedisMetadata redisMetadata = new RedisMetadata();
         try {
-            Resource[] resources = resolver.getResources(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + "/META-INF/redis-metadata.yaml");
+            Resource[] resources = resolver.getResources(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + "/META-INF/spring-data-redis-metadata.yaml");
             for (Resource resource : resources) {
                 redisMetadata.merge(loadRedisMetadata(resource));
             }
@@ -161,17 +162,6 @@ public class MethodMetadataRepository {
             }
         }
         return method;
-    }
-
-    private static Class[] loadParameterClasses(String[] parameterTypes) {
-        int parameterCount = parameterTypes.length;
-        Class[] parameterClasses = new Class[parameterCount];
-        for (int i = 0; i < parameterCount; i++) {
-            String parameterType = parameterTypes[i];
-            Class parameterClass = resolveClassName(parameterType, classLoader);
-            parameterClasses[i] = parameterClass;
-        }
-        return parameterClasses;
     }
 
     public static Method getWriteCommandMethod(String interfaceName, String methodName, String... parameterTypes) {

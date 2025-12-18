@@ -17,15 +17,17 @@ import java.util.function.BiConsumer;
 
 import static io.microsphere.collection.ListUtils.newArrayList;
 import static io.microsphere.constants.SymbolConstants.DOT_CHAR;
+import static io.microsphere.constants.SymbolConstants.LESS_THAN;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.getWriteParameterMetadataList;
 import static io.microsphere.redis.spring.serializer.Serializers.getSerializer;
 import static io.microsphere.redis.spring.serializer.Serializers.serializeRawParameter;
-import static io.microsphere.redis.util.RedisCommandUtils.buildMethodId;
-import static io.microsphere.util.ClassLoaderUtils.resolveClass;
+import static io.microsphere.util.ClassLoaderUtils.getClassLoader;
 import static io.microsphere.util.StringUtils.INDEX_NOT_FOUND;
 import static io.microsphere.util.StringUtils.isNotBlank;
+import static io.microsphere.util.StringUtils.substringBefore;
 import static java.util.Collections.unmodifiableList;
+import static org.springframework.util.ClassUtils.resolveClassName;
 
 /**
  * {@link RedisCommands Redis Command} Utilities Class
@@ -70,6 +72,8 @@ public abstract class RedisCommandsUtils {
     public static final String REDIS_GEO_COMMANDS_INTERFACE_NAME = "org.springframework.data.redis.connection.RedisGeoCommands";
 
     public static final String REDIS_HYPER_LOG_LOG_COMMANDS_INTERFACE_NAME = "org.springframework.data.redis.connection.RedisHyperLogLogCommands";
+
+    private static final ClassLoader classLoader = getClassLoader(RedisCommandsUtils.class);
 
     public static String resolveSimpleInterfaceName(String interfaceName) {
         int index = interfaceName.indexOf(REDIS_COMMANDS_PACKAGE_NAME);
@@ -192,7 +196,9 @@ public abstract class RedisCommandsUtils {
         Class[] parameterClasses = new Class[parameterCount];
         for (int i = 0; i < parameterCount; i++) {
             String parameterType = parameterTypes[i];
-            Class parameterClass = resolveClass(parameterType);
+            // remove the generic info
+            parameterType = substringBefore(parameterType, LESS_THAN);
+            Class parameterClass = resolveClassName(parameterType, classLoader);
             parameterClasses[i] = parameterClass;
         }
         return parameterClasses;

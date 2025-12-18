@@ -182,7 +182,7 @@ public class SpringRedisMetadataRepository {
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         RedisMetadata redisMetadata = new RedisMetadata();
         try {
-            Resource[] resources = resolver.getResources(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + "/META-INF/redis-metadata.yaml");
+            Resource[] resources = resolver.getResources(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + "/META-INF/spring-data-redis-metadata.yaml");
             int size = resources.length;
             for (int i = 0; i < size; i++) {
                 Resource resource = resources[i];

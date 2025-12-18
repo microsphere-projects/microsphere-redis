@@ -106,7 +106,7 @@ public class SpringDataRedisMetadataGenerator {
 
         DocumentationTool documentationTool = getSystemDocumentationTool();
 
-        StandardJavaFileManager standardFileManager = documentationTool.getStandardFileManager(null, null, UTF_8);
+        StandardJavaFileManager standardFileManager = documentationTool.getStandardFileManager(null, ENGLISH, UTF_8);
 
         // set class-paths
         standardFileManager.setLocation(CLASS_PATH, classPaths);
