@@ -33,12 +33,14 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
  */
 class RedisMetadataTest {
 
+    private static final String TEST_VERSION = "3.5.5";
+
     private RedisMetadata redisMetadata;
 
     @BeforeEach
     void setUp() {
         this.redisMetadata = new RedisMetadata();
-        this.redisMetadata.setVersion("3.5.5");
+        this.redisMetadata.setVersion(TEST_VERSION);
 
         MethodMetadata methodMetadata = new MethodMetadata();
         this.redisMetadata.getMethods().add(methodMetadata);
@@ -46,7 +48,7 @@ class RedisMetadataTest {
 
     @Test
     void test() {
-        assertEquals("3.5.5", this.redisMetadata.getVersion());
+        assertEquals(TEST_VERSION, this.redisMetadata.getVersion());
 
         assertEquals(1, this.redisMetadata.getMethods().size());
         this.redisMetadata.setMethods(this.redisMetadata.getMethods());
@@ -58,6 +60,10 @@ class RedisMetadataTest {
         assertEquals(this.redisMetadata, this.redisMetadata);
 
         // not equal
+        assertNotEquals(this.redisMetadata, redisMetadata1);
+
+        // not equal
+        redisMetadata1.setVersion(TEST_VERSION);
         assertNotEquals(this.redisMetadata, redisMetadata1);
 
         // not equal
