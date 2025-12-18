@@ -28,7 +28,7 @@ import java.util.function.Function;
 
 import static io.microsphere.collection.MapUtils.newFixedHashMap;
 import static io.microsphere.logging.LoggerFactory.getLogger;
-import static io.microsphere.redis.util.RedisCommandUtils.buildRedisCommandMethodId;
+import static io.microsphere.redis.util.RedisCommandUtils.buildMethodId;
 import static io.microsphere.reflect.AccessibleObjectUtils.trySetAccessible;
 import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.util.ClassLoaderUtils.resolveClass;
@@ -61,7 +61,7 @@ public class SpringRedisMetadataRepository {
     static final Map<String, Class<?>> redisCommandInterfacesCache = initRedisCommandInterfacesCache();
 
     /**
-     * Redis Command {@link Method methods} cache using {@link RedisCommandUtils#buildRedisCommandMethodId(Method) Method ID} as key
+     * Redis Command {@link Method methods} cache using {@link RedisCommandUtils#buildMethodId(Method) Method ID} as key
      */
     static final Map<String, Method> redisCommandMethodsCache = initRedisCommandMethodsCache();
 
@@ -116,7 +116,7 @@ public class SpringRedisMetadataRepository {
         for (Class<?> redisCommandInterfaceClass : redisCommandInterfaceClasses) {
             Method[] methods = redisCommandInterfaceClass.getMethods();
             for (Method method : methods) {
-                String methodId = buildRedisCommandMethodId(method);
+                String methodId = RedisCommandUtils.buildMethodId(method);
                 redisCommandMethodsCache.put(methodId, method);
                 trySetAccessible(method);
                 logger.debug("Caches the Redis Command Method : {}", methodId);
@@ -235,7 +235,7 @@ public class SpringRedisMetadataRepository {
             Class[] parameterClasses = RedisCommandsUtils.loadParameterClasses(parameterTypes);
             method = findMethod(redisCommandInterfaceClass, methodName, parameterClasses);
             if (method == null) {
-                logger.warn("Current Redis consumer Redis command interface (class name: {}) in the method ({}), command method search end!", interfaceNme, buildRedisCommandMethodId(interfaceNme, methodName, parameterTypes));
+                logger.warn("Current Redis consumer Redis command interface (class name: {}) in the method ({}), command method search end!", interfaceNme, buildMethodId(interfaceNme, methodName, parameterTypes));
                 return null;
             }
         }
@@ -243,7 +243,7 @@ public class SpringRedisMetadataRepository {
     }
 
     public static Method getWriteCommandMethod(String interfaceName, String methodName, String... parameterTypes) {
-        String id = buildRedisCommandMethodId(interfaceName, methodName, parameterTypes);
+        String id = buildMethodId(interfaceName, methodName, parameterTypes);
         return writeCommandMethodsCache.get(id);
     }
 
@@ -266,7 +266,7 @@ public class SpringRedisMetadataRepository {
     }
 
     public static Method getRedisCommandMethod(String interfaceName, String methodName, String... parameterTypes) {
-        String methodId = buildRedisCommandMethodId(interfaceName, methodName, parameterTypes);
+        String methodId = buildMethodId(interfaceName, methodName, parameterTypes);
         return redisCommandMethodsCache.get(methodId);
     }
 
@@ -309,7 +309,7 @@ public class SpringRedisMetadataRepository {
 
     private static void initWriteCommandMethodCache(Method method, Class<?>[] parameterTypes) {
         Class<?> declaredClass = method.getDeclaringClass();
-        String id = buildRedisCommandMethodId(declaredClass.getName(), method.getName(), parameterTypes);
+        String id = RedisCommandUtils.buildMethodId(declaredClass.getName(), method.getName(), parameterTypes);
         if (writeCommandMethodsCache.putIfAbsent(id, method) == null) {
             logger.debug("Caches the Redis Write Command Method : {}", id);
         } else {

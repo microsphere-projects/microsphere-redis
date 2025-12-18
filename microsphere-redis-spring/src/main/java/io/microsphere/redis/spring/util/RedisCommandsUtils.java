@@ -5,6 +5,7 @@ import io.microsphere.logging.Logger;
 import io.microsphere.redis.metadata.Parameter;
 import io.microsphere.redis.metadata.ParameterMetadata;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
+import io.microsphere.redis.util.RedisCommandUtils;
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.data.redis.connection.RedisCommands;
@@ -20,7 +21,7 @@ import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.getWriteParameterMetadataList;
 import static io.microsphere.redis.spring.serializer.Serializers.getSerializer;
 import static io.microsphere.redis.spring.serializer.Serializers.serializeRawParameter;
-import static io.microsphere.redis.util.RedisCommandUtils.buildRedisCommandMethodId;
+import static io.microsphere.redis.util.RedisCommandUtils.buildMethodId;
 import static io.microsphere.util.ClassLoaderUtils.resolveClass;
 import static io.microsphere.util.StringUtils.INDEX_NOT_FOUND;
 import static io.microsphere.util.StringUtils.isNotBlank;
@@ -114,7 +115,7 @@ public abstract class RedisCommandsUtils {
     }
 
     public static String buildCommandMethodId(RedisCommandEvent event) {
-        return buildRedisCommandMethodId(event.getMethod());
+        return RedisCommandUtils.buildMethodId(event.getMethod());
     }
 
     /**

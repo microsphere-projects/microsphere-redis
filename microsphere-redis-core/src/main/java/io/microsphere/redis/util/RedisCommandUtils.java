@@ -30,13 +30,14 @@ import java.util.TreeSet;
 
 import static io.microsphere.constants.SeparatorConstants.LINE_SEPARATOR;
 import static io.microsphere.constants.SymbolConstants.COMMA;
-import static io.microsphere.constants.SymbolConstants.DOT_CHAR;
+import static io.microsphere.constants.SymbolConstants.DOT;
 import static io.microsphere.constants.SymbolConstants.LEFT_PARENTHESIS;
 import static io.microsphere.constants.SymbolConstants.RIGHT_PARENTHESIS;
 import static io.microsphere.constants.SymbolConstants.SHARP;
 import static io.microsphere.io.IOUtils.copyToString;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.util.RedisUtils.loadResource;
+import static io.microsphere.util.ArrayUtils.length;
 import static io.microsphere.util.StringUtils.split;
 import static java.lang.Math.abs;
 import static java.util.Collections.unmodifiableSet;
@@ -84,28 +85,28 @@ public abstract class RedisCommandUtils implements Utils {
         return loadResource(REDIS_WRITE_COMMANDS_RESOURCE, LOAD_REDIS_COMMANDS_FUNCTION);
     }
 
-    public static String buildRedisCommandMethodId(Method redisCommandMethod) {
-        String methodName = redisCommandMethod.getName();
-        Class<?>[] parameterTypes = redisCommandMethod.getParameterTypes();
-        return buildRedisCommandMethodId(redisCommandMethod.getDeclaringClass(), methodName, parameterTypes);
+    public static String buildMethodId(Method method) {
+        String methodName = method.getName();
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        return buildMethodId(method.getDeclaringClass(), methodName, parameterTypes);
     }
 
-    public static String buildRedisCommandMethodId(Class<?> declaringClass, String methodName, Class<?>... parameterTypes) {
-        return buildRedisCommandMethodId(declaringClass.getName(), methodName, parameterTypes);
+    public static String buildMethodId(Class<?> declaringClass, String methodName, Class<?>... parameterTypes) {
+        return buildMethodId(declaringClass.getName(), methodName, parameterTypes);
     }
 
-    public static String buildRedisCommandMethodId(String className, String methodName, Class<?>... parameterTypes) {
-        int length = parameterTypes.length;
+    public static String buildMethodId(String className, String methodName, Class<?>... parameterTypes) {
+        int length = length(parameterTypes);
         String[] parameterTypeNames = new String[length];
         for (int i = 0; i < length; i++) {
             parameterTypeNames[i] = parameterTypes[i].getName();
         }
-        return buildRedisCommandMethodId(className, methodName, parameterTypeNames);
+        return buildMethodId(className, methodName, parameterTypeNames);
     }
 
-    public static String buildRedisCommandMethodId(String className, String methodName, String... parameterTypes) {
+    public static String buildMethodId(String className, String methodName, String... parameterTypes) {
         StringBuilder infoBuilder = new StringBuilder(className);
-        infoBuilder.append(DOT_CHAR).append(methodName);
+        infoBuilder.append(DOT).append(methodName);
         StringJoiner paramTypesInfo = new StringJoiner(COMMA, LEFT_PARENTHESIS, RIGHT_PARENTHESIS);
         for (String parameterType : parameterTypes) {
             paramTypesInfo.add(parameterType);
@@ -114,8 +115,8 @@ public abstract class RedisCommandUtils implements Utils {
         return infoBuilder.toString();
     }
 
-    public static int buildRedisCommandMethodIndex(String className, String methodName, String... parameterTypes) {
-        String id = buildRedisCommandMethodId(className, methodName, parameterTypes);
+    public static int buildMethodIndex(String className, String methodName, String... parameterTypes) {
+        String id = buildMethodId(className, methodName, parameterTypes);
         return abs(id.hashCode());
     }
 }

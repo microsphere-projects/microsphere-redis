@@ -20,20 +20,37 @@ package io.microsphere.redis.util;
 
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Method;
 import java.util.Set;
 
+import static io.microsphere.redis.util.RedisCommandUtils.LOAD_REDIS_COMMANDS_FUNCTION;
+import static io.microsphere.redis.util.RedisCommandUtils.REDIS_COMMANDS_RESOURCE;
+import static io.microsphere.redis.util.RedisCommandUtils.REDIS_WRITE_COMMANDS_RESOURCE;
+import static io.microsphere.redis.util.RedisCommandUtils.buildMethodId;
+import static io.microsphere.redis.util.RedisCommandUtils.buildMethodIndex;
 import static io.microsphere.redis.util.RedisCommandUtils.getRedisCommands;
 import static io.microsphere.redis.util.RedisCommandUtils.getRedisWriteCommands;
+import static io.microsphere.reflect.MethodUtils.findMethod;
+import static java.lang.Math.abs;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
- * TODO
+ * {@link RedisCommandUtils} Test
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
- * @see TODO
+ * @see RedisCommandUtils
  * @since 1.0.0
  */
 class RedisCommandUtilsTest {
+
+    @Test
+    void testConstants() {
+        assertSame("META-INF/redis-commands", REDIS_COMMANDS_RESOURCE);
+        assertSame("META-INF/redis-write-commands", REDIS_WRITE_COMMANDS_RESOURCE);
+        assertNotNull(LOAD_REDIS_COMMANDS_FUNCTION);
+    }
 
     @Test
     void testGetRedisCommands() {
@@ -45,5 +62,20 @@ class RedisCommandUtilsTest {
     void testGetRedisWriteCommands() {
         Set<String> redisWriteCommands = getRedisWriteCommands();
         assertEquals(177, redisWriteCommands.size());
+    }
+
+    @Test
+    void testBuildMethodId() {
+        Method method = findMethod(RedisCommandUtils.class, "buildMethodId", Class.class, String.class, Class[].class);
+        String methodId = buildMethodId(method);
+        assertEquals("io.microsphere.redis.util.RedisCommandUtils.buildMethodId(java.lang.Class,java.lang.String,[Ljava.lang.Class;)", methodId);
+    }
+
+    @Test
+    void testBuildMethodIndex() {
+        Method method = findMethod(RedisCommandUtils.class, "buildMethodId", Class.class, String.class, Class[].class);
+        String methodId = buildMethodId(method);
+        int methodIndex = buildMethodIndex("io.microsphere.redis.util.RedisCommandUtils", "buildMethodId", Class.class.getName(), String.class.getName(), Class[].class.getName());
+        assertEquals(abs(methodId.hashCode()), methodIndex);
     }
 }

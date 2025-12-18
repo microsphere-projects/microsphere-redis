@@ -74,14 +74,14 @@ public class RedisMetadata {
             return false;
         }
 
-        return Objects.equals(version, that.version)
-                && Objects.equals(methods, that.methods);
+        return Objects.equals(this.getVersion(), that.getVersion())
+                && Objects.equals(this.getMethods(), that.getMethods());
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hashCode(version);
-        result = 31 * result + Objects.hashCode(methods);
+        int result = Objects.hashCode(this.getVersion());
+        result = 31 * result + Objects.hashCode(this.getMethods());
         return result;
     }
 

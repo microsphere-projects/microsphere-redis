@@ -24,6 +24,7 @@ import io.microsphere.redis.spring.context.RedisContext;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
 import io.microsphere.redis.spring.interceptor.RedisMethodContext;
 import io.microsphere.redis.metadata.ParameterMetadata;
+import io.microsphere.redis.util.RedisCommandUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.redis.connection.RedisConnection;
@@ -58,7 +59,7 @@ import static io.microsphere.redis.spring.util.RedisCommandsUtils.initializePara
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.loadParameterClasses;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.resolveInterfaceName;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.resolveSimpleInterfaceName;
-import static io.microsphere.redis.util.RedisCommandUtils.buildRedisCommandMethodId;
+import static io.microsphere.redis.util.RedisCommandUtils.buildMethodId;
 import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.spring.test.util.SpringTestUtils.testInSpringContainer;
 import static io.microsphere.util.ArrayUtils.EMPTY_OBJECT_ARRAY;
@@ -170,8 +171,8 @@ class RedisCommandsUtilsTest {
             RedisMethodContext redisMethodContext = new RedisMethodContext(redisConnection, SET_METHOD, SET_METHOD_ARGS, redisContext, redisConnectionFactory, SOURCE_BEAN_NAME_FOR_REDIS_TEMPLATE);
             RedisCommandEvent event = new RedisCommandEvent(redisMethodContext);
             assertEquals("org.springframework.data.redis.connection.DefaultedRedisConnection.set([B,[B)", buildCommandMethodId(event));
-            assertEquals(buildCommandMethodId(event), buildRedisCommandMethodId(SET_METHOD));
-            assertEquals(buildCommandMethodId(event), buildRedisCommandMethodId("org.springframework.data.redis.connection.DefaultedRedisConnection", "set", byte[].class, byte[].class));
+            assertEquals(buildCommandMethodId(event), RedisCommandUtils.buildMethodId(SET_METHOD));
+            assertEquals(buildCommandMethodId(event), RedisCommandUtils.buildMethodId("org.springframework.data.redis.connection.DefaultedRedisConnection", "set", byte[].class, byte[].class));
         }, RedisContextConfig.class);
     }
 
