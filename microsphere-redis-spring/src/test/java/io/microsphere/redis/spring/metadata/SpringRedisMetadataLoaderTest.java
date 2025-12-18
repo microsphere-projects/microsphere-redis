@@ -34,7 +34,7 @@ import java.util.TreeSet;
 import static io.microsphere.collection.Lists.ofList;
 import static io.microsphere.constants.SeparatorConstants.LINE_SEPARATOR;
 import static io.microsphere.logging.LoggerFactory.getLogger;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.buildCommandMethodId;
+import static io.microsphere.redis.util.RedisCommandUtils.buildRedisCommandMethodId;
 import static io.microsphere.redis.util.RedisCommandUtils.getRedisCommands;
 import static io.microsphere.redis.util.RedisCommandUtils.getRedisWriteCommands;
 import static io.microsphere.text.FormatUtils.format;
@@ -58,7 +58,7 @@ class SpringRedisMetadataLoaderTest {
     static void beforeAll() {
         Method[] methods = RedisCommands.class.getMethods();
         for (Method method : methods) {
-            String commandMethodId = buildCommandMethodId(method);
+            String commandMethodId = buildRedisCommandMethodId(method);
             redisCommandMethodIds.add(commandMethodId);
         }
     }
@@ -72,7 +72,7 @@ class SpringRedisMetadataLoaderTest {
 
         Set<String> configuredCommandMethodIds = new TreeSet<>();
         for (MethodMetadata method : methods) {
-            String commandMethodId = buildCommandMethodId(method.getInterfaceName(), method.getMethodName(), method.getParameterTypes());
+            String commandMethodId = buildRedisCommandMethodId(method.getInterfaceName(), method.getMethodName(), method.getParameterTypes());
             assertTrue(configuredCommandMethodIds.add(commandMethodId));
         }
 
@@ -108,7 +108,7 @@ class SpringRedisMetadataLoaderTest {
         for (Method supportedMethod : supportedMethods) {
             String command = supportedMethod.getName().toUpperCase(ENGLISH);
             supported.append(LINE_SEPARATOR);
-            supported.append(format("{} , command : {} , default : {}", buildCommandMethodId(supportedMethod), command,
+            supported.append(format("{} , command : {} , default : {}", buildRedisCommandMethodId(supportedMethod), command,
                     redisWriteCommands.contains(command),
                     supportedMethod.isDefault()));
             supportedCommands.add(command);
@@ -117,7 +117,7 @@ class SpringRedisMetadataLoaderTest {
 
         for (Method unsupportedMethod : unsupportedMethods) {
             unsupported.append(LINE_SEPARATOR);
-            unsupported.append(format("{} , default : {}", buildCommandMethodId(unsupportedMethod), unsupportedMethod.isDefault()));
+            unsupported.append(format("{} , default : {}", buildRedisCommandMethodId(unsupportedMethod), unsupportedMethod.isDefault()));
         }
 
         logger.trace("Supported Methods : {}", supported);

@@ -43,8 +43,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.buildCommandMethodId;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.buildParameterMetadata;
+import static io.microsphere.redis.util.RedisCommandUtils.buildRedisCommandMethodId;
 import static io.microsphere.reflect.AccessibleObjectUtils.trySetAccessible;
 import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.util.ClassLoaderUtils.getClassLoader;
@@ -155,7 +155,7 @@ public class MethodMetadataRepository {
             Class[] parameterClasses = loadParameterClasses(parameterTypes);
             method = findMethod(interfaceClass, methodName, parameterClasses);
             if (method == null) {
-                logger.warn("Current Redis consumer Redis command interface (class name: {}) in the method ({}), command method search end!", interfaceNme, buildCommandMethodId(interfaceNme, methodName, parameterTypes));
+                logger.warn("Current Redis consumer Redis command interface (class name: {}) in the method ({}), command method search end!", interfaceNme, buildRedisCommandMethodId(interfaceNme, methodName, parameterTypes));
                 return null;
             }
         }
@@ -174,7 +174,7 @@ public class MethodMetadataRepository {
     }
 
     public static Method getWriteCommandMethod(String interfaceName, String methodName, String... parameterTypes) {
-        String id = buildCommandMethodId(interfaceName, methodName, parameterTypes);
+        String id = buildRedisCommandMethodId(interfaceName, methodName, parameterTypes);
         return writeCommandMethodsCache.get(id);
     }
 
@@ -893,7 +893,7 @@ public class MethodMetadataRepository {
     }
 
     private static void initWriteCommandMethodCache(Class<?> declaredClass, Method method, Class<?>[] parameterTypes) {
-        String id = buildCommandMethodId(declaredClass.getName(), method.getName(), parameterTypes);
+        String id = buildRedisCommandMethodId(declaredClass.getName(), method.getName(), parameterTypes);
         if (writeCommandMethodsCache.putIfAbsent(id, method) == null) {
             logger.trace("Cache write command method[id: {}, Method: {}]", id, method);
         } else {

@@ -2,9 +2,9 @@ package io.microsphere.redis.spring.util;
 
 import io.microsphere.annotation.Nonnull;
 import io.microsphere.logging.Logger;
-import io.microsphere.redis.spring.event.RedisCommandEvent;
 import io.microsphere.redis.metadata.Parameter;
 import io.microsphere.redis.metadata.ParameterMetadata;
+import io.microsphere.redis.spring.event.RedisCommandEvent;
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.data.redis.connection.RedisCommands;
@@ -12,18 +12,15 @@ import org.springframework.data.redis.connection.RedisConnection;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.StringJoiner;
 import java.util.function.BiConsumer;
 
 import static io.microsphere.collection.ListUtils.newArrayList;
-import static io.microsphere.constants.SymbolConstants.COMMA;
 import static io.microsphere.constants.SymbolConstants.DOT_CHAR;
-import static io.microsphere.constants.SymbolConstants.LEFT_PARENTHESIS;
-import static io.microsphere.constants.SymbolConstants.RIGHT_PARENTHESIS;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.getWriteParameterMetadataList;
 import static io.microsphere.redis.spring.serializer.Serializers.getSerializer;
 import static io.microsphere.redis.spring.serializer.Serializers.serializeRawParameter;
+import static io.microsphere.redis.util.RedisCommandUtils.buildRedisCommandMethodId;
 import static io.microsphere.util.ClassLoaderUtils.resolveClass;
 import static io.microsphere.util.StringUtils.INDEX_NOT_FOUND;
 import static io.microsphere.util.StringUtils.isNotBlank;
@@ -117,34 +114,7 @@ public abstract class RedisCommandsUtils {
     }
 
     public static String buildCommandMethodId(RedisCommandEvent event) {
-        return buildCommandMethodId(event.getMethod());
-    }
-
-    public static String buildCommandMethodId(Method redisCommandMethod) {
-        String interfaceName = redisCommandMethod.getDeclaringClass().getName();
-        String methodName = redisCommandMethod.getName();
-        Class<?>[] parameterTypes = redisCommandMethod.getParameterTypes();
-        return buildCommandMethodId(interfaceName, methodName, parameterTypes);
-    }
-
-    public static String buildCommandMethodId(String interfaceName, String methodName, Class<?>... parameterTypes) {
-        int length = parameterTypes.length;
-        String[] parameterTypeNames = new String[length];
-        for (int i = 0; i < length; i++) {
-            parameterTypeNames[i] = parameterTypes[i].getName();
-        }
-        return buildCommandMethodId(interfaceName, methodName, parameterTypeNames);
-    }
-
-    public static String buildCommandMethodId(String interfaceName, String methodName, String... parameterTypes) {
-        StringBuilder infoBuilder = new StringBuilder(interfaceName);
-        infoBuilder.append(DOT_CHAR).append(methodName);
-        StringJoiner paramTypesInfo = new StringJoiner(COMMA, LEFT_PARENTHESIS, RIGHT_PARENTHESIS);
-        for (String parameterType : parameterTypes) {
-            paramTypesInfo.add(parameterType);
-        }
-        infoBuilder.append(paramTypesInfo);
-        return infoBuilder.toString();
+        return buildRedisCommandMethodId(event.getMethod());
     }
 
     /**
