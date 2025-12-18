@@ -83,6 +83,7 @@ public abstract class AbstractRedisReplicatorTest {
             assertEquals("set", redisCommandEvent.getMethodName());
             assertArrayEquals(ofArray(byte[].class, byte[].class), redisCommandEvent.getParameterTypes());
             assertEquals("application", redisCommandEvent.getApplicationName());
+            assertEquals("default", event.getDomain());
             latch.countDown();
         });
 
