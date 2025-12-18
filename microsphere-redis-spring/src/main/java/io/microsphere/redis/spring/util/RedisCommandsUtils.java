@@ -17,17 +17,15 @@ import java.util.function.BiConsumer;
 
 import static io.microsphere.collection.ListUtils.newArrayList;
 import static io.microsphere.constants.SymbolConstants.DOT_CHAR;
-import static io.microsphere.constants.SymbolConstants.LESS_THAN;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.getWriteParameterMetadataList;
 import static io.microsphere.redis.spring.serializer.Serializers.getSerializer;
 import static io.microsphere.redis.spring.serializer.Serializers.serializeRawParameter;
 import static io.microsphere.util.ClassLoaderUtils.getClassLoader;
+import static io.microsphere.util.ClassLoaderUtils.resolveClass;
 import static io.microsphere.util.StringUtils.INDEX_NOT_FOUND;
 import static io.microsphere.util.StringUtils.isNotBlank;
-import static io.microsphere.util.StringUtils.substringBefore;
 import static java.util.Collections.unmodifiableList;
-import static org.springframework.util.ClassUtils.resolveClassName;
 
 /**
  * {@link RedisCommands Redis Command} Utilities Class
@@ -196,9 +194,7 @@ public abstract class RedisCommandsUtils {
         Class[] parameterClasses = new Class[parameterCount];
         for (int i = 0; i < parameterCount; i++) {
             String parameterType = parameterTypes[i];
-            // remove the generic info
-            parameterType = substringBefore(parameterType, LESS_THAN);
-            Class parameterClass = resolveClassName(parameterType, classLoader);
+            Class parameterClass = resolveClass(parameterType, classLoader, true);
             parameterClasses[i] = parameterClass;
         }
         return parameterClasses;
