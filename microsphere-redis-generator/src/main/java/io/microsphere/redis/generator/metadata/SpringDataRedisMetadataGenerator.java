@@ -34,6 +34,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import static io.microsphere.constants.SymbolConstants.EQUAL;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.generator.doclet.SpringDataRedisMetadataGenerationDoclet.METADATA_FILE_OPTION_NAME;
 import static io.microsphere.util.ClassPathUtils.getClassPaths;
@@ -110,11 +111,11 @@ public class SpringDataRedisMetadataGenerator {
         // set class-paths
         standardFileManager.setLocation(CLASS_PATH, classPaths);
 
-        logger.info("Class-Paths : {}", classPaths);
+        logger.info("The Documentation Tools' Class-Paths : {}", classPaths);
 
         var docUtils = standardFileManager.getJavaFileObjects(sourceFiles.toArray(new Path[0]));
 
-        Set<String> options = of(METADATA_FILE_OPTION_NAME + "=" + targetFilePath);
+        Set<String> options = of(METADATA_FILE_OPTION_NAME + EQUAL + targetFilePath);
 
         DocumentationTask docTask = documentationTool.getTask(null, standardFileManager, null,
                 SpringDataRedisMetadataGenerationDoclet.class, options, docUtils);
@@ -124,7 +125,7 @@ public class SpringDataRedisMetadataGenerator {
         logger.info("The JavaDoc generation result : {}", result);
     }
 
-    private static Set<File> resolveClassPaths() throws IOException {
+    private static Set<File> resolveClassPaths() {
         return getClassPaths().stream().map(File::new).collect(toSet());
     }
 }
