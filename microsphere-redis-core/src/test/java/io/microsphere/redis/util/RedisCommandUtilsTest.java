@@ -22,29 +22,28 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
-import static io.microsphere.redis.util.RedisCommandUtils.LOAD_REDIS_COMMANDS_FUNCTION;
-import static io.microsphere.redis.util.RedisCommandUtils.REDIS_COMMANDS_RESOURCE;
 import static io.microsphere.redis.util.RedisCommandUtils.getRedisCommands;
-import static io.microsphere.redis.util.RedisUtils.loadResources;
-import static java.util.Collections.emptySet;
+import static io.microsphere.redis.util.RedisCommandUtils.getRedisWriteCommands;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * {@link RedisUtils} Test
+ * TODO
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
- * @see RedisUtils
+ * @see TODO
  * @since 1.0.0
  */
-class RedisUtilsTest {
+class RedisCommandUtilsTest {
 
     @Test
-    void testLoadResources() {
+    void testGetRedisCommands() {
         Set<String> redisCommands = getRedisCommands();
-        Set<String> allRedisCommands = loadResources(REDIS_COMMANDS_RESOURCE,
-                inputStreams -> LOAD_REDIS_COMMANDS_FUNCTION.apply(inputStreams.get(0)));
-        assertEquals(redisCommands, allRedisCommands);
+        assertEquals(595, redisCommands.size());
+    }
 
-        assertEquals(emptySet(), loadResources("REDIS_COMMANDS_RESOURCE", inputStreams -> emptySet()));
+    @Test
+    void testGetRedisWriteCommands() {
+        Set<String> redisWriteCommands = getRedisWriteCommands();
+        assertEquals(177, redisWriteCommands.size());
     }
 }

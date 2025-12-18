@@ -59,9 +59,12 @@ import static io.microsphere.annotation.processor.util.MethodUtils.getMethodPara
 import static io.microsphere.collection.MapUtils.newLinkedHashMap;
 import static io.microsphere.collection.Sets.ofSet;
 import static io.microsphere.constants.SymbolConstants.DOT;
-import static io.microsphere.redis.util.RedisUtils.getRedisCommands;
-import static io.microsphere.redis.util.RedisUtils.getRedisWriteCommands;
+import static io.microsphere.redis.util.RedisCommandUtils.getRedisCommands;
+import static io.microsphere.redis.util.RedisCommandUtils.getRedisWriteCommands;
+import static io.microsphere.text.FormatUtils.format;
+import static io.microsphere.util.ArrayUtils.arrayToString;
 import static io.microsphere.util.StringUtils.substringBetween;
+import static java.lang.Math.abs;
 import static javax.lang.model.SourceVersion.latest;
 import static javax.lang.model.element.ElementKind.METHOD;
 import static javax.lang.model.element.NestingKind.TOP_LEVEL;
@@ -99,14 +102,24 @@ public class SpringDataRedisMetadataGenerationDoclet implements Doclet {
      */
     public static final String INDEX_KEY = "index";
 
+    /**
+     * The metadata key of Spring Data Redis Command Method Name
+     */
     public static final String METHOD_NAME_KEY = "methodName";
 
+    /**
+     * The metadata key of Spring Data Redis Command Method Parameters' types
+     */
     public static final String METHOD_PARAMETER_TYPES_KEY = "parameterTypes";
 
-    public static final String SIGNATURE_KEY = "signature";
-
+    /**
+     * The metadata key of Spring Data Redis Command Method Command Name
+     */
     public static final String COMMAND_KEY = "command";
 
+    /**
+     * The metadata key of Spring Data Redis Method Command Flag
+     */
     public static final String WRITE_KEY = "write";
 
     private Locale locale;
@@ -191,6 +204,8 @@ public class SpringDataRedisMetadataGenerationDoclet implements Doclet {
             }
         }
 
+        assertIndex(redisMethodMetadataMapList);
+
         this.logger.info("All Redis commands(size : {} , write : {}), the supported Spring Data Redis commands(size : {} , write : {})",
                 this.redisCommands.size(), this.redisWriteCommands.size(), this.supportedCommands.size(), this.supportedWriteCommands.size());
         this.logger.info("All Redis commands : {}", this.redisCommands);
@@ -235,6 +250,34 @@ public class SpringDataRedisMetadataGenerationDoclet implements Doclet {
         return new Yaml(options);
     }
 
+    private int buildIndex(String interfaceName, String signature) {
+        return abs((interfaceName + DOT + signature).hashCode());
+    }
+
+    void assertCommand(String interfaceName, String signature, String resolvedCommand) {
+        if (!redisCommands.contains(resolvedCommand)) {
+            throwsException("The Redis command can't be resolved by the JavaDoc of {}#{} , actual : {}",
+                    interfaceName, signature, resolvedCommand);
+        }
+    }
+
+    private void assertIndex(List<Map<String, Object>> redisMethodMetadataMapList) {
+        Set<Integer> indices = new HashSet<>();
+        for (Map<String, Object> redisMethodMetadataMap : redisMethodMetadataMapList) {
+            Integer index = (Integer) redisMethodMetadataMap.get(INDEX_KEY);
+            if (!indices.add(index)) {
+                String methodName = (String) redisMethodMetadataMap.get(METHOD_NAME_KEY);
+                String[] parameterTypes = (String[]) redisMethodMetadataMap.get(METHOD_PARAMETER_TYPES_KEY);
+                throwsException("The index of Redis Command Method[name : '{}' , parameter types : {}]  : {} is duplicated",
+                        methodName, arrayToString(parameterTypes), index);
+            }
+        }
+    }
+
+    private void throwsException(String messagePattern, Object... args) {
+        throw new IllegalStateException(format(messagePattern, args));
+    }
+
     class RedisCommandMethodVisitor extends ElementScanner9<Void, DocTrees> {
 
         private final List<Map<String, Object>> redisMethodMetadataMapList;
@@ -251,7 +294,7 @@ public class SpringDataRedisMetadataGenerationDoclet implements Doclet {
                 DocCommentTree dcTree = docTrees.getDocCommentTree(e);
                 String interfaceName = methodElement.getEnclosingElement().toString();
                 String signature = methodElement.toString();
-                Integer index = buildIndex(interfaceName, signature);
+                int index = buildIndex(interfaceName, signature);
                 String methodName = getMethodName(methodElement);
                 String[] methodParameterTypeNames = getMethodParameterTypeNames(methodElement);
 
@@ -269,35 +312,6 @@ public class SpringDataRedisMetadataGenerationDoclet implements Doclet {
                 logger.info("Redis Method Metadata : {}", redisMethodMetadataMap);
             }
             return null;
-        }
-
-//        private void initInterfaceMetadata(Map<String, Object> metadataMap, String interfaceName) {
-//            int index = interfaceName.indexOf(DOT);
-//
-//            if (index == -1) {
-//                metadataMap.put(interfaceName, newLinkedHashMap());
-//            } else {
-//                String key = interfaceName.substring(0, index);
-//                String remaining = interfaceName.substring(index + 1);
-//                Map<String, Object> subMap = (Map) metadataMap.computeIfAbsent(key, k -> newLinkedHashMap());
-//                initInterfaceMetadata(subMap, remaining);
-//            }
-//        }
-//
-//
-//        private Map<String, Object> getInterfaceMap(String interfaceName) {
-//            String[] parts = split(interfaceName, DOT);
-//            Map<String, Object> interfaceMap = this.methodsMetadataMap;
-//            for (int i = 0; i < parts.length; i++) {
-//                String part = parts[i];
-//                interfaceMap = (Map<String, Object>) interfaceMap.get(part);
-//            }
-//            return interfaceMap;
-//        }
-
-        private Integer buildIndex(String interfaceName, String signature) {
-            return (interfaceName + DOT + signature).hashCode();
-            // return toHexString(hashCode);
         }
     }
 
@@ -323,28 +337,19 @@ public class SpringDataRedisMetadataGenerationDoclet implements Doclet {
                     String interfaceName = (String) this.redisMethodMetadataMap.get(INTERFACE_NAME_KEY);
                     String signature = methodElement.toString();
                     String resolvedCommand = reference.trim().toUpperCase(locale);
-                    if (isCommand(interfaceName, signature, resolvedCommand)) {
-                        boolean write = redisWriteCommands.contains(resolvedCommand);
+                    assertCommand(interfaceName, signature, resolvedCommand);
 
-                        this.redisMethodMetadataMap.put(COMMAND_KEY, resolvedCommand);
-                        this.redisMethodMetadataMap.put(WRITE_KEY, write);
+                    boolean write = redisWriteCommands.contains(resolvedCommand);
+                    this.redisMethodMetadataMap.put(COMMAND_KEY, resolvedCommand);
+                    this.redisMethodMetadataMap.put(WRITE_KEY, write);
 
-                        supportedCommands.add(resolvedCommand);
-                        if (write) {
-                            supportedWriteCommands.add(resolvedCommand);
-                        }
+                    supportedCommands.add(resolvedCommand);
+                    if (write) {
+                        supportedWriteCommands.add(resolvedCommand);
                     }
                 }
             }
             return super.scan(t, methodElement);
-        }
-
-        boolean isCommand(String interfaceName, String signature, String resolvedCommand) {
-            boolean isCommand = redisCommands.contains(resolvedCommand);
-            if (!isCommand) {
-                logger.warn("The Redis command can't be resolved by the JavaDoc of {}#{} , actual : {}", interfaceName, signature, resolvedCommand);
-            }
-            return isCommand;
         }
     }
 }

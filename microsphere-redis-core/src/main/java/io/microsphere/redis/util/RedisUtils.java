@@ -26,61 +26,22 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 
 import static io.microsphere.collection.ListUtils.forEach;
-import static io.microsphere.constants.SeparatorConstants.LINE_SEPARATOR;
-import static io.microsphere.constants.SymbolConstants.SHARP;
-import static io.microsphere.io.IOUtils.copyToString;
 import static io.microsphere.lang.function.ThrowableSupplier.execute;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.util.ClassLoaderUtils.getDefaultClassLoader;
-import static io.microsphere.util.StringUtils.split;
-import static java.util.Collections.unmodifiableSet;
 
 /**
  * The utilities class for Redis
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
- * @see RedisUtils
+ * @see RedisCommandUtils
  * @since 1.0.0
  */
 public abstract class RedisUtils {
 
     private static final Logger logger = getLogger(RedisUtils.class);
-
-    /**
-     * The resource path for Redis Commands
-     */
-    public static final String REDIS_COMMANDS_RESOURCE = "META-INF/redis-commands";
-
-    /**
-     * The resource path for Redis Write Commands
-     */
-    public static final String REDIS_WRITE_COMMANDS_RESOURCE = "META-INF/redis-write-commands";
-
-    static final ThrowableFunction<InputStream, Set<String>> LOAD_REDIS_COMMANDS_FUNCTION = inputStream -> {
-        String content = copyToString(inputStream);
-        String[] lines = split(content, LINE_SEPARATOR);
-        Set<String> redisCommands = new TreeSet<>();
-        for (String line : lines) {
-            if (line.startsWith(SHARP)) { // Comment line
-                continue;
-            }
-            redisCommands.add(line);
-            logger.trace("Redis Command : {} ", line);
-        }
-        return unmodifiableSet(redisCommands);
-    };
-
-    public static Set<String> getRedisCommands() {
-        return loadResource(REDIS_COMMANDS_RESOURCE, LOAD_REDIS_COMMANDS_FUNCTION);
-    }
-
-    public static Set<String> getRedisWriteCommands() {
-        return loadResource(REDIS_WRITE_COMMANDS_RESOURCE, LOAD_REDIS_COMMANDS_FUNCTION);
-    }
 
     public static <T> T loadResource(String resourceName, ThrowableFunction<InputStream, T> inputStreamToTarget) {
         return loadResource(getDefaultClassLoader(), resourceName, inputStreamToTarget);
