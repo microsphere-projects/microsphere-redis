@@ -119,4 +119,7 @@ public abstract class RedisCommandUtils implements Utils {
         String id = buildMethodId(className, methodName, parameterTypes);
         return abs(id.hashCode());
     }
+
+    private RedisCommandUtils() {
+    }
 }
