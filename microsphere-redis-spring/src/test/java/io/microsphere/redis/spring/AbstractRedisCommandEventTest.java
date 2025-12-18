@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
+import org.springframework.data.redis.RedisSystemException;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -38,6 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Abstract {@link RedisCommandEvent} Test
@@ -90,6 +92,10 @@ public abstract class AbstractRedisCommandEventTest extends AbstractRedisTest {
             assertEquals(connection, connection);
             assertNotEquals(connection, this);
             assertEquals(connection.hashCode(), connection.hashCode());
+            
+            assertThrows(RedisSystemException.class, () -> {
+                connection.execute("Not-Found-Command");
+            });
         });
 
         String suffix = "-" + nanoTime();
