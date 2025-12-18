@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
+import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.serializer.RedisSerializer;
@@ -82,6 +83,11 @@ public abstract class AbstractRedisCommandEventTest extends AbstractRedisTest {
 
             // assert source application
             assertEquals(DEFAULT_SPRING_APPLICATION_NAME_PROPERTY_VALUE, event.getApplicationName());
+
+            RedisConnection connection = stringRedisTemplate.execute(c -> c, true);
+
+            assertEquals(connection, connection);
+            assertEquals(connection.hashCode(), connection.hashCode());
         });
 
         String suffix = "-" + nanoTime();
