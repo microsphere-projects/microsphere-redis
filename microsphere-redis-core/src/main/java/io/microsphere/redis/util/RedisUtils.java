@@ -80,15 +80,13 @@ public abstract class RedisUtils {
         });
     }
 
-    public static Class<?>[] loadParameterClasses(String... parameterTypes) {
-        int parameterCount = parameterTypes.length;
-        Class<?>[] parameterClasses = new Class[parameterCount];
-        for (int i = 0; i < parameterCount; i++) {
-            String parameterType = parameterTypes[i];
-            Class<?> parameterClass = loadClass(parameterType);
-            parameterClasses[i] = parameterClass;
+    public static Class<?>[] loadClasses(String... classNames) {
+        int length = classNames.length;
+        Class<?>[] classes = new Class[length];
+        for (int i = 0; i < length; i++) {
+            classes[i] = loadClass(classNames[i]);
         }
-        return parameterClasses;
+        return classes;
     }
 
     public static Class<?> loadClass(String className) {

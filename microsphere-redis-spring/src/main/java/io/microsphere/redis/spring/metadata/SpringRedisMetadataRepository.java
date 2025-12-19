@@ -26,7 +26,7 @@ import static io.microsphere.collection.MapUtils.newFixedHashMap;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.metadata.RedisMetadataLoader.loadAll;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodId;
-import static io.microsphere.redis.util.RedisUtils.loadParameterClasses;
+import static io.microsphere.redis.util.RedisUtils.loadClasses;
 import static io.microsphere.reflect.AccessibleObjectUtils.trySetAccessible;
 import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.util.ArrayUtils.forEach;
@@ -135,7 +135,7 @@ public abstract class SpringRedisMetadataRepository {
                 logger.warn("The current Redis consumer cannot find Redis command interface: {}. Please confirm whether the spring-data artifacts API is compatible.", interfaceNme);
                 return null;
             }
-            Class[] parameterClasses = loadParameterClasses(parameterTypes);
+            Class[] parameterClasses = loadClasses(parameterTypes);
             method = findMethod(redisCommandInterfaceClass, methodName, parameterClasses);
             if (method == null) {
                 logger.warn("Current Redis consumer Redis command interface (class name: {}) in the method ({}), command method search end!", interfaceNme, buildMethodId(interfaceNme, methodName, parameterTypes));
