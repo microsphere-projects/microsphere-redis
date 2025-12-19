@@ -30,7 +30,9 @@ import java.util.List;
 import static io.microsphere.collection.ListUtils.forEach;
 import static io.microsphere.lang.function.ThrowableSupplier.execute;
 import static io.microsphere.logging.LoggerFactory.getLogger;
+import static io.microsphere.util.ClassLoaderUtils.getClassLoader;
 import static io.microsphere.util.ClassLoaderUtils.getDefaultClassLoader;
+import static io.microsphere.util.ClassLoaderUtils.resolveClass;
 
 /**
  * The utilities class for Redis
@@ -42,6 +44,8 @@ import static io.microsphere.util.ClassLoaderUtils.getDefaultClassLoader;
 public abstract class RedisUtils {
 
     private static final Logger logger = getLogger(RedisUtils.class);
+
+    private static final ClassLoader classLoader = getClassLoader(RedisUtils.class);
 
     public static <T> T loadResource(String resourceName, ThrowableFunction<InputStream, T> inputStreamToTarget) {
         return loadResource(getDefaultClassLoader(), resourceName, inputStreamToTarget);
@@ -74,6 +78,21 @@ public abstract class RedisUtils {
             }
             return target;
         });
+    }
+
+    public static Class<?>[] loadParameterClasses(String... parameterTypes) {
+        int parameterCount = parameterTypes.length;
+        Class<?>[] parameterClasses = new Class[parameterCount];
+        for (int i = 0; i < parameterCount; i++) {
+            String parameterType = parameterTypes[i];
+            Class<?> parameterClass = loadClass(parameterType);
+            parameterClasses[i] = parameterClass;
+        }
+        return parameterClasses;
+    }
+
+    public static Class<?> loadClass(String className) {
+        return resolveClass(className, classLoader, true);
     }
 
     static <T> T toTarget(URL resource, ThrowableFunction<InputStream, T> inputStreamToTarget) {

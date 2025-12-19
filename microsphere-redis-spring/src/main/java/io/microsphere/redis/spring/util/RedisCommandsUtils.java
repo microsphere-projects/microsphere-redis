@@ -22,7 +22,6 @@ import static io.microsphere.redis.spring.serializer.Serializers.getSerializer;
 import static io.microsphere.redis.spring.serializer.Serializers.serializeRawParameter;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodId;
 import static io.microsphere.util.ClassLoaderUtils.getClassLoader;
-import static io.microsphere.util.ClassLoaderUtils.resolveClass;
 import static io.microsphere.util.StringUtils.INDEX_NOT_FOUND;
 import static io.microsphere.util.StringUtils.isNotBlank;
 import static java.util.Collections.unmodifiableList;
@@ -187,17 +186,6 @@ public abstract class RedisCommandsUtils {
             getSerializer(parameterType);
         }
         return unmodifiableList(parameterMetadataList);
-    }
-
-    public static Class[] loadParameterClasses(String... parameterTypes) {
-        int parameterCount = parameterTypes.length;
-        Class[] parameterClasses = new Class[parameterCount];
-        for (int i = 0; i < parameterCount; i++) {
-            String parameterType = parameterTypes[i];
-            Class parameterClass = resolveClass(parameterType, classLoader, true);
-            parameterClasses[i] = parameterClass;
-        }
-        return parameterClasses;
     }
 
     private RedisCommandsUtils() {

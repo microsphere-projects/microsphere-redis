@@ -21,7 +21,11 @@ package io.microsphere.redis.spring.metadata;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.findMethodIndex;
 import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.init;
+import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.redisCommandMethods;
+import static io.microsphere.util.ArrayUtils.forEach;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * {@link SpringRedisMetadataRepository} Test
@@ -39,6 +43,9 @@ class SpringRedisMetadataRepositoryTest {
 
     @Test
     void testFindMethodIndex() {
+        forEach(redisCommandMethods, method -> {
+            assertNotNull(findMethodIndex(method));
+        });
     }
 
     @Test
