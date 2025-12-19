@@ -25,8 +25,12 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.StringJoiner;
 
+import static io.microsphere.constants.SymbolConstants.COMMA;
+import static io.microsphere.constants.SymbolConstants.LEFT_SQUARE_BRACKET;
+import static io.microsphere.constants.SymbolConstants.RIGHT_SQUARE_BRACKET;
 import static io.microsphere.redis.spring.serializer.RedisCommandEventSerializer.VERSION_DEFAULT;
 import static io.microsphere.redis.spring.serializer.RedisCommandEventSerializer.VERSION_V1;
+import static io.microsphere.util.ArrayUtils.arrayToString;
 
 
 /**
@@ -231,8 +235,12 @@ public class RedisCommandEvent extends ApplicationEvent {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof RedisCommandEvent)) {
+            return false;
+        }
         RedisCommandEvent that = (RedisCommandEvent) o;
         return Objects.equals(applicationName, that.applicationName) &&
                 Objects.equals(sourceBeanName, that.sourceBeanName) &&
@@ -249,6 +257,11 @@ public class RedisCommandEvent extends ApplicationEvent {
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", RedisCommandEvent.class.getSimpleName() + "[", "]").add("applicationName='" + applicationName + "'").add("sourceBeanName='" + sourceBeanName + "'").add("method=" + method).add("args=" + Arrays.toString(args)).toString();
+        return new StringJoiner(COMMA, RedisCommandEvent.class.getSimpleName() + LEFT_SQUARE_BRACKET, RIGHT_SQUARE_BRACKET)
+                .add("applicationName='" + applicationName + "'")
+                .add("sourceBeanName='" + sourceBeanName + "'")
+                .add("method=" + method)
+                .add("args=" + arrayToString(args))
+                .toString();
     }
 }
