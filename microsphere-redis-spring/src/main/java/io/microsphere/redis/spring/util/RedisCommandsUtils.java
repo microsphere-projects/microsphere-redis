@@ -21,9 +21,11 @@ import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository
 import static io.microsphere.redis.spring.serializer.Serializers.getSerializer;
 import static io.microsphere.redis.spring.serializer.Serializers.serializeRawParameter;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodId;
+import static io.microsphere.redis.util.RedisUtils.CLASS_LOADER;
 import static io.microsphere.util.StringUtils.INDEX_NOT_FOUND;
 import static io.microsphere.util.StringUtils.isNotBlank;
 import static java.util.Collections.unmodifiableList;
+import static org.springframework.util.ClassUtils.forName;
 
 /**
  * {@link RedisCommands Redis Command} Utilities Class
@@ -205,6 +207,24 @@ public abstract class RedisCommandsUtils {
             getSerializer(parameterType);
         }
         return unmodifiableList(parameterMetadataList);
+    }
+
+    public static Class<?>[] loadClasses(String... classNames) {
+        int length = classNames.length;
+        Class<?>[] classes = new Class[length];
+        for (int i = 0; i < length; i++) {
+            classes[i] = loadClass(classNames[i]);
+        }
+        return classes;
+    }
+
+    public static Class<?> loadClass(String className) {
+        try {
+            return forName(className, CLASS_LOADER);
+        } catch (ClassNotFoundException e) {
+            logger.trace("The Class can't be loaded by name : '{}'", className);
+            return null;
+        }
     }
 
     private RedisCommandsUtils() {

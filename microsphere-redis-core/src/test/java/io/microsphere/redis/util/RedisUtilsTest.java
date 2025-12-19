@@ -25,11 +25,8 @@ import java.util.Set;
 import static io.microsphere.redis.util.RedisCommandUtils.LOAD_REDIS_COMMANDS_FUNCTION;
 import static io.microsphere.redis.util.RedisCommandUtils.REDIS_COMMANDS_RESOURCE;
 import static io.microsphere.redis.util.RedisCommandUtils.getRedisCommands;
-import static io.microsphere.redis.util.RedisUtils.loadClasses;
 import static io.microsphere.redis.util.RedisUtils.loadResources;
 import static java.util.Collections.emptySet;
-import static java.util.stream.Stream.of;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -49,18 +46,5 @@ class RedisUtilsTest {
         assertEquals(redisCommands, allRedisCommands);
 
         assertEquals(emptySet(), loadResources("REDIS_COMMANDS_RESOURCE", inputStreams -> emptySet()));
-    }
-
-    @Test
-    void testLoadClasses() {
-        assertLoadClasses();
-        assertLoadClasses(String.class);
-        assertLoadClasses(String.class, Integer.class);
-        assertLoadClasses(String.class, Integer.class, RawValue.class);
-        assertLoadClasses(String.class, Integer.class, RawValue.class, this.getClass());
-    }
-
-    private void assertLoadClasses(Class<?>... classes) {
-        assertArrayEquals(classes, loadClasses(of(classes).map(Class::getName).toArray(String[]::new)));
     }
 }

@@ -35,10 +35,11 @@ import static io.microsphere.lang.function.ThrowableAction.execute;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.metadata.RedisMetadataLoader.loadAll;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_COMMANDS_PACKAGE_NAME;
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.isRedisCommandsInterface;
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.loadClass;
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.loadClasses;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodId;
 import static io.microsphere.redis.util.RedisUtils.CLASS_LOADER;
-import static io.microsphere.redis.util.RedisUtils.loadClass;
-import static io.microsphere.redis.util.RedisUtils.loadClasses;
 import static io.microsphere.reflect.AccessibleObjectUtils.trySetAccessible;
 import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.util.ArrayUtils.forEach;
@@ -213,12 +214,12 @@ public abstract class SpringRedisMetadataRepository {
                 if (classMetadata.isInterface() && !classMetadata.hasEnclosingClass()) {
                     String interfaceName = classMetadata.getClassName();
                     Class<?> redisCommandInterfaceClass = loadClass(interfaceName);
-                    if (RedisCommands.class.isAssignableFrom(redisCommandInterfaceClass)) {
+                    if (isRedisCommandsInterface(redisCommandInterfaceClass)) {
                         cache(redisCommandInterfacesCache, interfaceName, redisCommandInterfaceClass);
                         Class<?>[] superInterfaceClasses = redisCommandInterfaceClass.getInterfaces();
                         for (Class<?> superInterfaceClass : superInterfaceClasses) {
-                            String superInterfaceName = superInterfaceClass.getName();
-                            if (superInterfaceName.startsWith(REDIS_COMMANDS_PACKAGE_NAME)) {
+                            if (isRedisCommandsInterface(superInterfaceClass)) {
+                                String superInterfaceName = superInterfaceClass.getName();
                                 cache(redisCommandInterfacesCache, superInterfaceName, superInterfaceClass);
                             }
                         }
@@ -227,7 +228,7 @@ public abstract class SpringRedisMetadataRepository {
             }
         });
 
-        logger.trace("Redis command interfaces cache: {}", redisCommandInterfacesCache.keySet());
+        logger.trace("Redis command interfaces cache: {}", redisCommandInterfacesCache);
         return unmodifiableMap(redisCommandInterfacesCache);
     }
 

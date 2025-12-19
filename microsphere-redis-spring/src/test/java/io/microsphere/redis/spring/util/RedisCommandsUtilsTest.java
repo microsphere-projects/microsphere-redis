@@ -24,6 +24,7 @@ import io.microsphere.redis.spring.config.RedisContextConfig;
 import io.microsphere.redis.spring.context.RedisContext;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
 import io.microsphere.redis.spring.interceptor.RedisMethodContext;
+import io.microsphere.redis.util.RawValue;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.redis.connection.DefaultStringRedisConnection;
 import org.springframework.data.redis.connection.DefaultedRedisClusterConnection;
@@ -92,12 +93,14 @@ import static io.microsphere.redis.spring.util.RedisCommandsUtils.buildCommandMe
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.getRedisCommands;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.initializeParameters;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.isRedisCommandsInterface;
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.loadClasses;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.resolveInterfaceName;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.resolveSimpleInterfaceName;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodId;
 import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.spring.test.util.SpringTestUtils.testInSpringContainer;
 import static io.microsphere.util.ArrayUtils.EMPTY_OBJECT_ARRAY;
+import static java.util.stream.Stream.of;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -294,6 +297,19 @@ class RedisCommandsUtilsTest {
 
         assertFalse(initializeParameters(randomKeyMethod, EMPTY_OBJECT_ARRAY, (parameter, integer) -> {
         }));
+    }
+
+    @Test
+    void testLoadClasses() {
+        assertLoadClasses();
+        assertLoadClasses(String.class);
+        assertLoadClasses(String.class, Integer.class);
+        assertLoadClasses(String.class, Integer.class, RawValue.class);
+        assertLoadClasses(String.class, Integer.class, RawValue.class, this.getClass());
+    }
+
+    private void assertLoadClasses(Class<?>... classes) {
+        assertArrayEquals(classes, loadClasses(of(classes).map(Class::getName).toArray(String[]::new)));
     }
 
     void assertInterfaceName(String interfaceName) {

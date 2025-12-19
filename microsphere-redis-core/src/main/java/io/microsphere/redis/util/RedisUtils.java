@@ -31,7 +31,6 @@ import static io.microsphere.collection.ListUtils.forEach;
 import static io.microsphere.lang.function.ThrowableSupplier.execute;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.util.ClassLoaderUtils.getDefaultClassLoader;
-import static io.microsphere.util.ClassLoaderUtils.resolveClass;
 
 /**
  * The utilities class for Redis
@@ -77,19 +76,6 @@ public abstract class RedisUtils {
             }
             return target;
         });
-    }
-
-    public static Class<?>[] loadClasses(String... classNames) {
-        int length = classNames.length;
-        Class<?>[] classes = new Class[length];
-        for (int i = 0; i < length; i++) {
-            classes[i] = loadClass(classNames[i]);
-        }
-        return classes;
-    }
-
-    public static Class<?> loadClass(String className) {
-        return resolveClass(className, CLASS_LOADER, true);
     }
 
     static <T> T toTarget(URL resource, ThrowableFunction<InputStream, T> inputStreamToTarget) {
