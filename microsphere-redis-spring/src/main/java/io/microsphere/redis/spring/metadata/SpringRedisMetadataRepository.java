@@ -11,6 +11,13 @@ import io.microsphere.redis.spring.util.RedisCommandsUtils;
 import io.microsphere.redis.spring.util.RedisConstants;
 import io.microsphere.redis.util.RedisCommandUtils;
 import io.microsphere.reflect.AccessibleObjectUtils;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.core.type.ClassMetadata;
+import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
+import org.springframework.core.type.classreading.MetadataReader;
+import org.springframework.core.type.classreading.MetadataReaderFactory;
 import org.springframework.data.redis.connection.RedisCommands;
 import org.springframework.data.redis.connection.RedisConnection;
 
@@ -23,16 +30,22 @@ import java.util.Set;
 import java.util.function.Function;
 
 import static io.microsphere.collection.MapUtils.newFixedHashMap;
+import static io.microsphere.collection.MapUtils.newHashMap;
+import static io.microsphere.lang.function.ThrowableAction.execute;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.metadata.RedisMetadataLoader.loadAll;
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_COMMANDS_PACKAGE_NAME;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodId;
+import static io.microsphere.redis.util.RedisUtils.CLASS_LOADER;
+import static io.microsphere.redis.util.RedisUtils.loadClass;
 import static io.microsphere.redis.util.RedisUtils.loadClasses;
 import static io.microsphere.reflect.AccessibleObjectUtils.trySetAccessible;
 import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.util.ArrayUtils.forEach;
+import static io.microsphere.util.ClassLoaderUtils.ResourceType.PACKAGE;
 import static io.microsphere.util.ClassLoaderUtils.resolveClass;
-import static io.microsphere.util.ClassUtils.getAllInterfaces;
 import static java.util.Collections.unmodifiableMap;
+import static org.springframework.core.io.support.ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
 
 /**
@@ -45,8 +58,12 @@ public abstract class SpringRedisMetadataRepository {
 
     private static final Logger logger = getLogger(SpringRedisMetadataRepository.class);
 
+    private static final MetadataReaderFactory metadataReaderFactory = new CachingMetadataReaderFactory(CLASS_LOADER);
+
+    private static final String REDIS_COMMAND_INTERFACES_RESOURCE_PATTERN = CLASSPATH_ALL_URL_PREFIX + PACKAGE.resolve(REDIS_COMMANDS_PACKAGE_NAME) + "**/*.class";
+
     /**
-     * All public {@link Method methods} from {@link RedisConnection}.
+     * All public {@link Method methods} from {@link RedisConnection} and its' ancestors
      */
     static final Method[] redisCommandMethods = RedisConnection.class.getMethods();
 
@@ -186,15 +203,31 @@ public abstract class SpringRedisMetadataRepository {
      * Caches the name of the {@link RedisConnection} command interface with the {@link Class} object cache
      */
     private static Map<String, Class<?>> initRedisCommandInterfacesCache() {
-        List<Class<?>> redisCommandInterfaceClasses = getAllInterfaces(RedisConnection.class);
-        int size = redisCommandInterfaceClasses.size();
-        Map<String, Class<?>> redisCommandInterfacesCache = newFixedHashMap(size);
-        for (int i = 0; i < size; i++) {
-            Class<?> redisCommandInterfaceClass = redisCommandInterfaceClasses.get(i);
-            String interfaceName = redisCommandInterfaceClass.getName();
-            redisCommandInterfacesCache.put(interfaceName, redisCommandInterfaceClass);
-            logger.trace("Caches the Redis Command Interface : {}", interfaceName);
-        }
+        Map<String, Class<?>> redisCommandInterfacesCache = newHashMap();
+        execute(() -> {
+            ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver(CLASS_LOADER);
+            Resource[] resources = resourcePatternResolver.getResources(REDIS_COMMAND_INTERFACES_RESOURCE_PATTERN);
+            for (Resource resource : resources) {
+                MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(resource);
+                ClassMetadata classMetadata = metadataReader.getClassMetadata();
+                if (classMetadata.isInterface() && !classMetadata.hasEnclosingClass()) {
+                    String interfaceName = classMetadata.getClassName();
+                    Class<?> redisCommandInterfaceClass = loadClass(interfaceName);
+                    if (RedisCommands.class.isAssignableFrom(redisCommandInterfaceClass)) {
+                        cache(redisCommandInterfacesCache, interfaceName, redisCommandInterfaceClass);
+                        Class<?>[] superInterfaceClasses = redisCommandInterfaceClass.getInterfaces();
+                        for (Class<?> superInterfaceClass : superInterfaceClasses) {
+                            String superInterfaceName = superInterfaceClass.getName();
+                            if (superInterfaceName.startsWith(REDIS_COMMANDS_PACKAGE_NAME)) {
+                                cache(redisCommandInterfacesCache, superInterfaceName, superInterfaceClass);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        logger.trace("Redis command interfaces cache: {}", redisCommandInterfacesCache.keySet());
         return unmodifiableMap(redisCommandInterfacesCache);
     }
 
@@ -232,7 +265,7 @@ public abstract class SpringRedisMetadataRepository {
 
             int index = methodMetadata.getIndex();
             // Put index and Method as key
-            if (redisMetadataCache.put(index, redisCommandMethod) == null && redisMetadataCache.put(redisCommandMethod, methodMetadata) == null) {
+            if (cache(redisMetadataCache, index, redisCommandMethod) && cache(redisMetadataCache, redisCommandMethod, methodMetadata)) {
                 if (methodMetadata.isWrite()) {
                     Class<?>[] parameterTypes = redisCommandMethod.getParameterTypes();
                     initWriteCommandMethod(redisCommandMethod, parameterTypes);
@@ -246,6 +279,17 @@ public abstract class SpringRedisMetadataRepository {
             }
         }
         return redisMetadataCache;
+    }
+
+    static <K, V> boolean cache(Map<K, V> cache, K key, V value) {
+        V oldValue = cache.put(key, value);
+        if (oldValue == null) {
+            logger.trace("Caches the entry [key : {} , value : {}] into cache : {}", key, value, cache);
+            return true;
+        } else {
+            logger.trace("The entry [key : {} , value : {}] was already cached into cache : {}", key, value, cache);
+            return false;
+        }
     }
 
     private static Method getRedisCommandMethod(MethodMetadata methodMetadata) {
