@@ -217,10 +217,10 @@ public class InMemoryRedisMetadataRepository implements RedisMetadataRepository 
     static <K, V> boolean cache(Map<K, V> cache, K key, V value) {
         V oldValue = cache.put(key, value);
         if (oldValue == null) {
-            logger.trace("Caches the entry [key : {} , value : {}] into cache : {}", key, value, cache);
+            logger.trace("Caches the entry [key : {} , value : {}] into cache", key, value);
             return true;
         } else {
-            logger.trace("The entry [key : {} , value : {}] was already cached into cache : {}", key, value, cache);
+            logger.trace("The entry [key : {} , value : {}] was already cached into cache", key, value);
             return false;
         }
     }
