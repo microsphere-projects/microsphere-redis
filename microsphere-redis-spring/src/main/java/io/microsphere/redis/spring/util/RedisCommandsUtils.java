@@ -21,7 +21,6 @@ import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository
 import static io.microsphere.redis.spring.serializer.Serializers.getSerializer;
 import static io.microsphere.redis.spring.serializer.Serializers.serializeRawParameter;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodId;
-import static io.microsphere.util.ClassLoaderUtils.getClassLoader;
 import static io.microsphere.util.StringUtils.INDEX_NOT_FOUND;
 import static io.microsphere.util.StringUtils.isNotBlank;
 import static java.util.Collections.unmodifiableList;
@@ -69,8 +68,6 @@ public abstract class RedisCommandsUtils {
     public static final String REDIS_GEO_COMMANDS_INTERFACE_NAME = "org.springframework.data.redis.connection.RedisGeoCommands";
 
     public static final String REDIS_HYPER_LOG_LOG_COMMANDS_INTERFACE_NAME = "org.springframework.data.redis.connection.RedisHyperLogLogCommands";
-
-    private static final ClassLoader classLoader = getClassLoader(RedisCommandsUtils.class);
 
     public static String resolveSimpleInterfaceName(String interfaceName) {
         int index = interfaceName.indexOf(REDIS_COMMANDS_PACKAGE_NAME);

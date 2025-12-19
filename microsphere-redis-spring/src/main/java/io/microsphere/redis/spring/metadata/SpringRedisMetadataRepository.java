@@ -48,7 +48,7 @@ public abstract class SpringRedisMetadataRepository {
     /**
      * All public {@link Method methods} from {@link RedisConnection}.
      */
-    private static final Method[] redisCommandMethods = RedisConnection.class.getMethods();
+    static final Method[] redisCommandMethods = RedisConnection.class.getMethods();
 
     /**
      * {@link org.springframework.data.redis.connection.DefaultedRedisConnection} was introduced in Spring Data Redis 2.0.0.RELEASE,
@@ -56,7 +56,7 @@ public abstract class SpringRedisMetadataRepository {
      *
      * @see org.springframework.data.redis.connection.DefaultedRedisConnection
      */
-    private static final Class<?> defaultedRedisConnectionClass = resolveClass("org.springframework.data.redis.connection.DefaultedRedisConnection");
+    static final Class<?> defaultedRedisConnectionClass = resolveClass("org.springframework.data.redis.connection.DefaultedRedisConnection");
 
     /**
      * Interface Class name and {@link Class} object cache (reduces class loading performance cost) from
