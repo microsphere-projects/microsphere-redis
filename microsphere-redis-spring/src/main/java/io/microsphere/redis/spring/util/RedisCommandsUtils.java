@@ -35,11 +35,9 @@ public abstract class RedisCommandsUtils {
 
     private static final Logger logger = getLogger(RedisCommandsUtils.class);
 
-    static final String REDIS_COMMANDS_PACKAGE_NAME = "org.springframework.data.redis.connection.";
-
-    static final int REDIS_COMMANDS_PACKAGE_NAME_LENGTH = REDIS_COMMANDS_PACKAGE_NAME.length();
-
     private static final ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
+
+    public static final String REDIS_COMMANDS_PACKAGE_NAME = "org.springframework.data.redis.connection.";
 
     public static final String REDIS_KEY_COMMANDS_INTERFACE_NAME = "org.springframework.data.redis.connection.RedisKeyCommands";
 
@@ -69,6 +67,14 @@ public abstract class RedisCommandsUtils {
 
     public static final String REDIS_HYPER_LOG_LOG_COMMANDS_INTERFACE_NAME = "org.springframework.data.redis.connection.RedisHyperLogLogCommands";
 
+    static final int REDIS_COMMANDS_PACKAGE_NAME_LENGTH = REDIS_COMMANDS_PACKAGE_NAME.length();
+
+    static final String REDIS_COMMANDS_INTERFACE_NAME_PREFIX = REDIS_COMMANDS_PACKAGE_NAME + "Redis";
+
+    static final String REACTIVE_COMMANDS_INTERFACE_NAME_PREFIX = REDIS_COMMANDS_PACKAGE_NAME + "Reactive";
+
+    static final String REDIS_COMMANDS_INTERFACE_NAME_SUFFIX = "Commands";
+
     public static String resolveSimpleInterfaceName(String interfaceName) {
         int index = interfaceName.indexOf(REDIS_COMMANDS_PACKAGE_NAME);
         if (index == 0) {
@@ -85,6 +91,22 @@ public abstract class RedisCommandsUtils {
         } else {
             return interfaceName;
         }
+    }
+
+    public static boolean isRedisCommandsInterface(Class<?> interfaceClass) {
+        if (interfaceClass.isInterface()) {
+            if (RedisCommands.class.isAssignableFrom(interfaceClass)) {
+                return true;
+            }
+            return isRedisCommandsInterface(interfaceClass.getName());
+        }
+        return false;
+    }
+
+    public static boolean isRedisCommandsInterface(String interfaceClassName) {
+        return interfaceClassName.endsWith(REDIS_COMMANDS_INTERFACE_NAME_SUFFIX) &&
+                (interfaceClassName.startsWith(REDIS_COMMANDS_INTERFACE_NAME_PREFIX)
+                        || interfaceClassName.startsWith(REACTIVE_COMMANDS_INTERFACE_NAME_PREFIX));
     }
 
     @Nonnull
