@@ -19,6 +19,7 @@ package io.microsphere.redis.spring.annotation;
 import io.microsphere.redis.spring.AbstractRedisCommandEventTest;
 import io.microsphere.redis.spring.interceptor.LoggingRedisCommandInterceptor;
 import io.microsphere.redis.spring.interceptor.StopWatchRedisConnectionInterceptor;
+import io.microsphere.redis.spring.interceptor.ThrowingExceptionRedisCommandInterceptor;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
@@ -29,9 +30,10 @@ import org.springframework.test.context.TestPropertySource;
  * @since 1.0.0
  */
 @ContextConfiguration(classes = {
-        EnableRedisInterceptorTest.class,
         StopWatchRedisConnectionInterceptor.class,
+        ThrowingExceptionRedisCommandInterceptor.class,
         LoggingRedisCommandInterceptor.class,
+        EnableRedisInterceptorTest.class
 })
 @TestPropertySource(properties = {
         "microsphere.redis.enabled=true",
