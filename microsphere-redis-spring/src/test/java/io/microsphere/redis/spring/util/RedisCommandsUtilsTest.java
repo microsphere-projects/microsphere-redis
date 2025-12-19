@@ -25,9 +25,43 @@ import io.microsphere.redis.spring.context.RedisContext;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
 import io.microsphere.redis.spring.interceptor.RedisMethodContext;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.redis.connection.DefaultStringRedisConnection;
+import org.springframework.data.redis.connection.DefaultedRedisClusterConnection;
+import org.springframework.data.redis.connection.DefaultedRedisConnection;
+import org.springframework.data.redis.connection.ReactiveGeoCommands;
+import org.springframework.data.redis.connection.ReactiveHashCommands;
+import org.springframework.data.redis.connection.ReactiveHyperLogLogCommands;
+import org.springframework.data.redis.connection.ReactiveKeyCommands;
+import org.springframework.data.redis.connection.ReactiveListCommands;
+import org.springframework.data.redis.connection.ReactiveNumberCommands;
+import org.springframework.data.redis.connection.ReactivePubSubCommands;
+import org.springframework.data.redis.connection.ReactiveScriptingCommands;
+import org.springframework.data.redis.connection.ReactiveServerCommands;
+import org.springframework.data.redis.connection.ReactiveSetCommands;
+import org.springframework.data.redis.connection.ReactiveStreamCommands;
+import org.springframework.data.redis.connection.ReactiveZSetCommands;
+import org.springframework.data.redis.connection.RedisClusterCommands;
+import org.springframework.data.redis.connection.RedisClusterConnection;
+import org.springframework.data.redis.connection.RedisCommands;
+import org.springframework.data.redis.connection.RedisCommandsProvider;
 import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisConnectionCommands;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisGeoCommands;
+import org.springframework.data.redis.connection.RedisHashCommands;
+import org.springframework.data.redis.connection.RedisHyperLogLogCommands;
 import org.springframework.data.redis.connection.RedisKeyCommands;
+import org.springframework.data.redis.connection.RedisListCommands;
+import org.springframework.data.redis.connection.RedisPubSubCommands;
+import org.springframework.data.redis.connection.RedisScriptingCommands;
+import org.springframework.data.redis.connection.RedisSentinelCommands;
+import org.springframework.data.redis.connection.RedisServerCommands;
+import org.springframework.data.redis.connection.RedisSetCommands;
+import org.springframework.data.redis.connection.RedisStreamCommands;
+import org.springframework.data.redis.connection.RedisStringCommands;
+import org.springframework.data.redis.connection.RedisTxCommands;
+import org.springframework.data.redis.connection.RedisZSetCommands;
+import org.springframework.data.redis.connection.StringRedisConnection;
 
 import java.lang.reflect.Method;
 
@@ -35,6 +69,9 @@ import static io.microsphere.redis.spring.AbstractRedisTest.SET_METHOD;
 import static io.microsphere.redis.spring.AbstractRedisTest.SET_METHOD_ARGS;
 import static io.microsphere.redis.spring.AbstractRedisTest.SOURCE_BEAN_NAME_FOR_REDIS_TEMPLATE;
 import static io.microsphere.redis.spring.context.RedisContext.get;
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.REACTIVE_COMMANDS_INTERFACE_NAME_PREFIX;
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_COMMANDS_INTERFACE_NAME_PREFIX;
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_COMMANDS_INTERFACE_NAME_SUFFIX;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_COMMANDS_PACKAGE_NAME;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_COMMANDS_PACKAGE_NAME_LENGTH;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_CONNECTION_COMMANDS_INTERFACE_NAME;
@@ -54,6 +91,7 @@ import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_ZSET_COM
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.buildCommandMethodId;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.getRedisCommands;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.initializeParameters;
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.isRedisCommandsInterface;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.resolveInterfaceName;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.resolveSimpleInterfaceName;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodId;
@@ -78,7 +116,6 @@ class RedisCommandsUtilsTest {
     @Test
     void testConstants() {
         assertEquals("org.springframework.data.redis.connection.", REDIS_COMMANDS_PACKAGE_NAME);
-        assertEquals(42, REDIS_COMMANDS_PACKAGE_NAME_LENGTH);
         assertEquals("org.springframework.data.redis.connection.RedisKeyCommands", REDIS_KEY_COMMANDS_INTERFACE_NAME);
         assertEquals("org.springframework.data.redis.connection.RedisStringCommands", REDIS_STRING_COMMANDS_INTERFACE_NAME);
         assertEquals("org.springframework.data.redis.connection.RedisListCommands", REDIS_LIST_COMMANDS_INTERFACE_NAME);
@@ -93,6 +130,10 @@ class RedisCommandsUtilsTest {
         assertEquals("org.springframework.data.redis.connection.RedisScriptingCommands", REDIS_SCRIPTING_COMMANDS_INTERFACE_NAME);
         assertEquals("org.springframework.data.redis.connection.RedisGeoCommands", REDIS_GEO_COMMANDS_INTERFACE_NAME);
         assertEquals("org.springframework.data.redis.connection.RedisHyperLogLogCommands", REDIS_HYPER_LOG_LOG_COMMANDS_INTERFACE_NAME);
+        assertEquals(42, REDIS_COMMANDS_PACKAGE_NAME_LENGTH);
+        assertEquals("org.springframework.data.redis.connection.Redis", REDIS_COMMANDS_INTERFACE_NAME_PREFIX);
+        assertEquals("org.springframework.data.redis.connection.Reactive", REACTIVE_COMMANDS_INTERFACE_NAME_PREFIX);
+        assertEquals("Commands", REDIS_COMMANDS_INTERFACE_NAME_SUFFIX);
     }
 
     @Test
@@ -131,6 +172,68 @@ class RedisCommandsUtilsTest {
         assertInterfaceName(REDIS_GEO_COMMANDS_INTERFACE_NAME);
         assertInterfaceName(REDIS_HYPER_LOG_LOG_COMMANDS_INTERFACE_NAME);
         assertEquals("org.springframework.data.redis.connection.RedisHyperLogLogCommands", resolveInterfaceName("RedisHyperLogLogCommands"));
+    }
+
+    @Test
+    void testIsRedisCommandsInterface() {
+        assertTrue(isRedisCommandsInterface(REDIS_KEY_COMMANDS_INTERFACE_NAME));
+        assertTrue(isRedisCommandsInterface(REDIS_STRING_COMMANDS_INTERFACE_NAME));
+        assertTrue(isRedisCommandsInterface(REDIS_LIST_COMMANDS_INTERFACE_NAME));
+        assertTrue(isRedisCommandsInterface(REDIS_SET_COMMANDS_INTERFACE_NAME));
+        assertTrue(isRedisCommandsInterface(REDIS_ZSET_COMMANDS_INTERFACE_NAME));
+        assertTrue(isRedisCommandsInterface(REDIS_HASH_COMMANDS_INTERFACE_NAME));
+        assertTrue(isRedisCommandsInterface(REDIS_TX_COMMANDS_INTERFACE_NAME));
+        assertTrue(isRedisCommandsInterface(REDIS_PUB_SUB_COMMANDS_INTERFACE_NAME));
+        assertTrue(isRedisCommandsInterface(REDIS_CONNECTION_COMMANDS_INTERFACE_NAME));
+        assertTrue(isRedisCommandsInterface(REDIS_SERVER_COMMANDS_INTERFACE_NAME));
+        assertTrue(isRedisCommandsInterface(REDIS_STREAM_COMMANDS_INTERFACE_NAME));
+        assertTrue(isRedisCommandsInterface(REDIS_SCRIPTING_COMMANDS_INTERFACE_NAME));
+        assertTrue(isRedisCommandsInterface(REDIS_GEO_COMMANDS_INTERFACE_NAME));
+        assertTrue(isRedisCommandsInterface(REDIS_HYPER_LOG_LOG_COMMANDS_INTERFACE_NAME));
+
+        assertTrue(isRedisCommandsInterface(RedisGeoCommands.class));
+        assertTrue(isRedisCommandsInterface(RedisHashCommands.class));
+        assertTrue(isRedisCommandsInterface(RedisHyperLogLogCommands.class));
+        assertTrue(isRedisCommandsInterface(RedisKeyCommands.class));
+        assertTrue(isRedisCommandsInterface(RedisListCommands.class));
+        assertTrue(isRedisCommandsInterface(RedisPubSubCommands.class));
+        assertTrue(isRedisCommandsInterface(RedisConnectionCommands.class));
+        assertTrue(isRedisCommandsInterface(RedisScriptingCommands.class));
+        assertTrue(isRedisCommandsInterface(RedisSentinelCommands.class));
+        assertTrue(isRedisCommandsInterface(RedisServerCommands.class));
+        assertTrue(isRedisCommandsInterface(RedisSetCommands.class));
+        assertTrue(isRedisCommandsInterface(RedisStreamCommands.class));
+        assertTrue(isRedisCommandsInterface(RedisStringCommands.class));
+        assertTrue(isRedisCommandsInterface(RedisTxCommands.class));
+        assertTrue(isRedisCommandsInterface(RedisZSetCommands.class));
+
+        assertTrue(isRedisCommandsInterface(RedisConnection.class));
+        assertTrue(isRedisCommandsInterface(DefaultedRedisConnection.class));
+        assertTrue(isRedisCommandsInterface(StringRedisConnection.class));
+        assertTrue(isRedisCommandsInterface(RedisClusterConnection.class));
+        assertTrue(isRedisCommandsInterface(DefaultedRedisClusterConnection.class));
+        assertTrue(isRedisCommandsInterface(RedisCommands.class));
+
+        assertTrue(isRedisCommandsInterface(RedisClusterCommands.class));
+
+        assertTrue(isRedisCommandsInterface(ReactiveGeoCommands.class));
+        assertTrue(isRedisCommandsInterface(ReactiveHashCommands.class));
+        assertTrue(isRedisCommandsInterface(ReactiveHyperLogLogCommands.class));
+        assertTrue(isRedisCommandsInterface(ReactiveKeyCommands.class));
+        assertTrue(isRedisCommandsInterface(ReactiveListCommands.class));
+        assertTrue(isRedisCommandsInterface(ReactiveNumberCommands.class));
+        assertTrue(isRedisCommandsInterface(ReactivePubSubCommands.class));
+        assertTrue(isRedisCommandsInterface(ReactiveScriptingCommands.class));
+        assertTrue(isRedisCommandsInterface(ReactiveServerCommands.class));
+        assertTrue(isRedisCommandsInterface(ReactiveSetCommands.class));
+        assertTrue(isRedisCommandsInterface(ReactiveStreamCommands.class));
+        assertTrue(isRedisCommandsInterface(RedisStringCommands.class));
+        assertTrue(isRedisCommandsInterface(ReactiveZSetCommands.class));
+
+        assertFalse(isRedisCommandsInterface(DefaultStringRedisConnection.class));
+        assertFalse(isRedisCommandsInterface(RedisCommandsProvider.class));
+        assertFalse(isRedisCommandsInterface(AutoCloseable.class));
+        assertFalse(isRedisCommandsInterface(Object.class));
     }
 
     @Test
