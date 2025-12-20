@@ -12,6 +12,8 @@ import org.springframework.data.redis.connection.RedisConnection;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiConsumer;
 
 import static io.microsphere.collection.ListUtils.newArrayList;
@@ -76,6 +78,8 @@ public abstract class RedisCommandsUtils {
     static final String REACTIVE_COMMANDS_INTERFACE_NAME_PREFIX = REDIS_COMMANDS_PACKAGE_NAME + "Reactive";
 
     static final String REDIS_COMMANDS_INTERFACE_NAME_SUFFIX = "Commands";
+
+    static final ConcurrentMap<String, Class<?>> classesCache = new ConcurrentHashMap<>(256);
 
     public static String resolveSimpleInterfaceName(String interfaceName) {
         int index = interfaceName.indexOf(REDIS_COMMANDS_PACKAGE_NAME);
@@ -219,12 +223,19 @@ public abstract class RedisCommandsUtils {
     }
 
     public static Class<?> loadClass(String className) {
-        try {
-            return forName(className, CLASS_LOADER);
-        } catch (ClassNotFoundException e) {
-            logger.trace("The Class can't be loaded by name : '{}'", className);
-            return null;
-        }
+        return loadClass(CLASS_LOADER, className);
+    }
+
+
+    public static Class<?> loadClass(ClassLoader classLoader, String className) {
+        return classesCache.computeIfAbsent(className, k -> {
+            try {
+                return forName(className, classLoader);
+            } catch (ClassNotFoundException e) {
+                logger.warn("The ClassLoader[{}] can't load the Class[name : '{}']", classLoader, className);
+                return null;
+            }
+        });
     }
 
     private RedisCommandsUtils() {
