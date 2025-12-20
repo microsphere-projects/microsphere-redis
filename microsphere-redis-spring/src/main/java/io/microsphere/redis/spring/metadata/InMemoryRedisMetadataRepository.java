@@ -41,6 +41,7 @@ import static io.microsphere.redis.metadata.RedisMetadataLoader.loadAll;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.loadClass;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.loadClasses;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodId;
+import static io.microsphere.reflect.AccessibleObjectUtils.trySetAccessible;
 import static io.microsphere.reflect.MethodUtils.findMethod;
 import static java.util.stream.Collectors.toSet;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
@@ -184,6 +185,8 @@ public class InMemoryRedisMetadataRepository implements RedisMetadataRepository 
             logger.warn("The Redis Command Method can't be found by name : '{}' and parameterTypes : {}", interfaceName, methodName, parameterTypes);
             return;
         }
+
+        trySetAccessible(redisCommandMethod);
 
         List<ParameterMetadata> parameterMetadataList = getParameterMetadataList(redisCommandMethod, methodMetadata);
 
