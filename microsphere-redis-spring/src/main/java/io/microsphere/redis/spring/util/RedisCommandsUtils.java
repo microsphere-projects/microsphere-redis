@@ -225,7 +225,7 @@ public abstract class RedisCommandsUtils {
     public static Class<?> loadClass(String className) {
         return loadClass(CLASS_LOADER, className);
     }
-    
+
     public static Class<?> loadClass(ClassLoader classLoader, String className) {
         return classesCache.computeIfAbsent(className, k -> {
             try {
