@@ -19,6 +19,7 @@ package io.microsphere.redis.spring.metadata;
 
 import io.microsphere.annotation.Nullable;
 import io.microsphere.logging.Logger;
+import io.microsphere.redis.metadata.MethodInfo;
 import io.microsphere.redis.metadata.MethodMetadata;
 import io.microsphere.redis.metadata.ParameterMetadata;
 import io.microsphere.redis.metadata.RedisMetadata;
@@ -41,6 +42,7 @@ import static io.microsphere.redis.spring.util.RedisCommandsUtils.loadClass;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.loadClasses;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodId;
 import static io.microsphere.reflect.MethodUtils.findMethod;
+import static java.util.stream.Collectors.toSet;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
 
 /**
@@ -60,57 +62,50 @@ public class InMemoryRedisMetadataRepository implements RedisMetadataRepository 
      * Interface Class name and {@link Class} object cache (reduces class loading performance cost) from
      * {@link RedisConnection}.
      */
-    Map<String, Class<?>> redisCommandInterfacesCache = newHashMap(256);
+    Map<String, Class<?>> redisCommandInterfacesCache;
 
     /**
-     * Redis Command {@link Method methods} cache using {@link RedisCommandUtils#buildMethodId(Method) Method ID} as key
+     * MethodInfo cache
+     * <ul>
+     *     <li>If the {@link MethodMetadata#getIndex() Method Index} is a key, the value is {@link MethodInfo}.</li>
+     *     <li>If the {@link Method} is a key, the value is {@link MethodInfo}.</li>
+     *     <li>If the {@link RedisCommandUtils#buildMethodId(Method) Method Id} is a key, the value is {@link MethodInfo}.</li>
+     * </ul>
      */
-    Map<String, Method> redisCommandMethodsCache = newHashMap(256);
+    Map<Object, MethodInfo> methodInfoCache;
 
     /**
      * Command interface class name and {@link RedisConnection} command object function
      * (such as: {@link RedisConnection#keyCommands()}) binding
      */
-    Map<String, Function<RedisConnection, Object>> redisCommandBindings = newHashMap(256);
-
-    /**
-     * Write Command MethodMetadata cache
-     */
-    Map<Method, List<ParameterMetadata>> writeCommandMethodsMetadata = newHashMap(256);
-
-    /**
-     * Method Simple signature with {@link Method} object caching (reduces reflection cost)
-     */
-    Map<String, Method> writeRedisCommandMethodsCache = newHashMap(256);
-
-    /**
-     * MethodMetadata cache
-     * <ul>
-     *     <li>If the {@link MethodMetadata#getIndex() Method ID} is a key, the value is {@link Method}.</li>
-     *     <li>If the {@link Method} is a key, the value is {@link MethodMetadata}.</li>
-     * </ul>
-     */
-    Map<Object, Object> methodMetadataCache;
+    Map<String, Function<RedisConnection, Object>> redisCommandBindings;
 
     @Override
     public void init() {
         RedisMetadata redisMetadata = loadAll();
         List<MethodMetadata> methods = redisMetadata.getMethods();
+
+        this.redisCommandInterfacesCache = newHashMap(128);
+        this.methodInfoCache = newHashMap(methods.size() * 3);
+        this.redisCommandBindings = newHashMap(32);
+
         for (MethodMetadata method : methods) {
             String interfaceName = method.getInterfaceName();
             Class<?> interfaceClass = initRedisCommandInterfacesCache(interfaceName);
-            initRedisCommandMethodsCache(interfaceClass, method);
+            initMethodInfoCache(interfaceClass, method);
         }
     }
 
     @Override
     public Integer findMethodIndex(Method redisCommandMethod) {
-        return 0;
+        MethodInfo methodInfo = getMethodInfo(redisCommandMethod);
+        return methodInfo == null ? null : methodInfo.methodMetadata().getIndex();
     }
 
     @Override
     public Method findRedisCommandMethod(int methodIndex) {
-        return null;
+        MethodInfo methodInfo = getMethodInfo(methodIndex);
+        return methodInfo == null ? null : methodInfo.method();
     }
 
     @Override
@@ -120,13 +115,17 @@ public class InMemoryRedisMetadataRepository implements RedisMetadataRepository 
 
     @Override
     public List<ParameterMetadata> getWriteParameterMetadataList(Method method) {
-        return this.writeCommandMethodsMetadata.get(method);
+        MethodInfo methodInfo = getMethodInfo(method);
+        if (isWrite(methodInfo)) {
+            return methodInfo.parameterMetadataList();
+        }
+        return null;
     }
 
     @Override
     public Method getRedisCommandMethod(String interfaceName, String methodName, String... parameterTypes) {
-        String methodId = buildMethodId(interfaceName, methodName, parameterTypes);
-        return this.redisCommandMethodsCache.get(methodId);
+        MethodInfo methodInfo = getMethodInfo(interfaceName, methodName, parameterTypes);
+        return methodInfo == null ? null : methodInfo.method();
     }
 
     @Override
@@ -136,13 +135,19 @@ public class InMemoryRedisMetadataRepository implements RedisMetadataRepository 
 
     @Override
     public Method getWriteCommandMethod(String interfaceName, String methodName, String... parameterTypes) {
-        String methodId = buildMethodId(interfaceName, methodName, parameterTypes);
-        return this.writeRedisCommandMethodsCache.get(methodId);
+        MethodInfo methodInfo = getMethodInfo(interfaceName, methodName, parameterTypes);
+        if (isWrite(methodInfo)) {
+            return methodInfo.method();
+        }
+        return null;
     }
 
     @Override
     public Set<Method> getWriteCommandMethods() {
-        return this.writeCommandMethodsMetadata.keySet();
+        return this.methodInfoCache.values()
+                .stream()
+                .filter(this::isWrite)
+                .map(MethodInfo::method).collect(toSet());
     }
 
     @Override
@@ -163,7 +168,7 @@ public class InMemoryRedisMetadataRepository implements RedisMetadataRepository 
     }
 
     @Nullable
-    private void initRedisCommandMethodsCache(@Nullable Class<?> interfaceClass, MethodMetadata methodMetadata) {
+    void initMethodInfoCache(@Nullable Class<?> interfaceClass, MethodMetadata methodMetadata) {
         String interfaceName = methodMetadata.getInterfaceName();
         if (interfaceClass == null) {
             logger.warn("The Redis Command Interface[name : '{}'] can't be loaded", interfaceName);
@@ -179,31 +184,34 @@ public class InMemoryRedisMetadataRepository implements RedisMetadataRepository 
             logger.warn("The Redis Command Method can't be found by name : '{}' and parameterTypes : {}", interfaceName, methodName, parameterTypes);
             return;
         }
-        cache(this.redisCommandMethodsCache, methodId, redisCommandMethod);
+
+        List<ParameterMetadata> parameterMetadataList = getParameterMetadataList(redisCommandMethod, methodMetadata);
+
+        MethodInfo methodInfo = new MethodInfo(methodId, redisCommandMethod, methodMetadata, parameterMetadataList);
+
+        int index = methodMetadata.getIndex();
+
+        cache(this.methodInfoCache, index, methodInfo);
+        cache(this.methodInfoCache, redisCommandMethod, methodInfo);
+        cache(this.methodInfoCache, methodId, methodInfo);
 
         initRedisCommandBindings(redisCommandMethod);
-
-        initWriteCommandMethods(methodId, redisCommandMethod, methodMetadata);
     }
 
-
-    private void initRedisCommandBindings(Method redisCommandMethod) {
-        if (redisCommandMethod.getParameterCount() < 1) {
-            Class<?> returnType = redisCommandMethod.getReturnType();
-            String interfaceName = returnType.getName();
-            cache(this.redisCommandBindings, interfaceName, redisConnection -> invokeMethod(redisCommandMethod, redisConnection));
-            logger.trace("The Redis Command Interface '{}' binds the RedisConnection command method: '{}'", interfaceName, redisCommandMethod);
-        }
+    private MethodInfo getMethodInfo(String interfaceName, String methodName, String... parameterTypes) {
+        String methodId = buildMethodId(interfaceName, methodName, parameterTypes);
+        return getMethodInfo(methodId);
     }
 
-    private void initWriteCommandMethods(String methodId, Method redisCommandMethod, MethodMetadata methodMetadata) {
-        if (methodMetadata.isWrite()) {
-            cache(this.writeRedisCommandMethodsCache, methodId, redisCommandMethod);
-            initWriteCommandMethodsMetadata(redisCommandMethod, methodMetadata);
-        }
+    private MethodInfo getMethodInfo(Object key) {
+        return this.methodInfoCache.get(key);
     }
 
-    private void initWriteCommandMethodsMetadata(Method redisCommandMethod, MethodMetadata methodMetadata) {
+    private boolean isWrite(MethodInfo methodInfo) {
+        return methodInfo != null && methodInfo.methodMetadata().isWrite();
+    }
+
+    private List<ParameterMetadata> getParameterMetadataList(Method redisCommandMethod, MethodMetadata methodMetadata) {
         String[] parameterTypes = methodMetadata.getParameterTypes();
         int parameterCount = parameterTypes.length;
         String[] parameterNames = parameterNameDiscoverer.getParameterNames(redisCommandMethod);
@@ -214,7 +222,16 @@ public class InMemoryRedisMetadataRepository implements RedisMetadataRepository 
             ParameterMetadata parameterMetadata = new ParameterMetadata(i, parameterType, parameterName);
             parameterMetadataList.add(parameterMetadata);
         }
-        cache(this.writeCommandMethodsMetadata, redisCommandMethod, parameterMetadataList);
+        return parameterMetadataList;
+    }
+
+    private void initRedisCommandBindings(Method redisCommandMethod) {
+        if (redisCommandMethod.getParameterCount() < 1) {
+            Class<?> returnType = redisCommandMethod.getReturnType();
+            String interfaceName = returnType.getName();
+            cache(this.redisCommandBindings, interfaceName, redisConnection -> invokeMethod(redisCommandMethod, redisConnection));
+            logger.trace("The Redis Command Interface '{}' binds the RedisConnection command method: '{}'", interfaceName, redisCommandMethod);
+        }
     }
 
     static <K, V> boolean cache(Map<K, V> cache, K key, V value) {
