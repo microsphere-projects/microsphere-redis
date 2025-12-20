@@ -246,12 +246,12 @@ public class SpringDataRedisMetadataGenerationDoclet implements Doclet {
 
         validateMethod(redisMethodMetadataMapList);
 
-        this.logger.info("All Redis commands(size : {} , write : {}), the supported Spring Data Redis commands(size : {} , write : {})",
+        this.logger.info("All Redis commands(size : {} , write : {}), the Spring Data Redis supports the Redis commands(size : {} , write : {})",
                 this.redisCommands.size(), this.redisWriteCommands.size(), this.supportedCommands.size(), this.supportedWriteCommands.size());
         this.logger.info("All Redis commands : {}", this.redisCommands);
         this.logger.info("All Redis write commands : {}", this.redisWriteCommands);
-        this.logger.info("The supported Spring Data Redis commands : {}", this.supportedCommands);
-        this.logger.info("The supported Spring Data Redis write commands : {}", this.supportedWriteCommands);
+        this.logger.info("The Spring Data Redis supports the Redis commands : {}", this.supportedCommands);
+        this.logger.info("The Spring Data Redis supports the Redis write commands : {}", this.supportedWriteCommands);
 
         writeSpringDataRedisMetadata(springDataRedisMetadata);
     }
