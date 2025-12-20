@@ -63,7 +63,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 
 import static com.sun.source.doctree.DocTree.Kind.SEE;
 import static io.microsphere.annotation.processor.util.ElementUtils.isInterface;
@@ -437,18 +436,12 @@ public class SpringDataRedisMetadataGenerationDoclet implements Doclet {
     }
 
     private Class<?> loadClass(ClassLoader classLoader, String className) {
-        return loadClass(classLoader, className, e -> {
-            logger.warn("The ClassLoader[{}] can't load the Class[name : '{}']", classLoader, className);
-            return null;
-        });
-    }
-
-    private Class<?> loadClass(ClassLoader classLoader, String className, Function<Throwable, Class<?>> exceptionHandler) {
         return this.classesCache.computeIfAbsent(className, k -> {
             try {
                 return forName(className, classLoader);
             } catch (ClassNotFoundException e) {
-                return exceptionHandler.apply(e);
+                logger.warn("The ClassLoader[{}] can't load the Class[name : '{}']", classLoader, className);
+                return null;
             }
         });
     }
