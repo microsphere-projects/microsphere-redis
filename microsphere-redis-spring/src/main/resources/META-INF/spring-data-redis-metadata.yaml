@@ -3496,36 +3496,36 @@ methods:
   - org.springframework.data.redis.connection.Limit
   command: XRANGE
   write: false
-- index: 217981293
+- index: 1211949657
   interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
   methodName: xRead
   parameterTypes:
-  - org.springframework.data.redis.connection.stream.StreamOffset
+  - '[Lorg.springframework.data.redis.connection.stream.StreamOffset;'
   command: XREAD
   write: false
-- index: 955569557
+- index: 1651236145
   interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
   methodName: xRead
   parameterTypes:
   - org.springframework.data.redis.connection.stream.StreamReadOptions
-  - org.springframework.data.redis.connection.stream.StreamOffset
+  - '[Lorg.springframework.data.redis.connection.stream.StreamOffset;'
   command: XREAD
   write: false
-- index: 1825445532
+- index: 293743306
   interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
   methodName: xReadGroup
   parameterTypes:
   - org.springframework.data.redis.connection.stream.Consumer
-  - org.springframework.data.redis.connection.stream.StreamOffset
+  - '[Lorg.springframework.data.redis.connection.stream.StreamOffset;'
   command: XREADGROUP
   write: true
-- index: 2055334394
+- index: 91358432
   interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
   methodName: xReadGroup
   parameterTypes:
   - org.springframework.data.redis.connection.stream.Consumer
   - org.springframework.data.redis.connection.stream.StreamReadOptions
-  - org.springframework.data.redis.connection.stream.StreamOffset
+  - '[Lorg.springframework.data.redis.connection.stream.StreamOffset;'
   command: XREADGROUP
   write: true
 - index: 16905405
@@ -3793,19 +3793,19 @@ methods:
   - org.reactivestreams.Publisher
   command: XRANGE
   write: false
-- index: 277613231
+- index: 409445929
   interfaceName: org.springframework.data.redis.connection.ReactiveStreamCommands
   methodName: xRead
   parameterTypes:
-  - org.springframework.data.redis.connection.stream.StreamOffset
+  - '[Lorg.springframework.data.redis.connection.stream.StreamOffset;'
   command: XREAD
   write: false
-- index: 984261357
+- index: 933444851
   interfaceName: org.springframework.data.redis.connection.ReactiveStreamCommands
   methodName: xRead
   parameterTypes:
   - org.springframework.data.redis.connection.stream.StreamReadOptions
-  - org.springframework.data.redis.connection.stream.StreamOffset
+  - '[Lorg.springframework.data.redis.connection.stream.StreamOffset;'
   command: XREAD
   write: false
 - index: 596675536
@@ -3890,21 +3890,21 @@ methods:
   methodName: xGroup
   parameterTypes:
   - org.reactivestreams.Publisher
-- index: 220859674
+- index: 1062452108
   interfaceName: org.springframework.data.redis.connection.ReactiveStreamCommands
   methodName: xReadGroup
   parameterTypes:
   - org.springframework.data.redis.connection.stream.Consumer
-  - org.springframework.data.redis.connection.stream.StreamOffset
+  - '[Lorg.springframework.data.redis.connection.stream.StreamOffset;'
   command: XREADGROUP
   write: true
-- index: 1239979720
+- index: 543927070
   interfaceName: org.springframework.data.redis.connection.ReactiveStreamCommands
   methodName: xReadGroup
   parameterTypes:
   - org.springframework.data.redis.connection.stream.Consumer
   - org.springframework.data.redis.connection.stream.StreamReadOptions
-  - org.springframework.data.redis.connection.stream.StreamOffset
+  - '[Lorg.springframework.data.redis.connection.stream.StreamOffset;'
   command: XREADGROUP
   write: true
 - index: 1889975834
