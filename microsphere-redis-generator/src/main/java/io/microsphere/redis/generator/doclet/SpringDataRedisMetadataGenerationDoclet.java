@@ -52,37 +52,40 @@ import javax.lang.model.util.ElementScanner9;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
-import javax.tools.StandardJavaFileManager;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import static com.sun.source.doctree.DocTree.Kind.SEE;
 import static io.microsphere.annotation.processor.util.ElementUtils.isInterface;
 import static io.microsphere.annotation.processor.util.MethodUtils.findDeclaredMethods;
 import static io.microsphere.annotation.processor.util.MethodUtils.getMethodName;
 import static io.microsphere.annotation.processor.util.MethodUtils.getMethodParameterTypeNames;
+import static io.microsphere.collection.MapUtils.newHashMap;
 import static io.microsphere.collection.MapUtils.newLinkedHashMap;
 import static io.microsphere.collection.Sets.ofSet;
 import static io.microsphere.constants.SymbolConstants.DOT;
+import static io.microsphere.constants.SymbolConstants.GREATER_THAN;
+import static io.microsphere.constants.SymbolConstants.GREATER_THAN_CHAR;
 import static io.microsphere.constants.SymbolConstants.LESS_THAN;
 import static io.microsphere.lang.function.ThrowableSupplier.execute;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodIndex;
 import static io.microsphere.redis.util.RedisCommandUtils.getRedisCommands;
 import static io.microsphere.redis.util.RedisCommandUtils.getRedisWriteCommands;
+import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.text.FormatUtils.format;
 import static io.microsphere.util.ArrayUtils.arrayToString;
 import static io.microsphere.util.ArrayUtils.length;
-import static io.microsphere.util.StringUtils.substringBefore;
 import static io.microsphere.util.StringUtils.substringBetween;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static javax.lang.model.SourceVersion.latest;
 import static javax.lang.model.element.ElementKind.METHOD;
 import static javax.lang.model.element.NestingKind.TOP_LEVEL;
@@ -165,9 +168,9 @@ public class SpringDataRedisMetadataGenerationDoclet implements Doclet {
 
     private JavaCompiler javaCompiler;
 
-    private StandardJavaFileManager standardFileManager;
-
     private DocletEnvironment environment;
+
+    private Map<String, Class<?>> classesCache;
 
     @Override
     public void init(Locale locale, Reporter reporter) {
@@ -178,7 +181,7 @@ public class SpringDataRedisMetadataGenerationDoclet implements Doclet {
         this.supportedCommands = new HashSet<>();
         this.supportedWriteCommands = new HashSet<>();
         this.javaCompiler = getSystemJavaCompiler();
-        this.standardFileManager = this.javaCompiler.getStandardFileManager(null, locale, UTF_8);
+        this.classesCache = newHashMap(256);
     }
 
     @Override
@@ -242,6 +245,8 @@ public class SpringDataRedisMetadataGenerationDoclet implements Doclet {
 
         validateIndex(redisMethodMetadataMapList);
 
+        validateMethod(redisMethodMetadataMapList);
+
         this.logger.info("All Redis commands(size : {} , write : {}), the supported Spring Data Redis commands(size : {} , write : {})",
                 this.redisCommands.size(), this.redisWriteCommands.size(), this.supportedCommands.size(), this.supportedWriteCommands.size());
         this.logger.info("All Redis commands : {}", this.redisCommands);
@@ -267,28 +272,43 @@ public class SpringDataRedisMetadataGenerationDoclet implements Doclet {
     }
 
     private String[] resolveMethodParameterClassNames(ExecutableElement methodElement) {
-        JavaFileManager javaFileManager = this.getJavaFileManager();
-        ClassLoader classLoader = javaFileManager.getClassLoader(CLASS_PATH);
+        ClassLoader classLoader = getClassLoader();
         String[] methodParameterTypeNames = getMethodParameterTypeNames(methodElement);
         int length = length(methodParameterTypeNames);
         String[] methodParameterClassNames = new String[length];
         for (int i = 0; i < length; i++) {
             String methodParameterTypeName = methodParameterTypeNames[i];
-            String methodParameterClassName = substringBefore(methodParameterTypeName, LESS_THAN);
-            Class<?> methodParameterClass;
-            try {
-                methodParameterClass = forName(methodParameterClassName, classLoader);
-            } catch (ClassNotFoundException | LinkageError e) {
-                methodParameterClass = resolveMethodParameterClass(methodElement, methodParameterClassName, i, length, classLoader);
+            String methodParameterClassName = normalizeClassName(methodParameterTypeName);
+
+            Class<?> methodParameterClass = loadClass(classLoader, methodParameterClassName);
+            if (methodParameterClass == null) {
+                methodParameterClass = deduceMethodParameterClass(methodElement, methodParameterClassName, i, length, classLoader);
             }
+
             methodParameterClassNames[i] = methodParameterClass.getName();
         }
-
         return methodParameterClassNames;
     }
 
-    private Class<?> resolveMethodParameterClass(ExecutableElement methodElement, String parameterClassName,
-                                                 int parameterIndex, int parameterCount, ClassLoader classLoader) {
+    private String normalizeClassName(String typeName) {
+        int genericTypeStartIndex = typeName.indexOf(LESS_THAN);
+        if (genericTypeStartIndex > 0) {
+            String className = typeName.substring(0, genericTypeStartIndex);
+            int lastIndex = typeName.length() - 1;
+            if (typeName.charAt(lastIndex) == GREATER_THAN_CHAR) {
+                return className;
+            }
+            int genericTypeEndIndex = typeName.lastIndexOf(GREATER_THAN);
+            if (genericTypeEndIndex > genericTypeStartIndex) {
+                String arrayTypeSymbol = typeName.substring(genericTypeEndIndex + 1);
+                return className + arrayTypeSymbol;
+            }
+        }
+        return typeName;
+    }
+
+    private Class<?> deduceMethodParameterClass(ExecutableElement methodElement, String parameterClassName,
+                                                int parameterIndex, int parameterCount, ClassLoader classLoader) {
         Element declaredElement = methodElement.getEnclosingElement();
         String className = declaredElement.toString();
         JavaFileManager javaFileManager = this.getJavaFileManager();
@@ -336,12 +356,17 @@ public class SpringDataRedisMetadataGenerationDoclet implements Doclet {
             }
 
             String methodParameterClassName = methodParameterClassNameHolder.getValue();
-            return forName(methodParameterClassName, classLoader);
+            return loadClass(classLoader, methodParameterClassName);
         });
     }
 
     private JavaFileManager getJavaFileManager() {
         return this.environment.getJavaFileManager();
+    }
+
+    private ClassLoader getClassLoader() {
+        JavaFileManager javaFileManager = getJavaFileManager();
+        return javaFileManager.getClassLoader(CLASS_PATH);
     }
 
     private JavaFileObject getJavaFileObject(String className) throws IOException {
@@ -387,6 +412,45 @@ public class SpringDataRedisMetadataGenerationDoclet implements Doclet {
                         methodName, arrayToString(parameterTypes), index);
             }
         }
+    }
+
+    void validateMethod(List<Map<String, Object>> redisMethodMetadataMapList) {
+        ClassLoader classLoader = getClassLoader();
+        for (Map<String, Object> redisMethodMetadataMap : redisMethodMetadataMapList) {
+            String interfaceName = (String) redisMethodMetadataMap.get(INTERFACE_NAME_KEY);
+            String methodName = (String) redisMethodMetadataMap.get(METHOD_NAME_KEY);
+            String[] parameterTypes = (String[]) redisMethodMetadataMap.get(METHOD_PARAMETER_TYPES_KEY);
+
+            Class<?> interfaceClass = loadClass(classLoader, interfaceName);
+            Class<?>[] parameterClasses = new Class<?>[parameterTypes.length];
+            for (int i = 0; i < parameterTypes.length; i++) {
+                String parameterType = parameterTypes[i];
+                parameterClasses[i] = loadClass(classLoader, parameterType);
+            }
+
+            Method method = findMethod(interfaceClass, methodName, parameterClasses);
+            if (method == null) {
+                throwsException("Can't find the method[name : '{}' , parameter types : {}] in interface[name : '{}']",
+                        methodName, arrayToString(parameterTypes), interfaceName);
+            }
+        }
+    }
+
+    private Class<?> loadClass(ClassLoader classLoader, String className) {
+        return loadClass(classLoader, className, e -> {
+            logger.warn("The ClassLoader[{}] can't load the Class[name : '{}']", classLoader, className);
+            return null;
+        });
+    }
+
+    private Class<?> loadClass(ClassLoader classLoader, String className, Function<Throwable, Class<?>> exceptionHandler) {
+        return this.classesCache.computeIfAbsent(className, k -> {
+            try {
+                return forName(className, classLoader);
+            } catch (ClassNotFoundException e) {
+                return exceptionHandler.apply(e);
+            }
+        });
     }
 
     private void throwsException(String messagePattern, Object... args) {
