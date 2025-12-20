@@ -69,6 +69,7 @@ public class SpringDataRedisMetadataGenerator {
 
         if (length < 2) {
             logger.warn("Usage : SpringDataRedisMetadataGenerator <source-path> <target-file-path>");
+            return;
         }
 
         Path sourcePath = get(args[0]);
