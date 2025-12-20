@@ -175,14 +175,17 @@ public class InMemoryRedisMetadataRepository implements RedisMetadataRepository 
         Class<?>[] parameterClasses = loadClasses(parameterTypes);
         Method redisCommandMethod = findMethod(interfaceClass, methodName, parameterClasses);
 
-        if (redisCommandMethod != null) {
-            cache(this.redisCommandMethodsCache, methodId, redisCommandMethod);
-
-            initRedisCommandBindings(redisCommandMethod);
-
-            initWriteCommandMethods(methodId, redisCommandMethod, methodMetadata);
+        if (redisCommandMethod == null) {
+            logger.warn("The Redis Command Method can't be found by name : '{}' and parameterTypes : {}", interfaceName, methodName, parameterTypes);
+            return;
         }
+        cache(this.redisCommandMethodsCache, methodId, redisCommandMethod);
+
+        initRedisCommandBindings(redisCommandMethod);
+
+        initWriteCommandMethods(methodId, redisCommandMethod, methodMetadata);
     }
+
 
     private void initRedisCommandBindings(Method redisCommandMethod) {
         if (redisCommandMethod.getParameterCount() < 1) {
