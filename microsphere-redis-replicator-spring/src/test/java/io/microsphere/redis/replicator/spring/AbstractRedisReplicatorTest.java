@@ -26,6 +26,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisStringCommands;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -38,10 +39,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.loadClass;
 import static io.microsphere.util.ArrayUtils.ofArray;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Abstract Redis Replicator Test
@@ -79,7 +82,9 @@ public abstract class AbstractRedisReplicatorTest {
             Object value = valueSerializer.deserialize((byte[]) redisCommandEvent.getArg(1));
             data.put(key, value);
 
-            assertEquals("org.springframework.data.redis.connection.RedisStringCommands", redisCommandEvent.getInterfaceName());
+            Class<?> interfaceClass = loadClass(redisCommandEvent.getInterfaceName());
+
+            assertTrue(RedisStringCommands.class.isAssignableFrom(interfaceClass));
             assertEquals("set", redisCommandEvent.getMethodName());
             assertArrayEquals(ofArray(byte[].class, byte[].class), redisCommandEvent.getParameterTypes());
             assertEquals("application", redisCommandEvent.getApplicationName());
