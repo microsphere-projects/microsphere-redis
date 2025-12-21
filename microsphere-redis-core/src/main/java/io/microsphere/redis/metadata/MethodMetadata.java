@@ -43,7 +43,7 @@ public class MethodMetadata {
 
     private String[] parameterTypes;
 
-    private String command;
+    private String[] commands;
 
     private boolean write;
 
@@ -79,12 +79,12 @@ public class MethodMetadata {
         this.parameterTypes = parameterTypes;
     }
 
-    public String getCommand() {
-        return command;
+    public String[] getCommands() {
+        return commands;
     }
 
-    public void setCommand(String command) {
-        this.command = command;
+    public void setCommands(String[] commands) {
+        this.commands = commands;
     }
 
     public boolean isWrite() {
@@ -104,16 +104,17 @@ public class MethodMetadata {
         MethodMetadata that = (MethodMetadata) o;
         return index == that.index &&
                 write == that.write &&
-                Objects.equals(command, that.command) &&
                 Objects.equals(interfaceName, that.interfaceName) &&
                 Objects.equals(methodName, that.methodName) &&
-                arrayEquals(parameterTypes, that.parameterTypes);
+                arrayEquals(parameterTypes, that.parameterTypes) &&
+                arrayEquals(commands, that.commands);
     }
 
     @Override
     public int hashCode() {
-        int result = hash(index, interfaceName, methodName, command, write);
+        int result = hash(index, interfaceName, methodName, write);
         result = 31 * result + Arrays.hashCode(parameterTypes);
+        result = 31 * result + Arrays.hashCode(commands);
         return result;
     }
 
@@ -124,7 +125,7 @@ public class MethodMetadata {
                 .add("interfaceName='" + interfaceName + "'")
                 .add("methodName='" + methodName + "'")
                 .add("parameterTypes=" + arrayToString(parameterTypes))
-                .add("command=" + command)
+                .add("commands=" + arrayToString(commands))
                 .add("write=" + write)
                 .toString();
     }
