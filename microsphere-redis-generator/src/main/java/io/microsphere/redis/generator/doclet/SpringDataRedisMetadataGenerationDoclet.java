@@ -69,6 +69,7 @@ import static io.microsphere.annotation.processor.util.ElementUtils.isInterface;
 import static io.microsphere.annotation.processor.util.MethodUtils.findDeclaredMethods;
 import static io.microsphere.annotation.processor.util.MethodUtils.getMethodName;
 import static io.microsphere.annotation.processor.util.MethodUtils.getMethodParameterTypeNames;
+import static io.microsphere.collection.ListUtils.newLinkedList;
 import static io.microsphere.collection.MapUtils.newHashMap;
 import static io.microsphere.collection.MapUtils.newLinkedHashMap;
 import static io.microsphere.collection.Sets.ofSet;
@@ -77,6 +78,7 @@ import static io.microsphere.constants.SymbolConstants.GREATER_THAN;
 import static io.microsphere.constants.SymbolConstants.GREATER_THAN_CHAR;
 import static io.microsphere.constants.SymbolConstants.LESS_THAN;
 import static io.microsphere.lang.function.ThrowableSupplier.execute;
+import static io.microsphere.redis.util.RedisCommandUtils.buildMethodId;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodIndex;
 import static io.microsphere.redis.util.RedisCommandUtils.getRedisCommands;
 import static io.microsphere.redis.util.RedisCommandUtils.getRedisWriteCommands;
@@ -88,6 +90,7 @@ import static io.microsphere.util.StringUtils.substringBetween;
 import static javax.lang.model.SourceVersion.latest;
 import static javax.lang.model.element.ElementKind.METHOD;
 import static javax.lang.model.element.NestingKind.TOP_LEVEL;
+import static javax.tools.JavaFileObject.Kind.SOURCE;
 import static javax.tools.StandardLocation.CLASS_PATH;
 import static javax.tools.ToolProvider.getSystemJavaCompiler;
 import static org.springframework.util.ClassUtils.forName;
@@ -142,12 +145,12 @@ public class SpringDataRedisMetadataGenerationDoclet implements Doclet {
     public static final String METHOD_PARAMETER_TYPES_KEY = "parameterTypes";
 
     /**
-     * The metadata key of Spring Data Redis Command Method Command Name
+     * The metadata key of Redis Commands
      */
-    public static final String COMMAND_KEY = "command";
+    public static final String COMMANDS_KEY = "commands";
 
     /**
-     * The metadata key of Spring Data Redis Method Command Flag
+     * The metadata key of Spring Data Redis Method Write Command Flag
      */
     public static final String WRITE_KEY = "write";
 
@@ -370,7 +373,7 @@ public class SpringDataRedisMetadataGenerationDoclet implements Doclet {
 
     private JavaFileObject getJavaFileObject(String className) throws IOException {
         JavaFileManager javaFileManager = this.getJavaFileManager();
-        return javaFileManager.getJavaFileForInput(CLASS_PATH, className, JavaFileObject.Kind.SOURCE);
+        return javaFileManager.getJavaFileForInput(CLASS_PATH, className, SOURCE);
     }
 
     private void writeSpringDataRedisMetadata(Map<String, Object> springDataRedisMetadata) {
@@ -393,10 +396,14 @@ public class SpringDataRedisMetadataGenerationDoclet implements Doclet {
         return new Yaml(options);
     }
 
-    void validateCommand(String interfaceName, String signature, String resolvedCommand) {
+    void validateCommand(Map<String, Object> redisMethodMetadataMap, String resolvedCommand) {
         if (!redisCommands.contains(resolvedCommand)) {
-            throwsException("The Redis command can't be resolved by the JavaDoc of {}#{} , actual : {}",
-                    interfaceName, signature, resolvedCommand);
+            String interfaceName = (String) redisMethodMetadataMap.get(INTERFACE_NAME_KEY);
+            String methodName = (String) redisMethodMetadataMap.get(METHOD_NAME_KEY);
+            String[] parameterTypes = (String[]) redisMethodMetadataMap.get(METHOD_PARAMETER_TYPES_KEY);
+            String buildId = buildMethodId(interfaceName, methodName, parameterTypes);
+            throwsException("The Redis command can't be resolved by the JavaDoc of {} , actual : {}",
+                    buildId, resolvedCommand);
         }
     }
 
@@ -505,14 +512,22 @@ public class SpringDataRedisMetadataGenerationDoclet implements Doclet {
                 String see = t.toString();
                 String reference = substringBetween(see, DOC_OPEN, DOC_CLOSE);
                 if (reference != null) {
-                    String interfaceName = (String) this.redisMethodMetadataMap.get(INTERFACE_NAME_KEY);
-                    String signature = methodElement.toString();
+                    Map<String, Object> redisMethodMetadataMap = this.redisMethodMetadataMap;
                     String resolvedCommand = reference.trim().toUpperCase(locale);
-                    validateCommand(interfaceName, signature, resolvedCommand);
+                    validateCommand(redisMethodMetadataMap, resolvedCommand);
+
+                    List<String> commands = getValue(COMMANDS_KEY);
+                    if (commands == null) {
+                        commands = newLinkedList();
+                        redisMethodMetadataMap.put(COMMANDS_KEY, commands);
+                    }
+
+                    if (!commands.contains(resolvedCommand)) {
+                        commands.add(resolvedCommand);
+                    }
 
                     boolean write = redisWriteCommands.contains(resolvedCommand);
-                    this.redisMethodMetadataMap.put(COMMAND_KEY, resolvedCommand);
-                    this.redisMethodMetadataMap.put(WRITE_KEY, write);
+                    redisMethodMetadataMap.put(WRITE_KEY, write);
 
                     supportedCommands.add(resolvedCommand);
                     if (write) {
@@ -521,6 +536,10 @@ public class SpringDataRedisMetadataGenerationDoclet implements Doclet {
                 }
             }
             return super.scan(t, methodElement);
+        }
+
+        private <T> T getValue(String key) {
+            return (T) this.redisMethodMetadataMap.get(key);
         }
     }
 }
