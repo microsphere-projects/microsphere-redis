@@ -28,6 +28,7 @@ import static io.microsphere.redis.util.RedisCommandUtils.REDIS_COMMANDS_RESOURC
 import static io.microsphere.redis.util.RedisCommandUtils.REDIS_WRITE_COMMANDS_RESOURCE;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodId;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodIndex;
+import static io.microsphere.redis.util.RedisCommandUtils.buildMethodSignature;
 import static io.microsphere.redis.util.RedisCommandUtils.getRedisCommands;
 import static io.microsphere.redis.util.RedisCommandUtils.getRedisWriteCommands;
 import static io.microsphere.reflect.MethodUtils.findMethod;
@@ -69,6 +70,16 @@ class RedisCommandUtilsTest {
         Method method = findMethod(RedisCommandUtils.class, "buildMethodId", Class.class, String.class, Class[].class);
         String methodId = buildMethodId(method);
         assertEquals("io.microsphere.redis.util.RedisCommandUtils.buildMethodId(java.lang.Class,java.lang.String,[Ljava.lang.Class;)", methodId);
+    }
+
+    @Test
+    void testBuildMethodSignature() {
+        Method[] methods = RedisCommandUtils.class.getMethods();
+        for (Method method : methods) {
+            String methodName = method.getName();
+            Class<?>[] parameterTypes = method.getParameterTypes();
+            assertEquals(buildMethodSignature(method), buildMethodSignature(methodName, parameterTypes));
+        }
     }
 
     @Test
