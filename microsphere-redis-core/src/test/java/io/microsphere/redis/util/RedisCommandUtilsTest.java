@@ -88,5 +88,7 @@ class RedisCommandUtilsTest {
         String methodId = buildMethodId(method);
         int methodIndex = buildMethodIndex("io.microsphere.redis.util.RedisCommandUtils", "buildMethodId", Class.class.getName(), String.class.getName(), Class[].class.getName());
         assertEquals(abs(methodId.hashCode()), methodIndex);
+        assertEquals(buildMethodIndex(method), methodIndex);
+        assertEquals(buildMethodIndex(RedisCommandUtils.class, "buildMethodId", Class.class, String.class, Class[].class), methodIndex);
     }
 }
