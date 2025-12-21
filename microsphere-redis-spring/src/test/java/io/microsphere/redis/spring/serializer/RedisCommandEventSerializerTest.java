@@ -23,7 +23,7 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 import java.lang.reflect.Method;
 
 import static io.microsphere.redis.spring.event.RedisCommandEvent.Builder.source;
-import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.findWriteCommandMethod;
+import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.getWriteCommandMethod;
 import static io.microsphere.redis.spring.serializer.RedisCommandEventSerializer.DEFAULT_REDIS_COMMAND_EVENT_REDIS_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.RedisCommandEventSerializer.VERSION_V1;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -47,7 +47,7 @@ class RedisCommandEventSerializerTest extends AbstractSerializerTest<RedisComman
         String interfaceName = "org.springframework.data.redis.connection.RedisStringCommands";
         String methodName = "set";
         String[] parameterTypes = new String[]{"[B", "[B"};
-        Method method = findWriteCommandMethod(interfaceName, methodName, parameterTypes);
+        Method method = getWriteCommandMethod(interfaceName, methodName, parameterTypes);
         String applicationName = "test";
         RedisCommandEvent.Builder builder = source("test")
                 .applicationName(applicationName)

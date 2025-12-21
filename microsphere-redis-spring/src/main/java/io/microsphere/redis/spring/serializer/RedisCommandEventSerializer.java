@@ -30,9 +30,8 @@ import java.nio.charset.Charset;
 
 import static io.microsphere.lang.function.ThrowableAction.execute;
 import static io.microsphere.redis.spring.event.RedisCommandEvent.Builder.source;
-import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.findMethodIndex;
-import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.findRedisCommandMethod;
-import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.findWriteCommandMethod;
+import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.getMethodIndex;
+import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.getRedisCommandMethod;
 import static io.microsphere.redis.spring.serializer.IntegerSerializer.INTEGER_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.RedisCommandEventSerializer.VersionedRedisSerializer.valueOf;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.resolveInterfaceName;
@@ -127,7 +126,7 @@ public class RedisCommandEventSerializer extends AbstractSerializer<RedisCommand
                 String methodName = readMethodName(inputStream);
                 int parameterCount = inputStream.read();
                 String[] parameterTypes = readParameterTypes(inputStream, parameterCount);
-                Method method = findWriteCommandMethod(interfaceName, methodName, parameterTypes);
+                Method method = getRedisCommandMethod(interfaceName, methodName, parameterTypes);
                 builder.method(method);
             }
 
@@ -153,7 +152,7 @@ public class RedisCommandEventSerializer extends AbstractSerializer<RedisCommand
             @Override
             protected void writeMethodMetadata(RedisCommandEvent redisCommandEvent, OutputStream outputStream) throws IOException {
                 Method redisCommandMethod = redisCommandEvent.getMethod();
-                int methodIndex = findMethodIndex(redisCommandMethod);
+                int methodIndex = getMethodIndex(redisCommandMethod);
                 byte[] bytes = INTEGER_SERIALIZER.serialize(methodIndex);
                 outputStream.write(bytes);
             }
@@ -164,7 +163,7 @@ public class RedisCommandEventSerializer extends AbstractSerializer<RedisCommand
                 byte[] bytes = new byte[bytesLength];
                 inputStream.read(bytes);
                 int methodIndex = INTEGER_SERIALIZER.deserialize(bytes);
-                Method redisCommandMethod = findRedisCommandMethod(methodIndex);
+                Method redisCommandMethod = getRedisCommandMethod(methodIndex);
                 builder.method(redisCommandMethod);
             }
         };

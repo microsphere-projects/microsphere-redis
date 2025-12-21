@@ -7,7 +7,6 @@ import io.microsphere.redis.metadata.MethodInfo;
 import io.microsphere.redis.metadata.MethodMetadata;
 import io.microsphere.redis.metadata.ParameterMetadata;
 import io.microsphere.redis.metadata.RedisMetadata;
-import io.microsphere.redis.spring.event.RedisCommandEvent;
 import io.microsphere.redis.util.RedisCommandUtils;
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
@@ -15,7 +14,6 @@ import org.springframework.data.redis.connection.RedisCommands;
 import org.springframework.data.redis.connection.RedisConnection;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -83,13 +81,13 @@ public abstract class SpringRedisMetadataRepository {
     }
 
     @Nullable
-    public static Integer findMethodIndex(Method redisCommandMethod) {
+    public static Integer getMethodIndex(Method redisCommandMethod) {
         MethodInfo methodInfo = getMethodInfo(redisCommandMethod);
         return methodInfo == null ? null : methodInfo.methodMetadata().getIndex();
     }
 
     @Nullable
-    public static Method findRedisCommandMethod(int methodIndex) {
+    public static Method getRedisCommandMethod(int methodIndex) {
         MethodInfo methodInfo = getMethodInfo(methodIndex);
         return methodInfo == null ? null : methodInfo.method();
     }
@@ -106,32 +104,6 @@ public abstract class SpringRedisMetadataRepository {
             return methodInfo.parameterMetadataList();
         }
         return null;
-    }
-
-    @Nonnull
-    public static Method findWriteCommandMethod(RedisCommandEvent event) {
-        return event.getMethod();
-    }
-
-    @Nullable
-    public static Method findWriteCommandMethod(String interfaceNme, String methodName, String... parameterTypes) {
-        Method method = getWriteCommandMethod(interfaceNme, methodName, parameterTypes);
-        if (method == null) {
-            logger.warn("Redis event publishers and consumers have different apis. Please update consumer microsphere-spring-redis artifacts in time!");
-            logger.trace("Redis command methods will use Java reflection to find (interface :{}, method name :{}, parameter list :{})...", interfaceNme, methodName, Arrays.toString(parameterTypes));
-            Class<?> redisCommandInterfaceClass = getRedisCommandInterfaceClass(interfaceNme);
-            if (redisCommandInterfaceClass == null) {
-                logger.warn("The current Redis consumer cannot find Redis command interface: {}. Please confirm whether the spring-data artifacts API is compatible.", interfaceNme);
-                return null;
-            }
-            Class[] parameterClasses = loadClasses(parameterTypes);
-            method = findMethod(redisCommandInterfaceClass, methodName, parameterClasses);
-            if (method == null) {
-                logger.warn("Current Redis consumer Redis command interface (class name: {}) in the method ({}), command method search end!", interfaceNme, buildMethodId(interfaceNme, methodName, parameterTypes));
-                return null;
-            }
-        }
-        return method;
     }
 
     @Nullable

@@ -11,7 +11,6 @@ import java.lang.reflect.Method;
 import java.util.function.Function;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
-import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.findWriteCommandMethod;
 import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.getRedisCommandBindingFunction;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.getRawRedisConnection;
 import static io.microsphere.reflect.AccessibleObjectUtils.trySetAccessible;
@@ -48,7 +47,7 @@ public class RedisCommandReplicator implements ApplicationListener<RedisCommandR
 
     private void handleRedisCommandEvent(RedisCommandReplicatedEvent event) throws Throwable {
         RedisCommandEvent redisCommandEvent = event.getSourceEvent();
-        Method method = findWriteCommandMethod(redisCommandEvent);
+        Method method = redisCommandEvent.getMethod();
         String interfaceNme = redisCommandEvent.getInterfaceName();
         RedisConnection redisConnection = getRedisConnection();
         Object[] args = redisCommandEvent.getArgs();
