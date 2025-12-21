@@ -96,28 +96,48 @@ public abstract class RedisCommandUtils implements Utils {
     }
 
     public static String buildMethodId(String className, String methodName, Class<?>... parameterTypes) {
-        int length = length(parameterTypes);
-        String[] parameterTypeNames = new String[length];
-        for (int i = 0; i < length; i++) {
-            parameterTypeNames[i] = parameterTypes[i].getName();
-        }
-        return buildMethodId(className, methodName, parameterTypeNames);
+        String[] parameterClassNames = getParameterClassNames(parameterTypes);
+        return buildMethodId(className, methodName, parameterClassNames);
     }
 
     public static String buildMethodId(String className, String methodName, String... parameterTypes) {
         StringBuilder infoBuilder = new StringBuilder(className);
-        infoBuilder.append(DOT).append(methodName);
-        StringJoiner paramTypesInfo = new StringJoiner(COMMA, LEFT_PARENTHESIS, RIGHT_PARENTHESIS);
-        for (String parameterType : parameterTypes) {
-            paramTypesInfo.add(parameterType);
-        }
-        infoBuilder.append(paramTypesInfo);
+        infoBuilder.append(DOT);
+        infoBuilder.append(buildMethodSignature(methodName, parameterTypes));
         return infoBuilder.toString();
+    }
+
+    public static String buildMethodSignature(Method method) {
+        return buildMethodSignature(method.getName(), method.getParameterTypes());
+    }
+
+    public static String buildMethodSignature(String methodName, Class<?>... parameterTypes) {
+        String[] parameterClassNames = getParameterClassNames(parameterTypes);
+        return buildMethodSignature(methodName, parameterClassNames);
+    }
+
+    public static String buildMethodSignature(String methodName, String... parameterClassNames) {
+        StringBuilder signatureBuilder = new StringBuilder(methodName);
+        StringJoiner paramTypesInfo = new StringJoiner(COMMA, LEFT_PARENTHESIS, RIGHT_PARENTHESIS);
+        for (String parameterClassName : parameterClassNames) {
+            paramTypesInfo.add(parameterClassName);
+        }
+        signatureBuilder.append(paramTypesInfo);
+        return signatureBuilder.toString();
     }
 
     public static int buildMethodIndex(String className, String methodName, String... parameterTypes) {
         String id = buildMethodId(className, methodName, parameterTypes);
         return abs(id.hashCode());
+    }
+
+    static String[] getParameterClassNames(Class<?>... parameterTypes) {
+        int length = length(parameterTypes);
+        String[] parameterTypeNames = new String[length];
+        for (int i = 0; i < length; i++) {
+            parameterTypeNames[i] = parameterTypes[i].getName();
+        }
+        return parameterTypeNames;
     }
 
     private RedisCommandUtils() {
