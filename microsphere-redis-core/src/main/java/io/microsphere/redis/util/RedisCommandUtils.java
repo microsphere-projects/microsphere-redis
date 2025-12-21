@@ -143,7 +143,7 @@ public abstract class RedisCommandUtils implements Utils {
         return abs(id.hashCode());
     }
 
-    static String[] getParameterClassNames(Class<?>... parameterTypes) {
+    public static String[] getParameterClassNames(Class<?>... parameterTypes) {
         int length = length(parameterTypes);
         String[] parameterTypeNames = new String[length];
         for (int i = 0; i < length; i++) {
