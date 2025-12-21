@@ -126,6 +126,18 @@ public abstract class RedisCommandUtils implements Utils {
         return signatureBuilder.toString();
     }
 
+    public static int buildMethodIndex(Method method) {
+        return buildMethodIndex(method.getDeclaringClass(), method.getName(), method.getParameterTypes());
+    }
+
+    public static int buildMethodIndex(Class<?> declaringClass, String methodName, Class<?>... parameterTypes) {
+        return buildMethodIndex(declaringClass.getName(), methodName, parameterTypes);
+    }
+
+    public static int buildMethodIndex(String className, String methodName, Class<?>... parameterTypes) {
+        return buildMethodIndex(className, methodName, getParameterClassNames(parameterTypes));
+    }
+
     public static int buildMethodIndex(String className, String methodName, String... parameterTypes) {
         String id = buildMethodId(className, methodName, parameterTypes);
         return abs(id.hashCode());
