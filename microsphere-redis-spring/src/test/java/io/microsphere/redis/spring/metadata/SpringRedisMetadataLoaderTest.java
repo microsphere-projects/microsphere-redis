@@ -78,9 +78,8 @@ class SpringRedisMetadataLoaderTest {
 
         Set<String> commandMethodIds = new TreeSet<>(redisCommandMethodIds);
         commandMethodIds.removeAll(configuredCommandMethodIds);
-        assertTrue(commandMethodIds.size() > 0);
+        assertTrue(commandMethodIds.isEmpty());
     }
-
 
     @Test
     void testUnknown() {

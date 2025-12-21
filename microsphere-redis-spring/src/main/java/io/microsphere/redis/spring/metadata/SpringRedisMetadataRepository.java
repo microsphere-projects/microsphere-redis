@@ -3,54 +3,39 @@ package io.microsphere.redis.spring.metadata;
 import io.microsphere.annotation.Nonnull;
 import io.microsphere.annotation.Nullable;
 import io.microsphere.logging.Logger;
+import io.microsphere.redis.metadata.MethodInfo;
 import io.microsphere.redis.metadata.MethodMetadata;
 import io.microsphere.redis.metadata.ParameterMetadata;
 import io.microsphere.redis.metadata.RedisMetadata;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
-import io.microsphere.redis.spring.util.RedisCommandsUtils;
-import io.microsphere.redis.spring.util.RedisConstants;
 import io.microsphere.redis.util.RedisCommandUtils;
-import io.microsphere.reflect.AccessibleObjectUtils;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternResolver;
-import org.springframework.core.type.ClassMetadata;
-import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
-import org.springframework.core.type.classreading.MetadataReader;
-import org.springframework.core.type.classreading.MetadataReaderFactory;
+import org.springframework.core.DefaultParameterNameDiscoverer;
+import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.data.redis.connection.RedisCommands;
 import org.springframework.data.redis.connection.RedisConnection;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 
-import static io.microsphere.collection.MapUtils.newFixedHashMap;
+import static io.microsphere.collection.ListUtils.newArrayList;
 import static io.microsphere.collection.MapUtils.newHashMap;
-import static io.microsphere.lang.function.ThrowableAction.execute;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.metadata.RedisMetadataLoader.loadAll;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_COMMANDS_PACKAGE_NAME;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.isRedisCommandsInterface;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.loadClass;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.loadClasses;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodId;
-import static io.microsphere.redis.util.RedisUtils.CLASS_LOADER;
+import static io.microsphere.redis.util.RedisCommandUtils.buildMethodIndex;
+import static io.microsphere.redis.util.RedisCommandUtils.getParameterClassNames;
 import static io.microsphere.reflect.AccessibleObjectUtils.trySetAccessible;
 import static io.microsphere.reflect.MethodUtils.findMethod;
-import static io.microsphere.util.ArrayUtils.forEach;
-import static io.microsphere.util.ClassLoaderUtils.ResourceType.PACKAGE;
-import static io.microsphere.util.ClassLoaderUtils.resolveClass;
-import static java.util.Collections.unmodifiableMap;
-import static org.springframework.core.io.support.ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX;
+import static io.microsphere.util.ClassUtils.getAllInterfaces;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
 
 /**
- * Redis Metadata Repository
+ * Spring Data Redis Metadata Repository
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @since 1.0.0
@@ -59,82 +44,68 @@ public abstract class SpringRedisMetadataRepository {
 
     private static final Logger logger = getLogger(SpringRedisMetadataRepository.class);
 
-    private static final MetadataReaderFactory metadataReaderFactory = new CachingMetadataReaderFactory(CLASS_LOADER);
+    private static final ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
-    private static final String REDIS_COMMAND_INTERFACES_RESOURCE_PATTERN = CLASSPATH_ALL_URL_PREFIX + PACKAGE.resolve(REDIS_COMMANDS_PACKAGE_NAME) + "**/*.class";
-
-    /**
-     * All public {@link Method methods} from {@link RedisConnection} and its' ancestors
-     */
     static final Method[] redisCommandMethods = RedisConnection.class.getMethods();
 
-    /**
-     * {@link org.springframework.data.redis.connection.DefaultedRedisConnection} was introduced in Spring Data Redis 2.0.0.RELEASE,
-     * which is {@link Deprecated deprecated}, and may be removed in the future.
-     *
-     * @see org.springframework.data.redis.connection.DefaultedRedisConnection
-     */
-    static final Class<?> defaultedRedisConnectionClass = resolveClass("org.springframework.data.redis.connection.DefaultedRedisConnection");
+    static final List<Class<?>> redisCommandInterfaceClasses = getAllInterfaces(RedisConnection.class);
 
     /**
      * Interface Class name and {@link Class} object cache (reduces class loading performance cost) from
      * {@link RedisConnection}.
      */
-    static final Map<String, Class<?>> redisCommandInterfacesCache = initRedisCommandInterfacesCache();
-
-    /**
-     * Redis Command {@link Method methods} cache using {@link RedisCommandUtils#buildMethodId(Method) Method ID} as key
-     */
-    static final Map<String, Method> redisCommandMethodsCache = initRedisCommandMethodsCache();
+    static final Map<String, Class<?>> redisCommandInterfacesCache = newHashMap(128);
 
     /**
      * Command interface class name and {@link RedisConnection} command object function
      * (such as: {@link RedisConnection#keyCommands()}) binding
      */
-    static final Map<String, Function<RedisConnection, Object>> redisCommandBindings = initRedisCommandBindings();
-
-    static final Map<Method, List<ParameterMetadata>> writeCommandMethodsMetadata = new HashMap<>(256);
+    static final Map<String, Function<RedisConnection, Object>> redisCommandBindings = newHashMap(32);
 
     /**
-     * Method Simple signature with {@link Method} object caching (reduces reflection cost)
-     */
-    static final Map<String, Method> writeCommandMethodsCache = new HashMap<>(256);
-
-    /**
-     * MethodMetadata cache
+     * MethodInfo cache
      * <ul>
-     *     <li>If the {@link MethodMetadata#getIndex() Method ID} is a key, the value is {@link Method}.</li>
-     *     <li>If the {@link Method} is a key, the value is {@link MethodMetadata}.</li>
+     *     <li>If the {@link MethodMetadata#getIndex() Method Index} is a key, the value is {@link MethodInfo}.</li>
+     *     <li>If the {@link Method} is a key, the value is {@link MethodInfo}.</li>
+     *     <li>If the {@link RedisCommandUtils#buildMethodId(Method) Method Id} is a key, the value is {@link MethodInfo}.</li>
      * </ul>
      */
-    static final Map<Object, Object> methodMetadataCache = initMethodMetadataCache();
+    static final Map<Object, MethodInfo> methodInfoCache = newHashMap(4 * 1024);
+
+    static {
+        initCache();
+    }
 
     /**
      * Initialize the Redis Metadata Repository
      */
     public static void init() {
-        // initialize the caches by class loading
-        setAccessibleRedisCommandMethods();
     }
 
     @Nullable
     public static Integer findMethodIndex(Method redisCommandMethod) {
-        MethodMetadata methodMetadata = (MethodMetadata) methodMetadataCache.get(redisCommandMethod);
-        return methodMetadata == null ? null : methodMetadata.getIndex();
+        MethodInfo methodInfo = getMethodInfo(redisCommandMethod);
+        return methodInfo == null ? null : methodInfo.methodMetadata().getIndex();
     }
 
     @Nullable
     public static Method findRedisCommandMethod(int methodIndex) {
-        return (Method) methodMetadataCache.get(methodIndex);
+        MethodInfo methodInfo = getMethodInfo(methodIndex);
+        return methodInfo == null ? null : methodInfo.method();
     }
 
     public static boolean isWriteCommandMethod(Method method) {
-        return writeCommandMethodsMetadata.containsKey(method);
+        MethodInfo methodInfo = getMethodInfo(method);
+        return isWrite(methodInfo);
     }
 
     @Nullable
     public static List<ParameterMetadata> getWriteParameterMetadataList(Method method) {
-        return writeCommandMethodsMetadata.get(method);
+        MethodInfo methodInfo = getMethodInfo(method);
+        if (isWrite(methodInfo)) {
+            return methodInfo.parameterMetadataList();
+        }
+        return null;
     }
 
     @Nonnull
@@ -165,13 +136,11 @@ public abstract class SpringRedisMetadataRepository {
 
     @Nullable
     public static Method getWriteCommandMethod(String interfaceName, String methodName, String... parameterTypes) {
-        String id = buildMethodId(interfaceName, methodName, parameterTypes);
-        return writeCommandMethodsCache.get(id);
-    }
-
-    @Nonnull
-    public static Set<Method> getWriteCommandMethods() {
-        return writeCommandMethodsMetadata.keySet();
+        MethodInfo methodInfo = getMethodInfo(interfaceName, methodName, parameterTypes);
+        if (isWrite(methodInfo)) {
+            return methodInfo.method();
+        }
+        return null;
     }
 
     /**
@@ -192,180 +161,154 @@ public abstract class SpringRedisMetadataRepository {
 
     @Nullable
     public static Method getRedisCommandMethod(String interfaceName, String methodName, String... parameterTypes) {
-        String methodId = buildMethodId(interfaceName, methodName, parameterTypes);
-        return redisCommandMethodsCache.get(methodId);
+        MethodInfo methodInfo = getMethodInfo(interfaceName, methodName, parameterTypes);
+        return methodInfo == null ? null : methodInfo.method();
     }
 
-    private static void setAccessibleRedisCommandMethods() {
-        forEach(redisCommandMethods, AccessibleObjectUtils::trySetAccessible);
-    }
-
-    /**
-     * Caches the name of the {@link RedisConnection} command interface with the {@link Class} object cache
-     */
-    private static Map<String, Class<?>> initRedisCommandInterfacesCache() {
-        Map<String, Class<?>> redisCommandInterfacesCache = newHashMap();
-        execute(() -> {
-            ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver(CLASS_LOADER);
-            Resource[] resources = resourcePatternResolver.getResources(REDIS_COMMAND_INTERFACES_RESOURCE_PATTERN);
-            for (Resource resource : resources) {
-                MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(resource);
-                ClassMetadata classMetadata = metadataReader.getClassMetadata();
-                if (classMetadata.isInterface() && !classMetadata.hasEnclosingClass()) {
-                    String interfaceName = classMetadata.getClassName();
-                    Class<?> redisCommandInterfaceClass = loadClass(interfaceName);
-                    if (isRedisCommandsInterface(redisCommandInterfaceClass)) {
-                        cache(redisCommandInterfacesCache, interfaceName, redisCommandInterfaceClass);
-                        Class<?>[] superInterfaceClasses = redisCommandInterfaceClass.getInterfaces();
-                        for (Class<?> superInterfaceClass : superInterfaceClasses) {
-                            if (isRedisCommandsInterface(superInterfaceClass)) {
-                                String superInterfaceName = superInterfaceClass.getName();
-                                cache(redisCommandInterfacesCache, superInterfaceName, superInterfaceClass);
-                            }
-                        }
-                    }
-                }
+    static void initCache() {
+        RedisMetadata redisMetadata = loadAll();
+        List<MethodMetadata> methods = redisMetadata.getMethods();
+        for (MethodMetadata method : methods) {
+            String interfaceName = method.getInterfaceName();
+            Class<?> interfaceClass = initRedisCommandInterfacesCache(interfaceName);
+            if (redisCommandInterfaceClasses.contains(interfaceClass)) {
+                initMethodInfo(interfaceClass, method);
             }
-        });
-
-        logger.trace("Redis command interfaces cache: {}", redisCommandInterfacesCache);
-        return unmodifiableMap(redisCommandInterfacesCache);
+        }
+        initRedisConnectionInterfaces();
     }
 
-    private static Map<String, Method> initRedisCommandMethodsCache() {
-        Map<String, Method> redisCommandMethodsCache = newFixedHashMap(redisCommandMethods.length);
-        forEach(redisCommandMethods, method -> {
-            String methodId = buildMethodId(method);
-            redisCommandMethodsCache.put(methodId, method);
-            logger.trace("Caches the Redis Command Method : {}", methodId);
-        });
-        return unmodifiableMap(redisCommandMethodsCache);
+    @Nullable
+    static Class<?> initRedisCommandInterfacesCache(String interfaceName) {
+        Class<?> interfaceClass = loadClass(interfaceName);
+        cache(redisCommandInterfacesCache, interfaceName, interfaceClass);
+        return interfaceClass;
     }
 
-    private static Map<String, Function<RedisConnection, Object>> initRedisCommandBindings() {
-        Map<String, Function<RedisConnection, Object>> redisCommandBindings = new HashMap<>(1);
-        forEach(redisCommandMethods, redisCommandMethod -> {
-            initRedisCommandBindings(redisCommandMethod, redisCommandBindings);
-        });
-        return unmodifiableMap(redisCommandBindings);
+    @Nullable
+    static void initMethodInfo(@Nullable Class<?> interfaceClass, MethodMetadata methodMetadata) {
+        String interfaceName = methodMetadata.getInterfaceName();
+        if (interfaceClass == null) {
+            logger.warn("The Redis Command Interface[name : '{}'] can't be loaded", interfaceName);
+            return;
+        }
+        String methodName = methodMetadata.getMethodName();
+        String[] parameterTypes = methodMetadata.getParameterTypes();
+        Class<?>[] parameterClasses = loadClasses(parameterTypes);
+        Method redisCommandMethod = findMethod(interfaceClass, methodName, parameterClasses);
+
+        if (redisCommandMethod == null) {
+            logger.warn("The Redis Command Method can't be found from {}", methodMetadata);
+            return;
+        }
+
+        cacheMethodInfo(redisCommandMethod, methodMetadata);
+
+        initRedisCommandBindings(redisCommandMethod);
     }
 
-    private static Map<Object, Object> initMethodMetadataCache() {
-        RedisMetadata redisMetadata = loadRedisMetadata();
-        List<MethodMetadata> methodMetadataList = redisMetadata.getMethods();
-        int size = methodMetadataList.size();
-        Map<Object, Object> redisMetadataCache = new HashMap<>(size * 2);
-        for (int i = 0; i < size; i++) {
-            MethodMetadata methodMetadata = methodMetadataList.get(i);
-            Method redisCommandMethod = getRedisCommandMethod(methodMetadata);
+    static void initRedisConnectionInterfaces() {
+        initRedisConnectionInterface();
+    }
 
-            if (redisCommandMethod == null) {
-                logger.warn("The Redis Command Method[{}] can't be found in the artifact 'org.springframework.data:spring-data-redis'", methodMetadata);
-                continue;
-            }
-
-            int index = methodMetadata.getIndex();
-            // Put index and Method as key
-            if (cache(redisMetadataCache, index, redisCommandMethod) && cache(redisMetadataCache, redisCommandMethod, methodMetadata)) {
-                if (methodMetadata.isWrite()) {
-                    Class<?>[] parameterTypes = redisCommandMethod.getParameterTypes();
-                    initWriteCommandMethod(redisCommandMethod, parameterTypes);
-
-                    Method overriddenMethod = findOverriddenMethod(redisCommandMethod, parameterTypes);
-                    if (overriddenMethod != null) {
-                        redisMetadataCache.put(overriddenMethod, methodMetadata);
-                        initWriteCommandMethod(overriddenMethod, parameterTypes);
+    static void initRedisConnectionInterface() {
+        for (Method method : redisCommandMethods) {
+            // Find the method override one of The RedisCommands interfaces' methods
+            MethodInfo methodInfo = getMethodInfo(method);
+            if (methodInfo == null) {
+                String methodName = method.getName();
+                Class<?>[] parameterTypes = method.getParameterTypes();
+                Method overridenMethod = findMethod(RedisCommands.class, methodName, parameterTypes);
+                if (overridenMethod != null) {
+                    methodInfo = getMethodInfo(overridenMethod);
+                    if (methodInfo != null) {
+                        MethodMetadata methodMetadata = methodInfo.methodMetadata();
+                        createAndCacheMethodInfo(method, methodMetadata);
                     }
                 }
             }
         }
-        return redisMetadataCache;
+    }
+
+    static void createAndCacheMethodInfo(Method overrider, MethodMetadata overriddenMethodMetadata) {
+        int index = buildMethodIndex(overrider);
+        String interfaceName = overrider.getDeclaringClass().getName();
+        String methodName = overrider.getName();
+        String[] parameterTypes = getParameterClassNames(overrider.getParameterTypes());
+        String[] commands = overriddenMethodMetadata.getCommands();
+        boolean write = overriddenMethodMetadata.isWrite();
+
+        MethodMetadata methodMetadata = new MethodMetadata();
+        methodMetadata.setIndex(index);
+        methodMetadata.setInterfaceName(interfaceName);
+        methodMetadata.setMethodName(methodName);
+        methodMetadata.setParameterTypes(parameterTypes);
+        methodMetadata.setCommands(commands);
+        methodMetadata.setWrite(write);
+
+        cacheMethodInfo(overrider, methodMetadata);
+    }
+
+    static MethodInfo getMethodInfo(String interfaceName, String methodName, String... parameterTypes) {
+        String methodId = buildMethodId(interfaceName, methodName, parameterTypes);
+        return getMethodInfo(methodId);
+    }
+
+    static MethodInfo getMethodInfo(Object key) {
+        return methodInfoCache.get(key);
+    }
+
+    static boolean isWrite(MethodInfo methodInfo) {
+        return methodInfo != null && methodInfo.methodMetadata().isWrite();
+    }
+
+    static void cacheMethodInfo(Method redisCommandMethod, MethodMetadata methodMetadata) {
+        trySetAccessible(redisCommandMethod);
+
+        List<ParameterMetadata> parameterMetadataList = getParameterMetadataList(redisCommandMethod, methodMetadata);
+
+        String methodId = buildMethodId(redisCommandMethod);
+        MethodInfo methodInfo = new MethodInfo(methodId, redisCommandMethod, methodMetadata, parameterMetadataList);
+
+        int index = methodMetadata.getIndex();
+
+        cache(methodInfoCache, index, methodInfo);
+        cache(methodInfoCache, redisCommandMethod, methodInfo);
+        cache(methodInfoCache, methodId, methodInfo);
+    }
+
+    static List<ParameterMetadata> getParameterMetadataList(Method redisCommandMethod, MethodMetadata methodMetadata) {
+        String[] parameterTypes = methodMetadata.getParameterTypes();
+        int parameterCount = parameterTypes.length;
+        String[] parameterNames = parameterNameDiscoverer.getParameterNames(redisCommandMethod);
+        List<ParameterMetadata> parameterMetadataList = newArrayList(parameterCount);
+        for (int i = 0; i < parameterCount; i++) {
+            String parameterType = parameterTypes[i];
+            String parameterName = parameterNames[i];
+            ParameterMetadata parameterMetadata = new ParameterMetadata(i, parameterType, parameterName);
+            parameterMetadataList.add(parameterMetadata);
+        }
+        return parameterMetadataList;
+    }
+
+    static void initRedisCommandBindings(Method redisCommandMethod) {
+        if (redisCommandMethod.getParameterCount() < 1) {
+            Class<?> returnType = redisCommandMethod.getReturnType();
+            String interfaceName = returnType.getName();
+            cache(redisCommandBindings, interfaceName, redisConnection -> invokeMethod(redisCommandMethod, redisConnection));
+            logger.trace("The Redis Command Interface '{}' binds the RedisConnection command method: '{}'", interfaceName, redisCommandMethod);
+        }
     }
 
     static <K, V> boolean cache(Map<K, V> cache, K key, V value) {
         V oldValue = cache.put(key, value);
         if (oldValue == null) {
-            logger.trace("Caches the entry [key : {} , value : {}] into cache : {}", key, value, cache);
+            logger.trace("Caches the entry [key : {} , value : {}] into cache", key, value);
             return true;
         } else {
-            logger.trace("The entry [key : {} , value : {}] was already cached into cache : {}", key, value, cache);
+            logger.trace("The entry [key : {} , value : {}] was already cached into cache", key, value);
             return false;
         }
-    }
-
-    private static Method getRedisCommandMethod(MethodMetadata methodMetadata) {
-        String interfaceName = methodMetadata.getInterfaceName();
-        String methodName = methodMetadata.getMethodName();
-        String[] parameterTypes = methodMetadata.getParameterTypes();
-        return getRedisCommandMethod(interfaceName, methodName, parameterTypes);
-    }
-
-    private static RedisMetadata loadRedisMetadata() {
-        return loadAll();
-    }
-
-    private static void initRedisCommandBindings(Method redisCommandMethod, Map<String, Function<RedisConnection, Object>> redisCommandBindings) {
-        if (redisCommandMethod.getParameterCount() < 1) {
-            Class<?> returnType = redisCommandMethod.getReturnType();
-            String interfaceName = returnType.getName();
-            if (getRedisCommandInterfaceClass(interfaceName) != null) {
-                redisCommandBindings.put(interfaceName, redisConnection -> invokeMethod(redisCommandMethod, redisConnection));
-                logger.trace("The Redis Command Interface '{}' binds the RedisConnection command method: '{}'", interfaceName, redisCommandMethod);
-            }
-        }
-    }
-
-    private static void initWriteCommandMethod(Method method, Class<?>[] parameterTypes) {
-        try {
-            // Reduced Method runtime checks
-            trySetAccessible(method);
-            if (initWriteCommandMethodParameterMetadata(method, parameterTypes)) {
-                initWriteCommandMethodCache(method, parameterTypes);
-            }
-        } catch (Throwable e) {
-            logger.error("Unable to initialize write command method['{}'], Reason: {}", method, e.getMessage());
-            if (RedisConstants.MICROSPHERE_REDIS_FAIL_FAST_ENABLED) {
-                logger.error("Fail-Fast mode is activated and an exception is about to be thrown. You can disable Fail-Fast mode with the JVM startup parameter -D{}=false", RedisConstants.MICROSPHERE_REDIS_FAIL_FAST_ENABLED_PROPERTY_NAME);
-                throw new IllegalArgumentException(e);
-            }
-        }
-    }
-
-    private static boolean initWriteCommandMethodParameterMetadata(Method method, Class<?>[] parameterTypes) {
-        if (writeCommandMethodsMetadata.containsKey(method)) {
-            return false;
-        }
-        List<ParameterMetadata> parameterMetadataList = RedisCommandsUtils.buildParameterMetadata(method, parameterTypes);
-        writeCommandMethodsMetadata.put(method, parameterMetadataList);
-
-        logger.trace("Caches the Redis Write Command Method['{}'] Parameter Metadata : {}",
-                method, parameterMetadataList);
-        return true;
-    }
-
-    private static void initWriteCommandMethodCache(Method method, Class<?>[] parameterTypes) {
-        Class<?> declaredClass = method.getDeclaringClass();
-        String id = buildMethodId(declaredClass, method.getName(), parameterTypes);
-        if (writeCommandMethodsCache.putIfAbsent(id, method) == null) {
-            logger.trace("Caches the Redis Write Command Method : {}", id);
-        } else {
-            logger.warn("The Redis Write Command Method[{}] was cached", id, method);
-        }
-    }
-
-    /**
-     * Find the overridden method.
-     * <p>
-     * The class DefaultedRedisConnection overrides the methods of RedisCommands and its' sub interfaces
-     *
-     * @param method         {@link Method}
-     * @param parameterTypes the types of parameters
-     * @return <code>null</code> if not found
-     * @see org.springframework.data.redis.connection.DefaultedRedisConnection
-     */
-    @Nullable
-    private static Method findOverriddenMethod(Method method, Class<?>[] parameterTypes) {
-        return findMethod(defaultedRedisConnectionClass, method.getName(), parameterTypes);
     }
 
     private SpringRedisMetadataRepository() {

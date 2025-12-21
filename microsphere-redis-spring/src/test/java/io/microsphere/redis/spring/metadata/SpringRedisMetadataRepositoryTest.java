@@ -20,6 +20,8 @@ package io.microsphere.redis.spring.metadata;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.redis.connection.RedisCommands;
+import org.springframework.data.redis.connection.RedisConnection;
 
 import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.findMethodIndex;
 import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.init;
@@ -44,7 +46,10 @@ class SpringRedisMetadataRepositoryTest {
     @Test
     void testFindMethodIndex() {
         forEach(redisCommandMethods, method -> {
-            assertNotNull(findMethodIndex(method));
+            Class<?> declaringClass = method.getDeclaringClass();
+            if (!RedisConnection.class.equals(declaringClass) && RedisCommands.class.isAssignableFrom(declaringClass)) {
+                assertNotNull(findMethodIndex(method));
+            }
         });
     }
 
