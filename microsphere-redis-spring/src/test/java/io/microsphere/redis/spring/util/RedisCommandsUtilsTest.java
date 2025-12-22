@@ -196,6 +196,11 @@ class RedisCommandsUtilsTest {
         assertTrue(isRedisCommandsInterface(REDIS_SCRIPTING_COMMANDS_INTERFACE_NAME));
         assertTrue(isRedisCommandsInterface(REDIS_GEO_COMMANDS_INTERFACE_NAME));
         assertTrue(isRedisCommandsInterface(REDIS_HYPER_LOG_LOG_COMMANDS_INTERFACE_NAME));
+        assertTrue(isRedisCommandsInterface(REDIS_COMMANDS_INTERFACE_NAME));
+
+        assertFalse(isRedisCommandsInterface("RedisKeyCommands"));
+        assertFalse(isRedisCommandsInterface("RedisHyperLogLogCommands"));
+        assertFalse(isRedisCommandsInterface("Commands"));
 
         assertTrue(isRedisCommandsInterface(RedisGeoCommands.class));
         assertTrue(isRedisCommandsInterface(RedisHashCommands.class));
