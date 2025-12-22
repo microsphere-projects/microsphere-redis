@@ -83,13 +83,13 @@ public abstract class SpringRedisMetadataRepository {
     @Nullable
     public static Integer getMethodIndex(Method redisCommandMethod) {
         MethodInfo methodInfo = getMethodInfo(redisCommandMethod);
-        return methodInfo == null ? null : methodInfo.methodMetadata().getIndex();
+        return methodInfo == null ? null : methodInfo.getMethodMetadata().getIndex();
     }
 
     @Nullable
     public static Method getRedisCommandMethod(int methodIndex) {
         MethodInfo methodInfo = getMethodInfo(methodIndex);
-        return methodInfo == null ? null : methodInfo.method();
+        return methodInfo == null ? null : methodInfo.getMethod();
     }
 
     public static boolean isWriteCommandMethod(Method method) {
@@ -101,7 +101,7 @@ public abstract class SpringRedisMetadataRepository {
     public static List<ParameterMetadata> getWriteParameterMetadataList(Method method) {
         MethodInfo methodInfo = getMethodInfo(method);
         if (isWrite(methodInfo)) {
-            return methodInfo.parameterMetadataList();
+            return methodInfo.getParameterMetadataList();
         }
         return null;
     }
@@ -110,7 +110,7 @@ public abstract class SpringRedisMetadataRepository {
     public static Method getWriteCommandMethod(String interfaceName, String methodName, String... parameterTypes) {
         MethodInfo methodInfo = getMethodInfo(interfaceName, methodName, parameterTypes);
         if (isWrite(methodInfo)) {
-            return methodInfo.method();
+            return methodInfo.getMethod();
         }
         return null;
     }
@@ -134,7 +134,7 @@ public abstract class SpringRedisMetadataRepository {
     @Nullable
     public static Method getRedisCommandMethod(String interfaceName, String methodName, String... parameterTypes) {
         MethodInfo methodInfo = getMethodInfo(interfaceName, methodName, parameterTypes);
-        return methodInfo == null ? null : methodInfo.method();
+        return methodInfo == null ? null : methodInfo.getMethod();
     }
 
     static void initCache() {
@@ -194,7 +194,7 @@ public abstract class SpringRedisMetadataRepository {
                 if (overridenMethod != null) {
                     methodInfo = getMethodInfo(overridenMethod);
                     if (methodInfo != null) {
-                        MethodMetadata methodMetadata = methodInfo.methodMetadata();
+                        MethodMetadata methodMetadata = methodInfo.getMethodMetadata();
                         createAndCacheMethodInfo(method, methodMetadata);
                     }
                 }
@@ -231,7 +231,7 @@ public abstract class SpringRedisMetadataRepository {
     }
 
     static boolean isWrite(MethodInfo methodInfo) {
-        return methodInfo != null && methodInfo.methodMetadata().isWrite();
+        return methodInfo != null && methodInfo.getMethodMetadata().isWrite();
     }
 
     static void cacheMethodInfo(Method redisCommandMethod, MethodMetadata methodMetadata) {
@@ -239,9 +239,9 @@ public abstract class SpringRedisMetadataRepository {
 
         List<ParameterMetadata> parameterMetadataList = getParameterMetadataList(redisCommandMethod, methodMetadata);
 
-        String methodId = buildMethodId(redisCommandMethod);
-        MethodInfo methodInfo = new MethodInfo(methodId, redisCommandMethod, methodMetadata, parameterMetadataList);
+        MethodInfo methodInfo = new MethodInfo(redisCommandMethod, methodMetadata, parameterMetadataList);
 
+        String methodId = methodInfo.getId();
         int index = methodMetadata.getIndex();
 
         cache(methodInfoCache, index, methodInfo);
