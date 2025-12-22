@@ -55,6 +55,10 @@ class MethodMetadataTest {
 
         assertNotEquals(this.methodMetadata, "Hello");
 
+        methodMetadata1.setCommands(ofArray(""));
+        assertNotEquals(this.methodMetadata, methodMetadata1);
+        assertNotEquals(methodMetadata1, this.methodMetadata);
+
         methodMetadata1.setParameterTypes(ofArray("java.lang.String", "java.lang.Integer"));
         assertNotEquals(this.methodMetadata, methodMetadata1);
         assertNotEquals(methodMetadata1, this.methodMetadata);
@@ -64,10 +68,6 @@ class MethodMetadataTest {
         assertNotEquals(methodMetadata1, this.methodMetadata);
 
         methodMetadata1.setInterfaceName("");
-        assertNotEquals(this.methodMetadata, methodMetadata1);
-        assertNotEquals(methodMetadata1, this.methodMetadata);
-
-        methodMetadata1.setCommands(ofArray(""));
         assertNotEquals(this.methodMetadata, methodMetadata1);
         assertNotEquals(methodMetadata1, this.methodMetadata);
 
