@@ -24,8 +24,7 @@ import org.junit.jupiter.api.Test;
 import static io.microsphere.util.ArrayUtils.ofArray;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 /**
  * {@link MethodMetadata} Test
@@ -50,34 +49,40 @@ class MethodMetadataTest {
         MethodMetadata methodMetadata1 = new MethodMetadata();
         setAndAssert(methodMetadata1);
 
-        assertTrue(this.methodMetadata.equals(this.methodMetadata));
+        assertEquals(this.methodMetadata, this.methodMetadata);
 
         assertMethodMetadata(this.methodMetadata, methodMetadata1);
 
-        assertFalse(this.methodMetadata.equals("Hello"));
+        assertNotEquals(this.methodMetadata, "Hello");
 
         methodMetadata1.setParameterTypes(ofArray("java.lang.String", "java.lang.Integer"));
-        assertFalse(this.methodMetadata.equals(methodMetadata1));
+        assertNotEquals(this.methodMetadata, methodMetadata1);
+        assertNotEquals(methodMetadata1, this.methodMetadata);
 
         methodMetadata1.setMethodName("");
-        assertFalse(this.methodMetadata.equals(methodMetadata1));
+        assertNotEquals(this.methodMetadata, methodMetadata1);
+        assertNotEquals(methodMetadata1, this.methodMetadata);
 
         methodMetadata1.setInterfaceName("");
-        assertFalse(this.methodMetadata.equals(methodMetadata1));
+        assertNotEquals(this.methodMetadata, methodMetadata1);
+        assertNotEquals(methodMetadata1, this.methodMetadata);
 
         methodMetadata1.setCommands(ofArray(""));
-        assertFalse(this.methodMetadata.equals(methodMetadata1));
+        assertNotEquals(this.methodMetadata, methodMetadata1);
+        assertNotEquals(methodMetadata1, this.methodMetadata);
 
         methodMetadata1.setWrite(false);
-        assertFalse(this.methodMetadata.equals(methodMetadata1));
+        assertNotEquals(this.methodMetadata, methodMetadata1);
+        assertNotEquals(methodMetadata1, this.methodMetadata);
 
         methodMetadata1.setIndex(-1);
-        assertFalse(this.methodMetadata.equals(methodMetadata1));
+        assertNotEquals(this.methodMetadata, methodMetadata1);
+        assertNotEquals(methodMetadata1, this.methodMetadata);
     }
 
     void assertMethodMetadata(MethodMetadata one, MethodMetadata another) {
-        assertTrue(one.equals(another));
-        assertTrue(another.equals(one));
+        assertEquals(one, another);
+        assertEquals(another, one);
         assertEquals(one.hashCode(), another.hashCode());
         assertEquals(one.toString(), another.toString());
     }
