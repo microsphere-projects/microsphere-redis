@@ -33,6 +33,7 @@ import static io.microsphere.redis.util.RedisCommandUtils.getParameterClassNames
 import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.util.ArrayUtils.ofArray;
 import static java.lang.Math.abs;
+import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -85,6 +86,14 @@ class MethodInfoTest {
         MethodInfo methodInfo3 = new MethodInfo(this.method, null, null);
         assertNotEquals(methodInfo1, methodInfo3);
         assertNotEquals(methodInfo2, methodInfo3);
+
+        MethodInfo methodInfo4 = new MethodInfo(this.method, buildMethodMetadata(this.method), null);
+        assertNotEquals(methodInfo1, methodInfo4);
+        assertNotEquals(methodInfo2, methodInfo4);
+
+        MethodInfo methodInfo5 = new MethodInfo(this.method, buildMethodMetadata(this.method), emptyList());
+        assertNotEquals(methodInfo1, methodInfo5);
+        assertNotEquals(methodInfo2, methodInfo5);
     }
 
     MethodInfo buildMethodInfo(Method method) {
