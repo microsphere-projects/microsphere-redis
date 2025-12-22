@@ -71,6 +71,8 @@ public abstract class RedisCommandsUtils {
 
     public static final String REDIS_HYPER_LOG_LOG_COMMANDS_INTERFACE_NAME = "org.springframework.data.redis.connection.RedisHyperLogLogCommands";
 
+    public static final String REDIS_COMMANDS_INTERFACE_NAME = "org.springframework.data.redis.connection.RedisCommands";
+
     static final int REDIS_COMMANDS_PACKAGE_NAME_LENGTH = REDIS_COMMANDS_PACKAGE_NAME.length();
 
     static final String REDIS_COMMANDS_INTERFACE_NAME_PREFIX = REDIS_COMMANDS_PACKAGE_NAME + "Redis";
