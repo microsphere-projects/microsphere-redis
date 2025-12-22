@@ -18,15 +18,49 @@
 package io.microsphere.redis.spring.metadata;
 
 
+import io.microsphere.redis.metadata.MethodInfo;
+import io.microsphere.redis.metadata.MethodMetadata;
+import io.microsphere.redis.util.RedisCommandUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.data.redis.connection.RedisCommands;
 import org.springframework.data.redis.connection.RedisConnection;
 
+import java.util.Objects;
+import java.util.function.Function;
+
 import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.getMethodIndex;
+import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.getMethodInfo;
+import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.getRedisCommandBindingFunction;
+import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.getRedisCommandInterfaceClass;
+import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.getRedisCommandMethod;
+import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.getWriteCommandMethod;
+import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.getWriteParameterMetadataList;
 import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.init;
+import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.isWrite;
+import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.isWriteCommandMethod;
+import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.redisCommandInterfacesCache;
 import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.redisCommandMethods;
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_COMMANDS_INTERFACE_NAME;
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_CONNECTION_COMMANDS_INTERFACE_NAME;
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_GEO_COMMANDS_INTERFACE_NAME;
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_HASH_COMMANDS_INTERFACE_NAME;
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_HYPER_LOG_LOG_COMMANDS_INTERFACE_NAME;
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_KEY_COMMANDS_INTERFACE_NAME;
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_LIST_COMMANDS_INTERFACE_NAME;
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_PUB_SUB_COMMANDS_INTERFACE_NAME;
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_SCRIPTING_COMMANDS_INTERFACE_NAME;
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_SERVER_COMMANDS_INTERFACE_NAME;
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_SET_COMMANDS_INTERFACE_NAME;
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_STREAM_COMMANDS_INTERFACE_NAME;
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_STRING_COMMANDS_INTERFACE_NAME;
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_TX_COMMANDS_INTERFACE_NAME;
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_ZSET_COMMANDS_INTERFACE_NAME;
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.loadClass;
+import static io.microsphere.redis.util.RedisCommandUtils.buildMethodIndex;
 import static io.microsphere.util.ArrayUtils.forEach;
+import static io.microsphere.util.IterableUtils.forEach;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
@@ -46,42 +80,85 @@ class SpringRedisMetadataRepositoryTest {
     @Test
     void testGetMethodIndex() {
         forEach(redisCommandMethods, method -> {
-            Class<?> declaringClass = method.getDeclaringClass();
-            if (!RedisConnection.class.equals(declaringClass) && RedisCommands.class.isAssignableFrom(declaringClass)) {
-                assertNotNull(getMethodIndex(method));
-            }
+            assertNotNull(getMethodIndex(method));
+        });
+    }
+
+    @Test
+    void testGetRedisCommandMethod() {
+        forEach(redisCommandMethods, method -> {
+            int methodIndex = buildMethodIndex(method);
+            assertNotNull(getRedisCommandMethod(methodIndex));
         });
     }
 
     @Test
     void testIsWriteCommandMethod() {
+        forEach(redisCommandMethods, method -> {
+            MethodInfo methodInfo = getMethodInfo(method);
+            assertEquals(methodInfo.getMethodMetadata().isWrite(), isWriteCommandMethod(method));
+        });
     }
 
     @Test
     void testGetWriteParameterMetadataList() {
-    }
-
-    @Test
-    void testFindWriteCommandMethod() {
+        forEach(redisCommandMethods, method -> {
+            MethodInfo methodInfo = getMethodInfo(method);
+            MethodMetadata methodMetadata = methodInfo.getMethodMetadata();
+            assertEquals(methodMetadata.isWrite(), Objects.equals(methodInfo.getParameterMetadataList(), getWriteParameterMetadataList(method)));
+        });
     }
 
     @Test
     void testGetWriteCommandMethod() {
-    }
-
-    @Test
-    void testGetWriteCommandMethods() {
+        forEach(redisCommandMethods, method -> {
+            MethodInfo methodInfo = getMethodInfo(method);
+            MethodMetadata methodMetadata = methodInfo.getMethodMetadata();
+            String interfaceName = methodMetadata.getInterfaceName();
+            String methodName = methodMetadata.getMethodName();
+            String[] parameterTypes = methodMetadata.getParameterTypes();
+            assertEquals(methodMetadata.isWrite(), Objects.equals(method, getWriteCommandMethod(interfaceName, methodName, parameterTypes)));
+        });
     }
 
     @Test
     void testGetRedisCommandInterfaceClass() {
+        assertGetRedisCommandInterfaceClass(REDIS_KEY_COMMANDS_INTERFACE_NAME);
+        assertGetRedisCommandInterfaceClass(REDIS_STRING_COMMANDS_INTERFACE_NAME);
+        assertGetRedisCommandInterfaceClass(REDIS_LIST_COMMANDS_INTERFACE_NAME);
+        assertGetRedisCommandInterfaceClass(REDIS_SET_COMMANDS_INTERFACE_NAME);
+        assertGetRedisCommandInterfaceClass(REDIS_ZSET_COMMANDS_INTERFACE_NAME);
+        assertGetRedisCommandInterfaceClass(REDIS_HASH_COMMANDS_INTERFACE_NAME);
+        assertGetRedisCommandInterfaceClass(REDIS_TX_COMMANDS_INTERFACE_NAME);
+        assertGetRedisCommandInterfaceClass(REDIS_PUB_SUB_COMMANDS_INTERFACE_NAME);
+        assertGetRedisCommandInterfaceClass(REDIS_CONNECTION_COMMANDS_INTERFACE_NAME);
+        assertGetRedisCommandInterfaceClass(REDIS_SERVER_COMMANDS_INTERFACE_NAME);
+        assertGetRedisCommandInterfaceClass(REDIS_STREAM_COMMANDS_INTERFACE_NAME);
+        assertGetRedisCommandInterfaceClass(REDIS_SCRIPTING_COMMANDS_INTERFACE_NAME);
+        assertGetRedisCommandInterfaceClass(REDIS_GEO_COMMANDS_INTERFACE_NAME);
+        assertGetRedisCommandInterfaceClass(REDIS_HYPER_LOG_LOG_COMMANDS_INTERFACE_NAME);
+        assertGetRedisCommandInterfaceClass(REDIS_COMMANDS_INTERFACE_NAME);
+
+        forEach(redisCommandInterfacesCache.keySet(), className -> {
+            assertGetRedisCommandInterfaceClass(className);
+        });
     }
 
     @Test
     void testGetRedisCommandBindingFunction() {
+        forEach(RedisCommandUtils.class.getInterfaces(), type -> {
+            Function<RedisConnection, Object> function = getRedisCommandBindingFunction(type.getName());
+            assertNotNull(function);
+        });
     }
 
     @Test
-    void testGetRedisCommandMethod() {
+    void testIsWriteWithNull() {
+        assertFalse(isWrite(null));
+    }
+
+    void assertGetRedisCommandInterfaceClass(String interfaceName) {
+        Class<?> interfaceClass = loadClass(interfaceName);
+        assertEquals(interfaceClass, getRedisCommandInterfaceClass(interfaceName));
     }
 }
