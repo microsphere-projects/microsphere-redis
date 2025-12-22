@@ -71,6 +71,7 @@ import static io.microsphere.redis.spring.AbstractRedisTest.SET_METHOD_ARGS;
 import static io.microsphere.redis.spring.AbstractRedisTest.SOURCE_BEAN_NAME_FOR_REDIS_TEMPLATE;
 import static io.microsphere.redis.spring.context.RedisContext.get;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.REACTIVE_COMMANDS_INTERFACE_NAME_PREFIX;
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_COMMANDS_INTERFACE_NAME;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_COMMANDS_INTERFACE_NAME_PREFIX;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_COMMANDS_INTERFACE_NAME_SUFFIX;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_COMMANDS_PACKAGE_NAME;
@@ -133,6 +134,7 @@ class RedisCommandsUtilsTest {
         assertEquals("org.springframework.data.redis.connection.RedisScriptingCommands", REDIS_SCRIPTING_COMMANDS_INTERFACE_NAME);
         assertEquals("org.springframework.data.redis.connection.RedisGeoCommands", REDIS_GEO_COMMANDS_INTERFACE_NAME);
         assertEquals("org.springframework.data.redis.connection.RedisHyperLogLogCommands", REDIS_HYPER_LOG_LOG_COMMANDS_INTERFACE_NAME);
+        assertEquals("org.springframework.data.redis.connection.RedisCommands", REDIS_COMMANDS_INTERFACE_NAME);
         assertEquals(42, REDIS_COMMANDS_PACKAGE_NAME_LENGTH);
         assertEquals("org.springframework.data.redis.connection.Redis", REDIS_COMMANDS_INTERFACE_NAME_PREFIX);
         assertEquals("org.springframework.data.redis.connection.Reactive", REACTIVE_COMMANDS_INTERFACE_NAME_PREFIX);
@@ -155,6 +157,7 @@ class RedisCommandsUtilsTest {
         assertEquals("RedisScriptingCommands", resolveSimpleInterfaceName(REDIS_SCRIPTING_COMMANDS_INTERFACE_NAME));
         assertEquals("RedisGeoCommands", resolveSimpleInterfaceName(REDIS_GEO_COMMANDS_INTERFACE_NAME));
         assertEquals("RedisHyperLogLogCommands", resolveSimpleInterfaceName(REDIS_HYPER_LOG_LOG_COMMANDS_INTERFACE_NAME));
+        assertEquals("RedisCommands", resolveSimpleInterfaceName(REDIS_COMMANDS_INTERFACE_NAME));
         assertEquals("RedisHyperLogLogCommands", resolveSimpleInterfaceName("RedisHyperLogLogCommands"));
     }
 
