@@ -97,17 +97,19 @@ public class MethodMetadata {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
+        if (this == o) {
+            return true;
+        }
         if (!(o instanceof MethodMetadata)) {
             return false;
         }
         MethodMetadata that = (MethodMetadata) o;
-        return index == that.index &&
-                write == that.write &&
-                Objects.equals(interfaceName, that.interfaceName) &&
-                Objects.equals(methodName, that.methodName) &&
-                arrayEquals(parameterTypes, that.parameterTypes) &&
-                arrayEquals(commands, that.commands);
+        return this.index == that.index
+                && this.write == that.write
+                && Objects.equals(interfaceName, that.interfaceName)
+                && Objects.equals(methodName, that.methodName)
+                && arrayEquals(parameterTypes, that.parameterTypes)
+                && arrayEquals(commands, that.commands);
     }
 
     @Override
