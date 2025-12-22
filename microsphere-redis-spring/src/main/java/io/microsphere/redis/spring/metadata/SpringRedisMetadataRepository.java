@@ -25,7 +25,6 @@ import static io.microsphere.collection.MapUtils.newHashMap;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.metadata.RedisMetadataLoader.loadAll;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.isRedisCommandsInterface;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.loadClass;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.loadClasses;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodId;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodIndex;
@@ -33,6 +32,7 @@ import static io.microsphere.redis.util.RedisCommandUtils.getParameterClassNames
 import static io.microsphere.reflect.AccessibleObjectUtils.trySetAccessible;
 import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.util.ClassUtils.getAllInterfaces;
+import static io.microsphere.util.ClassUtils.isAssignableFrom;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Stream.of;
@@ -103,6 +103,12 @@ public abstract class SpringRedisMetadataRepository {
         return methodInfo == null ? null : methodInfo.getMethod();
     }
 
+    @Nullable
+    public static Method getRedisCommandMethod(String interfaceName, String methodName, String... parameterTypes) {
+        MethodInfo methodInfo = getMethodInfo(interfaceName, methodName, parameterTypes);
+        return methodInfo == null ? null : methodInfo.getMethod();
+    }
+
     public static boolean isWriteCommandMethod(Method method) {
         MethodInfo methodInfo = getMethodInfo(method);
         return isWrite(methodInfo);
@@ -142,21 +148,13 @@ public abstract class SpringRedisMetadataRepository {
         return redisCommandBindings.getOrDefault(interfaceName, redisConnection -> redisConnection);
     }
 
-    @Nullable
-    public static Method getRedisCommandMethod(String interfaceName, String methodName, String... parameterTypes) {
-        MethodInfo methodInfo = getMethodInfo(interfaceName, methodName, parameterTypes);
-        return methodInfo == null ? null : methodInfo.getMethod();
-    }
-
     static void initCache() {
         RedisMetadata redisMetadata = loadAll();
         List<MethodMetadata> methods = redisMetadata.getMethods();
         for (MethodMetadata method : methods) {
             String interfaceName = method.getInterfaceName();
             Class<?> interfaceClass = getRedisCommandInterfaceClass(interfaceName);
-            if (interfaceClass != null) {
-                initMethodInfo(interfaceClass, method);
-            }
+            initMethodInfo(interfaceClass, method);
         }
 
         initRedisCommandBindings();
@@ -171,13 +169,6 @@ public abstract class SpringRedisMetadataRepository {
     }
 
     @Nullable
-    static Class<?> initRedisCommandInterfacesCache(String interfaceName) {
-        Class<?> interfaceClass = loadClass(interfaceName);
-        cache(redisCommandInterfacesCache, interfaceName, interfaceClass);
-        return interfaceClass;
-    }
-
-    @Nullable
     static void initMethodInfo(@Nullable Class<?> interfaceClass, MethodMetadata methodMetadata) {
         String interfaceName = methodMetadata.getInterfaceName();
         if (interfaceClass == null) {
@@ -189,13 +180,7 @@ public abstract class SpringRedisMetadataRepository {
         Class<?>[] parameterClasses = loadClasses(parameterTypes);
         Method redisCommandMethod = findMethod(interfaceClass, methodName, parameterClasses);
 
-        if (redisCommandMethod == null) {
-            logger.warn("The Redis Command Method can't be found from {}", methodMetadata);
-            return;
-        }
-
         cacheMethodInfo(redisCommandMethod, methodMetadata);
-
     }
 
     static void initRedisConnectionInterfaces() {
@@ -204,9 +189,16 @@ public abstract class SpringRedisMetadataRepository {
 
     static void initRedisConnectionInterface() {
         for (Method method : redisCommandMethods) {
-            // Find the method override one of The RedisCommands interfaces' methods
-            MethodInfo methodInfo = getMethodInfo(method);
-            if (methodInfo == null) {
+            initRedisConnectionInterface(method);
+        }
+    }
+
+    static void initRedisConnectionInterface(Method method) {
+        // Find the method override one of The RedisCommands interfaces' methods
+        MethodInfo methodInfo = getMethodInfo(method);
+        if (methodInfo == null) {
+            Class<?> declaringClass = method.getDeclaringClass();
+            if (isAssignableFrom(RedisCommands.class, declaringClass)) {
                 String methodName = method.getName();
                 Class<?>[] parameterTypes = method.getParameterTypes();
                 Method overridenMethod = findMethod(RedisCommands.class, methodName, parameterTypes);
@@ -254,6 +246,11 @@ public abstract class SpringRedisMetadataRepository {
     }
 
     static void cacheMethodInfo(Method redisCommandMethod, MethodMetadata methodMetadata) {
+        if (redisCommandMethod == null) {
+            logger.warn("The Redis Command Method can't be found from {}", methodMetadata);
+            return;
+        }
+
         trySetAccessible(redisCommandMethod);
 
         List<ParameterMetadata> parameterMetadataList = getParameterMetadataList(redisCommandMethod, methodMetadata);
