@@ -7,6 +7,7 @@ import io.microsphere.redis.metadata.MethodInfo;
 import io.microsphere.redis.metadata.MethodMetadata;
 import io.microsphere.redis.metadata.ParameterMetadata;
 import io.microsphere.redis.metadata.RedisMetadata;
+import io.microsphere.redis.spring.util.RedisCommandsUtils;
 import io.microsphere.redis.util.RedisCommandUtils;
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
@@ -16,12 +17,14 @@ import org.springframework.data.redis.connection.RedisConnection;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 import static io.microsphere.collection.ListUtils.newArrayList;
 import static io.microsphere.collection.MapUtils.newHashMap;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.metadata.RedisMetadataLoader.loadAll;
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.isRedisCommandsInterface;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.loadClass;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.loadClasses;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodId;
@@ -30,6 +33,9 @@ import static io.microsphere.redis.util.RedisCommandUtils.getParameterClassNames
 import static io.microsphere.reflect.AccessibleObjectUtils.trySetAccessible;
 import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.util.ClassUtils.getAllInterfaces;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Stream.of;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
 
 /**
@@ -44,15 +50,20 @@ public abstract class SpringRedisMetadataRepository {
 
     private static final ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
-    static final Method[] redisCommandMethods = RedisConnection.class.getMethods();
+    static Method[] redisConnectionMethods = RedisConnection.class.getMethods();
 
-    static final List<Class<?>> redisCommandInterfaceClasses = getAllInterfaces(RedisConnection.class);
+    static final Set<Method> redisCommandMethods = of(redisConnectionMethods)
+            .filter(SpringRedisMetadataRepository::isRedisCommandMethod)
+            .collect(toSet());
 
     /**
      * Interface Class name and {@link Class} object cache (reduces class loading performance cost) from
      * {@link RedisConnection}.
      */
-    static final Map<String, Class<?>> redisCommandInterfacesCache = newHashMap(128);
+    static final Map<String, Class<?>> redisCommandInterfacesCache = getAllInterfaces(RedisConnection.class)
+            .stream()
+            .filter(RedisCommandsUtils::isRedisCommandsInterface)
+            .collect(toMap(Class::getName, t -> t));
 
     /**
      * Command interface class name and {@link RedisConnection} command object function
@@ -142,12 +153,21 @@ public abstract class SpringRedisMetadataRepository {
         List<MethodMetadata> methods = redisMetadata.getMethods();
         for (MethodMetadata method : methods) {
             String interfaceName = method.getInterfaceName();
-            Class<?> interfaceClass = initRedisCommandInterfacesCache(interfaceName);
-            if (redisCommandInterfaceClasses.contains(interfaceClass)) {
+            Class<?> interfaceClass = getRedisCommandInterfaceClass(interfaceName);
+            if (interfaceClass != null) {
                 initMethodInfo(interfaceClass, method);
             }
         }
+
+        initRedisCommandBindings();
+
         initRedisConnectionInterfaces();
+    }
+
+    private static void initRedisCommandBindings() {
+        for (Method redisConnectionMethod : redisConnectionMethods) {
+            initRedisCommandBindings(redisConnectionMethod);
+        }
     }
 
     @Nullable
@@ -176,7 +196,6 @@ public abstract class SpringRedisMetadataRepository {
 
         cacheMethodInfo(redisCommandMethod, methodMetadata);
 
-        initRedisCommandBindings(redisCommandMethod);
     }
 
     static void initRedisConnectionInterfaces() {
@@ -263,12 +282,14 @@ public abstract class SpringRedisMetadataRepository {
         return parameterMetadataList;
     }
 
-    static void initRedisCommandBindings(Method redisCommandMethod) {
-        if (redisCommandMethod.getParameterCount() < 1) {
-            Class<?> returnType = redisCommandMethod.getReturnType();
-            String interfaceName = returnType.getName();
-            cache(redisCommandBindings, interfaceName, redisConnection -> invokeMethod(redisCommandMethod, redisConnection));
-            logger.trace("The Redis Command Interface '{}' binds the RedisConnection command method: '{}'", interfaceName, redisCommandMethod);
+    static void initRedisCommandBindings(Method redisConnectionMethod) {
+        if (redisConnectionMethod.getParameterCount() < 1) {
+            Class<?> returnType = redisConnectionMethod.getReturnType();
+            if (isRedisCommandsInterface(returnType)) {
+                String interfaceName = returnType.getName();
+                cache(redisCommandBindings, interfaceName, redisConnection -> invokeMethod(redisConnectionMethod, redisConnection));
+                logger.trace("The Redis Command Interface '{}' binds the RedisConnection command method: '{}'", interfaceName, redisConnectionMethod);
+            }
         }
     }
 
@@ -281,6 +302,12 @@ public abstract class SpringRedisMetadataRepository {
             logger.trace("The entry [key : {} , value : {}] was already cached into cache", key, value);
             return false;
         }
+    }
+
+    static boolean isRedisCommandMethod(Method method) {
+        Class<?> declaringClass = method.getDeclaringClass();
+        return !RedisConnection.class.equals(declaringClass)
+                && RedisCommands.class.isAssignableFrom(declaringClass);
     }
 
     private SpringRedisMetadataRepository() {
