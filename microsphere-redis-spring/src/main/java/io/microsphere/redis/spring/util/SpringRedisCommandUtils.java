@@ -12,24 +12,22 @@ import org.springframework.data.redis.connection.RedisConnection;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Set;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiConsumer;
 
-import static io.microsphere.collection.ListUtils.newArrayList;
 import static io.microsphere.constants.SymbolConstants.DOT_CHAR;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.getWriteParameterMetadataList;
-import static io.microsphere.redis.spring.serializer.Serializers.getSerializer;
 import static io.microsphere.redis.spring.serializer.Serializers.serializeRawParameter;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodId;
-import static io.microsphere.redis.util.RedisCommandUtils.getRedisWriteCommands;
+import static io.microsphere.redis.util.RedisCommandUtils.buildParameterMetadataList;
+import static io.microsphere.redis.util.RedisCommandUtils.isRedisWriteCommand;
 import static io.microsphere.redis.util.RedisUtils.CLASS_LOADER;
 import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.util.StringUtils.INDEX_NOT_FOUND;
 import static io.microsphere.util.StringUtils.isNotBlank;
-import static java.util.Collections.unmodifiableList;
 import static org.springframework.util.ClassUtils.forName;
 
 /**
@@ -38,9 +36,9 @@ import static org.springframework.util.ClassUtils.forName;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @since 1.0.0
  */
-public abstract class RedisCommandsUtils {
+public abstract class SpringRedisCommandUtils {
 
-    private static final Logger logger = getLogger(RedisCommandsUtils.class);
+    private static final Logger logger = getLogger(SpringRedisCommandUtils.class);
 
     private static final ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
@@ -137,8 +135,6 @@ public abstract class RedisCommandsUtils {
 
     static final String REDIS_COMMANDS_INTERFACE_NAME_SUFFIX = "Commands";
 
-    static final Set<String> redisWriteCommands = getRedisWriteCommands();
-
     static final ConcurrentMap<String, Class<?>> classesCache = new ConcurrentHashMap<>(256);
 
     public static String resolveSimpleInterfaceName(String interfaceName) {
@@ -223,11 +219,12 @@ public abstract class RedisCommandsUtils {
             parameterMetadataList = getWriteParameterMetadataList(method);
             // If not found, try to build them
             if (parameterMetadataList == null) {
-                if (method == REDIS_COMMANDS_EXECUTE_METHOD) {
+                if (Objects.equals(method, REDIS_COMMANDS_EXECUTE_METHOD)) {
                     String command = (String) args[0];
+                    sourceFromWriteMethod = isRedisWriteCommand(command);
+                } else {
+                    sourceFromWriteMethod = false;
                 }
-
-                sourceFromWriteMethod = false;
                 parameterMetadataList = buildParameterMetadataList(method);
             }
 
@@ -257,26 +254,6 @@ public abstract class RedisCommandsUtils {
         return sourceFromWriteMethod;
     }
 
-    public static List<ParameterMetadata> buildParameterMetadataList(Method method) {
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        return buildParameterMetadata(method, parameterTypes);
-    }
-
-    public static List<ParameterMetadata> buildParameterMetadata(Method method, Class<?>[] parameterTypes) {
-        int parameterCount = parameterTypes.length;
-        String[] parameterNames = parameterNameDiscoverer.getParameterNames(method);
-        List<ParameterMetadata> parameterMetadataList = newArrayList(parameterCount);
-        for (int i = 0; i < parameterCount; i++) {
-            String parameterType = parameterTypes[i].getName();
-            String parameterName = parameterNames[i];
-            ParameterMetadata parameterMetadata = new ParameterMetadata(i, parameterType, parameterName);
-            parameterMetadataList.add(parameterMetadata);
-            // Preload the RedisSerializer implementation for the Method parameter type
-            getSerializer(parameterType);
-        }
-        return unmodifiableList(parameterMetadataList);
-    }
-
     public static Class<?>[] loadClasses(String... classNames) {
         int length = classNames.length;
         Class<?>[] classes = new Class[length];
@@ -301,6 +278,6 @@ public abstract class RedisCommandsUtils {
         });
     }
 
-    private RedisCommandsUtils() {
+    private SpringRedisCommandUtils() {
     }
 }

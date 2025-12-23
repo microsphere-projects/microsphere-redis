@@ -70,34 +70,34 @@ import static io.microsphere.redis.spring.AbstractRedisTest.SET_METHOD;
 import static io.microsphere.redis.spring.AbstractRedisTest.SET_METHOD_ARGS;
 import static io.microsphere.redis.spring.AbstractRedisTest.SOURCE_BEAN_NAME_FOR_REDIS_TEMPLATE;
 import static io.microsphere.redis.spring.context.RedisContext.get;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.REACTIVE_COMMANDS_INTERFACE_NAME_PREFIX;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_COMMANDS_EXECUTE_METHOD;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_COMMANDS_INTERFACE_NAME;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_COMMANDS_INTERFACE_NAME_PREFIX;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_COMMANDS_INTERFACE_NAME_SUFFIX;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_COMMANDS_PACKAGE_NAME;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_COMMANDS_PACKAGE_NAME_LENGTH;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_CONNECTION_COMMANDS_INTERFACE_NAME;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_GEO_COMMANDS_INTERFACE_NAME;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_HASH_COMMANDS_INTERFACE_NAME;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_HYPER_LOG_LOG_COMMANDS_INTERFACE_NAME;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_KEY_COMMANDS_INTERFACE_NAME;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_LIST_COMMANDS_INTERFACE_NAME;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_PUB_SUB_COMMANDS_INTERFACE_NAME;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_SCRIPTING_COMMANDS_INTERFACE_NAME;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_SERVER_COMMANDS_INTERFACE_NAME;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_SET_COMMANDS_INTERFACE_NAME;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_STREAM_COMMANDS_INTERFACE_NAME;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_STRING_COMMANDS_INTERFACE_NAME;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_TX_COMMANDS_INTERFACE_NAME;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_ZSET_COMMANDS_INTERFACE_NAME;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.buildCommandMethodId;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.getRedisCommands;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.initializeParameters;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.isRedisCommandsInterface;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.loadClasses;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.resolveInterfaceName;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.resolveSimpleInterfaceName;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.REACTIVE_COMMANDS_INTERFACE_NAME_PREFIX;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.REDIS_COMMANDS_EXECUTE_METHOD;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.REDIS_COMMANDS_INTERFACE_NAME;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.REDIS_COMMANDS_INTERFACE_NAME_PREFIX;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.REDIS_COMMANDS_INTERFACE_NAME_SUFFIX;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.REDIS_COMMANDS_PACKAGE_NAME;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.REDIS_COMMANDS_PACKAGE_NAME_LENGTH;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.REDIS_CONNECTION_COMMANDS_INTERFACE_NAME;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.REDIS_GEO_COMMANDS_INTERFACE_NAME;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.REDIS_HASH_COMMANDS_INTERFACE_NAME;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.REDIS_HYPER_LOG_LOG_COMMANDS_INTERFACE_NAME;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.REDIS_KEY_COMMANDS_INTERFACE_NAME;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.REDIS_LIST_COMMANDS_INTERFACE_NAME;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.REDIS_PUB_SUB_COMMANDS_INTERFACE_NAME;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.REDIS_SCRIPTING_COMMANDS_INTERFACE_NAME;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.REDIS_SERVER_COMMANDS_INTERFACE_NAME;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.REDIS_SET_COMMANDS_INTERFACE_NAME;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.REDIS_STREAM_COMMANDS_INTERFACE_NAME;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.REDIS_STRING_COMMANDS_INTERFACE_NAME;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.REDIS_TX_COMMANDS_INTERFACE_NAME;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.REDIS_ZSET_COMMANDS_INTERFACE_NAME;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.buildCommandMethodId;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.getRedisCommands;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.initializeParameters;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.isRedisCommandsInterface;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.loadClasses;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.resolveInterfaceName;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.resolveSimpleInterfaceName;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodId;
 import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.spring.test.util.SpringTestUtils.testInSpringContainer;
@@ -111,13 +111,13 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * {@link RedisCommandsUtils} Test
+ * {@link SpringRedisCommandUtils} Test
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
- * @see RedisCommandsUtils
+ * @see SpringRedisCommandUtils
  * @since 1.0.0
  */
-class RedisCommandsUtilsTest {
+class SpringRedisCommandUtilsTest {
 
     @Test
     void testConstants() {

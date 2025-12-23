@@ -39,7 +39,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.loadClass;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.loadClass;
 import static io.microsphere.util.ArrayUtils.ofArray;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;

@@ -34,8 +34,8 @@ import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository
 import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.getRedisCommandMethod;
 import static io.microsphere.redis.spring.serializer.IntegerSerializer.INTEGER_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.RedisCommandEventSerializer.VersionedRedisSerializer.valueOf;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.resolveInterfaceName;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.resolveSimpleInterfaceName;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.resolveInterfaceName;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.resolveSimpleInterfaceName;
 import static java.nio.charset.StandardCharsets.US_ASCII;
 
 /**

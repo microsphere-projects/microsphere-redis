@@ -7,7 +7,7 @@ import io.microsphere.redis.metadata.MethodInfo;
 import io.microsphere.redis.metadata.MethodMetadata;
 import io.microsphere.redis.metadata.ParameterMetadata;
 import io.microsphere.redis.metadata.RedisMetadata;
-import io.microsphere.redis.spring.util.RedisCommandsUtils;
+import io.microsphere.redis.spring.util.SpringRedisCommandUtils;
 import io.microsphere.redis.util.RedisCommandUtils;
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
@@ -24,8 +24,9 @@ import static io.microsphere.collection.ListUtils.newArrayList;
 import static io.microsphere.collection.MapUtils.newHashMap;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.metadata.RedisMetadataLoader.loadAll;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.isRedisCommandsInterface;
-import static io.microsphere.redis.spring.util.RedisCommandsUtils.loadClasses;
+import static io.microsphere.redis.spring.serializer.Serializers.getSerializer;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.isRedisCommandsInterface;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.loadClasses;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodId;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodIndex;
 import static io.microsphere.redis.util.RedisCommandUtils.getParameterClassNames;
@@ -62,7 +63,7 @@ public abstract class SpringRedisMetadataRepository {
      */
     static final Map<String, Class<?>> redisCommandInterfacesCache = getAllInterfaces(RedisConnection.class)
             .stream()
-            .filter(RedisCommandsUtils::isRedisCommandsInterface)
+            .filter(SpringRedisCommandUtils::isRedisCommandsInterface)
             .collect(toMap(Class::getName, t -> t));
 
     /**
@@ -254,6 +255,12 @@ public abstract class SpringRedisMetadataRepository {
         trySetAccessible(redisCommandMethod);
 
         List<ParameterMetadata> parameterMetadataList = getParameterMetadataList(redisCommandMethod, methodMetadata);
+
+        parameterMetadataList.forEach(parameterMetadata -> {
+            // Preload the RedisSerializer implementation for the Method parameter type
+            String parameterType = parameterMetadata.getParameterType();
+            getSerializer(parameterType);
+        });
 
         MethodInfo methodInfo = new MethodInfo(redisCommandMethod, methodMetadata, parameterMetadataList);
 
