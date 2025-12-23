@@ -71,6 +71,7 @@ import static io.microsphere.redis.spring.AbstractRedisTest.SET_METHOD_ARGS;
 import static io.microsphere.redis.spring.AbstractRedisTest.SOURCE_BEAN_NAME_FOR_REDIS_TEMPLATE;
 import static io.microsphere.redis.spring.context.RedisContext.get;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.REACTIVE_COMMANDS_INTERFACE_NAME_PREFIX;
+import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_COMMANDS_EXECUTE_METHOD;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_COMMANDS_INTERFACE_NAME;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_COMMANDS_INTERFACE_NAME_PREFIX;
 import static io.microsphere.redis.spring.util.RedisCommandsUtils.REDIS_COMMANDS_INTERFACE_NAME_SUFFIX;
@@ -105,6 +106,7 @@ import static java.util.stream.Stream.of;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -135,6 +137,7 @@ class RedisCommandsUtilsTest {
         assertEquals("org.springframework.data.redis.connection.RedisGeoCommands", REDIS_GEO_COMMANDS_INTERFACE_NAME);
         assertEquals("org.springframework.data.redis.connection.RedisHyperLogLogCommands", REDIS_HYPER_LOG_LOG_COMMANDS_INTERFACE_NAME);
         assertEquals("org.springframework.data.redis.connection.RedisCommands", REDIS_COMMANDS_INTERFACE_NAME);
+        assertNotNull(REDIS_COMMANDS_EXECUTE_METHOD);
         assertEquals(42, REDIS_COMMANDS_PACKAGE_NAME_LENGTH);
         assertEquals("org.springframework.data.redis.connection.Redis", REDIS_COMMANDS_INTERFACE_NAME_PREFIX);
         assertEquals("org.springframework.data.redis.connection.Reactive", REACTIVE_COMMANDS_INTERFACE_NAME_PREFIX);
