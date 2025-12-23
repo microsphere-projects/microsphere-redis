@@ -1,5 +1,6 @@
 package io.microsphere.redis.replicator.spring.kafka.producer;
 
+import io.microsphere.annotation.Nullable;
 import io.microsphere.logging.Logger;
 import io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
@@ -21,6 +22,7 @@ import java.util.concurrent.ExecutorService;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.serializer.Serializers.serialize;
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.isRedisCommandsExecuteMethod;
+import static io.microsphere.spring.beans.BeanUtils.getOptionalBean;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 
 /**
@@ -43,6 +45,9 @@ public class KafkaProducerRedisCommandEventListener implements ApplicationListen
 
     private KafkaProducerRedisReplicatorConfiguration kafkaProducerRedisReplicatorConfiguration;
 
+    @Nullable
+    private RedisComandEventPartitioner redisComandEventPartitioner;
+
     private ExecutorService executor;
 
     @Override
@@ -60,6 +65,10 @@ public class KafkaProducerRedisCommandEventListener implements ApplicationListen
 
     private void initRedisReplicatorKafkaTemplate(KafkaProducerRedisReplicatorConfiguration kafkaProducerRedisReplicatorConfiguration) {
         this.redisReplicatorKafkaTemplate = kafkaProducerRedisReplicatorConfiguration.getRedisReplicatorKafkaTemplate();
+    }
+
+    private void initRedisComandEventPartitioner(ApplicationContext context) {
+        this.redisComandEventPartitioner = getOptionalBean(context, RedisComandEventPartitioner.class);
     }
 
     private void initExecutor() {
@@ -114,7 +123,9 @@ public class KafkaProducerRedisCommandEventListener implements ApplicationListen
     }
 
     private Integer calcPartition(RedisCommandEvent event) {
-        // TODO Future computing partition
+        if (redisComandEventPartitioner != null) {
+            return redisComandEventPartitioner.partition(event);
+        }
         return null;
     }
 
@@ -128,6 +139,7 @@ public class KafkaProducerRedisCommandEventListener implements ApplicationListen
         initRedisReplicatorConfiguration(this.context);
         initRedisReplicatorKafkaProducerConfiguration(this.context);
         initRedisReplicatorKafkaTemplate(this.kafkaProducerRedisReplicatorConfiguration);
+        initRedisComandEventPartitioner(this.context);
         initExecutor();
     }
 

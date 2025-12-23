@@ -17,7 +17,9 @@
 package io.microsphere.redis.replicator.spring;
 
 import io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration;
+import io.microsphere.redis.replicator.spring.kafka.producer.RedisComandEventPartitioner;
 import io.microsphere.redis.spring.context.RedisInitializer;
+import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
@@ -37,4 +39,9 @@ import org.springframework.test.context.TestPropertySource;
         "microsphere.redis.enabled=true"
 })
 public class RedisCommandReplicatorIntegrationTest extends AbstractRedisReplicatorTest {
+
+    @Bean
+    public static RedisComandEventPartitioner redisComandEventPartitioner() {
+        return event -> null;
+    }
 }
