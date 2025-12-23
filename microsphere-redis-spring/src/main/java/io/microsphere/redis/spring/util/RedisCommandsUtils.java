@@ -12,6 +12,7 @@ import org.springframework.data.redis.connection.RedisConnection;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiConsumer;
@@ -23,6 +24,7 @@ import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository
 import static io.microsphere.redis.spring.serializer.Serializers.getSerializer;
 import static io.microsphere.redis.spring.serializer.Serializers.serializeRawParameter;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodId;
+import static io.microsphere.redis.util.RedisCommandUtils.getRedisWriteCommands;
 import static io.microsphere.redis.util.RedisUtils.CLASS_LOADER;
 import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.util.StringUtils.INDEX_NOT_FOUND;
@@ -135,6 +137,8 @@ public abstract class RedisCommandsUtils {
 
     static final String REDIS_COMMANDS_INTERFACE_NAME_SUFFIX = "Commands";
 
+    static final Set<String> redisWriteCommands = getRedisWriteCommands();
+
     static final ConcurrentMap<String, Class<?>> classesCache = new ConcurrentHashMap<>(256);
 
     public static String resolveSimpleInterfaceName(String interfaceName) {
@@ -219,6 +223,10 @@ public abstract class RedisCommandsUtils {
             parameterMetadataList = getWriteParameterMetadataList(method);
             // If not found, try to build them
             if (parameterMetadataList == null) {
+                if (method == REDIS_COMMANDS_EXECUTE_METHOD) {
+                    String command = (String) args[0];
+                }
+
                 sourceFromWriteMethod = false;
                 parameterMetadataList = buildParameterMetadataList(method);
             }
