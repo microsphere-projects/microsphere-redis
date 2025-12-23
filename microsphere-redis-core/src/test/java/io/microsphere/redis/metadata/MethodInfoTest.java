@@ -22,13 +22,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodId;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodIndex;
+import static io.microsphere.redis.util.RedisCommandUtils.buildParameterMetadataList;
 import static io.microsphere.redis.util.RedisCommandUtils.getParameterClassNames;
 import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.util.ArrayUtils.ofArray;
@@ -112,17 +111,5 @@ class MethodInfoTest {
         methodMetadata.setCommands(ofArray("UC"));
         methodMetadata.setWrite(true);
         return methodMetadata;
-    }
-
-    private List<ParameterMetadata> buildParameterMetadataList(Method method) {
-        Parameter[] parameters = method.getParameters();
-        int length = parameters.length;
-        List<ParameterMetadata> parameterMetadataList = new ArrayList<>(length);
-        for (int i = 0; i < parameters.length; i++) {
-            Parameter parameter = parameters[i];
-            ParameterMetadata parameterMetadata = new ParameterMetadata(i, parameter.getName(), parameter.getParameterizedType().getTypeName());
-            parameterMetadataList.add(parameterMetadata);
-        }
-        return parameterMetadataList;
     }
 }
