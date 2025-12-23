@@ -21,8 +21,7 @@
     <properties>
         <spring-cloud-context.version>1.0.1.RELEASE</spring-cloud-context.version>
         <!-- BOM versions -->
-        <microsphere-spring-boot.version>0.2.5</microsphere-spring-boot.version>
-        <junit.version>6.0.1</junit.version>
+        <microsphere-spring-boot.version>0.1.5</microsphere-spring-boot.version>
     </properties>
 
     <dependencyManagement>
@@ -34,15 +33,6 @@
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-context</artifactId>
                 <version>${spring-cloud-context.version}</version>
-            </dependency>
-
-            <!-- JUnit BOM -->
-            <dependency>
-                <groupId>org.junit</groupId>
-                <artifactId>junit-bom</artifactId>
-                <version>${junit.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
             </dependency>
 
             <!-- Spring Boot Dependencies -->
@@ -77,54 +67,61 @@
 
     <profiles>
         <profile>
-            <id>spring-boot-3.0</id>
+            <id>spring-boot-2.0</id>
             <properties>
-                <spring-boot.version>3.0.13</spring-boot.version>
+                <spring-boot.version>2.0.9.RELEASE</spring-boot.version>
             </properties>
         </profile>
 
         <profile>
-            <id>spring-boot-3.1</id>
+            <id>spring-boot-2.1</id>
             <properties>
-                <spring-boot.version>3.1.12</spring-boot.version>
+                <spring-boot.version>2.1.18.RELEASE</spring-boot.version>
             </properties>
         </profile>
 
         <profile>
-            <id>spring-boot-3.2</id>
+            <id>spring-boot-2.2</id>
             <properties>
-                <spring-boot.version>3.2.12</spring-boot.version>
+                <spring-boot.version>2.2.13.RELEASE</spring-boot.version>
             </properties>
         </profile>
 
         <profile>
-            <id>spring-boot-3.3</id>
+            <id>spring-boot-2.3</id>
             <properties>
-                <spring-boot.version>3.3.13</spring-boot.version>
+                <spring-boot.version>2.3.12.RELEASE</spring-boot.version>
             </properties>
         </profile>
 
         <profile>
-            <id>spring-boot-3.4</id>
+            <id>spring-boot-2.4</id>
             <properties>
-                <spring-boot.version>3.4.13</spring-boot.version>
+                <spring-boot.version>2.4.13</spring-boot.version>
             </properties>
         </profile>
 
         <profile>
-            <id>spring-boot-3.5</id>
+            <id>spring-boot-2.5</id>
+            <properties>
+                <spring-boot.version>2.5.15</spring-boot.version>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>spring-boot-2.6</id>
+            <properties>
+                <spring-boot.version>2.6.15</spring-boot.version>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>spring-boot-2.7</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <spring-boot.version>3.5.8</spring-boot.version>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>spring-boot-4.0</id>
-            <properties>
-                <spring-boot.version>4.0.0</spring-boot.version>
+                <spring-boot.version>2.7.18</spring-boot.version>
             </properties>
         </profile>
 

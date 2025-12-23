@@ -16,13 +16,45 @@
  */
 package io.microsphere.redis.util;
 
+import java.util.Arrays;
+
+import static io.microsphere.util.ArrayUtils.arrayEquals;
+
 /**
  * The Redis Raw Value stores on the byte array
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
-public record RawValue(byte[] data) {
+public class RawValue {
+
+    private final byte[] data;
+
+    public RawValue(byte[] data) {
+        this.data = data;
+    }
+
+    public byte[] getData() {
+        return data;
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof RawValue)) {
+            return false;
+        }
+
+        RawValue rawValue = (RawValue) o;
+        return arrayEquals(data, rawValue.data);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(data);
+    }
 
     public static RawValue of(byte[] bytes) {
         return new RawValue(bytes);

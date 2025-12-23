@@ -171,24 +171,49 @@ public abstract class SpringRedisCommandUtils {
         Object redisCommands = null;
         if (isNotBlank(interfaceName)) {
             switch (interfaceName) {
-                case REDIS_KEY_COMMANDS_INTERFACE_NAME -> redisCommands = redisConnection.keyCommands();
-                case REDIS_STRING_COMMANDS_INTERFACE_NAME -> redisCommands = redisConnection.stringCommands();
-                case REDIS_LIST_COMMANDS_INTERFACE_NAME -> redisCommands = redisConnection.listCommands();
-                case REDIS_SET_COMMANDS_INTERFACE_NAME -> redisCommands = redisConnection.setCommands();
-                case REDIS_ZSET_COMMANDS_INTERFACE_NAME -> redisCommands = redisConnection.zSetCommands();
-                case REDIS_HASH_COMMANDS_INTERFACE_NAME -> redisCommands = redisConnection.hashCommands();
-                case REDIS_TX_COMMANDS_INTERFACE_NAME, REDIS_PUB_SUB_COMMANDS_INTERFACE_NAME,
-                     REDIS_CONNECTION_COMMANDS_INTERFACE_NAME -> redisCommands = redisConnection.commands();
-                case REDIS_SERVER_COMMANDS_INTERFACE_NAME -> redisCommands = redisConnection.serverCommands();
-                case REDIS_STREAM_COMMANDS_INTERFACE_NAME -> redisCommands = redisConnection.streamCommands();
-                case REDIS_SCRIPTING_COMMANDS_INTERFACE_NAME -> redisCommands = redisConnection.scriptingCommands();
-                case REDIS_GEO_COMMANDS_INTERFACE_NAME -> redisCommands = redisConnection.geoCommands();
-                case REDIS_HYPER_LOG_LOG_COMMANDS_INTERFACE_NAME ->
-                        redisCommands = redisConnection.hyperLogLogCommands();
-                default -> redisCommands = redisConnection.commands();
+                case REDIS_KEY_COMMANDS_INTERFACE_NAME:
+                    redisCommands = redisConnection;
+                    break;
+                case REDIS_STRING_COMMANDS_INTERFACE_NAME:
+                    redisCommands = redisConnection.stringCommands();
+                    break;
+                case REDIS_LIST_COMMANDS_INTERFACE_NAME:
+                    redisCommands = redisConnection.listCommands();
+                    break;
+                case REDIS_SET_COMMANDS_INTERFACE_NAME:
+                    redisCommands = redisConnection.setCommands();
+                    break;
+                case REDIS_ZSET_COMMANDS_INTERFACE_NAME:
+                    redisCommands = redisConnection.zSetCommands();
+                    break;
+                case REDIS_HASH_COMMANDS_INTERFACE_NAME:
+                    redisCommands = redisConnection.hashCommands();
+                    break;
+                case REDIS_TX_COMMANDS_INTERFACE_NAME:
+                case REDIS_PUB_SUB_COMMANDS_INTERFACE_NAME:
+                case REDIS_CONNECTION_COMMANDS_INTERFACE_NAME:
+                    redisCommands = redisConnection;
+                    break;
+                case REDIS_SERVER_COMMANDS_INTERFACE_NAME:
+                    redisCommands = redisConnection.serverCommands();
+                    break;
+                case REDIS_STREAM_COMMANDS_INTERFACE_NAME:
+                    redisCommands = redisConnection.streamCommands();
+                    break;
+                case REDIS_SCRIPTING_COMMANDS_INTERFACE_NAME:
+                    redisCommands = redisConnection.scriptingCommands();
+                    break;
+                case REDIS_GEO_COMMANDS_INTERFACE_NAME:
+                    redisCommands = redisConnection.geoCommands();
+                    break;
+                case REDIS_HYPER_LOG_LOG_COMMANDS_INTERFACE_NAME:
+                    redisCommands = redisConnection.hyperLogLogCommands();
+                    break;
+                default:
+                    redisCommands = redisConnection;
             }
         }
-        return redisCommands == null ? redisConnection.commands() : redisCommands;
+        return redisCommands == null ? redisConnection : redisCommands;
     }
 
     public static String buildCommandMethodId(RedisCommandEvent event) {
