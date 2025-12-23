@@ -76,7 +76,6 @@ public class KafkaProducerRedisCommandEventListener implements ApplicationListen
 
     private void sendRedisReplicatorKafkaMessage(String domain, RedisCommandEvent event) {
         String topic = this.kafkaProducerRedisReplicatorConfiguration.createTopic(domain);
-        // Almost all RedisCommands interface methods take the first argument as Key
         byte[] key = generateKafkaKey(event);
         byte[] value = serialize(event);
         Integer partition = calcPartition(event);
