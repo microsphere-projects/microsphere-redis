@@ -18,6 +18,8 @@
 package io.microsphere.redis.util;
 
 
+import io.microsphere.annotation.Immutable;
+import io.microsphere.annotation.Nonnull;
 import io.microsphere.lang.function.ThrowableFunction;
 import io.microsphere.logging.Logger;
 import io.microsphere.util.Utils;
@@ -77,12 +79,32 @@ public abstract class RedisCommandUtils implements Utils {
         return unmodifiableSet(redisCommands);
     };
 
+    @Nonnull
+    @Immutable
+    private static Set<String> redisCommands = loadResource(REDIS_COMMANDS_RESOURCE, LOAD_REDIS_COMMANDS_FUNCTION);
+    @Nonnull
+    @Immutable
+
+    private static Set<String> redisWriteCommands = loadResource(REDIS_WRITE_COMMANDS_RESOURCE, LOAD_REDIS_COMMANDS_FUNCTION);
+
+    @Nonnull
+    @Immutable
     public static Set<String> getRedisCommands() {
-        return loadResource(REDIS_COMMANDS_RESOURCE, LOAD_REDIS_COMMANDS_FUNCTION);
+        return redisCommands;
     }
 
+    @Nonnull
+    @Immutable
     public static Set<String> getRedisWriteCommands() {
-        return loadResource(REDIS_WRITE_COMMANDS_RESOURCE, LOAD_REDIS_COMMANDS_FUNCTION);
+        return redisWriteCommands;
+    }
+
+    public static boolean isRedisCommand(String command) {
+        return redisCommands.contains(command);
+    }
+
+    public static boolean isRedisWriteCommand(String command) {
+        return redisWriteCommands.contains(command);
     }
 
     public static String buildMethodId(Method method) {
