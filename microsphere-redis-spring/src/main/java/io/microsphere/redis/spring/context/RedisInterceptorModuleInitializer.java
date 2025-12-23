@@ -29,7 +29,7 @@ public class RedisInterceptorModuleInitializer implements RedisModuleInitializer
         ConfigurableEnvironment environment = context.getEnvironment();
         String propertyName = MICROSPHERE_REDIS_INTERCEPTOR_ENABLED_PROPERTY_NAME;
         boolean enabled = environment.getProperty(propertyName, boolean.class, DEFAULT_MICROSPHERE_REDIS_INTERCEPTOR_ENABLED);
-        logger.debug("Microsphere Redis Interceptor is '{}'", enabled ? "Enabled" : "Disabled");
+        logger.trace("Microsphere Redis Interceptor is '{}'", enabled ? "Enabled" : "Disabled");
         return enabled;
     }
 
