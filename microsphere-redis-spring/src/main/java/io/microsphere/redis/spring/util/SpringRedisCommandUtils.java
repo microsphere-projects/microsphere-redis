@@ -5,14 +5,11 @@ import io.microsphere.logging.Logger;
 import io.microsphere.redis.metadata.Parameter;
 import io.microsphere.redis.metadata.ParameterMetadata;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
-import org.springframework.core.DefaultParameterNameDiscoverer;
-import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.data.redis.connection.RedisCommands;
 import org.springframework.data.redis.connection.RedisConnection;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiConsumer;
@@ -39,8 +36,6 @@ import static org.springframework.util.ClassUtils.forName;
 public abstract class SpringRedisCommandUtils {
 
     private static final Logger logger = getLogger(SpringRedisCommandUtils.class);
-
-    private static final ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
     /**
      * The package name of {@link RedisCommands}
@@ -219,7 +214,7 @@ public abstract class SpringRedisCommandUtils {
             parameterMetadataList = getWriteParameterMetadataList(method);
             // If not found, try to build them
             if (parameterMetadataList == null) {
-                if (Objects.equals(method, REDIS_COMMANDS_EXECUTE_METHOD)) {
+                if (isRedisCommandsExecuteMethod(method)) {
                     String command = (String) args[0];
                     sourceFromWriteMethod = isRedisWriteCommand(command);
                 } else {
@@ -252,6 +247,16 @@ public abstract class SpringRedisCommandUtils {
         }
 
         return sourceFromWriteMethod;
+    }
+
+    /**
+     * Determine whether the method is the {@link RedisCommands#execute(String, byte[]...)} method
+     *
+     * @param method the method to test
+     * @return <code>true</code> if the method is the {@link RedisCommands#execute(String, byte[]...)} method
+     */
+    public static boolean isRedisCommandsExecuteMethod(Method method) {
+        return REDIS_COMMANDS_EXECUTE_METHOD.equals(method);
     }
 
     public static Class<?>[] loadClasses(String... classNames) {
