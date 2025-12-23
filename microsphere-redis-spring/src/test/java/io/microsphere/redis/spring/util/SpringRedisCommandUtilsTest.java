@@ -94,6 +94,7 @@ import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.REDIS_ZSE
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.buildCommandMethodId;
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.getRedisCommands;
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.initializeParameters;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.isRedisCommandsExecuteMethod;
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.isRedisCommandsInterface;
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.loadClasses;
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.resolveInterfaceName;
@@ -308,6 +309,12 @@ class SpringRedisCommandUtilsTest {
 
         assertFalse(initializeParameters(randomKeyMethod, EMPTY_OBJECT_ARRAY, (parameter, integer) -> {
         }));
+    }
+
+    @Test
+    void testIsRedisCommandsExecuteMethod() {
+        assertTrue(isRedisCommandsExecuteMethod(REDIS_COMMANDS_EXECUTE_METHOD));
+        assertFalse(isRedisCommandsExecuteMethod(SET_METHOD));
     }
 
     @Test
