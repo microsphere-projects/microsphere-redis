@@ -8,7 +8,6 @@ import io.microsphere.redis.replicator.spring.event.RedisCommandReplicatedEvent;
 import io.microsphere.redis.replicator.spring.kafka.KafkaRedisReplicatorConfiguration;
 import io.microsphere.redis.spring.config.RedisConfiguration;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
-import io.microsphere.redis.spring.serializer.Serializers;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.springframework.context.ApplicationContext;
@@ -26,6 +25,7 @@ import java.util.Map;
 
 import static io.microsphere.annotation.ConfigurationProperty.APPLICATION_SOURCE;
 import static io.microsphere.logging.LoggerFactory.getLogger;
+import static io.microsphere.redis.spring.serializer.Serializers.deserialize;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.getBoolean;
 import static io.microsphere.spring.core.env.PropertySourcesUtils.getSubProperties;
 import static io.microsphere.util.ArrayUtils.length;
@@ -147,7 +147,7 @@ public class KafkaConsumerRedisReplicatorConfiguration extends KafkaRedisReplica
         byte[] value = consumerRecord.value();
         int partition = consumerRecord.partition();
         try {
-            RedisCommandEvent redisCommandEvent = Serializers.deserialize(value, RedisCommandEvent.class);
+            RedisCommandEvent redisCommandEvent = deserialize(value, RedisCommandEvent.class);
             RedisCommandReplicatedEvent redisCommandReplicatedEvent = createRedisCommandReplicatedEvent(redisCommandEvent, consumerRecord);
             applicationEventPublisher.publishEvent(redisCommandReplicatedEvent);
             logger.trace("[Redis-Replicator-Kafka-C-S] Topic: {}, key: {}, data size: {} bytes, partition: {}", consumerRecord.topic(), key, length(value), partition);
