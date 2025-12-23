@@ -219,7 +219,7 @@ public class RedisReplicatorConfiguration implements ApplicationListener<RedisCo
     public RedisContext getRedisContext() {
         RedisContext redisContext = this.redisContext;
         if (redisContext == null) {
-            logger.debug("RedisContext is not initialized, it will be got from ApplicationContext[id : '{}']", this.context.getId());
+            logger.trace("RedisContext is not initialized, it will be got from ApplicationContext[id : '{}']", this.context.getId());
             redisContext = RedisContext.get(this.context);
             this.redisContext = redisContext;
         }
