@@ -18,9 +18,11 @@
 package io.microsphere.redis.util;
 
 
+import io.microsphere.redis.metadata.ParameterMetadata;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Set;
 
 import static io.microsphere.redis.util.RedisCommandUtils.LOAD_REDIS_COMMANDS_FUNCTION;
@@ -29,6 +31,7 @@ import static io.microsphere.redis.util.RedisCommandUtils.REDIS_WRITE_COMMANDS_R
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodId;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodIndex;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodSignature;
+import static io.microsphere.redis.util.RedisCommandUtils.buildParameterMetadataList;
 import static io.microsphere.redis.util.RedisCommandUtils.getRedisCommands;
 import static io.microsphere.redis.util.RedisCommandUtils.getRedisWriteCommands;
 import static io.microsphere.redis.util.RedisCommandUtils.isRedisCommand;
@@ -114,5 +117,24 @@ class RedisCommandUtilsTest {
         assertEquals(abs(methodId.hashCode()), methodIndex);
         assertEquals(buildMethodIndex(method), methodIndex);
         assertEquals(buildMethodIndex(RedisCommandUtils.class, "buildMethodId", Class.class, String.class, Class[].class), methodIndex);
+    }
+
+    @Test
+    void testBuildParameterMetadataList() {
+        Method method = findMethod(RedisCommandUtils.class, "buildMethodId", Class.class, String.class, Class[].class);
+        List<ParameterMetadata> parameterMetadataList = buildParameterMetadataList(method);
+        assertEquals(3, parameterMetadataList.size());
+
+        assertParameterMetadata(parameterMetadataList, 0, Class.class, "declaringClass");
+        assertParameterMetadata(parameterMetadataList, 1, String.class, "methodName");
+        assertParameterMetadata(parameterMetadataList, 2, Class[].class, "parameterTypes");
+    }
+
+    private void assertParameterMetadata(List<ParameterMetadata> parameterMetadataList, int parameterIndex,
+                                         Class<?> parameterType, String parameterName) {
+        ParameterMetadata parameterMetadata = parameterMetadataList.get(parameterIndex);
+        assertEquals(parameterIndex, parameterMetadata.getParameterIndex());
+        assertEquals(parameterType.getName(), parameterMetadata.getParameterType());
+        assertEquals(parameterName, parameterMetadata.getParameterName());
     }
 }

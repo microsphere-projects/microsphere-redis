@@ -22,14 +22,18 @@ import io.microsphere.annotation.Immutable;
 import io.microsphere.annotation.Nonnull;
 import io.microsphere.lang.function.ThrowableFunction;
 import io.microsphere.logging.Logger;
+import io.microsphere.redis.metadata.ParameterMetadata;
 import io.microsphere.util.Utils;
 
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.TreeSet;
 
+import static io.microsphere.collection.ListUtils.newArrayList;
 import static io.microsphere.constants.SeparatorConstants.LINE_SEPARATOR;
 import static io.microsphere.constants.SymbolConstants.COMMA;
 import static io.microsphere.constants.SymbolConstants.DOT;
@@ -42,6 +46,7 @@ import static io.microsphere.redis.util.RedisUtils.loadResource;
 import static io.microsphere.util.ArrayUtils.length;
 import static io.microsphere.util.StringUtils.split;
 import static java.lang.Math.abs;
+import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableSet;
 
 /**
@@ -163,6 +168,26 @@ public abstract class RedisCommandUtils implements Utils {
     public static int buildMethodIndex(String className, String methodName, String... parameterTypes) {
         String id = buildMethodId(className, methodName, parameterTypes);
         return abs(id.hashCode());
+    }
+
+    public static List<ParameterMetadata> buildParameterMetadataList(Method method) {
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        return buildParameterMetadataList(method, parameterTypes);
+    }
+
+    public static List<ParameterMetadata> buildParameterMetadataList(Method method, Class<?>[] parameterTypes) {
+        int parameterCount = parameterTypes.length;
+        Parameter[] parameters = method.getParameters();
+
+        List<ParameterMetadata> parameterMetadataList = newArrayList(parameterCount);
+        for (int i = 0; i < parameterCount; i++) {
+            Parameter parameter = parameters[i];
+            String parameterType = parameterTypes[i].getName();
+            String parameterName = parameter.getName();
+            ParameterMetadata parameterMetadata = new ParameterMetadata(i, parameterType, parameterName);
+            parameterMetadataList.add(parameterMetadata);
+        }
+        return unmodifiableList(parameterMetadataList);
     }
 
     public static String[] getParameterClassNames(Class<?>... parameterTypes) {
