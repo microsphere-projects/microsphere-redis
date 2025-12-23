@@ -31,11 +31,15 @@ import static io.microsphere.redis.util.RedisCommandUtils.buildMethodIndex;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodSignature;
 import static io.microsphere.redis.util.RedisCommandUtils.getRedisCommands;
 import static io.microsphere.redis.util.RedisCommandUtils.getRedisWriteCommands;
+import static io.microsphere.redis.util.RedisCommandUtils.isRedisCommand;
+import static io.microsphere.redis.util.RedisCommandUtils.isRedisWriteCommand;
 import static io.microsphere.reflect.MethodUtils.findMethod;
 import static java.lang.Math.abs;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * {@link RedisCommandUtils} Test
@@ -63,6 +67,26 @@ class RedisCommandUtilsTest {
     void testGetRedisWriteCommands() {
         Set<String> redisWriteCommands = getRedisWriteCommands();
         assertEquals(177, redisWriteCommands.size());
+    }
+
+    @Test
+    void testIsRedisCommand() {
+        Set<String> redisCommands = getRedisCommands();
+        for (String redisCommand : redisCommands) {
+            assertTrue(isRedisCommand(redisCommand));
+        }
+
+        assertFalse(isRedisCommand("X"));
+    }
+
+    @Test
+    void testIsRedisWrtieCommand() {
+        Set<String> redisWriteCommands = getRedisWriteCommands();
+        for (String redisWriteCommand : redisWriteCommands) {
+            assertTrue(isRedisWriteCommand(redisWriteCommand));
+        }
+
+        assertFalse(isRedisWriteCommand("X"));
     }
 
     @Test
