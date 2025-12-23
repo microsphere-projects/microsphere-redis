@@ -13,12 +13,14 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.serializer.Serializers.serialize;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.isRedisCommandsExecuteMethod;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 
 /**
@@ -103,6 +105,11 @@ public class KafkaProducerRedisCommandEventListener implements ApplicationListen
      */
     private byte[] generateKafkaKey(RedisCommandEvent event) {
         // Almost all RedisCommands interface methods take the first argument as Key
+        Method method = event.getMethod();
+        if (isRedisCommandsExecuteMethod(method)) {
+            byte[][] bytes = (byte[][]) event.getArg(1);
+            return bytes[0];
+        }
         return (byte[]) event.getArg(0);
     }
 
