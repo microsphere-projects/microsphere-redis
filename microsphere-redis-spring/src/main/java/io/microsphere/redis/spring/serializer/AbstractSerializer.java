@@ -69,7 +69,6 @@ public abstract class AbstractSerializer<T> implements RedisSerializer<T> {
         return doDeserialize(bytes);
     }
 
-    @Override
     public final Class<T> getTargetType() {
         return targetType;
     }
