@@ -107,9 +107,7 @@ public class KafkaProducerRedisReplicatorConfiguration extends KafkaRedisReplica
 
     private void initRedisReplicatorKafkaTemplate() {
         this.redisReplicatorKafkaTemplate = new KafkaTemplate<>(redisReplicatorProducerFactory());
-        this.redisReplicatorKafkaTemplate.setObservationEnabled(true);
         this.redisReplicatorKafkaTemplate.setApplicationContext(context);
-        this.redisReplicatorKafkaTemplate.afterSingletonsInstantiated();
     }
 
     private void destroyProducerFactory() {
