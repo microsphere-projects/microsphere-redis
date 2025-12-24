@@ -1,5 +1,6 @@
 package io.microsphere.redis.spring.serializer;
 
+import io.microsphere.annotation.Nonnull;
 import io.microsphere.annotation.Nullable;
 import io.microsphere.logging.Logger;
 import io.microsphere.redis.metadata.Parameter;
@@ -19,6 +20,7 @@ import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+import java.lang.invoke.MethodHandle;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -29,6 +31,8 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import static io.microsphere.invoke.MethodHandleUtils.handleInvokeExactFailure;
+import static io.microsphere.invoke.MethodHandlesLookupUtils.findPublicVirtual;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.serializer.BooleanSerializer.BOOLEAN_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.ByteArraySerializer.BYTE_ARRAY_SERIALIZER;
@@ -61,6 +65,20 @@ public abstract class Serializers {
 
     private static final ClassLoader classLoader = Serializers.class.getClassLoader();
 
+    /**
+     * The {@link MethodHandle} for {@link RedisSerializer#canSerialize(Class)}
+     *
+     * @since Spring Data Redis 2.2
+     */
+    private static final MethodHandle canSerializeMethodHandle = findPublicVirtual(RedisSerializer.class, "canSerialize", Class.class);
+
+    /**
+     * The {@link MethodHandle} for {@link RedisSerializer#getTargetType()}
+     *
+     * @since Spring Data Redis 2.2
+     */
+    private static final MethodHandle getTargetTypeMethodHandle = findPublicVirtual(RedisSerializer.class, "getTargetType");
+
     public static final JdkSerializationRedisSerializer DEFAULT_SERIALIZER = new JdkSerializationRedisSerializer();
 
     public static final StringRedisSerializer STRING_SERIALIZER = new StringRedisSerializer();
@@ -74,6 +92,25 @@ public abstract class Serializers {
     static {
         initializeBuiltinSerializers();
         initializeParameterizedSerializers();
+    }
+
+    public static boolean canSerialize(RedisSerializer<?> redisSerializer, Class<?> type) {
+        try {
+            return (Boolean) canSerializeMethodHandle.invoke(redisSerializer, type);
+        } catch (Throwable e) {
+            handleInvokeExactFailure(e, canSerializeMethodHandle, type);
+        }
+        return false;
+    }
+
+    @Nonnull
+    public static Class<?> getTargetType(RedisSerializer<?> redisSerializer) {
+        try {
+            return (Class<?>) getTargetTypeMethodHandle.invoke(redisSerializer);
+        } catch (Throwable e) {
+            handleInvokeExactFailure(e, getTargetTypeMethodHandle);
+        }
+        return Object.class;
     }
 
     @Nullable
