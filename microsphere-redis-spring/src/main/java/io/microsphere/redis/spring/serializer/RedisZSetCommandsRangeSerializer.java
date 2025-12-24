@@ -1,12 +1,12 @@
 package io.microsphere.redis.spring.serializer;
 
-import io.microsphere.redis.spring.serializer.RangeSerializer.RangeModel;
 import org.springframework.data.domain.Range;
 import org.springframework.data.redis.connection.RedisZSetCommands;
 import org.springframework.data.redis.connection.RedisZSetCommands.Range.Boundary;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
 
+import static io.microsphere.redis.spring.serializer.RangeModel.from;
 import static io.microsphere.redis.spring.serializer.RangeSerializer.RANGE_SERIALIZER;
 import static org.springframework.data.redis.connection.RedisZSetCommands.Range.range;
 import static org.springframework.data.redis.connection.RedisZSetCommands.Range.unbounded;
@@ -28,7 +28,7 @@ public class RedisZSetCommandsRangeSerializer extends AbstractSerializer<RedisZS
 
     @Override
     protected byte[] doSerialize(RedisZSetCommands.Range range) throws SerializationException {
-        return RANGE_SERIALIZER.serialize(toRangeModel(range));
+        return RANGE_SERIALIZER.serialize(from(range));
     }
 
     @Override
@@ -60,23 +60,5 @@ public class RedisZSetCommandsRangeSerializer extends AbstractSerializer<RedisZS
             range = unbounded();
         }
         return range;
-    }
-
-    static RangeModel toRangeModel(RedisZSetCommands.Range range) {
-        RangeModel rangeModel = new RangeModel();
-        Boundary min = range.getMin();
-        Boundary max = range.getMax();
-
-        if (min != null) {
-            rangeModel.lowerIncluding = min.isIncluding();
-            rangeModel.lowerValue = min.getValue();
-        }
-
-        if (max != null) {
-            rangeModel.upperIncluding = max.isIncluding();
-            rangeModel.upperValue = max.getValue();
-        }
-
-        return rangeModel;
     }
 }

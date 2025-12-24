@@ -17,23 +17,13 @@
 
 package io.microsphere.redis.spring.serializer;
 
-import io.microsphere.annotation.Nullable;
 import org.springframework.data.domain.Range;
-import org.springframework.data.domain.Range.Bound;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-
+import static io.microsphere.redis.spring.serializer.RangeModel.from;
 import static io.microsphere.redis.spring.serializer.Serializers.defaultDeserialize;
 import static io.microsphere.redis.spring.serializer.Serializers.defaultSerialize;
-import static org.springframework.data.domain.Range.Bound.exclusive;
-import static org.springframework.data.domain.Range.Bound.inclusive;
-import static org.springframework.data.domain.Range.Bound.unbounded;
-import static org.springframework.data.domain.Range.of;
 
 /**
  * {@link RedisSerializer} class for {@link Range}
@@ -49,21 +39,7 @@ public class RangeSerializer extends AbstractSerializer<Range> {
 
     @Override
     protected byte[] doSerialize(Range range) throws SerializationException {
-
-        RangeModel rangeModel = new RangeModel();
-
-        Bound lowerBound = range.getLowerBound();
-        Bound upperBound = range.getUpperBound();
-        Object lowerBoundValue = lowerBound.getValue().orElse(null);
-        Object upperBoundValue = upperBound.getValue().orElse(null);
-        boolean isLowerInclusive = lowerBound.isInclusive();
-        boolean isUpperInclusive = upperBound.isInclusive();
-
-        rangeModel.lowerValue = lowerBoundValue;
-        rangeModel.lowerIncluding = isLowerInclusive;
-        rangeModel.upperValue = upperBoundValue;
-        rangeModel.upperIncluding = isUpperInclusive;
-
+        RangeModel rangeModel = from(range);
         return defaultSerialize(rangeModel);
     }
 
@@ -74,47 +50,6 @@ public class RangeSerializer extends AbstractSerializer<Range> {
     @Override
     protected Range doDeserialize(byte[] bytes) throws SerializationException {
         RangeModel rangeModel = defaultDeserialize(bytes);
-
-        Comparable lowerBoundValue = (Comparable) rangeModel.lowerValue;
-        Comparable upperBoundValue = (Comparable) rangeModel.upperValue;
-        boolean isLowerInclusive = rangeModel.lowerIncluding;
-        boolean isUpperInclusive = rangeModel.upperIncluding;
-
-        Bound lowerBound = lowerBoundValue == null ? unbounded() : isLowerInclusive ?
-                inclusive(lowerBoundValue) : exclusive(lowerBoundValue);
-
-        Bound upperBound = upperBoundValue == null ? unbounded() : isUpperInclusive ?
-                inclusive(upperBoundValue) : exclusive(upperBoundValue);
-
-        return of(lowerBound, upperBound);
-    }
-
-    public static class RangeModel<T> implements Externalizable {
-
-        @Nullable
-        T lowerValue;
-
-        boolean lowerIncluding;
-
-        @Nullable
-        T upperValue;
-
-        boolean upperIncluding;
-
-        @Override
-        public void writeExternal(ObjectOutput out) throws IOException {
-            out.writeObject(lowerValue);
-            out.writeBoolean(lowerIncluding);
-            out.writeObject(upperValue);
-            out.writeBoolean(upperIncluding);
-        }
-
-        @Override
-        public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-            this.lowerValue = (T) in.readObject();
-            this.lowerIncluding = in.readBoolean();
-            this.upperValue = (T) in.readObject();
-            this.upperIncluding = in.readBoolean();
-        }
+        return rangeModel.toRange();
     }
 }
