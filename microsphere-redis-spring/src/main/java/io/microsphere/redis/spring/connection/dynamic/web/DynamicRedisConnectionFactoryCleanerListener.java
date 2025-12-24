@@ -1,9 +1,9 @@
 package io.microsphere.redis.spring.connection.dynamic.web;
 
 import io.microsphere.redis.spring.connection.dynamic.DynamicRedisConnectionFactory;
-import jakarta.servlet.ServletRequestEvent;
-import jakarta.servlet.ServletRequestListener;
-import jakarta.servlet.annotation.WebListener;
+import javax.servlet.ServletRequestEvent;
+import javax.servlet.ServletRequestListener;
+import javax.servlet.annotation.WebListener;
 
 import static io.microsphere.redis.spring.connection.dynamic.DynamicRedisConnectionFactory.clearTarget;
 
