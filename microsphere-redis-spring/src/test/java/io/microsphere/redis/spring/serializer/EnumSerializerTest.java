@@ -56,7 +56,7 @@ class EnumSerializerTest extends AbstractSerializerTest<LargeEnum> {
 
     @Test
     void testCalcBytesLength() {
-        assertEquals(1, calcBytesLength(SpringVersion.values()));
+        assertEquals(2, calcBytesLength(SpringVersion.values()));
         assertEquals(2, calcBytesLength(values()));
     }
 

@@ -54,8 +54,8 @@ public class RangeSerializer extends AbstractSerializer<Range> {
 
         Bound lowerBound = range.getLowerBound();
         Bound upperBound = range.getUpperBound();
-        Comparable lowerBoundValue = (Comparable) lowerBound.getValue().orElse(null);
-        Comparable upperBoundValue = (Comparable) upperBound.getValue().orElse(null);
+        Object lowerBoundValue = lowerBound.getValue().orElse(null);
+        Object upperBoundValue = upperBound.getValue().orElse(null);
         boolean isLowerInclusive = lowerBound.isInclusive();
         boolean isUpperInclusive = upperBound.isInclusive();
 
@@ -67,12 +67,16 @@ public class RangeSerializer extends AbstractSerializer<Range> {
         return defaultSerialize(rangeModel);
     }
 
+    public byte[] serialize(RangeModel rangeModel) throws SerializationException {
+        return defaultSerialize(rangeModel);
+    }
+
     @Override
     protected Range doDeserialize(byte[] bytes) throws SerializationException {
         RangeModel rangeModel = defaultDeserialize(bytes);
 
-        Comparable lowerBoundValue = rangeModel.lowerValue;
-        Comparable upperBoundValue = rangeModel.upperValue;
+        Comparable lowerBoundValue = (Comparable) rangeModel.lowerValue;
+        Comparable upperBoundValue = (Comparable) rangeModel.upperValue;
         boolean isLowerInclusive = rangeModel.lowerIncluding;
         boolean isUpperInclusive = rangeModel.upperIncluding;
 
@@ -85,7 +89,7 @@ public class RangeSerializer extends AbstractSerializer<Range> {
         return of(lowerBound, upperBound);
     }
 
-    public static class RangeModel<T extends Comparable<T>> implements Externalizable {
+    public static class RangeModel<T> implements Externalizable {
 
         @Nullable
         T lowerValue;
