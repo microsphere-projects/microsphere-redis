@@ -31,5 +31,4 @@ public class ShortSerializer extends AbstractSerializer<Short> {
     protected Short doDeserialize(byte[] bytes) throws SerializationException {
         return (short) ((bytes[0] << 8) | (bytes[1] & 0xFF));
     }
-
 }

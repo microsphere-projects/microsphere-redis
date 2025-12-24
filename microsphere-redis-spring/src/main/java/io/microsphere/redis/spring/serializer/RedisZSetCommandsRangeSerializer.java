@@ -21,7 +21,6 @@ import static org.springframework.data.redis.connection.RedisZSetCommands.Range.
  * @see RangeSerializer
  * @since 1.0.0
  */
-@Deprecated
 public class RedisZSetCommandsRangeSerializer extends AbstractSerializer<RedisZSetCommands.Range> {
 
     public static final RedisZSetCommandsRangeSerializer REDIS_ZSET_COMMANDS_RANGE_SERIALIZER = new RedisZSetCommandsRangeSerializer();
