@@ -39,7 +39,6 @@ import org.springframework.data.redis.connection.ReactivePubSubCommands;
 import org.springframework.data.redis.connection.ReactiveScriptingCommands;
 import org.springframework.data.redis.connection.ReactiveServerCommands;
 import org.springframework.data.redis.connection.ReactiveSetCommands;
-import org.springframework.data.redis.connection.ReactiveStreamCommands;
 import org.springframework.data.redis.connection.ReactiveZSetCommands;
 import org.springframework.data.redis.connection.RedisClusterCommands;
 import org.springframework.data.redis.connection.RedisClusterConnection;
@@ -57,7 +56,6 @@ import org.springframework.data.redis.connection.RedisScriptingCommands;
 import org.springframework.data.redis.connection.RedisSentinelCommands;
 import org.springframework.data.redis.connection.RedisServerCommands;
 import org.springframework.data.redis.connection.RedisSetCommands;
-import org.springframework.data.redis.connection.RedisStreamCommands;
 import org.springframework.data.redis.connection.RedisStringCommands;
 import org.springframework.data.redis.connection.RedisTxCommands;
 import org.springframework.data.redis.connection.RedisZSetCommands;
@@ -95,6 +93,7 @@ import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.getRedisC
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.initializeParameters;
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.isRedisCommandsExecuteMethod;
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.isRedisCommandsInterface;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.loadClass;
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.loadClasses;
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.resolveInterfaceName;
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.resolveSimpleInterfaceName;
@@ -216,7 +215,10 @@ class SpringRedisCommandUtilsTest {
         assertTrue(isRedisCommandsInterface(RedisSentinelCommands.class));
         assertTrue(isRedisCommandsInterface(RedisServerCommands.class));
         assertTrue(isRedisCommandsInterface(RedisSetCommands.class));
-        assertTrue(isRedisCommandsInterface(RedisStreamCommands.class));
+        Class<?> redisStreamCommandsInterfaceClass = loadClass(REDIS_STREAM_COMMANDS_INTERFACE_NAME);
+        if (redisStreamCommandsInterfaceClass != null) {
+            assertTrue(isRedisCommandsInterface(redisStreamCommandsInterfaceClass));
+        }
         assertTrue(isRedisCommandsInterface(RedisStringCommands.class));
         assertTrue(isRedisCommandsInterface(RedisTxCommands.class));
         assertTrue(isRedisCommandsInterface(RedisZSetCommands.class));
@@ -240,7 +242,10 @@ class SpringRedisCommandUtilsTest {
         assertTrue(isRedisCommandsInterface(ReactiveScriptingCommands.class));
         assertTrue(isRedisCommandsInterface(ReactiveServerCommands.class));
         assertTrue(isRedisCommandsInterface(ReactiveSetCommands.class));
-        assertTrue(isRedisCommandsInterface(ReactiveStreamCommands.class));
+        Class<?> reactiveStreamCommandsInterfaceClass = loadClass("org.springframework.data.redis.connection.ReactiveStreamCommands");
+        if (reactiveStreamCommandsInterfaceClass != null) {
+            assertTrue(isRedisCommandsInterface(reactiveStreamCommandsInterfaceClass));
+        }
         assertTrue(isRedisCommandsInterface(RedisStringCommands.class));
         assertTrue(isRedisCommandsInterface(ReactiveZSetCommands.class));
 
