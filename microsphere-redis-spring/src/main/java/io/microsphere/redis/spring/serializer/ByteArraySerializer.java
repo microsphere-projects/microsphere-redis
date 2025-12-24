@@ -23,7 +23,6 @@ public final class ByteArraySerializer implements RedisSerializer<byte[]> {
         return bytes;
     }
 
-    @Override
     public Class<?> getTargetType() {
         return byte[].class;
     }
