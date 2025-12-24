@@ -348,10 +348,10 @@ public abstract class Serializers {
     static void register(Class<?> type, RedisSerializer<?> serializer) {
         String typeName = type.getName();
         RedisSerializer oldSerializer = typedSerializers.put(typeName, serializer);
-        logger.trace("The RedisSerializer[class : '{}' , target type : '{}'] for type['{}'] was registered", getTypeName(serializer), getTypeName(serializer.getTargetType()), getTypeName(type));
+        logger.trace("The RedisSerializer[class : '{}'] for type['{}'] was registered", getTypeName(serializer), getTypeName(type));
         if (oldSerializer != null && !Objects.equals(oldSerializer, serializer)) {
-            logger.warn("The RedisSerializer for type['{}'] has been replaced old [class : '{}' , target type : '{}'] -> new [class : '{}' , target type : '{}']",
-                    getTypeName(type), getTypeName(oldSerializer), getTypeName(oldSerializer.getTargetType()), getTypeName(serializer), getTypeName(serializer.getTargetType()));
+            logger.warn("The RedisSerializer for type['{}'] has been replaced old [class : '{}'] -> new [class : '{}']",
+                    getTypeName(type), getTypeName(oldSerializer), getTypeName(serializer));
         }
     }
 
