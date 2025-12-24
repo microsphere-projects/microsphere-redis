@@ -124,7 +124,6 @@
                 <spring-boot.version>2.7.18</spring-boot.version>
             </properties>
         </profile>
-
     </profiles>
 
 </project>
