@@ -54,8 +54,8 @@ public class RangeSerializer extends AbstractSerializer<Range> {
 
         Bound lowerBound = range.getLowerBound();
         Bound upperBound = range.getUpperBound();
-        Object lowerBoundValue = lowerBound.getValue().orElse(null);
-        Object upperBoundValue = upperBound.getValue().orElse(null);
+        Comparable lowerBoundValue = (Comparable) lowerBound.getValue().orElse(null);
+        Comparable upperBoundValue = (Comparable) upperBound.getValue().orElse(null);
         boolean isLowerInclusive = lowerBound.isInclusive();
         boolean isUpperInclusive = upperBound.isInclusive();
 
@@ -71,8 +71,8 @@ public class RangeSerializer extends AbstractSerializer<Range> {
     protected Range doDeserialize(byte[] bytes) throws SerializationException {
         RangeModel rangeModel = defaultDeserialize(bytes);
 
-        Object lowerBoundValue = rangeModel.lowerValue;
-        Object upperBoundValue = rangeModel.upperValue;
+        Comparable lowerBoundValue = rangeModel.lowerValue;
+        Comparable upperBoundValue = rangeModel.upperValue;
         boolean isLowerInclusive = rangeModel.lowerIncluding;
         boolean isUpperInclusive = rangeModel.upperIncluding;
 
@@ -85,15 +85,15 @@ public class RangeSerializer extends AbstractSerializer<Range> {
         return of(lowerBound, upperBound);
     }
 
-    public static class RangeModel implements Externalizable {
+    public static class RangeModel<T extends Comparable<T>> implements Externalizable {
 
         @Nullable
-        Object lowerValue;
+        T lowerValue;
 
         boolean lowerIncluding;
 
         @Nullable
-        Object upperValue;
+        T upperValue;
 
         boolean upperIncluding;
 
@@ -107,9 +107,9 @@ public class RangeSerializer extends AbstractSerializer<Range> {
 
         @Override
         public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-            this.lowerValue = in.readObject();
+            this.lowerValue = (T) in.readObject();
             this.lowerIncluding = in.readBoolean();
-            this.upperValue = in.readObject();
+            this.upperValue = (T) in.readObject();
             this.upperIncluding = in.readBoolean();
         }
     }
