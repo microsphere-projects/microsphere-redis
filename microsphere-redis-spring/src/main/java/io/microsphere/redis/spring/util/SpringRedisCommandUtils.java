@@ -94,21 +94,27 @@ public abstract class SpringRedisCommandUtils {
 
     /**
      * The interface class name of {@link org.springframework.data.redis.connection.RedisStreamCommands}
+     *
+     * @since Spring Data Redis 2.2
      */
     public static final String REDIS_STREAM_COMMANDS_INTERFACE_NAME = "org.springframework.data.redis.connection.RedisStreamCommands";
 
     /**
-     *
+     * The interface class name of {@link org.springframework.data.redis.connection.RedisScriptingCommands}
      */
     public static final String REDIS_SCRIPTING_COMMANDS_INTERFACE_NAME = "org.springframework.data.redis.connection.RedisScriptingCommands";
 
     /**
      * The interface class name of {@link org.springframework.data.redis.connection.RedisGeoCommands}
+     *
+     * @since Spring Data Redis 1.8
      */
     public static final String REDIS_GEO_COMMANDS_INTERFACE_NAME = "org.springframework.data.redis.connection.RedisGeoCommands";
 
     /**
      * The interface class name of {@link org.springframework.data.redis.connection.RedisHyperLogLogCommands}
+     *
+     * @since Spring Data Redis 1.5
      */
     public static final String REDIS_HYPER_LOG_LOG_COMMANDS_INTERFACE_NAME = "org.springframework.data.redis.connection.RedisHyperLogLogCommands";
 
@@ -198,7 +204,7 @@ public abstract class SpringRedisCommandUtils {
                     redisCommands = redisConnection.serverCommands();
                     break;
                 case REDIS_STREAM_COMMANDS_INTERFACE_NAME:
-                    redisCommands = redisConnection.streamCommands();
+                    redisCommands = redisConnection;
                     break;
                 case REDIS_SCRIPTING_COMMANDS_INTERFACE_NAME:
                     redisCommands = redisConnection.scriptingCommands();
