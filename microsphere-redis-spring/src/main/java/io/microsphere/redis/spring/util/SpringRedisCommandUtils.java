@@ -172,7 +172,7 @@ public abstract class SpringRedisCommandUtils {
         if (isNotBlank(interfaceName)) {
             switch (interfaceName) {
                 case REDIS_KEY_COMMANDS_INTERFACE_NAME:
-                    redisCommands = redisConnection;
+                    redisCommands = redisConnection.keyCommands();
                     break;
                 case REDIS_STRING_COMMANDS_INTERFACE_NAME:
                     redisCommands = redisConnection.stringCommands();

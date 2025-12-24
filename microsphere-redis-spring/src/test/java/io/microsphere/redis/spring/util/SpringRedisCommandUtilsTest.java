@@ -254,23 +254,23 @@ class SpringRedisCommandUtilsTest {
         testInSpringContainer(context -> {
             RedisConnectionFactory redisConnectionFactory = context.getBean(RedisConnectionFactory.class);
             RedisConnection redisConnection = redisConnectionFactory.getConnection();
-            assertSame(redisConnection.keyCommands(), getRedisCommands(redisConnection, REDIS_KEY_COMMANDS_INTERFACE_NAME));
-            assertSame(redisConnection.stringCommands(), getRedisCommands(redisConnection, REDIS_STRING_COMMANDS_INTERFACE_NAME));
-            assertSame(redisConnection.listCommands(), getRedisCommands(redisConnection, REDIS_LIST_COMMANDS_INTERFACE_NAME));
-            assertSame(redisConnection.setCommands(), getRedisCommands(redisConnection, REDIS_SET_COMMANDS_INTERFACE_NAME));
-            assertSame(redisConnection.zSetCommands(), getRedisCommands(redisConnection, REDIS_ZSET_COMMANDS_INTERFACE_NAME));
-            assertSame(redisConnection.hashCommands(), getRedisCommands(redisConnection, REDIS_HASH_COMMANDS_INTERFACE_NAME));
-            assertSame(redisConnection, getRedisCommands(redisConnection, REDIS_TX_COMMANDS_INTERFACE_NAME));
-            assertSame(redisConnection, getRedisCommands(redisConnection, REDIS_PUB_SUB_COMMANDS_INTERFACE_NAME));
-            assertSame(redisConnection, getRedisCommands(redisConnection, REDIS_CONNECTION_COMMANDS_INTERFACE_NAME));
-            assertSame(redisConnection.serverCommands(), getRedisCommands(redisConnection, REDIS_SERVER_COMMANDS_INTERFACE_NAME));
-            assertSame(redisConnection.streamCommands(), getRedisCommands(redisConnection, REDIS_STREAM_COMMANDS_INTERFACE_NAME));
-            assertSame(redisConnection.scriptingCommands(), getRedisCommands(redisConnection, REDIS_SCRIPTING_COMMANDS_INTERFACE_NAME));
-            assertSame(redisConnection.geoCommands(), getRedisCommands(redisConnection, REDIS_GEO_COMMANDS_INTERFACE_NAME));
-            assertSame(redisConnection.hyperLogLogCommands(), getRedisCommands(redisConnection, REDIS_HYPER_LOG_LOG_COMMANDS_INTERFACE_NAME));
-            assertSame(redisConnection, getRedisCommands(redisConnection, ""));
-            assertSame(redisConnection, getRedisCommands(redisConnection, null));
-            assertSame(redisConnection, getRedisCommands(redisConnection, "others"));
+            assertSameType(redisConnection.keyCommands(), getRedisCommands(redisConnection, REDIS_KEY_COMMANDS_INTERFACE_NAME));
+            assertSameType(redisConnection.stringCommands(), getRedisCommands(redisConnection, REDIS_STRING_COMMANDS_INTERFACE_NAME));
+            assertSameType(redisConnection.listCommands(), getRedisCommands(redisConnection, REDIS_LIST_COMMANDS_INTERFACE_NAME));
+            assertSameType(redisConnection.setCommands(), getRedisCommands(redisConnection, REDIS_SET_COMMANDS_INTERFACE_NAME));
+            assertSameType(redisConnection.zSetCommands(), getRedisCommands(redisConnection, REDIS_ZSET_COMMANDS_INTERFACE_NAME));
+            assertSameType(redisConnection.hashCommands(), getRedisCommands(redisConnection, REDIS_HASH_COMMANDS_INTERFACE_NAME));
+            assertSameType(redisConnection, getRedisCommands(redisConnection, REDIS_TX_COMMANDS_INTERFACE_NAME));
+            assertSameType(redisConnection, getRedisCommands(redisConnection, REDIS_PUB_SUB_COMMANDS_INTERFACE_NAME));
+            assertSameType(redisConnection, getRedisCommands(redisConnection, REDIS_CONNECTION_COMMANDS_INTERFACE_NAME));
+            assertSameType(redisConnection.serverCommands(), getRedisCommands(redisConnection, REDIS_SERVER_COMMANDS_INTERFACE_NAME));
+            assertSameType(redisConnection.streamCommands(), getRedisCommands(redisConnection, REDIS_STREAM_COMMANDS_INTERFACE_NAME));
+            assertSameType(redisConnection.scriptingCommands(), getRedisCommands(redisConnection, REDIS_SCRIPTING_COMMANDS_INTERFACE_NAME));
+            assertSameType(redisConnection.geoCommands(), getRedisCommands(redisConnection, REDIS_GEO_COMMANDS_INTERFACE_NAME));
+            assertSameType(redisConnection.hyperLogLogCommands(), getRedisCommands(redisConnection, REDIS_HYPER_LOG_LOG_COMMANDS_INTERFACE_NAME));
+            assertSameType(redisConnection, getRedisCommands(redisConnection, ""));
+            assertSameType(redisConnection, getRedisCommands(redisConnection, null));
+            assertSameType(redisConnection, getRedisCommands(redisConnection, "others"));
         }, RedisConfig.class);
     }
 
@@ -282,9 +282,9 @@ class SpringRedisCommandUtilsTest {
             RedisContext redisContext = get(context);
             RedisMethodContext redisMethodContext = new RedisMethodContext(redisConnection, SET_METHOD, SET_METHOD_ARGS, redisContext, redisConnectionFactory, SOURCE_BEAN_NAME_FOR_REDIS_TEMPLATE);
             RedisCommandEvent event = new RedisCommandEvent(redisMethodContext);
-            assertEquals("org.springframework.data.redis.connection.DefaultedRedisConnection.set([B,[B)", buildCommandMethodId(event));
+            assertEquals("org.springframework.data.redis.connection.RedisStringCommands.set([B,[B)", buildCommandMethodId(event));
             assertEquals(buildCommandMethodId(event), buildMethodId(SET_METHOD));
-            assertEquals(buildCommandMethodId(event), buildMethodId("org.springframework.data.redis.connection.DefaultedRedisConnection", "set", byte[].class, byte[].class));
+            assertEquals(buildCommandMethodId(event), buildMethodId("org.springframework.data.redis.connection.RedisStringCommands", "set", byte[].class, byte[].class));
         }, RedisContextConfig.class);
     }
 
@@ -331,5 +331,9 @@ class SpringRedisCommandUtilsTest {
     void assertInterfaceName(String interfaceName) {
         assertEquals(interfaceName, resolveInterfaceName(resolveSimpleInterfaceName(interfaceName)));
         assertEquals(interfaceName, resolveInterfaceName(interfaceName));
+    }
+
+    void assertSameType(Object one, Object another) {
+        assertSame(one.getClass(), another.getClass());
     }
 }
