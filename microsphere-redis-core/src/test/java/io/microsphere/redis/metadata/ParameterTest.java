@@ -25,7 +25,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -70,12 +69,12 @@ class ParameterTest {
     @Test
     void testHashCode() {
         assertEquals(this.parameter.hashCode(), createParameter().hashCode());
-        assertNotEquals(this.parameter.hashCode(), new Parameter("testValue", new ParameterMetadata(0, "java.lang.String")).hashCode());
-        assertNotEquals(this.parameter.hashCode(), new Parameter(testValue, new ParameterMetadata(0, "java.lang.String")).hashCode());
-        assertNotEquals(this.parameter.hashCode(), new Parameter(testValue, new ParameterMetadata(1, "java.lang.String")).hashCode());
-        assertNotEquals(this.parameter.hashCode(), new Parameter(null, new ParameterMetadata(1, "java.lang.String")).hashCode());
-        assertNotEquals(this.parameter.hashCode(), new Parameter(testValue, null).hashCode());
-        assertNotEquals(this.parameter.hashCode(), new Parameter(null, null).hashCode());
+        assertFalse(this.parameter.hashCode() == new Parameter("testValue", new ParameterMetadata(0, "java.lang.String")).hashCode());
+        assertFalse(this.parameter.hashCode() == new Parameter(testValue, new ParameterMetadata(0, "java.lang.String")).hashCode());
+        assertFalse(this.parameter.hashCode() == new Parameter(testValue, new ParameterMetadata(1, "java.lang.String")).hashCode());
+        assertFalse(this.parameter.hashCode() == new Parameter(null, new ParameterMetadata(1, "java.lang.String")).hashCode());
+        assertFalse(this.parameter.hashCode() == new Parameter(testValue, null).hashCode());
+        assertFalse(this.parameter.hashCode() == new Parameter(null, null).hashCode());
     }
 
     @Test
