@@ -3,6 +3,8 @@ package io.microsphere.redis.spring.serializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
 
+import static io.microsphere.redis.spring.serializer.LongSerializer.LONG_SERIALIZER;
+
 /**
  * Java {@code double} or {@link Double} type {@link RedisSerializer} Class
  *
@@ -11,10 +13,7 @@ import org.springframework.data.redis.serializer.SerializationException;
  */
 public final class DoubleSerializer extends AbstractSerializer<Double> {
 
-    private static final LongSerializer longSerializer = LongSerializer.INSTANCE;
-
-    public static final DoubleSerializer INSTANCE = new DoubleSerializer();
-
+    public static final DoubleSerializer DOUBLE_SERIALIZER = new DoubleSerializer();
 
     @Override
     protected int calcBytesLength() {
@@ -25,12 +24,12 @@ public final class DoubleSerializer extends AbstractSerializer<Double> {
     protected byte[] doSerialize(Double aDouble) throws SerializationException {
         double doubleValue = aDouble.doubleValue();
         long longValue = Double.doubleToLongBits(doubleValue);
-        return longSerializer.serialize(longValue);
+        return LONG_SERIALIZER.serialize(longValue);
     }
 
     @Override
     protected Double doDeserialize(byte[] bytes) throws SerializationException {
-        long longValue = longSerializer.deserialize(bytes);
+        long longValue = LONG_SERIALIZER.deserialize(bytes);
         double doubleValue = Double.longBitsToDouble(longValue);
         return doubleValue;
     }

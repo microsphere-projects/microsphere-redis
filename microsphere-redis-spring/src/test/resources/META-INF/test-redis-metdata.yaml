@@ -1,0 +1,990 @@
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: type
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: sort
+  parameterTypes: [ '[B','org.springframework.data.redis.connection.SortParameters','[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: sort
+  parameterTypes: [ '[B','org.springframework.data.redis.connection.SortParameters' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: copy
+  parameterTypes: [ '[B','[B','boolean' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: del
+  parameterTypes: [ '[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: keys
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: dump
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: exists
+  parameterTypes: [ '[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: exists
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: rename
+  parameterTypes: [ '[B','[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: scan
+  parameterTypes: [ 'org.springframework.data.redis.core.ScanOptions' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: scan
+  parameterTypes: [ 'org.springframework.data.redis.core.KeyScanOptions' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: ttl
+  parameterTypes: [ '[B','java.util.concurrent.TimeUnit' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: ttl
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: move
+  parameterTypes: [ '[B','int' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: unlink
+  parameterTypes: [ '[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: persist
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: expireAt
+  parameterTypes: [ '[B','long','org.springframework.data.redis.connection.ExpirationOptions$Condition' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: expireAt
+  parameterTypes: [ '[B','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: expireAt
+  parameterTypes: [ '[B','java.time.Instant' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: expire
+  parameterTypes: [ '[B','java.time.Duration' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: expire
+  parameterTypes: [ '[B','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: expire
+  parameterTypes: [ '[B','long','org.springframework.data.redis.connection.ExpirationOptions$Condition' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: pExpire
+  parameterTypes: [ '[B','java.time.Duration' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: pExpire
+  parameterTypes: [ '[B','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: pExpire
+  parameterTypes: [ '[B','long','org.springframework.data.redis.connection.ExpirationOptions$Condition' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: pExpireAt
+  parameterTypes: [ '[B','long','org.springframework.data.redis.connection.ExpirationOptions$Condition' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: pExpireAt
+  parameterTypes: [ '[B','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: pExpireAt
+  parameterTypes: [ '[B','java.time.Instant' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: restore
+  parameterTypes: [ '[B','long','[B','boolean' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: restore
+  parameterTypes: [ '[B','long','[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: randomKey
+  parameterTypes: [ ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: renameNX
+  parameterTypes: [ '[B','[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: applyExpiration
+  parameterTypes: [ '[B','org.springframework.data.redis.core.types.Expiration','org.springframework.data.redis.connection.ExpirationOptions' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: pTtl
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: pTtl
+  parameterTypes: [ '[B','java.util.concurrent.TimeUnit' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: encodingOf
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: idletime
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: refcount
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
+  methodName: touch
+  parameterTypes: [ '[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStringCommands
+  methodName: get
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStringCommands
+  methodName: bitCount
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStringCommands
+  methodName: bitCount
+  parameterTypes: [ '[B','long','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStringCommands
+  methodName: append
+  parameterTypes: [ '[B','[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStringCommands
+  methodName: set
+  parameterTypes: [ '[B','[B','org.springframework.data.redis.core.types.Expiration','org.springframework.data.redis.connection.RedisStringCommands$SetOption' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStringCommands
+  methodName: set
+  parameterTypes: [ '[B','[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStringCommands
+  methodName: setBit
+  parameterTypes: [ '[B','long','boolean' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStringCommands
+  methodName: incr
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStringCommands
+  methodName: strLen
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStringCommands
+  methodName: bitPos
+  parameterTypes: [ '[B','boolean' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStringCommands
+  methodName: bitPos
+  parameterTypes: [ '[B','boolean','org.springframework.data.domain.Range' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStringCommands
+  methodName: getDel
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStringCommands
+  methodName: getEx
+  parameterTypes: [ '[B','org.springframework.data.redis.core.types.Expiration' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStringCommands
+  methodName: getSet
+  parameterTypes: [ '[B','[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStringCommands
+  methodName: mGet
+  parameterTypes: [ '[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStringCommands
+  methodName: setGet
+  parameterTypes: [ '[B','[B','org.springframework.data.redis.core.types.Expiration','org.springframework.data.redis.connection.RedisStringCommands$SetOption' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStringCommands
+  methodName: setNX
+  parameterTypes: [ '[B','[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStringCommands
+  methodName: setEx
+  parameterTypes: [ '[B','long','[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStringCommands
+  methodName: pSetEx
+  parameterTypes: [ '[B','long','[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStringCommands
+  methodName: mSet
+  parameterTypes: [ 'java.util.Map' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStringCommands
+  methodName: mSetNX
+  parameterTypes: [ 'java.util.Map' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStringCommands
+  methodName: incrBy
+  parameterTypes: [ '[B','double' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStringCommands
+  methodName: incrBy
+  parameterTypes: [ '[B','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStringCommands
+  methodName: decr
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStringCommands
+  methodName: decrBy
+  parameterTypes: [ '[B','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStringCommands
+  methodName: getRange
+  parameterTypes: [ '[B','long','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStringCommands
+  methodName: setRange
+  parameterTypes: [ '[B','[B','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStringCommands
+  methodName: getBit
+  parameterTypes: [ '[B','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStringCommands
+  methodName: bitField
+  parameterTypes: [ '[B','org.springframework.data.redis.connection.BitFieldSubCommands' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStringCommands
+  methodName: bitOp
+  parameterTypes: [ 'org.springframework.data.redis.connection.RedisStringCommands$BitOperation','[B','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisListCommands
+  methodName: lPos
+  parameterTypes: [ '[B','[B','java.lang.Integer','java.lang.Integer' ]
+- interfaceName: org.springframework.data.redis.connection.RedisListCommands
+  methodName: lPos
+  parameterTypes: [ '[B','[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisListCommands
+  methodName: rPush
+  parameterTypes: [ '[B','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisListCommands
+  methodName: lPush
+  parameterTypes: [ '[B','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisListCommands
+  methodName: rPushX
+  parameterTypes: [ '[B','[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisListCommands
+  methodName: lPushX
+  parameterTypes: [ '[B','[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisListCommands
+  methodName: lLen
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisListCommands
+  methodName: lRange
+  parameterTypes: [ '[B','long','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisListCommands
+  methodName: lTrim
+  parameterTypes: [ '[B','long','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisListCommands
+  methodName: lIndex
+  parameterTypes: [ '[B','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisListCommands
+  methodName: lInsert
+  parameterTypes: [ '[B','org.springframework.data.redis.connection.RedisListCommands$Position','[B','[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisListCommands
+  methodName: lMove
+  parameterTypes: [ '[B','[B','org.springframework.data.redis.connection.RedisListCommands$Direction','org.springframework.data.redis.connection.RedisListCommands$Direction' ]
+- interfaceName: org.springframework.data.redis.connection.RedisListCommands
+  methodName: bLMove
+  parameterTypes: [ '[B','[B','org.springframework.data.redis.connection.RedisListCommands$Direction','org.springframework.data.redis.connection.RedisListCommands$Direction','double' ]
+- interfaceName: org.springframework.data.redis.connection.RedisListCommands
+  methodName: lSet
+  parameterTypes: [ '[B','long','[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisListCommands
+  methodName: lRem
+  parameterTypes: [ '[B','long','[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisListCommands
+  methodName: lPop
+  parameterTypes: [ '[B','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisListCommands
+  methodName: lPop
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisListCommands
+  methodName: rPop
+  parameterTypes: [ '[B','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisListCommands
+  methodName: rPop
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisListCommands
+  methodName: bLPop
+  parameterTypes: [ 'int','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisListCommands
+  methodName: bRPop
+  parameterTypes: [ 'int','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisListCommands
+  methodName: rPopLPush
+  parameterTypes: [ '[B','[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisListCommands
+  methodName: bRPopLPush
+  parameterTypes: [ 'int','[B','[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisSetCommands
+  methodName: sAdd
+  parameterTypes: [ '[B','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisSetCommands
+  methodName: sRem
+  parameterTypes: [ '[B','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisSetCommands
+  methodName: sPop
+  parameterTypes: [ '[B','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisSetCommands
+  methodName: sPop
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisSetCommands
+  methodName: sMove
+  parameterTypes: [ '[B','[B','[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisSetCommands
+  methodName: sCard
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisSetCommands
+  methodName: sIsMember
+  parameterTypes: [ '[B','[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisSetCommands
+  methodName: sMIsMember
+  parameterTypes: [ '[B','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisSetCommands
+  methodName: sDiff
+  parameterTypes: [ '[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisSetCommands
+  methodName: sDiffStore
+  parameterTypes: [ '[B','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisSetCommands
+  methodName: sInter
+  parameterTypes: [ '[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisSetCommands
+  methodName: sInterStore
+  parameterTypes: [ '[B','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisSetCommands
+  methodName: sUnion
+  parameterTypes: [ '[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisSetCommands
+  methodName: sUnionStore
+  parameterTypes: [ '[B','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisSetCommands
+  methodName: sMembers
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisSetCommands
+  methodName: sRandMember
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisSetCommands
+  methodName: sRandMember
+  parameterTypes: [ '[B','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisSetCommands
+  methodName: sScan
+  parameterTypes: [ '[B','org.springframework.data.redis.core.ScanOptions' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zAdd
+  parameterTypes: [ '[B','java.util.Set','org.springframework.data.redis.connection.RedisZSetCommands$ZAddArgs' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zAdd
+  parameterTypes: [ '[B','java.util.Set' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zAdd
+  parameterTypes: [ '[B','double','[B','org.springframework.data.redis.connection.RedisZSetCommands$ZAddArgs' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zAdd
+  parameterTypes: [ '[B','double','[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRangeByScore
+  parameterTypes: [ '[B','double','double','long','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRangeByScore
+  parameterTypes: [ '[B','org.springframework.data.domain.Range','org.springframework.data.redis.connection.Limit' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRangeByScore
+  parameterTypes: [ '[B','double','double' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRangeByScore
+  parameterTypes: [ '[B','java.lang.String','java.lang.String','long','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRangeByScore
+  parameterTypes: [ '[B','org.springframework.data.domain.Range' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRangeByScore
+  parameterTypes: [ '[B','java.lang.String','java.lang.String' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRevRangeByScore
+  parameterTypes: [ '[B','org.springframework.data.domain.Range' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRevRangeByScore
+  parameterTypes: [ '[B','double','double','long','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRevRangeByScore
+  parameterTypes: [ '[B','double','double' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRevRangeByScore
+  parameterTypes: [ '[B','org.springframework.data.domain.Range','org.springframework.data.redis.connection.Limit' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zCount
+  parameterTypes: [ '[B','org.springframework.data.domain.Range' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zCount
+  parameterTypes: [ '[B','double','double' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRemRangeByScore
+  parameterTypes: [ '[B','double','double' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRemRangeByScore
+  parameterTypes: [ '[B','org.springframework.data.domain.Range' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zInterWithScores
+  parameterTypes: [ '[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zInterWithScores
+  parameterTypes: [ 'org.springframework.data.redis.connection.zset.Aggregate','org.springframework.data.redis.connection.zset.Weights','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zInterWithScores
+  parameterTypes: [ 'org.springframework.data.redis.connection.zset.Aggregate','[I','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zInterStore
+  parameterTypes: [ '[B','org.springframework.data.redis.connection.zset.Aggregate','[I','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zInterStore
+  parameterTypes: [ '[B','org.springframework.data.redis.connection.zset.Aggregate','org.springframework.data.redis.connection.zset.Weights','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zInterStore
+  parameterTypes: [ '[B','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zUnionWithScores
+  parameterTypes: [ 'org.springframework.data.redis.connection.zset.Aggregate','[I','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zUnionWithScores
+  parameterTypes: [ '[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zUnionWithScores
+  parameterTypes: [ 'org.springframework.data.redis.connection.zset.Aggregate','org.springframework.data.redis.connection.zset.Weights','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zUnionStore
+  parameterTypes: [ '[B','org.springframework.data.redis.connection.zset.Aggregate','org.springframework.data.redis.connection.zset.Weights','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zUnionStore
+  parameterTypes: [ '[B','org.springframework.data.redis.connection.zset.Aggregate','[I','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zUnionStore
+  parameterTypes: [ '[B','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRangeByLex
+  parameterTypes: [ '[B','org.springframework.data.domain.Range' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRangeByLex
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRangeByLex
+  parameterTypes: [ '[B','org.springframework.data.domain.Range','org.springframework.data.redis.connection.Limit' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRevRangeByLex
+  parameterTypes: [ '[B','org.springframework.data.domain.Range','org.springframework.data.redis.connection.Limit' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRevRangeByLex
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRevRangeByLex
+  parameterTypes: [ '[B','org.springframework.data.domain.Range' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRangeStoreByLex
+  parameterTypes: [ '[B','[B','org.springframework.data.domain.Range' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRangeStoreByLex
+  parameterTypes: [ '[B','[B','org.springframework.data.domain.Range','org.springframework.data.redis.connection.Limit' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRangeStoreByScore
+  parameterTypes: [ '[B','[B','org.springframework.data.domain.Range' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRangeStoreByScore
+  parameterTypes: [ '[B','[B','org.springframework.data.domain.Range','org.springframework.data.redis.connection.Limit' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRem
+  parameterTypes: [ '[B','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zIncrBy
+  parameterTypes: [ '[B','double','[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRandMember
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRandMember
+  parameterTypes: [ '[B','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRank
+  parameterTypes: [ '[B','[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRevRank
+  parameterTypes: [ '[B','[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRange
+  parameterTypes: [ '[B','long','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRangeWithScores
+  parameterTypes: [ '[B','long','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRevRange
+  parameterTypes: [ '[B','long','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zLexCount
+  parameterTypes: [ '[B','org.springframework.data.domain.Range' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zPopMin
+  parameterTypes: [ '[B','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zPopMin
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: bZPopMin
+  parameterTypes: [ '[B','long','java.util.concurrent.TimeUnit' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zPopMax
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zPopMax
+  parameterTypes: [ '[B','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: bZPopMax
+  parameterTypes: [ '[B','long','java.util.concurrent.TimeUnit' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zCard
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zScore
+  parameterTypes: [ '[B','[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zMScore
+  parameterTypes: [ '[B','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRemRange
+  parameterTypes: [ '[B','long','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRemRangeByLex
+  parameterTypes: [ '[B','org.springframework.data.domain.Range' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zDiff
+  parameterTypes: [ '[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zDiffWithScores
+  parameterTypes: [ '[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zDiffStore
+  parameterTypes: [ '[B','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zInter
+  parameterTypes: [ '[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zUnion
+  parameterTypes: [ '[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zScan
+  parameterTypes: [ '[B','org.springframework.data.redis.core.ScanOptions' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRangeByScoreWithScores
+  parameterTypes: [ '[B','double','double','long','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRangeByScoreWithScores
+  parameterTypes: [ '[B','org.springframework.data.domain.Range','org.springframework.data.redis.connection.Limit' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRangeByScoreWithScores
+  parameterTypes: [ '[B','double','double' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRangeByScoreWithScores
+  parameterTypes: [ '[B','org.springframework.data.domain.Range' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRevRangeByScoreWithScores
+  parameterTypes: [ '[B','org.springframework.data.domain.Range','org.springframework.data.redis.connection.Limit' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRevRangeByScoreWithScores
+  parameterTypes: [ '[B','double','double','long','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRevRangeByScoreWithScores
+  parameterTypes: [ '[B','double','double' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRevRangeByScoreWithScores
+  parameterTypes: [ '[B','org.springframework.data.domain.Range' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRangeStoreRevByLex
+  parameterTypes: [ '[B','[B','org.springframework.data.domain.Range','org.springframework.data.redis.connection.Limit' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRangeStoreRevByLex
+  parameterTypes: [ '[B','[B','org.springframework.data.domain.Range' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRangeStoreRevByScore
+  parameterTypes: [ '[B','[B','org.springframework.data.domain.Range' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRangeStoreRevByScore
+  parameterTypes: [ '[B','[B','org.springframework.data.domain.Range','org.springframework.data.redis.connection.Limit' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRandMemberWithScore
+  parameterTypes: [ '[B','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRandMemberWithScore
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
+  methodName: zRevRangeWithScores
+  parameterTypes: [ '[B','long','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: hPersist
+  parameterTypes: [ '[B','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: hpExpireAt
+  parameterTypes: [ '[B','long','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: hpExpireAt
+  parameterTypes: [ '[B','long','org.springframework.data.redis.connection.ExpirationOptions$Condition','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: hpExpire
+  parameterTypes: [ '[B','long','org.springframework.data.redis.connection.ExpirationOptions$Condition','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: hpExpire
+  parameterTypes: [ '[B','java.time.Duration','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: hpExpire
+  parameterTypes: [ '[B','long','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: hExpireAt
+  parameterTypes: [ '[B','long','org.springframework.data.redis.connection.ExpirationOptions$Condition','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: hExpireAt
+  parameterTypes: [ '[B','long','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: hExpire
+  parameterTypes: [ '[B','long','org.springframework.data.redis.connection.ExpirationOptions$Condition','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: hExpire
+  parameterTypes: [ '[B','java.time.Duration','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: hExpire
+  parameterTypes: [ '[B','long','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: hSet
+  parameterTypes: [ '[B','[B','[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: hSetNX
+  parameterTypes: [ '[B','[B','[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: hGet
+  parameterTypes: [ '[B','[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: hMGet
+  parameterTypes: [ '[B','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: hMSet
+  parameterTypes: [ '[B','java.util.Map' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: hIncrBy
+  parameterTypes: [ '[B','[B','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: hIncrBy
+  parameterTypes: [ '[B','[B','double' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: hExists
+  parameterTypes: [ '[B','[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: hDel
+  parameterTypes: [ '[B','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: hLen
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: hKeys
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: hVals
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: hGetAll
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: hRandField
+  parameterTypes: [ '[B','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: hRandField
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: hScan
+  parameterTypes: [ '[B','org.springframework.data.redis.core.ScanOptions' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: hStrLen
+  parameterTypes: [ '[B','[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: hTtl
+  parameterTypes: [ '[B','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: hTtl
+  parameterTypes: [ '[B','java.util.concurrent.TimeUnit','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: hpTtl
+  parameterTypes: [ '[B','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: applyHashFieldExpiration
+  parameterTypes: [ '[B','org.springframework.data.redis.core.types.Expiration','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: applyHashFieldExpiration
+  parameterTypes: [ '[B','org.springframework.data.redis.core.types.Expiration','org.springframework.data.redis.connection.ExpirationOptions','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: hRandFieldWithValues
+  parameterTypes: [ '[B','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHashCommands
+  methodName: hRandFieldWithValues
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisTxCommands
+  methodName: exec
+  parameterTypes: [ ]
+- interfaceName: org.springframework.data.redis.connection.RedisTxCommands
+  methodName: multi
+  parameterTypes: [ ]
+- interfaceName: org.springframework.data.redis.connection.RedisTxCommands
+  methodName: discard
+  parameterTypes: [ ]
+- interfaceName: org.springframework.data.redis.connection.RedisTxCommands
+  methodName: watch
+  parameterTypes: [ '[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisTxCommands
+  methodName: unwatch
+  parameterTypes: [ ]
+- interfaceName: org.springframework.data.redis.connection.RedisPubSubCommands
+  methodName: publish
+  parameterTypes: [ '[B','[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisPubSubCommands
+  methodName: isSubscribed
+  parameterTypes: [ ]
+- interfaceName: org.springframework.data.redis.connection.RedisPubSubCommands
+  methodName: getSubscription
+  parameterTypes: [ ]
+- interfaceName: org.springframework.data.redis.connection.RedisPubSubCommands
+  methodName: subscribe
+  parameterTypes: [ 'org.springframework.data.redis.connection.MessageListener','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisPubSubCommands
+  methodName: pSubscribe
+  parameterTypes: [ 'org.springframework.data.redis.connection.MessageListener','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisConnectionCommands
+  methodName: echo
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisConnectionCommands
+  methodName: ping
+  parameterTypes: [ ]
+- interfaceName: org.springframework.data.redis.connection.RedisConnectionCommands
+  methodName: select
+  parameterTypes: [ 'int' ]
+- interfaceName: org.springframework.data.redis.connection.RedisServerCommands
+  methodName: shutdown
+  parameterTypes: [ 'org.springframework.data.redis.connection.RedisServerCommands$ShutdownOption' ]
+- interfaceName: org.springframework.data.redis.connection.RedisServerCommands
+  methodName: shutdown
+  parameterTypes: [ ]
+- interfaceName: org.springframework.data.redis.connection.RedisServerCommands
+  methodName: info
+  parameterTypes: [ 'java.lang.String' ]
+- interfaceName: org.springframework.data.redis.connection.RedisServerCommands
+  methodName: info
+  parameterTypes: [ ]
+- interfaceName: org.springframework.data.redis.connection.RedisServerCommands
+  methodName: time
+  parameterTypes: [ ]
+- interfaceName: org.springframework.data.redis.connection.RedisServerCommands
+  methodName: time
+  parameterTypes: [ 'java.util.concurrent.TimeUnit' ]
+- interfaceName: org.springframework.data.redis.connection.RedisServerCommands
+  methodName: save
+  parameterTypes: [ ]
+- interfaceName: org.springframework.data.redis.connection.RedisServerCommands
+  methodName: bgReWriteAof
+  parameterTypes: [ ]
+- interfaceName: org.springframework.data.redis.connection.RedisServerCommands
+  methodName: bgSave
+  parameterTypes: [ ]
+- interfaceName: org.springframework.data.redis.connection.RedisServerCommands
+  methodName: lastSave
+  parameterTypes: [ ]
+- interfaceName: org.springframework.data.redis.connection.RedisServerCommands
+  methodName: dbSize
+  parameterTypes: [ ]
+- interfaceName: org.springframework.data.redis.connection.RedisServerCommands
+  methodName: flushDb
+  parameterTypes: [ ]
+- interfaceName: org.springframework.data.redis.connection.RedisServerCommands
+  methodName: flushDb
+  parameterTypes: [ 'org.springframework.data.redis.connection.RedisServerCommands$FlushOption' ]
+- interfaceName: org.springframework.data.redis.connection.RedisServerCommands
+  methodName: flushAll
+  parameterTypes: [ ]
+- interfaceName: org.springframework.data.redis.connection.RedisServerCommands
+  methodName: flushAll
+  parameterTypes: [ 'org.springframework.data.redis.connection.RedisServerCommands$FlushOption' ]
+- interfaceName: org.springframework.data.redis.connection.RedisServerCommands
+  methodName: getConfig
+  parameterTypes: [ 'java.lang.String' ]
+- interfaceName: org.springframework.data.redis.connection.RedisServerCommands
+  methodName: setConfig
+  parameterTypes: [ 'java.lang.String','java.lang.String' ]
+- interfaceName: org.springframework.data.redis.connection.RedisServerCommands
+  methodName: resetConfigStats
+  parameterTypes: [ ]
+- interfaceName: org.springframework.data.redis.connection.RedisServerCommands
+  methodName: rewriteConfig
+  parameterTypes: [ ]
+- interfaceName: org.springframework.data.redis.connection.RedisServerCommands
+  methodName: killClient
+  parameterTypes: [ 'java.lang.String','int' ]
+- interfaceName: org.springframework.data.redis.connection.RedisServerCommands
+  methodName: setClientName
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisServerCommands
+  methodName: getClientName
+  parameterTypes: [ ]
+- interfaceName: org.springframework.data.redis.connection.RedisServerCommands
+  methodName: getClientList
+  parameterTypes: [ ]
+- interfaceName: org.springframework.data.redis.connection.RedisServerCommands
+  methodName: replicaOf
+  parameterTypes: [ 'java.lang.String','int' ]
+- interfaceName: org.springframework.data.redis.connection.RedisServerCommands
+  methodName: replicaOfNoOne
+  parameterTypes: [ ]
+- interfaceName: org.springframework.data.redis.connection.RedisServerCommands
+  methodName: migrate
+  parameterTypes: [ '[B','org.springframework.data.redis.connection.RedisNode','int','org.springframework.data.redis.connection.RedisServerCommands$MigrateOption' ]
+- interfaceName: org.springframework.data.redis.connection.RedisServerCommands
+  methodName: migrate
+  parameterTypes: [ '[B','org.springframework.data.redis.connection.RedisNode','int','org.springframework.data.redis.connection.RedisServerCommands$MigrateOption','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xGroupCreate
+  parameterTypes: [ '[B','java.lang.String','org.springframework.data.redis.connection.stream.ReadOffset' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xGroupCreate
+  parameterTypes: [ '[B','java.lang.String','org.springframework.data.redis.connection.stream.ReadOffset','boolean' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xGroupDestroy
+  parameterTypes: [ '[B','java.lang.String' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xInfo
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xInfoGroups
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xInfoConsumers
+  parameterTypes: [ '[B','java.lang.String' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xTrim
+  parameterTypes: [ '[B','long','boolean' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xTrim
+  parameterTypes: [ '[B','long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xAck
+  parameterTypes: [ '[B','java.lang.String','[Ljava.lang.String;' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xAck
+  parameterTypes: [ '[B','java.lang.String','[Lorg.springframework.data.redis.connection.stream.RecordId;' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xAdd
+  parameterTypes: [ 'org.springframework.data.redis.connection.stream.MapRecord','org.springframework.data.redis.connection.RedisStreamCommands$XAddOptions' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xAdd
+  parameterTypes: [ '[B','java.util.Map' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xAdd
+  parameterTypes: [ 'org.springframework.data.redis.connection.stream.MapRecord' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xClaim
+  parameterTypes: [ '[B','java.lang.String','java.lang.String','java.time.Duration','[Lorg.springframework.data.redis.connection.stream.RecordId;' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xClaim
+  parameterTypes: [ '[B','java.lang.String','java.lang.String','org.springframework.data.redis.connection.RedisStreamCommands$XClaimOptions' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xDel
+  parameterTypes: [ '[B','[Lorg.springframework.data.redis.connection.stream.RecordId;' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xDel
+  parameterTypes: [ '[B','[Ljava.lang.String;' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xGroupDelConsumer
+  parameterTypes: [ '[B','java.lang.String','java.lang.String' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xGroupDelConsumer
+  parameterTypes: [ '[B','org.springframework.data.redis.connection.stream.Consumer' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xPending
+  parameterTypes: [ '[B','java.lang.String','org.springframework.data.redis.connection.RedisStreamCommands$XPendingOptions' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xPending
+  parameterTypes: [ '[B','java.lang.String','java.lang.String','org.springframework.data.domain.Range','java.lang.Long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xPending
+  parameterTypes: [ '[B','java.lang.String' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xPending
+  parameterTypes: [ '[B','org.springframework.data.redis.connection.stream.Consumer' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xPending
+  parameterTypes: [ '[B','java.lang.String','java.lang.String' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xPending
+  parameterTypes: [ '[B','org.springframework.data.redis.connection.stream.Consumer','org.springframework.data.domain.Range','java.lang.Long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xPending
+  parameterTypes: [ '[B','java.lang.String','org.springframework.data.domain.Range','java.lang.Long' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xRange
+  parameterTypes: [ '[B','org.springframework.data.domain.Range' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xRange
+  parameterTypes: [ '[B','org.springframework.data.domain.Range','org.springframework.data.redis.connection.Limit' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xRead
+  parameterTypes: [ '[Lorg.springframework.data.redis.connection.stream.StreamOffset;' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xRead
+  parameterTypes: [ 'org.springframework.data.redis.connection.stream.StreamReadOptions','[Lorg.springframework.data.redis.connection.stream.StreamOffset;' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xReadGroup
+  parameterTypes: [ 'org.springframework.data.redis.connection.stream.Consumer','[Lorg.springframework.data.redis.connection.stream.StreamOffset;' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xReadGroup
+  parameterTypes: [ 'org.springframework.data.redis.connection.stream.Consumer','org.springframework.data.redis.connection.stream.StreamReadOptions','[Lorg.springframework.data.redis.connection.stream.StreamOffset;' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xRevRange
+  parameterTypes: [ '[B','org.springframework.data.domain.Range' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xRevRange
+  parameterTypes: [ '[B','org.springframework.data.domain.Range','org.springframework.data.redis.connection.Limit' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xClaimJustId
+  parameterTypes: [ '[B','java.lang.String','java.lang.String','org.springframework.data.redis.connection.RedisStreamCommands$XClaimOptions' ]
+- interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
+  methodName: xLen
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisScriptingCommands
+  methodName: evalSha
+  parameterTypes: [ '[B','org.springframework.data.redis.connection.ReturnType','int','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisScriptingCommands
+  methodName: evalSha
+  parameterTypes: [ 'java.lang.String','org.springframework.data.redis.connection.ReturnType','int','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisScriptingCommands
+  methodName: scriptFlush
+  parameterTypes: [ ]
+- interfaceName: org.springframework.data.redis.connection.RedisScriptingCommands
+  methodName: scriptKill
+  parameterTypes: [ ]
+- interfaceName: org.springframework.data.redis.connection.RedisScriptingCommands
+  methodName: scriptLoad
+  parameterTypes: [ '[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisScriptingCommands
+  methodName: scriptExists
+  parameterTypes: [ '[Ljava.lang.String;' ]
+- interfaceName: org.springframework.data.redis.connection.RedisScriptingCommands
+  methodName: eval
+  parameterTypes: [ '[B','org.springframework.data.redis.connection.ReturnType','int','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisGeoCommands
+  methodName: geoAdd
+  parameterTypes: [ '[B','java.lang.Iterable' ]
+- interfaceName: org.springframework.data.redis.connection.RedisGeoCommands
+  methodName: geoAdd
+  parameterTypes: [ '[B','java.util.Map' ]
+- interfaceName: org.springframework.data.redis.connection.RedisGeoCommands
+  methodName: geoAdd
+  parameterTypes: [ '[B','org.springframework.data.redis.connection.RedisGeoCommands$GeoLocation' ]
+- interfaceName: org.springframework.data.redis.connection.RedisGeoCommands
+  methodName: geoAdd
+  parameterTypes: [ '[B','org.springframework.data.geo.Point','[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisGeoCommands
+  methodName: geoRadiusByMember
+  parameterTypes: [ '[B','[B','org.springframework.data.geo.Distance','org.springframework.data.redis.connection.RedisGeoCommands$GeoRadiusCommandArgs' ]
+- interfaceName: org.springframework.data.redis.connection.RedisGeoCommands
+  methodName: geoRadiusByMember
+  parameterTypes: [ '[B','[B','org.springframework.data.geo.Distance' ]
+- interfaceName: org.springframework.data.redis.connection.RedisGeoCommands
+  methodName: geoRadiusByMember
+  parameterTypes: [ '[B','[B','double' ]
+- interfaceName: org.springframework.data.redis.connection.RedisGeoCommands
+  methodName: geoDist
+  parameterTypes: [ '[B','[B','[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisGeoCommands
+  methodName: geoDist
+  parameterTypes: [ '[B','[B','[B','org.springframework.data.geo.Metric' ]
+- interfaceName: org.springframework.data.redis.connection.RedisGeoCommands
+  methodName: geoHash
+  parameterTypes: [ '[B','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisGeoCommands
+  methodName: geoPos
+  parameterTypes: [ '[B','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisGeoCommands
+  methodName: geoRadius
+  parameterTypes: [ '[B','org.springframework.data.geo.Circle','org.springframework.data.redis.connection.RedisGeoCommands$GeoRadiusCommandArgs' ]
+- interfaceName: org.springframework.data.redis.connection.RedisGeoCommands
+  methodName: geoRadius
+  parameterTypes: [ '[B','org.springframework.data.geo.Circle' ]
+- interfaceName: org.springframework.data.redis.connection.RedisGeoCommands
+  methodName: geoRemove
+  parameterTypes: [ '[B','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisGeoCommands
+  methodName: geoSearch
+  parameterTypes: [ '[B','org.springframework.data.redis.domain.geo.GeoReference','org.springframework.data.redis.domain.geo.GeoShape','org.springframework.data.redis.connection.RedisGeoCommands$GeoSearchCommandArgs' ]
+- interfaceName: org.springframework.data.redis.connection.RedisGeoCommands
+  methodName: geoSearchStore
+  parameterTypes: [ '[B','[B','org.springframework.data.redis.domain.geo.GeoReference','org.springframework.data.redis.domain.geo.GeoShape','org.springframework.data.redis.connection.RedisGeoCommands$GeoSearchStoreCommandArgs' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHyperLogLogCommands
+  methodName: pfAdd
+  parameterTypes: [ '[B','[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHyperLogLogCommands
+  methodName: pfCount
+  parameterTypes: [ '[[B' ]
+- interfaceName: org.springframework.data.redis.connection.RedisHyperLogLogCommands
+  methodName: pfMerge
+  parameterTypes: [ '[B','[[B' ]

@@ -21,6 +21,7 @@ import io.microsphere.redis.spring.config.RedisConfiguration;
 import io.microsphere.redis.spring.context.RedisContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -29,13 +30,12 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
-import javax.annotation.Resource;
 import java.util.HashSet;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * {@link EnableRedisContext} Test
@@ -48,7 +48,7 @@ import static org.junit.Assert.assertTrue;
         "microsphere.redis.enabled=true"
 })
 @EnableRedisContext
-public class EnableRedisContextTest extends AbstractRedisTest {
+class EnableRedisContextTest extends AbstractRedisTest {
 
     @Autowired
     private RedisContext redisContext;
@@ -65,14 +65,16 @@ public class EnableRedisContextTest extends AbstractRedisTest {
     @Autowired
     private RedisConfiguration redisConfiguration;
 
-    @Resource
+    @Autowired
+    @Qualifier("redisTemplate")
     private RedisTemplate<Object, Object> redisTemplate;
 
-    @Resource
+    @Autowired
+    @Qualifier("stringRedisTemplate")
     private StringRedisTemplate stringRedisTemplate;
 
     @Test
-    public void test() throws Throwable {
+    void test() throws Throwable {
         assertSame(beanFactory, redisContext.getBeanFactory());
         assertSame(context, redisContext.getApplicationContext());
         assertSame(redisConfiguration, redisContext.getRedisConfiguration());
@@ -80,7 +82,7 @@ public class EnableRedisContextTest extends AbstractRedisTest {
         assertSame(redisTemplate, redisContext.getRedisTemplate("redisTemplate"));
         assertSame(stringRedisTemplate, redisContext.getRedisTemplate("stringRedisTemplate"));
 
-        assertEquals("default", redisConfiguration.getApplicationName());
+        assertEquals("application", redisConfiguration.getApplicationName());
         assertEquals(new HashSet<>(asList("redisTemplate", "stringRedisTemplate")), redisContext.getRedisTemplateBeanNames());
         assertTrue(redisContext.isEnabled());
         assertTrue(redisContext.isCommandEventExposed());

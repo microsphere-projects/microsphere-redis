@@ -1,25 +1,29 @@
 package io.microsphere.redis.replicator.spring.kafka.producer;
 
-import io.microsphere.redis.spring.event.RedisCommandEvent;
+import io.microsphere.annotation.Nullable;
+import io.microsphere.logging.Logger;
 import io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration;
-import io.microsphere.redis.spring.serializer.Serializers;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.microsphere.redis.spring.event.RedisCommandEvent;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.event.SmartApplicationListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
-import org.springframework.util.concurrent.ListenableFuture;
-import org.springframework.util.concurrent.ListenableFutureCallback;
 
+import java.lang.reflect.Method;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+
+import static io.microsphere.logging.LoggerFactory.getLogger;
+import static io.microsphere.redis.spring.serializer.Serializers.serialize;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.isRedisCommandsExecuteMethod;
+import static io.microsphere.spring.beans.BeanUtils.getOptionalBean;
+import static java.util.concurrent.Executors.newFixedThreadPool;
 
 /**
  * {@link ApplicationListener} listens to {@link RedisCommandEvent} implementation -
@@ -28,9 +32,10 @@ import java.util.concurrent.Executors;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @since 1.0.0
  */
-public class KafkaProducerRedisCommandEventListener implements SmartApplicationListener, DisposableBean {
+public class KafkaProducerRedisCommandEventListener implements ApplicationListener<RedisCommandEvent>,
+        SmartInitializingSingleton, ApplicationContextAware, DisposableBean {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private static final Logger logger = getLogger(KafkaProducerRedisCommandEventListener.class);
 
     private KafkaTemplate<byte[], byte[]> redisReplicatorKafkaTemplate;
 
@@ -40,40 +45,14 @@ public class KafkaProducerRedisCommandEventListener implements SmartApplicationL
 
     private KafkaProducerRedisReplicatorConfiguration kafkaProducerRedisReplicatorConfiguration;
 
-    private String[] topics;
-
-    private String keyPrefix;
+    @Nullable
+    private RedisComandEventPartitioner redisComandEventPartitioner;
 
     private ExecutorService executor;
 
-
     @Override
-    public boolean supportsEventType(Class<? extends ApplicationEvent> eventType) {
-        return RedisCommandEvent.class.equals(eventType) ||
-                ContextRefreshedEvent.class.equals(eventType);
-    }
-
-    @Override
-    public void onApplicationEvent(ApplicationEvent event) {
-        if (event instanceof ContextRefreshedEvent) {
-            onContextRefreshedEvent((ContextRefreshedEvent) event);
-        } else if (event instanceof RedisCommandEvent) {
-            onRedisCommandEvent((RedisCommandEvent) event);
-        }
-    }
-
-    private void onContextRefreshedEvent(ContextRefreshedEvent event) {
-        ApplicationContext context = event.getApplicationContext();
-        initApplicationContext(context);
-        initRedisReplicatorConfiguration(context);
-        initRedisReplicatorKafkaProducerConfiguration(context);
-        initRedisReplicatorKafkaTemplate(kafkaProducerRedisReplicatorConfiguration);
-        initKeyPrefix(kafkaProducerRedisReplicatorConfiguration);
-        initExecutor();
-    }
-
-    private void initApplicationContext(ApplicationContext context) {
-        this.context = context;
+    public void onApplicationEvent(RedisCommandEvent event) {
+        onRedisCommandEvent(event);
     }
 
     private void initRedisReplicatorConfiguration(ApplicationContext context) {
@@ -88,52 +67,43 @@ public class KafkaProducerRedisCommandEventListener implements SmartApplicationL
         this.redisReplicatorKafkaTemplate = kafkaProducerRedisReplicatorConfiguration.getRedisReplicatorKafkaTemplate();
     }
 
-    private void initKeyPrefix(KafkaProducerRedisReplicatorConfiguration kafkaProducerRedisReplicatorConfiguration) {
-        this.keyPrefix = kafkaProducerRedisReplicatorConfiguration.getKeyPrefix();
+    private void initRedisComandEventPartitioner(ApplicationContext context) {
+        this.redisComandEventPartitioner = getOptionalBean(context, RedisComandEventPartitioner.class);
     }
 
     private void initExecutor() {
-        List<String> domains = redisReplicatorConfiguration.getDomains();
+        List<String> domains = this.redisReplicatorConfiguration.getDomains();
         int size = domains.size();
-        this.executor = Executors.newFixedThreadPool(size, new CustomizableThreadFactory(domains.toString()));
+        this.executor = newFixedThreadPool(size, new CustomizableThreadFactory(domains.toString()));
     }
 
     private void onRedisCommandEvent(RedisCommandEvent event) {
-        try {
-            String beanName = event.getSourceBeanName();
-            List<String> domains = redisReplicatorConfiguration.getDomains(beanName);
-            for (String domain : domains) {
-                executor.execute(() -> sendRedisReplicatorKafkaMessage(domain, event));
-            }
-        } catch (Throwable e) {
-            logger.warn("[Redis-Replicator-Kafka-P-F] Failed to perform Redis Replicator Kafka message sending operation.", e);
+        String beanName = event.getSourceBeanName();
+        List<String> domains = this.redisReplicatorConfiguration.getDomains(beanName);
+        for (String domain : domains) {
+            executor.execute(() -> sendRedisReplicatorKafkaMessage(domain, event));
         }
     }
 
     private void sendRedisReplicatorKafkaMessage(String domain, RedisCommandEvent event) {
-        String topic = kafkaProducerRedisReplicatorConfiguration.createTopic(domain);
-        // Almost all RedisCommands interface methods take the first argument as Key
+        String topic = this.kafkaProducerRedisReplicatorConfiguration.createTopic(domain);
         byte[] key = generateKafkaKey(event);
-        byte[] value = Serializers.serialize(event);
+        byte[] value = serialize(event);
         Integer partition = calcPartition(event);
         // Use a timestamp of the event
         long timestamp = event.getTimestamp();
-        ListenableFuture<SendResult<byte[], byte[]>> future = redisReplicatorKafkaTemplate.send(topic, partition, timestamp, key, value);
-        future.addCallback(new ListenableFutureCallback<SendResult<byte[], byte[]>>() {
 
-            @Override
-            public void onSuccess(SendResult<byte[], byte[]> result) {
-                logger.debug("[Redis-Replicator-Kafka-P-S] Kafka message sending operation succeeds. Topic: {}, key: {}, data size: {} bytes, event: {}",
-                        topics, key, value.length, event);
-            }
+        CompletableFuture<SendResult<byte[], byte[]>> future = this.redisReplicatorKafkaTemplate.send(topic, partition, timestamp, key, value);
 
-            @Override
-            public void onFailure(Throwable e) {
-                logger.warn("[Redis-Replicator-Kafka-P-F] Kafka message sending operation failed. Topic: {}, key: {}, data size: {} bytes",
-                        topics, key, value.length, e);
-            }
+        future.whenComplete(this::onComplete);
+    }
 
-        });
+    void onComplete(SendResult<byte[], byte[]> result, Throwable failure) {
+        if (failure == null) {
+            logger.trace("[Redis-Replicator-Kafka-P-S] Kafka message sending operation succeeds: {}", result);
+        } else {
+            logger.warn("[Redis-Replicator-Kafka-P-F] Kafka message sending operation failed: {}", result, failure);
+        }
     }
 
     /**
@@ -144,12 +114,33 @@ public class KafkaProducerRedisCommandEventListener implements SmartApplicationL
      */
     private byte[] generateKafkaKey(RedisCommandEvent event) {
         // Almost all RedisCommands interface methods take the first argument as Key
+        Method method = event.getMethod();
+        if (isRedisCommandsExecuteMethod(method)) {
+            byte[][] bytes = (byte[][]) event.getArg(1);
+            return bytes[0];
+        }
         return (byte[]) event.getArg(0);
     }
 
     private Integer calcPartition(RedisCommandEvent event) {
-        // TODO Future computing partition
+        if (redisComandEventPartitioner != null) {
+            return redisComandEventPartitioner.partition(event);
+        }
         return null;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext context) throws BeansException {
+        this.context = context;
+    }
+
+    @Override
+    public void afterSingletonsInstantiated() {
+        initRedisReplicatorConfiguration(this.context);
+        initRedisReplicatorKafkaProducerConfiguration(this.context);
+        initRedisReplicatorKafkaTemplate(this.kafkaProducerRedisReplicatorConfiguration);
+        initRedisComandEventPartitioner(this.context);
+        initExecutor();
     }
 
     @Override

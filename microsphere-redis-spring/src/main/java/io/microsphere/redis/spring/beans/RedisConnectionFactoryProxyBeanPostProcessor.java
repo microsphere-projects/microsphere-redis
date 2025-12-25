@@ -16,6 +16,9 @@
  */
 package io.microsphere.redis.spring.beans;
 
+import io.microsphere.annotation.Nonnull;
+import io.microsphere.annotation.Nullable;
+import io.microsphere.lang.DelegatingWrapper;
 import io.microsphere.redis.spring.context.RedisContext;
 import io.microsphere.redis.spring.interceptor.InterceptingRedisConnectionInvocationHandler;
 import io.microsphere.spring.beans.factory.config.GenericBeanPostProcessorAdapter;
@@ -23,17 +26,19 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
+import static io.microsphere.redis.spring.context.RedisContext.get;
+import static io.microsphere.reflect.AccessibleObjectUtils.trySetAccessible;
+import static io.microsphere.reflect.MethodUtils.findMethod;
 import static java.lang.reflect.Proxy.newProxyInstance;
 
 /**
@@ -42,11 +47,17 @@ import static java.lang.reflect.Proxy.newProxyInstance;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @see RedisConnectionFactory
  * @see ReactiveRedisConnectionFactory
+ * @see RedisConnection
+ * @see DelegatingWrapper
  * @since 1.0.0
  */
 public class RedisConnectionFactoryProxyBeanPostProcessor extends GenericBeanPostProcessorAdapter<RedisConnectionFactory> {
 
-    private static final Class[] REDIS_CONNECTION_TYPES = new Class[]{RedisConnection.class};
+    private static final Class[] REDIS_CONNECTION_TYPES = new Class[]{RedisConnection.class, DelegatingWrapper.class};
+
+    private static final String SOURCE_BEAN_ATTRIBUTE_NAME = "_sourceBean";
+
+    private static final Method GET_CONNECTION_METHOD = findMethod(RedisConnectionFactory.class, "getConnection");
 
     private final ConfigurableBeanFactory beanFactory;
 
@@ -56,19 +67,19 @@ public class RedisConnectionFactoryProxyBeanPostProcessor extends GenericBeanPos
 
     @Override
     protected RedisConnectionFactory doPostProcessAfterInitialization(RedisConnectionFactory bean, String beanName) throws BeansException {
+        setRawRedisConnectionFactory(this.beanFactory, beanName, bean);
         ProxyFactory proxyFactory = new ProxyFactory(bean);
         proxyFactory.addAdvice(new MethodInterceptor() {
             @Nullable
             @Override
-            public Object invoke(@NonNull MethodInvocation invocation) throws Throwable {
+            public Object invoke(@Nonnull MethodInvocation invocation) throws Throwable {
                 Method method = invocation.getMethod();
-                method.setAccessible(true);
-                String methodName = method.getName();
+                trySetAccessible(method);
                 Object result = invocation.proceed();
-                if ("getConnection".equals(methodName) && result instanceof RedisConnection) {
-                    RedisContext redisContext = RedisContext.get(beanFactory);
+                if (GET_CONNECTION_METHOD.equals(method)) {
+                    RedisContext redisContext = get(beanFactory);
                     if (redisContext.isEnabled()) {
-                        result = newProxyRedisConnection((RedisConnection) result, redisContext, beanName);
+                        result = newProxyRedisConnection((RedisConnection) result, redisContext, bean, beanName);
                     }
                 }
                 return result;
@@ -77,13 +88,26 @@ public class RedisConnectionFactoryProxyBeanPostProcessor extends GenericBeanPos
         return (RedisConnectionFactory) proxyFactory.getProxy();
     }
 
-    private static RedisConnection newProxyRedisConnection(RedisConnection connection, RedisContext redisContext, String sourceBeanName) {
+    public static RedisConnection newProxyRedisConnection(RedisConnection connection, RedisContext redisContext,
+                                                          Object sourceBean, String sourceBeanName) {
         ClassLoader classLoader = redisContext.getClassLoader();
-        InvocationHandler invocationHandler = newInvocationHandler(connection, redisContext, sourceBeanName);
+        InvocationHandler invocationHandler = newInvocationHandler(connection, redisContext, sourceBean, sourceBeanName);
         return (RedisConnection) newProxyInstance(classLoader, REDIS_CONNECTION_TYPES, invocationHandler);
     }
 
-    private static InvocationHandler newInvocationHandler(RedisConnection connection, RedisContext redisContext, String sourceBeanName) {
-        return new InterceptingRedisConnectionInvocationHandler(connection, redisContext, sourceBeanName);
+    static void setRawRedisConnectionFactory(ConfigurableBeanFactory beanFactory, String beanName, RedisConnectionFactory redisConnectionFactory) {
+        BeanDefinition beanDefinition = beanFactory.getMergedBeanDefinition(beanName);
+        beanDefinition.setAttribute(SOURCE_BEAN_ATTRIBUTE_NAME, redisConnectionFactory);
+    }
+
+    public static RedisConnectionFactory getRawRedisConnectionFactory(ConfigurableBeanFactory beanFactory, String beanName) {
+        BeanDefinition beanDefinition = beanFactory.getMergedBeanDefinition(beanName);
+        RedisConnectionFactory redisConnectionFactory = (RedisConnectionFactory) beanDefinition.getAttribute(SOURCE_BEAN_ATTRIBUTE_NAME);
+        return redisConnectionFactory == null ? (RedisConnectionFactory) beanFactory.getBean(beanName) : redisConnectionFactory;
+    }
+
+    private static InvocationHandler newInvocationHandler(RedisConnection connection, RedisContext redisContext,
+                                                          Object sourceBean, String sourceBeanName) {
+        return new InterceptingRedisConnectionInvocationHandler(connection, redisContext, sourceBean, sourceBeanName);
     }
 }

@@ -11,7 +11,7 @@ import org.springframework.data.redis.serializer.SerializationException;
  */
 public final class LongSerializer extends AbstractSerializer<Long> {
 
-    public static final LongSerializer INSTANCE = new LongSerializer();
+    public static final LongSerializer LONG_SERIALIZER = new LongSerializer();
 
     @Override
     protected int calcBytesLength() {

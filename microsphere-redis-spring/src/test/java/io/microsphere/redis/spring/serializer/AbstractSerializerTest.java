@@ -1,13 +1,14 @@
 package io.microsphere.redis.spring.serializer;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.springframework.core.ResolvableType;
 import org.springframework.data.redis.serializer.RedisSerializer;
 
 import java.util.function.Supplier;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.core.ResolvableType.forType;
 
 /**
@@ -15,21 +16,22 @@ import static org.springframework.core.ResolvableType.forType;
  *
  * @param <T> Serialization type
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
+ * @see AbstractSerializer
  * @since 1.0.0
  */
 public abstract class AbstractSerializerTest<T> {
 
     @Test
-    public void test() {
+    void test() {
         test(this::getValue);
     }
 
     @Test
-    public void testNull() {
+    void testNull() {
         test(this::getNullValue);
     }
 
-    public void test(Supplier<T> valueSupplier) {
+    void test(Supplier<T> valueSupplier) {
         T value = valueSupplier.get();
         RedisSerializer<T> serializer = getSerializer();
         byte[] bytes = serializer.serialize(value);
@@ -41,12 +43,16 @@ public abstract class AbstractSerializerTest<T> {
         }
 
         Class<?> targetType = serializer.getTargetType();
-        Class<?> parameterType = forType(getClass()).getSuperType().getGeneric(0).resolve();
+        ResolvableType resolvableType = forType(getClass()).getSuperType().getGeneric(0);
+        Class<?> parameterType = resolvableType.resolve();
+
         assertSame(targetType, parameterType);
         assertTrue(serializer.canSerialize(parameterType));
 
         if (serializer instanceof AbstractSerializer) {
             AbstractSerializer abstractSerializer = (AbstractSerializer) serializer;
+            ResolvableType parameterizedType = abstractSerializer.getParameterizedType();
+            assertSame(parameterType, parameterizedType.resolve());
             assertSame(targetType, abstractSerializer.getParameterizedClass());
         }
     }

@@ -1,0 +1,133 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.microsphere.redis.generator.metadata;
+
+
+import io.microsphere.logging.Logger;
+import io.microsphere.redis.generator.doclet.SpringDataRedisMetadataGenerationDoclet;
+
+import javax.tools.DocumentationTool;
+import javax.tools.DocumentationTool.DocumentationTask;
+import javax.tools.JavaFileObject;
+import javax.tools.StandardJavaFileManager;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+import static io.microsphere.constants.SymbolConstants.EQUAL;
+import static io.microsphere.logging.LoggerFactory.getLogger;
+import static io.microsphere.redis.generator.doclet.SpringDataRedisMetadataGenerationDoclet.METADATA_FILE_OPTION_NAME;
+import static io.microsphere.util.ClassPathUtils.getClassPaths;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.FileVisitResult.CONTINUE;
+import static java.nio.file.Files.walkFileTree;
+import static java.nio.file.Paths.get;
+import static java.util.Locale.ENGLISH;
+import static java.util.Locale.setDefault;
+import static java.util.Set.of;
+import static java.util.stream.Collectors.toSet;
+import static javax.tools.StandardLocation.CLASS_PATH;
+import static javax.tools.ToolProvider.getSystemDocumentationTool;
+
+/**
+ * The Spring Data Redis Metadata Generator
+ *
+ * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
+ * @see SpringDataRedisMetadataGenerationDoclet
+ * @since 1.0.0
+ */
+public class SpringDataRedisMetadataGenerator {
+
+    static {
+        setDefault(ENGLISH);
+    }
+
+    private static final Logger logger = getLogger(SpringDataRedisMetadataGenerator.class);
+
+    public static void main(String[] args) throws Exception {
+        int length = args.length;
+
+        if (length < 2) {
+            logger.warn("Usage : SpringDataRedisMetadataGenerator <source-path> <target-file-path>");
+            return;
+        }
+
+        Path sourcePath = get(args[0]);
+        String targetFilePath = args[1];
+
+        Set<File> classPaths = resolveClassPaths();
+
+        List<Path> sourceFiles = new LinkedList<>();
+
+        walkFileTree(sourcePath, new SimpleFileVisitor<>() {
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
+                if (exc != null) {
+                    logger.warn("The directory visit failed for {}", dir, exc);
+                }
+                return CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFileFailed(Path file, IOException exc) {
+                if (exc != null) {
+                    logger.warn("The directory file failed for {}", file, exc);
+                }
+                return CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+                if (file.toString().endsWith(".java")) {
+                    sourceFiles.add(file);
+                }
+                return CONTINUE;
+            }
+        });
+
+        DocumentationTool documentationTool = getSystemDocumentationTool();
+
+        StandardJavaFileManager standardFileManager = documentationTool.getStandardFileManager(null, ENGLISH, UTF_8);
+
+        // set class-paths
+        standardFileManager.setLocation(CLASS_PATH, classPaths);
+
+        logger.info("The Documentation Tools' Class-Paths : {}", classPaths);
+
+        Iterable<? extends JavaFileObject> javaFileObjects = standardFileManager.getJavaFileObjects(sourceFiles.toArray(new Path[0]));
+
+        Set<String> options = of(METADATA_FILE_OPTION_NAME + EQUAL + targetFilePath);
+
+        DocumentationTask docTask = documentationTool.getTask(null, standardFileManager, null,
+                SpringDataRedisMetadataGenerationDoclet.class, options, javaFileObjects);
+
+        boolean result = docTask.call();
+
+        logger.info("The JavaDoc generation result : {}", result);
+    }
+
+    private static Set<File> resolveClassPaths() {
+        return getClassPaths().stream().map(File::new).collect(toSet());
+    }
+}

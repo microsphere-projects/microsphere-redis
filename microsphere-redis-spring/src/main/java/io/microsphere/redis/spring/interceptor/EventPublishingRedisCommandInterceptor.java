@@ -16,84 +16,68 @@
  */
 package io.microsphere.redis.spring.interceptor;
 
+import io.microsphere.logging.Logger;
+import io.microsphere.redis.spring.config.RedisConfiguration;
 import io.microsphere.redis.spring.context.RedisContext;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
-import io.microsphere.redis.spring.event.RedisConfigurationPropertyChangedEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
-import org.springframework.context.ApplicationListener;
 import org.springframework.data.redis.connection.RedisCommands;
 
-import static io.microsphere.redis.spring.util.RedisConstants.COMMAND_EVENT_EXPOSED_PROPERTY_NAME;
+import static io.microsphere.logging.LoggerFactory.getLogger;
 
 /**
  * {@link RedisCommandInterceptor} publishes {@link RedisCommandEvent}
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
+ * @see RedisCommandInterceptor
+ * @see RedisMethodContext
+ * @see RedisCommandEvent
+ * @see RedisConfiguration
+ * @see RedisContext
  * @since 1.0.0
  */
-public class EventPublishingRedisCommandInterceptor implements RedisCommandInterceptor, ApplicationListener<RedisConfigurationPropertyChangedEvent>, ApplicationEventPublisherAware {
+public class EventPublishingRedisCommandInterceptor implements RedisCommandInterceptor, ApplicationEventPublisherAware {
 
-    private static final Logger logger = LoggerFactory.getLogger(EventPublishingRedisCommandInterceptor.class);
+    private static final Logger logger = getLogger(EventPublishingRedisCommandInterceptor.class);
 
-    public static final String BEAN_NAME = "eventPublishingRedisCommendInterceptor";
+    public static final String BEAN_NAME = "microsphere:eventPublishingRedisCommendInterceptor";
 
-    private final RedisContext redisContext;
-
-    private final String applicationName;
+    private final RedisConfiguration redisConfiguration;
 
     private ApplicationEventPublisher applicationEventPublisher;
 
-    private volatile boolean enabled = false;
-
-    public EventPublishingRedisCommandInterceptor(RedisContext redisContext) {
-        this.redisContext = redisContext;
-        this.applicationName = redisContext.getApplicationName();
-        setEnabled();
-    }
-
-    public void setEnabled() {
-        this.enabled = redisContext.isCommandEventExposed();
+    public EventPublishingRedisCommandInterceptor(RedisConfiguration redisConfiguration) {
+        this.redisConfiguration = redisConfiguration;
     }
 
     public boolean isEnabled() {
-        return enabled;
+        return this.redisConfiguration.isCommandEventExposed();
     }
 
     @Override
-    public void afterExecute(RedisMethodContext<RedisCommands> context, Object result, Throwable failure) throws Throwable {
+    public void afterExecute(RedisMethodContext<RedisCommands> context, Object result, Throwable failure) {
         if (isEnabled() && failure == null) {
             if (context.isWriteMethod(true)) { // The current method is a Redis write command
                 // Publish Redis Command Event
                 publishRedisCommandEvent(context);
             }
         }
+        logger.trace("afterExecute - context : {} , result : {} , failure : {}", context, result, failure);
     }
 
     private void publishRedisCommandEvent(RedisMethodContext<RedisCommands> context) {
-        RedisCommandEvent redisCommandEvent = createRedisCommandEvent(context);
-        if (redisCommandEvent != null) {
-            // Event handling allows exceptions to be thrown
-            applicationEventPublisher.publishEvent(redisCommandEvent);
-        }
-    }
-
-    private RedisCommandEvent createRedisCommandEvent(RedisMethodContext<RedisCommands> redisMethodContext) {
-        RedisCommandEvent redisCommandEvent = new RedisCommandEvent(redisMethodContext);
-        return redisCommandEvent;
-    }
-
-    @Override
-    public void onApplicationEvent(RedisConfigurationPropertyChangedEvent event) {
-        if (event.hasProperty(COMMAND_EVENT_EXPOSED_PROPERTY_NAME)) {
-            this.setEnabled();
-        }
+        // Event handling allows exceptions to be thrown
+        applicationEventPublisher.publishEvent(new RedisCommandEvent(context));
     }
 
     @Override
     public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
         this.applicationEventPublisher = applicationEventPublisher;
+    }
+
+    @Override
+    public int getOrder() {
+        return 0;
     }
 }

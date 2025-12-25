@@ -16,8 +16,9 @@
  */
 package io.microsphere.redis.spring.interceptor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.microsphere.logging.Logger;
+
+import static io.microsphere.logging.LoggerFactory.getLogger;
 
 /**
  * Logging
@@ -27,7 +28,7 @@ import org.slf4j.LoggerFactory;
  */
 public class LoggingRedisCommandInterceptor implements RedisCommandInterceptor {
 
-    private static final Logger logger = LoggerFactory.getLogger(LoggingRedisCommandInterceptor.class);
+    private static final Logger logger = getLogger(LoggingRedisCommandInterceptor.class);
 
     @Override
     public void beforeExecute(RedisMethodContext redisMethodContext) {
@@ -37,5 +38,10 @@ public class LoggingRedisCommandInterceptor implements RedisCommandInterceptor {
     @Override
     public void afterExecute(RedisMethodContext redisMethodContext, Object result, Throwable failure) throws Throwable {
         logger.info("afterExecute");
+    }
+
+    @Override
+    public int getOrder() {
+        return 1;
     }
 }

@@ -1,5 +1,6 @@
 package io.microsphere.redis.spring.interceptor;
 
+import org.springframework.core.Ordered;
 import org.springframework.lang.Nullable;
 
 import java.lang.reflect.Method;
@@ -10,9 +11,10 @@ import java.util.Optional;
  *
  * @param <T> The target type of Redis
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
+ * @see RedisMethodContext
  * @since 1.0.0
  */
-public interface RedisMethodInterceptor<T> {
+public interface RedisMethodInterceptor<T> extends Ordered {
 
     /**
      * Intercept {@link T The target Redis instance} method before execution
@@ -59,7 +61,8 @@ public interface RedisMethodInterceptor<T> {
      * @param failure        The nullable {@link Throwable Throwable} caused by Redis method execution
      * @throws Throwable When method implementations execute exceptions
      */
-    default void afterExecute(T target, Method method, Object[] args, @Nullable String sourceBeanName, @Nullable Object result, @Nullable Throwable failure) throws Throwable {
+    default void afterExecute(T target, Method method, Object[] args, @Nullable String sourceBeanName,
+                              @Nullable Object result, @Nullable Throwable failure) throws Throwable {
     }
 
     /**
@@ -71,6 +74,7 @@ public interface RedisMethodInterceptor<T> {
      * @param failure The nullable {@link Throwable Throwable} caused by Redis method execution
      * @param error   {@link Throwable error} caused by interception
      */
-    default void handleError(RedisMethodContext<T> context, boolean before, @Nullable Object result, @Nullable Throwable failure, Throwable error) {
+    default void handleError(RedisMethodContext<T> context, boolean before, @Nullable Object result,
+                             @Nullable Throwable failure, Throwable error) {
     }
 }

@@ -16,12 +16,14 @@
  */
 package io.microsphere.redis.spring.beans;
 
+import io.microsphere.lang.WrapperProcessor;
 import io.microsphere.redis.spring.AbstractRedisCommandEventTest;
 import io.microsphere.redis.spring.annotation.EnableRedisInterceptor;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
+
+import static org.springframework.data.redis.serializer.StringRedisSerializer.US_ASCII;
 
 /**
  * {@link WrapperProcessor} Test
@@ -36,12 +38,12 @@ import org.springframework.test.context.TestPropertySource;
 @EnableRedisInterceptor(wrapRedisTemplates = {
         "stringRedisTemplate"
 })
-public class WrapperProcessorTest extends AbstractRedisCommandEventTest {
+class WrapperProcessorTest extends AbstractRedisCommandEventTest {
 
     @Bean
     public WrapperProcessor<StringRedisTemplateWrapper> redisTemplateWrapperProcessor() {
         return redisTemplate -> {
-            redisTemplate.setKeySerializer(StringRedisSerializer.US_ASCII);
+            redisTemplate.setKeySerializer(US_ASCII);
             return redisTemplate;
         };
     }

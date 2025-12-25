@@ -1,8 +1,6 @@
 package io.microsphere.redis.spring.connection.dynamic;
 
-import io.microsphere.text.FormatUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.microsphere.logging.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.SmartInitializingSingleton;
@@ -14,13 +12,16 @@ import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisSentinelConnection;
 import org.springframework.lang.NonNull;
-import org.springframework.util.Assert;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.springframework.util.StringUtils.hasText;
+import static io.microsphere.logging.LoggerFactory.getLogger;
+import static io.microsphere.text.FormatUtils.format;
+import static io.microsphere.util.Assert.assertNotEmpty;
+import static io.microsphere.util.Assert.assertNotNull;
+import static io.microsphere.util.StringUtils.isBlank;
+import static java.util.Collections.unmodifiableMap;
 
 /**
  * Dynamic {@link RedisConnectionFactory} Class
@@ -31,12 +32,12 @@ import static org.springframework.util.StringUtils.hasText;
 public class DynamicRedisConnectionFactory implements RedisConnectionFactory, SmartInitializingSingleton,
         ApplicationContextAware, BeanNameAware {
 
+    private static final Logger logger = getLogger(DynamicRedisConnectionFactory.class);
+
     /**
      * Default {@link RedisConnectionFactory} Bean name
      */
     public static final String DEFAULT_REDIS_CONNECTION_FACTORY_BEAN_NAME = "redisConnectionFactory";
-
-    private static final Logger logger = LoggerFactory.getLogger(DynamicRedisConnectionFactory.class);
 
     private static final ThreadLocal<String> beanNameHolder = new ThreadLocal<>();
 
@@ -99,28 +100,28 @@ public class DynamicRedisConnectionFactory implements RedisConnectionFactory, Sm
     }
 
     protected void initialize() {
-        this.redisConnectionFactories = resolveRedisConnectionFactories();
-        this.defaultRedisConnectionFactory = resolveDefaultRedisConnectionFactory();
+        this.redisConnectionFactories = getRedisConnectionFactories();
+        this.defaultRedisConnectionFactory = getDefaultRedisConnectionFactory();
     }
 
     @NonNull
     protected RedisConnectionFactory determineTargetRedisConnectionFactory() {
         String targetBeanName = getTargetBeanName();
-        if (targetBeanName == null) {
+        if (isBlank(targetBeanName)) {
             RedisConnectionFactory defaultRedisConnectionFactory = getDefaultRedisConnectionFactory();
-            logger.debug("Current target Bean Name is not set or is executed in a multi-threaded environment, using the default RedisConnectionFactory Bean[name: '{}']", defaultRedisConnectionFactoryBeanName);
+            logger.trace("Current target Bean Name is not set or is executed in a multi-threaded environment, using the default RedisConnectionFactory Bean[name: '{}']", defaultRedisConnectionFactoryBeanName);
             return defaultRedisConnectionFactory;
         }
-        logger.debug("Start toggle destination RedisConnectionFactory Bean[name: '{}']", targetBeanName);
+        logger.trace("Start toggle destination RedisConnectionFactory Bean[name: '{}']", targetBeanName);
         RedisConnectionFactory targetRedisConnectionFactory = getRedisConnectionFactory(targetBeanName);
-        logger.debug("RedisConnectionFactory Bean[name: '{}']", targetBeanName);
+        logger.trace("RedisConnectionFactory Bean[name: '{}']", targetBeanName);
         return targetRedisConnectionFactory;
     }
 
     protected RedisConnectionFactory getRedisConnectionFactory(String beanName) {
         Map<String, RedisConnectionFactory> redisConnectionFactories = getRedisConnectionFactories();
         RedisConnectionFactory redisConnectionFactory = redisConnectionFactories.get(beanName);
-        Assert.notNull(redisConnectionFactory, () -> FormatUtils.format("RedisConnectionFactory Bean[name : '{}'] 不存在", beanName));
+        assertNotNull(redisConnectionFactory, () -> format("RedisConnectionFactory Bean[name : '{}'] is not existed", beanName));
         return redisConnectionFactory;
     }
 
@@ -140,7 +141,7 @@ public class DynamicRedisConnectionFactory implements RedisConnectionFactory, Sm
 
     private RedisConnectionFactory resolveDefaultRedisConnectionFactory() {
         String beanName = defaultRedisConnectionFactoryBeanName;
-        Assert.isTrue(hasText(beanName), "The default RedisConnectionFactory Bean Name cannot be left blank");
+        assertNotEmpty(beanName, () -> "The default RedisConnectionFactory Bean Name cannot be left blank");
         return getRedisConnectionFactory(beanName);
     }
 
@@ -148,8 +149,8 @@ public class DynamicRedisConnectionFactory implements RedisConnectionFactory, Sm
         Map<String, RedisConnectionFactory> redisConnectionFactories = new HashMap<>(context.getBeansOfType(RedisConnectionFactory.class));
         // Remove the current Bean
         redisConnectionFactories.remove(beanName);
-        Assert.notEmpty(redisConnectionFactories, "RedisConnectionFactory Beans do not exist");
-        return Collections.unmodifiableMap(redisConnectionFactories);
+        assertNotEmpty(redisConnectionFactories, () -> "RedisConnectionFactory Beans do not exist");
+        return unmodifiableMap(redisConnectionFactories);
     }
 
     /**
@@ -168,16 +169,16 @@ public class DynamicRedisConnectionFactory implements RedisConnectionFactory, Sm
      */
     public static void switchTarget(String redisConnectionFactoryBeanName) {
         beanNameHolder.set(redisConnectionFactoryBeanName);
-        logger.debug("Switch target RedisConnectionFactory Bean Name: '{}'", redisConnectionFactoryBeanName);
+        logger.trace("Switch target RedisConnectionFactory Bean Name: '{}'", redisConnectionFactoryBeanName);
     }
 
     public static void clearTarget() {
         String targetBeanName = getTargetBeanName();
         beanNameHolder.remove();
-        logger.debug("Clear target RedisConnectionFactory Bean Name: '{}'", targetBeanName);
+        logger.trace("Clear target RedisConnectionFactory Bean Name: '{}'", targetBeanName);
     }
 
-    protected static String getTargetBeanName() {
+    public static String getTargetBeanName() {
         return beanNameHolder.get();
     }
 }

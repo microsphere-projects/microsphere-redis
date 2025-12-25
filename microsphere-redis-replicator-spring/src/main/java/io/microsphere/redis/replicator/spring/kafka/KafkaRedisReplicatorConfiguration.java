@@ -1,18 +1,23 @@
 package io.microsphere.redis.replicator.spring.kafka;
 
+import io.microsphere.annotation.ConfigurationProperty;
+import io.microsphere.logging.Logger;
 import io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
-import org.springframework.util.Assert;
 
 import java.util.List;
 
+import static io.microsphere.annotation.ConfigurationProperty.APPLICATION_SOURCE;
+import static io.microsphere.logging.LoggerFactory.getLogger;
+import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.REDIS_REPLICATOR_PROPERTY_NAME_PREFIX;
+import static io.microsphere.spring.core.env.EnvironmentUtils.asConfigurableEnvironment;
+import static io.microsphere.util.ArrayUtils.arrayToString;
+import static io.microsphere.util.StringUtils.substringAfter;
 import static org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG;
 
 
@@ -25,19 +30,49 @@ import static org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CON
  */
 public class KafkaRedisReplicatorConfiguration implements EnvironmentAware, InitializingBean, DisposableBean {
 
-    private static final Logger logger = LoggerFactory.getLogger(KafkaRedisReplicatorConfiguration.class);
+    private static final Logger logger = getLogger(KafkaRedisReplicatorConfiguration.class);
 
+    /**
+     * The default value of Kafka Broker list
+     */
+    public static final String DEFAULT_SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_VALUE = "127.0.0.1:9092";
+
+    /**
+     * The Microsphere Property name of Kafka Broker list
+     */
+    @ConfigurationProperty(
+            type = String[].class,
+            defaultValue = DEFAULT_SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_VALUE,
+            source = APPLICATION_SOURCE
+    )
     public static final String SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_NAME = "spring.kafka.bootstrap-servers";
 
-    public static final String KAFKA_PROPERTY_NAME_PREFIX = RedisReplicatorConfiguration.PROPERTY_NAME_PREFIX + "kafka.";
+    public static final String SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_PLACEHOLDER = "${" + SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_NAME + ":" + DEFAULT_SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_VALUE + "}";
 
+    public static final String KAFKA_PROPERTY_NAME_PREFIX = REDIS_REPLICATOR_PROPERTY_NAME_PREFIX + "kafka.";
+
+    /**
+     * The Microsphere Property name of Kafka Broker list
+     */
+    @ConfigurationProperty(
+            type = String[].class,
+            defaultValue = SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_PLACEHOLDER,
+            source = APPLICATION_SOURCE
+    )
     public static final String KAFKA_BOOTSTRAP_SERVERS_PROPERTY_NAME = KAFKA_PROPERTY_NAME_PREFIX + BOOTSTRAP_SERVERS_CONFIG;
 
-    public static final String KAFKA_BOOTSTRAP_SERVERS_PROPERTY_PLACEHOLDER = "${" + KAFKA_BOOTSTRAP_SERVERS_PROPERTY_NAME + ":${" + SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_NAME + "}}";
-
-    public static final String KAFKA_TOPIC_PREFIX_PROPERTY_NAME = KAFKA_PROPERTY_NAME_PREFIX + "topic-prefix";
+    public static final String KAFKA_BOOTSTRAP_SERVERS_PROPERTY_PLACEHOLDER = "${" + KAFKA_BOOTSTRAP_SERVERS_PROPERTY_NAME + ":" + SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_PLACEHOLDER + "}";
 
     public static final String DEFAULT_KAFKA_TOPIC_PREFIX_PROPERTY_VALUE = "redis-replicator-event-topic-";
+
+    /*
+     * The Spring Property name of Kafka Topic Prefix
+     */
+    @ConfigurationProperty(
+            defaultValue = DEFAULT_KAFKA_TOPIC_PREFIX_PROPERTY_VALUE,
+            source = APPLICATION_SOURCE
+    )
+    public static final String KAFKA_TOPIC_PREFIX_PROPERTY_NAME = KAFKA_PROPERTY_NAME_PREFIX + "topic-prefix";
 
     /**
      * Node ip Port address (reusing application configurations)
@@ -53,31 +88,12 @@ public class KafkaRedisReplicatorConfiguration implements EnvironmentAware, Init
 
     protected String[] topics;
 
-    public void initTopics() {
-        List<String> domains = redisReplicatorConfiguration.getDomains();
-        int size = domains.size();
-        String[] topics = new String[size];
-        for (int i = 0; i < size; i++) {
-            String domain = domains.get(i);
-            String topic = createTopic(domain);
-            topics[i] = topic;
-        }
-        this.topics = topics;
-    }
-
     public String createTopic(String domain) {
-        return topicPrefix + domain;
+        return this.topicPrefix + domain;
     }
 
     public String getDomain(String topic) {
-        if (topic == null) {
-            return null;
-        }
-        int index = topic.indexOf(topicPrefix);
-        if (index > -1) {
-            return topic.substring(topicPrefix.length());
-        }
-        return null;
+        return substringAfter(topic, this.topicPrefix);
     }
 
     public String[] getTopics() {
@@ -86,8 +102,7 @@ public class KafkaRedisReplicatorConfiguration implements EnvironmentAware, Init
 
     @Override
     public final void setEnvironment(Environment environment) {
-        Assert.isInstanceOf(ConfigurableEnvironment.class, environment, "The 'environment' argument is not an instance of ConfigurableEnvironment");
-        this.environment = (ConfigurableEnvironment) environment;
+        this.environment = asConfigurableEnvironment(environment);
     }
 
     @Override
@@ -98,15 +113,28 @@ public class KafkaRedisReplicatorConfiguration implements EnvironmentAware, Init
     }
 
     private void initBrokerList() {
-        String brokerList = environment.resolvePlaceholders(KAFKA_BOOTSTRAP_SERVERS_PROPERTY_PLACEHOLDER);
-        logger.debug("Kafka Broker list : {}", brokerList);
+        String brokerList = this.environment.resolvePlaceholders(KAFKA_BOOTSTRAP_SERVERS_PROPERTY_PLACEHOLDER);
+        logger.trace("Kafka Broker list : {}", brokerList);
         this.brokerList = brokerList;
     }
 
     private void initTopicPrefix() {
-        String topicPrefix = environment.getProperty(KAFKA_TOPIC_PREFIX_PROPERTY_NAME, DEFAULT_KAFKA_TOPIC_PREFIX_PROPERTY_VALUE);
-        logger.debug("Kafka Topic prefix : {}", topicPrefix);
+        String topicPrefix = this.environment.getProperty(KAFKA_TOPIC_PREFIX_PROPERTY_NAME, DEFAULT_KAFKA_TOPIC_PREFIX_PROPERTY_VALUE);
+        logger.trace("Kafka Topic prefix : {}", topicPrefix);
         this.topicPrefix = topicPrefix;
+    }
+
+    private void initTopics() {
+        List<String> domains = this.redisReplicatorConfiguration.getDomains();
+        int size = domains.size();
+        String[] topics = new String[size];
+        for (int i = 0; i < size; i++) {
+            String domain = domains.get(i);
+            String topic = createTopic(domain);
+            topics[i] = topic;
+        }
+        logger.trace("The Kafka topics for Redis Replicator : {}", arrayToString(topics));
+        this.topics = topics;
     }
 
     @Override

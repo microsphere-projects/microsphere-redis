@@ -1,7 +1,9 @@
 package io.microsphere.redis.spring.serializer;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.data.redis.serializer.RedisSerializer;
+
+import static io.microsphere.redis.spring.serializer.BooleanSerializer.BOOLEAN_SERIALIZER;
 
 /**
  * {@link BooleanSerializer} Test
@@ -9,11 +11,11 @@ import org.springframework.data.redis.serializer.RedisSerializer;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @since 1.0.0
  */
-public class BooleanSerializerTest extends AbstractSerializerTest<Boolean> {
+class BooleanSerializerTest extends AbstractSerializerTest<Boolean> {
 
     @Override
     protected RedisSerializer<Boolean> getSerializer() {
-        return BooleanSerializer.INSTANCE;
+        return BOOLEAN_SERIALIZER;
     }
 
     @Override
@@ -22,7 +24,7 @@ public class BooleanSerializerTest extends AbstractSerializerTest<Boolean> {
     }
 
     @Test
-    public void testFalse() {
+    void testFalse() {
         test(this::falseValue);
     }
 

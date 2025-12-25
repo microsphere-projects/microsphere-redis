@@ -1,12 +1,20 @@
 package io.microsphere.redis.spring.serializer;
 
+import org.junit.jupiter.api.Test;
 import org.springframework.data.redis.connection.DefaultSortParameters;
 import org.springframework.data.redis.connection.SortParameters;
 import org.springframework.data.redis.serializer.RedisSerializer;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.StringJoiner;
+
+import static io.microsphere.redis.spring.serializer.SortParametersSerializer.SORT_PARAMETERS_SERIALIZER;
+import static java.lang.String.valueOf;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Arrays.deepToString;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.springframework.data.redis.connection.SortParameters.Order.ASC;
 
 /**
  * {@link SortParametersSerializer} Test
@@ -14,19 +22,33 @@ import java.util.StringJoiner;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @since 1.0.0
  */
-public class SortParametersSerializerTest extends AbstractSerializerTest<SortParameters> {
+class SortParametersSerializerTest extends AbstractSerializerTest<SortParameters> {
 
     @Override
     protected RedisSerializer<SortParameters> getSerializer() {
-        return SortParametersSerializer.INSTANCE;
+        return SORT_PARAMETERS_SERIALIZER;
+    }
+
+    @Test
+    void test() {
+        test(this::getValue);
+        test(this::getSortParameters);
     }
 
     @Override
     protected SortParameters getValue() {
-        return new DefaultSortParameters("a".getBytes(StandardCharsets.UTF_8),
+        return new DefaultSortParameters("a".getBytes(UTF_8),
                 new SortParameters.Range(0, 10),
                 new byte[0][0],
-                SortParameters.Order.ASC,
+                ASC,
+                true);
+    }
+
+    SortParameters getSortParameters() {
+        return new DefaultSortParameters("a".getBytes(UTF_8),
+                new SortParameters.Range(0, 10),
+                new byte[][]{new byte[]{1, 2, 3}},
+                ASC,
                 true);
     }
 
@@ -34,12 +56,27 @@ public class SortParametersSerializerTest extends AbstractSerializerTest<SortPar
     protected Object getTestData(SortParameters value) {
         StringJoiner stringJoiner = new StringJoiner(":");
         return stringJoiner
-                .add(String.valueOf(value.getOrder()))
-                .add(String.valueOf(value.getLimit().getStart()))
-                .add(String.valueOf(value.getLimit().getCount()))
-                .add(String.valueOf(value.isAlphabetic()))
+                .add(valueOf(value.getOrder()))
+                .add(valueOf(value.getLimit().getStart()))
+                .add(valueOf(value.getLimit().getCount()))
+                .add(valueOf(value.isAlphabetic()))
                 .add(Arrays.toString(value.getByPattern()))
-                .add(Arrays.deepToString(value.getGetPattern()))
+                .add(deepToString(value.getGetPattern()))
                 .toString();
+    }
+
+    @Test
+    void testSortParametersWithoutValue() {
+        SortParameters sortParameters = new DefaultSortParameters();
+        byte[] bytes = SORT_PARAMETERS_SERIALIZER.serialize(sortParameters);
+        assertNotNull(bytes);
+
+        SortParameters deserialized = SORT_PARAMETERS_SERIALIZER.deserialize(bytes);
+        assertNotNull(deserialized);
+        assertNull(deserialized.getByPattern());
+        assertNotNull(deserialized.getGetPattern());
+        assertNull(deserialized.getLimit());
+        assertNull(deserialized.getOrder());
+        assertNull(deserialized.isAlphabetic());
     }
 }

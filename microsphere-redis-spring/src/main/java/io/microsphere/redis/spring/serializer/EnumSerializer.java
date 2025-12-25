@@ -2,10 +2,15 @@ package io.microsphere.redis.spring.serializer;
 
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
-import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
 import java.util.Objects;
+
+import static io.microsphere.redis.spring.serializer.ShortSerializer.SHORT_SERIALIZER;
+import static io.microsphere.reflect.AccessibleObjectUtils.trySetAccessible;
+import static java.lang.Byte.MAX_VALUE;
+import static org.springframework.util.ReflectionUtils.findMethod;
+import static org.springframework.util.ReflectionUtils.invokeMethod;
 
 /**
  * {@link Enum} {@link RedisSerializer} Class
@@ -21,12 +26,6 @@ public class EnumSerializer<E extends Enum> implements RedisSerializer<E> {
 
     private static final int SHORT_BYTES_LENGTH = 2;
 
-    private static final int INTEGER_BYTES_LENGTH = 4;
-
-    private static final IntegerSerializer integerSerializer = IntegerSerializer.INSTANCE;
-
-    private static final ShortSerializer shortSerializer = ShortSerializer.INSTANCE;
-
     private final Class<E> enumType;
 
     private final E[] enums;
@@ -40,24 +39,18 @@ public class EnumSerializer<E extends Enum> implements RedisSerializer<E> {
     }
 
     private Method getValuesMethod(Class<E> enumType) {
-        Method valuesMethod = ReflectionUtils.findMethod(enumType, VALUES_METHOD_NAME);
-        ReflectionUtils.makeAccessible(valuesMethod);
+        Method valuesMethod = findMethod(enumType, VALUES_METHOD_NAME);
+        trySetAccessible(valuesMethod);
         return valuesMethod;
     }
 
-    private int calcBytesLength(E[] enums) {
+    static <E extends Enum<E>> int calcBytesLength(E[] enums) {
         int enumsLength = enums.length;
-        if (enumsLength < Byte.MAX_VALUE) {
-            return BYTE_BYTES_LENGTH;   // 1 byte
-        } else if (enumsLength < Short.MAX_VALUE) {
-            return SHORT_BYTES_LENGTH;  // 2 bytes
-        } else {
-            return INTEGER_BYTES_LENGTH; // 4 bytes -> int
-        }
+        return enumsLength < MAX_VALUE ? BYTE_BYTES_LENGTH : SHORT_BYTES_LENGTH;
     }
 
     private E[] invokeValues(Method valuesMethod) {
-        return (E[]) ReflectionUtils.invokeMethod(valuesMethod, null);
+        return (E[]) invokeMethod(valuesMethod, null);
     }
 
     @Override
@@ -67,22 +60,14 @@ public class EnumSerializer<E extends Enum> implements RedisSerializer<E> {
             return null;
         }
 
-        // RedisSerializer<String> delegate = Serializers.stringSerializer;
-        // String name = e.name();
-        // return delegate.serialize(name);
-
         int ordinal = e.ordinal();
-        byte[] bytes = new byte[bytesLength];
+        final byte[] bytes;
 
-        switch (bytesLength) {
-            case BYTE_BYTES_LENGTH: // Most scenarios match
-                bytes[0] = (byte) ordinal;
-                break;
-            case SHORT_BYTES_LENGTH:
-                bytes = shortSerializer.serialize((short) ordinal);
-                break;
-            case INTEGER_BYTES_LENGTH:
-                bytes = integerSerializer.serialize(ordinal);
+        if (bytesLength == BYTE_BYTES_LENGTH) { // Most scenarios match
+            bytes = new byte[1];
+            bytes[0] = (byte) ordinal;
+        } else {
+            bytes = SHORT_SERIALIZER.serialize((short) ordinal);
         }
 
         return bytes;
@@ -94,22 +79,8 @@ public class EnumSerializer<E extends Enum> implements RedisSerializer<E> {
         if (bytes == null) {
             return null;
         }
-        // RedisSerializer<String> delegate = Serializers.stringSerializer;
-        // String name = delegate.deserialize(bytes);
-        // return Enum.valueOf(enumType, name);
 
-        int ordinal = 0;
-        switch (bytesLength) {
-            case BYTE_BYTES_LENGTH: // Most scenarios match
-                ordinal = bytes[0];
-                break;
-            case SHORT_BYTES_LENGTH:
-                ordinal = shortSerializer.deserialize(bytes);
-                break;
-            case INTEGER_BYTES_LENGTH:
-                ordinal = integerSerializer.deserialize(bytes);
-        }
-
+        int ordinal = bytesLength == BYTE_BYTES_LENGTH ? bytes[0] : SHORT_SERIALIZER.deserialize(bytes);
         return enums[ordinal];
     }
 

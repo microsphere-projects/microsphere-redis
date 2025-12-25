@@ -1,19 +1,19 @@
 package io.microsphere.redis.spring.context;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.microsphere.logging.Logger;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigRegistry;
-import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.core.env.ConfigurableEnvironment;
 
 import java.util.List;
 
-import static io.microsphere.redis.spring.config.RedisConfiguration.isEnabled;
-import static io.microsphere.spring.util.PropertySourcesUtils.containsBootstrapPropertySource;
+import static io.microsphere.logging.LoggerFactory.getLogger;
+import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.init;
+import static io.microsphere.redis.spring.util.RedisSpringUtils.isMicrosphereRedisEnabled;
+import static io.microsphere.spring.core.env.PropertySourcesUtils.containsBootstrapPropertySource;
+import static org.springframework.core.annotation.AnnotationAwareOrderComparator.sort;
 import static org.springframework.core.io.support.SpringFactoriesLoader.loadFactories;
 
 /**
@@ -24,7 +24,11 @@ import static org.springframework.core.io.support.SpringFactoriesLoader.loadFact
  */
 public class RedisInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
-    private static final Logger logger = LoggerFactory.getLogger(RedisInitializer.class);
+    static {
+        init();
+    }
+
+    private static final Logger logger = getLogger(RedisInitializer.class);
 
     @Override
     public void initialize(ConfigurableApplicationContext context) {
@@ -33,12 +37,12 @@ public class RedisInitializer implements ApplicationContextInitializer<Configura
             // Load RedisModuleInitializer list
             List<RedisModuleInitializer> redisModuleInitializers = loadFactories(RedisModuleInitializer.class, classLoader);
             // Sort RedisModuleInitializer list
-            AnnotationAwareOrderComparator.sort(redisModuleInitializers);
+            sort(redisModuleInitializers);
             ConfigurableListableBeanFactory beanFactory = context.getBeanFactory();
             BeanDefinitionRegistry registry = (BeanDefinitionRegistry) beanFactory;
             for (RedisModuleInitializer redisModuleInitializer : redisModuleInitializers) {
                 boolean supports = redisModuleInitializer.supports(context, registry);
-                logger.debug("ApplicationContext[id : '{}'] {} support to initialize RedisModuleInitializer[class : {} , order : {}]",
+                logger.trace("ApplicationContext[id : '{}'] {} support to initialize RedisModuleInitializer[class : {} , order : {}]",
                         context.getId(), supports ? "does" : "does not", redisModuleInitializer.getClass(), redisModuleInitializer.getOrder());
                 if (supports) {
                     redisModuleInitializer.initialize(context, registry);
@@ -48,22 +52,18 @@ public class RedisInitializer implements ApplicationContextInitializer<Configura
     }
 
     private boolean supports(ConfigurableApplicationContext context) {
-        ConfigurableListableBeanFactory beanFactory = context.getBeanFactory();
-        if (!(beanFactory instanceof BeanDefinitionRegistry)) {
-            logger.warn("The application context [id: {}, class: {}]'s BeanFactory[class : {}] is not a {} type", context.getId(), context.getClass(), beanFactory.getClass(), AnnotationConfigRegistry.class);
+        ConfigurableEnvironment environment = context.getEnvironment();
+        if (!isMicrosphereRedisEnabled(environment)) {
             return false;
         }
-        if (!isEnabled(context)) {
-            return false;
-        }
-        if (isBootstrapContext(context)) {
+        if (isBootstrapContext(environment)) {
+            logger.warn("The application context [id: {}, class: {}] is a BootstrapContext", context.getId(), context.getClass());
             return false;
         }
         return true;
     }
 
-    private boolean isBootstrapContext(ConfigurableApplicationContext context) {
-        ConfigurableEnvironment environment = context.getEnvironment();
+    private boolean isBootstrapContext(ConfigurableEnvironment environment) {
         return containsBootstrapPropertySource(environment);
     }
 }

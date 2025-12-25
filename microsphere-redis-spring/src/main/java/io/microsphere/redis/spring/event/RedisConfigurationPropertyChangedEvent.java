@@ -61,4 +61,14 @@ public class RedisConfigurationPropertyChangedEvent extends ApplicationContextEv
     public RedisConfiguration getRedisConfiguration() {
         return RedisConfiguration.get(getSource());
     }
+
+    @Override
+    public String toString() {
+        return "RedisConfigurationPropertyChangedEvent{" +
+                "environment = " + environment +
+                ", propertyNames = " + propertyNames +
+                ", source = " + source +
+                ", timestamp = " + getTimestamp() +
+                '}';
+    }
 }

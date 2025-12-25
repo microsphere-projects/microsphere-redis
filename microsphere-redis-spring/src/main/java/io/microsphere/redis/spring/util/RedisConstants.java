@@ -16,14 +16,19 @@
  */
 package io.microsphere.redis.spring.util;
 
-import org.springframework.data.redis.connection.RedisConnectionFactory;
+import io.microsphere.annotation.ConfigurationProperty;
+import io.microsphere.redis.spring.event.RedisCommandEvent;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
-import java.util.List;
+import java.util.Set;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.unmodifiableList;
+import static io.microsphere.annotation.ConfigurationProperty.APPLICATION_SOURCE;
+import static io.microsphere.annotation.ConfigurationProperty.SYSTEM_PROPERTIES_SOURCE;
+import static io.microsphere.collection.Sets.ofSet;
+import static java.lang.Boolean.getBoolean;
+import static java.lang.Boolean.parseBoolean;
+import static java.lang.System.getProperty;
 
 /**
  * The constants of Redis
@@ -32,21 +37,6 @@ import static java.util.Collections.unmodifiableList;
  * @since 1.0.0
  */
 public interface RedisConstants {
-
-    /**
-     * {@link RedisTemplate} Source type
-     */
-    byte REDIS_TEMPLATE_SOURCE_TYPE = 1;
-
-    /**
-     * {@link RedisConnectionFactory} source type
-     */
-    byte REDIS_CONNECTION_FACTORY_SOURCE_TYPE = 2;
-
-    /**
-     * The other source type
-     */
-    byte OTHER_SOURCE_TYPE = -1;
 
     /**
      * {@link RedisTemplate} Bean Name
@@ -58,41 +48,132 @@ public interface RedisConstants {
      */
     String STRING_REDIS_TEMPLATE_BEAN_NAME = "stringRedisTemplate";
 
-    String PROPERTY_NAME_PREFIX = "microsphere.redis.";
-
-    String ENABLED_PROPERTY_NAME = PROPERTY_NAME_PREFIX + "enabled";
-
-    boolean DEFAULT_ENABLED = Boolean.getBoolean(ENABLED_PROPERTY_NAME);
-
-    String COMMAND_EVENT_PROPERTY_NAME_PREFIX = PROPERTY_NAME_PREFIX + "command-event.";
-
-    String COMMAND_EVENT_EXPOSED_PROPERTY_NAME = COMMAND_EVENT_PROPERTY_NAME_PREFIX + "exposed";
-
-    boolean DEFAULT_COMMAND_EVENT_EXPOSED = true;
-
-    String FAIL_FAST_ENABLED_PROPERTY_NAME = PROPERTY_NAME_PREFIX + "fail-fast";
-
-    boolean FAIL_FAST_ENABLED = Boolean.getBoolean(System.getProperty(FAIL_FAST_ENABLED_PROPERTY_NAME, "true"));
+    /**
+     * The default property value of Spring Application Name.
+     */
+    String DEFAULT_SPRING_APPLICATION_NAME_PROPERTY_VALUE = "application";
 
     /**
-     * Wrapped {@link RedisTemplate} list of Bean names
+     * The property name of Spring Application Name.
      */
-    String WRAPPED_REDIS_TEMPLATE_BEAN_NAMES_PROPERTY_NAME = PROPERTY_NAME_PREFIX + "wrapped-redis-templates";
+    @ConfigurationProperty(
+            defaultValue = DEFAULT_SPRING_APPLICATION_NAME_PROPERTY_VALUE,
+            source = APPLICATION_SOURCE
+    )
+    String SPRING_APPLICATION_NAME_PROPERTY_NAME = "spring.application.name";
+
+    /**
+     * The property name prefix of Microsphere Redis.
+     */
+    String MICROSPHERE_REDIS_PROPERTY_NAME_PREFIX = "microsphere.redis.";
+
+    /**
+     * The property name of Microsphere Redis enabled in Spring.
+     */
+    @ConfigurationProperty(
+            type = boolean.class,
+            defaultValue = "false",
+            source = APPLICATION_SOURCE
+    )
+    String MICROSPHERE_REDIS_ENABLED_PROPERTY_NAME = MICROSPHERE_REDIS_PROPERTY_NAME_PREFIX + "enabled";
+
+    /**
+     * The default value of Microsphere Redis enabled.
+     */
+    boolean DEFAULT_MICROSPHERE_REDIS_ENABLED = getBoolean(MICROSPHERE_REDIS_ENABLED_PROPERTY_NAME);
+
+    /**
+     * The property name prefix of {@link RedisCommandEvent} exposed in Spring.
+     */
+    String MICROSPHERE_REDIS_COMMAND_EVENT_PROPERTY_NAME_PREFIX = MICROSPHERE_REDIS_PROPERTY_NAME_PREFIX + "command-event.";
+
+    /**
+     * The default property value of {@link RedisCommandEvent} exposed in Spring.
+     */
+    String DEFAULT_MICROSPHERE_REDIS_COMMAND_EVENT_EXPOSED_PROPERTY_VALUE = "true";
+
+    /**
+     * The property name of {@link RedisCommandEvent} exposed in Spring.
+     */
+    @ConfigurationProperty(
+            type = boolean.class,
+            defaultValue = DEFAULT_MICROSPHERE_REDIS_COMMAND_EVENT_EXPOSED_PROPERTY_VALUE,
+            source = APPLICATION_SOURCE
+    )
+    String MICROSPHERE_REDIS_COMMAND_EVENT_EXPOSED_PROPERTY_NAME = MICROSPHERE_REDIS_COMMAND_EVENT_PROPERTY_NAME_PREFIX + "exposed";
+
+    /**
+     * The default value of {@link RedisCommandEvent} exposed
+     */
+    boolean DEFAULT_MICROSPHERE_REDIS_COMMAND_EVENT_EXPOSED = parseBoolean(DEFAULT_MICROSPHERE_REDIS_COMMAND_EVENT_EXPOSED_PROPERTY_VALUE);
+
+    /**
+     * The default property value of Microsphere Redis fail-fast enabled.
+     */
+    String DEFAULT_MICROSPHERE_REDIS_FAIL_FAST_ENABLED_PROPERTY_VALUE = "true";
+
+    /**
+     * The property name of Microsphere Redis fail-fast enabled.
+     */
+    @ConfigurationProperty(
+            type = boolean.class,
+            defaultValue = DEFAULT_MICROSPHERE_REDIS_FAIL_FAST_ENABLED_PROPERTY_VALUE,
+            source = SYSTEM_PROPERTIES_SOURCE
+    )
+    String MICROSPHERE_REDIS_FAIL_FAST_ENABLED_PROPERTY_NAME = MICROSPHERE_REDIS_PROPERTY_NAME_PREFIX + "fail-fast";
+
+    /**
+     * The fail-fast enabled
+     */
+    boolean MICROSPHERE_REDIS_FAIL_FAST_ENABLED = parseBoolean(getProperty(MICROSPHERE_REDIS_FAIL_FAST_ENABLED_PROPERTY_NAME, DEFAULT_MICROSPHERE_REDIS_FAIL_FAST_ENABLED_PROPERTY_VALUE));
+
+    /**
+     * The default property value of Wrapped {@link RedisTemplate} list of Spring Bean names.
+     */
+    String DEFAULT_WRAPPED_REDIS_TEMPLATE_BEAN_NAMES_PROPERTY_VALUE = "*";
+
+    /**
+     * Wrapped {@link RedisTemplate} list of Spring Bean names.
+     */
+    @ConfigurationProperty(
+            type = String[].class,
+            defaultValue = DEFAULT_WRAPPED_REDIS_TEMPLATE_BEAN_NAMES_PROPERTY_VALUE,
+            source = APPLICATION_SOURCE
+    )
+    String WRAPPED_REDIS_TEMPLATE_BEAN_NAMES_PROPERTY_NAME = MICROSPHERE_REDIS_PROPERTY_NAME_PREFIX + "wrapped-redis-templates";
 
     /**
      * The all wrapped bean names of {@link RedisTemplate}: "*"
      */
-    List<String> ALL_WRAPPED_REDIS_TEMPLATE_BEAN_NAMES = unmodifiableList(asList("*"));
+    Set<String> ALL_WRAPPED_REDIS_TEMPLATE_BEAN_NAMES = ofSet(DEFAULT_WRAPPED_REDIS_TEMPLATE_BEAN_NAMES_PROPERTY_VALUE);
 
     /**
      * The prefix of Redis Interceptors' property name
      */
-    String INTERCEPTOR_PROPERTY_NAME_PREFIX = PROPERTY_NAME_PREFIX + "interceptor.";
+    String MICROSPHERE_REDIS_INTERCEPTOR_PROPERTY_NAME_PREFIX = MICROSPHERE_REDIS_PROPERTY_NAME_PREFIX + "interceptor.";
 
-    String INTERCEPTOR_ENABLED_PROPERTY_NAME = INTERCEPTOR_PROPERTY_NAME_PREFIX + "enabled";
+    /**
+     * The default property value of Redis Interceptor enabled.
+     */
+    String DEFAULT_MICROSPHERE_REDIS_INTERCEPTOR_ENABLED_PROPERTY_VALUE = "true";
 
-    boolean DEFAULT_INTERCEPTOR_ENABLED = true;
+    /**
+     * The property name of Redis Interceptor enabled in Spring.
+     */
+    @ConfigurationProperty(
+            type = boolean.class,
+            defaultValue = DEFAULT_MICROSPHERE_REDIS_INTERCEPTOR_ENABLED_PROPERTY_VALUE,
+            source = APPLICATION_SOURCE
+    )
+    String MICROSPHERE_REDIS_INTERCEPTOR_ENABLED_PROPERTY_NAME = MICROSPHERE_REDIS_INTERCEPTOR_PROPERTY_NAME_PREFIX + "enabled";
 
+    /**
+     * The default Redis Interceptor enabled
+     */
+    boolean DEFAULT_MICROSPHERE_REDIS_INTERCEPTOR_ENABLED = parseBoolean(DEFAULT_MICROSPHERE_REDIS_INTERCEPTOR_ENABLED_PROPERTY_VALUE);
+
+    /**
+     * The default placeholder of Wrapped {@link RedisTemplate} list of Spring Bean names.
+     */
     String DEFAULT_WRAP_REDIS_TEMPLATE_PLACEHOLDER = "${" + WRAPPED_REDIS_TEMPLATE_BEAN_NAMES_PROPERTY_NAME + ":}";
-
 }

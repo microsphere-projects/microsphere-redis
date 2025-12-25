@@ -14,19 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.microsphere.redis.replicator.spring;
 
-import io.microsphere.redis.spring.context.RedisInitializer;
-import io.microsphere.redis.replicator.spring.event.RedisCommandReplicatedEvent;
-import io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration;
-import org.junit.jupiter.api.Test;
-import org.springframework.context.ApplicationListener;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
+import io.microsphere.redis.replicator.spring.config.DefaultRedisConfig;
+import io.microsphere.redis.replicator.spring.event.RedisCommandReplicatedEvent;
+import io.microsphere.redis.spring.event.RedisCommandEvent;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+
+import java.lang.reflect.Method;
+
+import static io.microsphere.redis.replicator.spring.RedisCommandReplicator.BEAN_NAME;
+import static io.microsphere.redis.spring.event.RedisCommandEvent.Builder.source;
+import static io.microsphere.redis.spring.serializer.Serializers.STRING_SERIALIZER;
+import static io.microsphere.reflect.MethodUtils.findMethod;
+import static java.lang.System.currentTimeMillis;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * {@link RedisCommandReplicator} Test
@@ -35,29 +47,75 @@ import java.util.concurrent.CountDownLatch;
  * @see RedisCommandReplicator
  * @since 1.0.0
  */
-@ContextConfiguration(classes = {
-        KafkaConsumerRedisReplicatorConfiguration.class,
-        RedisCommandReplicator.class,
-        RedisCommandReplicatorTest.class},
-        initializers = RedisInitializer.class)
-@TestPropertySource(properties = {
-        "microsphere.redis.enabled=true"
+@SpringJUnitConfig(classes = {
+        DefaultRedisConfig.class,
+        RedisCommandReplicatorTest.class
 })
-public class RedisCommandReplicatorTest extends AbstractRedisReplicatorTest {
+class RedisCommandReplicatorTest {
+
+    private static final Method SET_METHOD = findMethod(RedisConnection.class, "set", byte[].class, byte[].class);
+
+    @Bean(BEAN_NAME)
+    public RedisCommandReplicator redisCommandReplicator(RedisConnectionFactory redisConnectionFactory) {
+        return new RedisCommandReplicator(redisConnectionFactory);
+    }
+
+    private String key;
+
+    private String value;
+
+    private byte[] keyBytes;
+
+    private byte[] valueBytes;
+
+    private RedisCommandEvent.Builder builder;
+
+    @Autowired
+    private ConfigurableApplicationContext context;
+
+    @Autowired
+    private RedisCommandReplicator redisCommandReplicator;
+
+    @BeforeEach
+    void setUp() {
+        long time = currentTimeMillis();
+        this.key = "test-key-" + time;
+        this.value = "test-value-" + time;
+        this.keyBytes = STRING_SERIALIZER.serialize(key);
+        this.valueBytes = STRING_SERIALIZER.serialize(value);
+        this.builder = source(this)
+                .applicationName("test-service")
+                .sourceBeanName("redisTemplate")
+                .method(SET_METHOD);
+    }
 
     @Test
-    public void test() throws InterruptedException {
+    void testApplicationEvent() {
+        testApplicationEvent(true);
+    }
 
-        CountDownLatch latch = new CountDownLatch(1);
+    @Test
+    void testApplicationEventOnFailed() {
+        testApplicationEvent(false);
+    }
 
-        Map<Object, Object> data = new HashMap<>();
+    void testApplicationEvent(boolean setValue) {
+        RedisCommandEvent redisCommandEvent = setValue ? builder
+                .args(keyBytes, valueBytes)
+                .build() : builder.build();
 
-        context.addApplicationListener((ApplicationListener<RedisCommandReplicatedEvent>) event -> {
-            latch.countDown();
-        });
+        context.publishEvent(new RedisCommandReplicatedEvent(redisCommandEvent, "default"));
 
+        byte[] valueBytesFromCache = getValueAsBytes();
+        if (setValue) {
+            assertArrayEquals(valueBytes, valueBytesFromCache);
+        } else {
+            assertNull(valueBytesFromCache);
+        }
+    }
 
-        stringRedisTemplate.opsForValue().set("Key-1", "Value-1");
-        latch.await();
+    byte[] getValueAsBytes() {
+        RedisConnection redisConnection = this.redisCommandReplicator.getRedisConnection();
+        return redisConnection.get(keyBytes);
     }
 }

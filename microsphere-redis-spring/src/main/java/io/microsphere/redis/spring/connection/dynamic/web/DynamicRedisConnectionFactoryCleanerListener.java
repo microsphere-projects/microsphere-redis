@@ -1,15 +1,18 @@
 package io.microsphere.redis.spring.connection.dynamic.web;
 
 import io.microsphere.redis.spring.connection.dynamic.DynamicRedisConnectionFactory;
+import jakarta.servlet.ServletRequestEvent;
+import jakarta.servlet.ServletRequestListener;
+import jakarta.servlet.annotation.WebListener;
 
-import javax.servlet.ServletRequestEvent;
-import javax.servlet.ServletRequestListener;
-import javax.servlet.annotation.WebListener;
+import static io.microsphere.redis.spring.connection.dynamic.DynamicRedisConnectionFactory.clearTarget;
 
 /**
- * {@link DynamicRedisConnectionFactory} State cleaner
+ * {@link DynamicRedisConnectionFactory} {@link ThreadLocal} state cleaner
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
+ * @see DynamicRedisConnectionFactory
+ * @see ServletRequestListener
  * @since 1.0.0
  */
 @WebListener
@@ -17,7 +20,7 @@ public class DynamicRedisConnectionFactoryCleanerListener implements ServletRequ
 
     @Override
     public void requestDestroyed(ServletRequestEvent sre) {
-        // 清除 ThreadLocal
-        DynamicRedisConnectionFactory.clearTarget();
+        // Clear ThreadLocal
+        clearTarget();
     }
 }

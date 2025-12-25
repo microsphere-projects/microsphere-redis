@@ -16,12 +16,14 @@
  */
 package io.microsphere.redis.spring.serializer;
 
-import io.microsphere.redis.spring.beans.DelegatingWrapper;
-import io.microsphere.redis.spring.util.ValueHolder;
+import io.microsphere.lang.DelegatingWrapper;
+import io.microsphere.redis.util.ValueHolder;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
 import org.springframework.lang.Nullable;
+
+import static io.microsphere.redis.util.ValueHolder.get;
 
 /**
  * {@link ValueHolder} {@link RedisSerializer} Wrapper
@@ -41,7 +43,7 @@ public class HoldingValueRedisSerializerWrapper<T> implements RedisSerializer<T>
     @Nullable
     public byte[] serialize(T value) throws SerializationException {
         // Try to find the ThreadLocal cached result
-        ValueHolder valueHolder = ValueHolder.get();
+        ValueHolder valueHolder = get();
         byte[] rawValue = valueHolder.getRawValue(value);
         if (rawValue == null) {
             rawValue = delegate.serialize(value);
@@ -55,7 +57,7 @@ public class HoldingValueRedisSerializerWrapper<T> implements RedisSerializer<T>
     @Nullable
     public T deserialize(byte[] bytes) throws SerializationException {
         // Try to find the ThreadLocal cached result
-        ValueHolder valueHolder = ValueHolder.get();
+        ValueHolder valueHolder = get();
         T value = (T) valueHolder.getValue(bytes);
         if (value == null) {
             value = delegate.deserialize(bytes);
@@ -80,8 +82,8 @@ public class HoldingValueRedisSerializerWrapper<T> implements RedisSerializer<T>
     }
 
     public static <T> RedisSerializer<T> wrap(RedisSerializer<T> redisSerializer) {
-        if (redisSerializer == null) {
-            return null;
+        if (redisSerializer == null || redisSerializer instanceof HoldingValueRedisSerializerWrapper) {
+            return redisSerializer;
         }
         return new HoldingValueRedisSerializerWrapper<>(redisSerializer);
     }

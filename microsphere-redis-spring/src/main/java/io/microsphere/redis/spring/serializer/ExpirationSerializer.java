@@ -6,23 +6,26 @@ import org.springframework.data.redis.serializer.SerializationException;
 
 import java.util.concurrent.TimeUnit;
 
+import static io.microsphere.redis.spring.serializer.LongSerializer.LONG_SERIALIZER;
+import static java.lang.System.arraycopy;
+
 /**
  * {@link Expiration} {@link RedisSerializer} Class
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
+ * @see Expiration
+ * @see RedisSerializer
  * @since 1.0.0
  */
 public class ExpirationSerializer extends AbstractSerializer<Expiration> {
 
-    private static final LongSerializer longSerializer = LongSerializer.INSTANCE;
-
     private static final EnumSerializer<TimeUnit> timeUnitEnumSerializer = new EnumSerializer<>(TimeUnit.class);
 
-    private static final int expirationTimeBytesLength = longSerializer.getBytesLength();
+    private static final int expirationTimeBytesLength = LONG_SERIALIZER.getBytesLength();
 
     private static final int timeUnitBytesLength = timeUnitEnumSerializer.getBytesLength();
 
-    public static final ExpirationSerializer INSTANCE = new ExpirationSerializer();
+    public static final ExpirationSerializer EXPIRATION_SERIALIZER = new ExpirationSerializer();
 
     @Override
     protected int calcBytesLength() {
@@ -36,19 +39,16 @@ public class ExpirationSerializer extends AbstractSerializer<Expiration> {
 
         long expirationTime = expiration.getExpirationTime();
 
-        byte[] expirationTimeBytes = longSerializer.serialize(expirationTime);
+        byte[] expirationTimeBytes = LONG_SERIALIZER.serialize(expirationTime);
 
         byte[] bytes = new byte[bytesLength];
 
-        int i = 0;
-        for (; i < expirationTimeBytesLength; i++) {
-            bytes[i] = expirationTimeBytes[i];
-        }
+        arraycopy(expirationTimeBytes, 0, bytes, 0, expirationTimeBytesLength);
 
         TimeUnit timeUnit = expiration.getTimeUnit();
         byte ordinal = (byte) timeUnit.ordinal();
 
-        for (; i < bytesLength; i++) {
+        for (int i = expirationTimeBytesLength; i < bytesLength; i++) {
             bytes[i] = ordinal;
         }
 
@@ -63,22 +63,16 @@ public class ExpirationSerializer extends AbstractSerializer<Expiration> {
 
         // ExpirationTime array
         byte[] expirationTimeBytes = new byte[expirationTimeBytesLength];
-        int i = 0;
-        for (; i < expirationTimeBytesLength; i++) {
-            expirationTimeBytes[i] = bytes[i];
-        }
+        arraycopy(bytes, 0, expirationTimeBytes, 0, expirationTimeBytesLength);
 
         // TimeUnit array
         byte[] timeUnitBytes = new byte[timeUnitBytesLength];
-        for (int j = 0; j < timeUnitBytesLength && i < bytesLength; j++, i++) {
-            timeUnitBytes[j] = bytes[i];
-        }
+        arraycopy(bytes, expirationTimeBytesLength, timeUnitBytes, 0, timeUnitBytesLength);
 
-        long expirationTime = longSerializer.deserialize(expirationTimeBytes);
+        long expirationTime = LONG_SERIALIZER.deserialize(expirationTimeBytes);
 
         TimeUnit timeUnit = timeUnitEnumSerializer.deserialize(timeUnitBytes);
 
         return Expiration.from(expirationTime, timeUnit);
     }
-
 }

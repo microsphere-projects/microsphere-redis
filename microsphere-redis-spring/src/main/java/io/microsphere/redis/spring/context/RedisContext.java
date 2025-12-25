@@ -16,34 +16,34 @@
  */
 package io.microsphere.redis.spring.context;
 
+import io.microsphere.logging.Logger;
 import io.microsphere.redis.spring.config.RedisConfiguration;
 import io.microsphere.redis.spring.interceptor.RedisCommandInterceptor;
 import io.microsphere.redis.spring.interceptor.RedisConnectionInterceptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.lang.NonNull;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static io.microsphere.spring.util.BeanUtils.getBeanNames;
-import static io.microsphere.spring.util.BeanUtils.getSortedBeans;
-import static java.util.Arrays.asList;
-import static java.util.Collections.unmodifiableSet;
+import static io.microsphere.logging.LoggerFactory.getLogger;
+import static io.microsphere.redis.spring.util.RedisSpringUtils.findRedisCommandInterceptors;
+import static io.microsphere.redis.spring.util.RedisSpringUtils.findRedisConnectionFactoryBeanNames;
+import static io.microsphere.redis.spring.util.RedisSpringUtils.findRedisConnectionInterceptors;
+import static io.microsphere.redis.spring.util.RedisSpringUtils.findRedisTemplate;
+import static io.microsphere.redis.spring.util.RedisSpringUtils.findRedisTemplateBeanNames;
+import static io.microsphere.spring.beans.factory.BeanFactoryUtils.asConfigurableListableBeanFactory;
+import static io.microsphere.spring.context.ApplicationContextUtils.asConfigurableApplicationContext;
 
 /**
  * Redis Context
@@ -53,13 +53,9 @@ import static java.util.Collections.unmodifiableSet;
  */
 public class RedisContext implements SmartInitializingSingleton, ApplicationContextAware, BeanFactoryAware, BeanClassLoaderAware {
 
-    private static final Logger logger = LoggerFactory.getLogger(RedisConfiguration.class);
+    private static final Logger logger = getLogger(RedisConfiguration.class);
 
-    public static final String BEAN_NAME = "redisContext";
-
-    private static final Class<RedisTemplate> REDIS_TEMPLATE_CLASS = RedisTemplate.class;
-
-    private static final Class<RedisConfiguration> REDIS_CONFIGURATION_CLASS = RedisConfiguration.class;
+    public static final String BEAN_NAME = "microsphere:redisContext";
 
     private ConfigurableListableBeanFactory beanFactory;
 
@@ -79,8 +75,8 @@ public class RedisContext implements SmartInitializingSingleton, ApplicationCont
 
     @Override
     public void afterSingletonsInstantiated() {
-        this.redisConfiguration = RedisConfiguration.get(context);
-        this.redisTemplateBeanNames = findRestTemplateBeanNames(beanFactory);
+        this.redisConfiguration = getRedisConfiguration();
+        this.redisTemplateBeanNames = findRedisTemplateBeanNames(beanFactory);
         this.redisConnectionFactoryBeanNames = findRedisConnectionFactoryBeanNames(beanFactory);
         this.redisConnectionInterceptors = findRedisConnectionInterceptors(beanFactory);
         this.redisCommandInterceptors = findRedisCommandInterceptors(beanFactory);
@@ -90,7 +86,7 @@ public class RedisContext implements SmartInitializingSingleton, ApplicationCont
     public RedisConfiguration getRedisConfiguration() {
         RedisConfiguration redisConfiguration = this.redisConfiguration;
         if (redisConfiguration == null) {
-            logger.debug("RedisConfiguration is not initialized, it will be got from BeanFactory[{}]", beanFactory);
+            logger.trace("RedisConfiguration is not initialized, it will be gotten from BeanFactory[{}]", beanFactory);
             redisConfiguration = RedisConfiguration.get(beanFactory);
             this.redisConfiguration = redisConfiguration;
         }
@@ -99,12 +95,17 @@ public class RedisContext implements SmartInitializingSingleton, ApplicationCont
 
     @Override
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-        this.beanFactory = (ConfigurableListableBeanFactory) beanFactory;
+        this.beanFactory = asConfigurableListableBeanFactory(beanFactory);
     }
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.context = (ConfigurableApplicationContext) applicationContext;
+        this.context = asConfigurableApplicationContext(applicationContext);
+    }
+
+    @Override
+    public void setBeanClassLoader(ClassLoader classLoader) {
+        this.classLoader = classLoader;
     }
 
     public ConfigurableListableBeanFactory getBeanFactory() {
@@ -119,20 +120,24 @@ public class RedisContext implements SmartInitializingSingleton, ApplicationCont
         return classLoader;
     }
 
-    public Set<String> getRedisTemplateBeanNames() {
-        return redisTemplateBeanNames;
-    }
-
-    public Set<String> getRedisConnectionFactoryBeanNames() {
-        return redisConnectionFactoryBeanNames;
+    public ConfigurableEnvironment getEnvironment() {
+        return getRedisConfiguration().getEnvironment();
     }
 
     public boolean isEnabled() {
         return getRedisConfiguration().isEnabled();
     }
 
-    public ConfigurableEnvironment getEnvironment() {
-        return getRedisConfiguration().getEnvironment();
+    public RedisTemplate<?, ?> getRedisTemplate(String redisTemplateBeanName) {
+        return findRedisTemplate(context, redisTemplateBeanName);
+    }
+
+    public Set<String> getRedisTemplateBeanNames() {
+        return redisTemplateBeanNames;
+    }
+
+    public Set<String> getRedisConnectionFactoryBeanNames() {
+        return redisConnectionFactoryBeanNames;
     }
 
     public boolean isCommandEventExposed() {
@@ -151,44 +156,7 @@ public class RedisContext implements SmartInitializingSingleton, ApplicationCont
         return redisCommandInterceptors;
     }
 
-    public RedisTemplate<?, ?> getRedisTemplate(String redisTemplateBeanName) {
-        return getRedisTemplate(context, redisTemplateBeanName);
-    }
-
-    @Override
-    public void setBeanClassLoader(ClassLoader classLoader) {
-        this.classLoader = classLoader;
-    }
-
     public static RedisContext get(BeanFactory beanFactory) {
         return beanFactory.getBean(RedisContext.class);
-    }
-
-    public static RedisTemplate<?, ?> getRedisTemplate(BeanFactory beanFactory, String redisTemplateBeanName) {
-        if (beanFactory.containsBean(redisTemplateBeanName)) {
-            return beanFactory.getBean(redisTemplateBeanName, REDIS_TEMPLATE_CLASS);
-        }
-        return null;
-    }
-
-    public static Set<String> findRestTemplateBeanNames(ConfigurableListableBeanFactory beanFactory) {
-        List<String> redisTemplateBeanNames = asList(getBeanNames(beanFactory, RedisTemplate.class));
-        logger.debug("The all bean names of RedisTemplate : {}", redisTemplateBeanNames);
-        return unmodifiableSet(new HashSet<>(redisTemplateBeanNames));
-    }
-
-    public Set<String> findRedisConnectionFactoryBeanNames(ConfigurableListableBeanFactory beanFactory) {
-        List<String> redisConnectionFactoryBeanNames = asList(getBeanNames(beanFactory, RedisConnectionFactory.class));
-        logger.debug("The all bean names of RedisConnectionFactory : {}", redisConnectionFactoryBeanNames);
-        return unmodifiableSet(new HashSet<>(redisConnectionFactoryBeanNames));
-    }
-
-
-    public static List<RedisCommandInterceptor> findRedisCommandInterceptors(ListableBeanFactory beanFactory) {
-        return getSortedBeans(beanFactory, RedisCommandInterceptor.class);
-    }
-
-    public static List<RedisConnectionInterceptor> findRedisConnectionInterceptors(ListableBeanFactory beanFactory) {
-        return getSortedBeans(beanFactory, RedisConnectionInterceptor.class);
     }
 }

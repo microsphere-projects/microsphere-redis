@@ -18,17 +18,12 @@
     <name>Microsphere :: Redis :: Replicator :: Spring</name>
     <description>Microsphere Redis Replicator for Spring</description>
 
-    <properties>
-        <spring-cloud-context.version>1.0.1.RELEASE</spring-cloud-context.version>
-    </properties>
-
     <dependencies>
 
         <!-- Microsphere Spring Context -->
         <dependency>
             <groupId>io.github.microsphere-projects</groupId>
             <artifactId>microsphere-spring-context</artifactId>
-            <version>${revision}</version>
         </dependency>
 
         <!-- Microsphere Spring Redis -->
@@ -49,7 +44,6 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-context</artifactId>
-            <version>${spring-cloud-context.version}</version>
             <optional>true</optional>
         </dependency>
 
@@ -62,8 +56,8 @@
 
         <!-- Testing -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -76,7 +70,6 @@
         <dependency>
             <groupId>io.github.microsphere-projects</groupId>
             <artifactId>microsphere-spring-test</artifactId>
-            <version>${revision}</version>
             <scope>test</scope>
         </dependency>
 
@@ -89,6 +82,12 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-pool2</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
             <scope>test</scope>
         </dependency>
 

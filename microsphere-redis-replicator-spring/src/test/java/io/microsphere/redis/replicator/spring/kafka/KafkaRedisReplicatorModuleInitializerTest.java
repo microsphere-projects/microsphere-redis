@@ -14,25 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.microsphere.redis.replicator.spring.kafka;
 
-import io.microsphere.redis.spring.context.RedisInitializer;
-import io.microsphere.redis.spring.event.RedisCommandEvent;
-import io.microsphere.redis.replicator.spring.AbstractRedisReplicatorTest;
-import io.microsphere.redis.replicator.spring.event.RedisCommandReplicatedEvent;
+
+import io.microsphere.redis.replicator.spring.config.FullRedisReplicationConfig;
 import io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration;
+import io.microsphere.redis.replicator.spring.kafka.producer.KafkaProducerRedisCommandEventListener;
+import io.microsphere.redis.replicator.spring.kafka.producer.KafkaProducerRedisReplicatorConfiguration;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.ApplicationListener;
-import org.springframework.data.redis.serializer.RedisSerializer;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.mock.env.MockEnvironment;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static io.microsphere.redis.replicator.spring.kafka.KafkaRedisReplicatorConfiguration.DEFAULT_SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_VALUE;
+import static io.microsphere.redis.replicator.spring.kafka.KafkaRedisReplicatorConfiguration.KAFKA_BOOTSTRAP_SERVERS_PROPERTY_NAME;
+import static io.microsphere.redis.replicator.spring.kafka.KafkaRedisReplicatorConfiguration.SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_NAME;
+import static io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration.KAFKA_CONSUMER_ENABLED_PROPERTY_NAME;
+import static java.lang.ClassLoader.getSystemClassLoader;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * {@link KafkaRedisReplicatorModuleInitializer} Test
@@ -41,46 +47,75 @@ import static org.junit.Assert.assertEquals;
  * @see KafkaRedisReplicatorModuleInitializer
  * @since 1.0.0
  */
-@ContextConfiguration(
-        classes = {
-                KafkaConsumerRedisReplicatorConfiguration.class,
-                KafkaRedisReplicatorModuleInitializerTest.class
-        },
-        initializers = RedisInitializer.class
-)
-@TestPropertySource(properties = {
-        "microsphere.redis.enabled=true",
-        "microsphere.redis.wrapped-redis-templates=stringRedisTemplate",
-})
-public class KafkaRedisReplicatorModuleInitializerTest extends AbstractRedisReplicatorTest {
+class KafkaRedisReplicatorModuleInitializerTest {
+
+    private MockEnvironment environment;
+
+    private ConfigurableApplicationContext context;
+
+    private ConfigurableListableBeanFactory beanFactory;
+
+    private BeanDefinitionRegistry registry;
+
+    private KafkaRedisReplicatorModuleInitializer initializer;
+
+    @BeforeEach
+    void setUp() {
+        this.environment = new MockEnvironment();
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+        context.register(FullRedisReplicationConfig.class);
+        context.setEnvironment(this.environment);
+        this.context = context;
+        this.beanFactory = context.getBeanFactory();
+        this.registry = (BeanDefinitionRegistry) this.beanFactory;
+        this.initializer = new KafkaRedisReplicatorModuleInitializer();
+    }
+
+    @AfterEach
+    void tearDown() {
+        this.context.close();
+    }
 
     @Test
-    public void test() throws InterruptedException {
+    void testSupports() {
+        this.environment.setProperty(SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_NAME, DEFAULT_SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_VALUE);
+        assertTrue(this.initializer.supports(this.context));
 
-        CountDownLatch latch = new CountDownLatch(1);
+        this.environment.setProperty(KAFKA_BOOTSTRAP_SERVERS_PROPERTY_NAME, DEFAULT_SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_VALUE);
+        assertTrue(this.initializer.supports(this.context));
+    }
 
-        Map<Object, Object> data = new HashMap<>();
+    @Test
+    void testSupportsOnUnsupported() {
+        assertFalse(this.initializer.supports(this.context));
 
-        context.addApplicationListener((ApplicationListener<RedisCommandReplicatedEvent>) event -> {
-            RedisCommandEvent redisCommandEvent = event.getSourceEvent();
+        this.context.setClassLoader(getSystemClassLoader().getParent());
+        assertFalse(this.initializer.supports(this.context));
+    }
 
-            RedisSerializer keySerializer = stringRedisTemplate.getKeySerializer();
-            RedisSerializer valueSerializer = stringRedisTemplate.getValueSerializer();
-            Object key = keySerializer.deserialize((byte[]) redisCommandEvent.getArg(0));
-            Object value = valueSerializer.deserialize((byte[]) redisCommandEvent.getArg(1));
-            data.put(key, value);
+    @Test
+    void testInitializeProducerModule() {
+        this.initializer.initializeProducerModule(this.context, registry);
 
-            assertEquals("org.springframework.data.redis.connection.RedisStringCommands", redisCommandEvent.getInterfaceName());
-            assertEquals("set", redisCommandEvent.getMethodName());
-            assertArrayEquals(new String[]{"[B", "[B"}, redisCommandEvent.getParameterTypes());
-            assertEquals("default", redisCommandEvent.getApplicationName());
-            latch.countDown();
-        });
+        this.context.refresh();
+        assertEquals(1, this.beanFactory.getBeansOfType(KafkaProducerRedisReplicatorConfiguration.class).size());
+        assertEquals(1, this.beanFactory.getBeansOfType(KafkaProducerRedisCommandEventListener.class).size());
+    }
 
+    @Test
+    void testInitializeConsumerModule() {
+        this.initializer.initializeConsumerModule(this.context, this.registry);
 
-        stringRedisTemplate.opsForValue().set("Key-1", "Value-1");
-        latch.await();
+        this.context.refresh();
+        assertEquals(1, this.beanFactory.getBeansOfType(KafkaConsumerRedisReplicatorConfiguration.class).size());
+    }
 
-        assertEquals("Value-1", data.get("Key-1"));
+    @Test
+    void testInitializeConsumerModuleOnDisabled() {
+        this.environment.setProperty(KAFKA_CONSUMER_ENABLED_PROPERTY_NAME, "false");
+        this.initializer.initializeConsumerModule(this.context, this.registry);
+
+        this.context.refresh();
+        assertEquals(0, this.beanFactory.getBeansOfType(KafkaConsumerRedisReplicatorConfiguration.class).size());
     }
 }

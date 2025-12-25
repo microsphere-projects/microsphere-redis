@@ -1,5 +1,6 @@
 package io.microsphere.redis.spring.serializer;
 
+import io.microsphere.annotation.Nonnull;
 import org.springframework.core.ResolvableType;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
@@ -61,7 +62,7 @@ public abstract class AbstractSerializer<T> implements RedisSerializer<T> {
         }
 
         // Compatible byte array fixed case
-        if (bytesLength != UNBOUND_BYTES_LENGTH && bytes.length != getBytesLength()) {
+        if (bytesLength != UNBOUND_BYTES_LENGTH && bytesLength != bytes.length) {
             return null;
         }
 
@@ -89,9 +90,9 @@ public abstract class AbstractSerializer<T> implements RedisSerializer<T> {
         return UNBOUND_BYTES_LENGTH;
     }
 
-    protected abstract byte[] doSerialize(T t) throws SerializationException;
+    protected abstract byte[] doSerialize(@Nonnull T t) throws SerializationException;
 
-    protected abstract T doDeserialize(byte[] bytes) throws SerializationException;
+    protected abstract T doDeserialize(@Nonnull byte[] bytes) throws SerializationException;
 
     private ResolvableType resolvableType() {
         return forType(getClass()).as(RedisSerializer.class).getGeneric(0);

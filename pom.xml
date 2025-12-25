@@ -6,7 +6,7 @@
     <parent>
         <groupId>io.github.microsphere-projects</groupId>
         <artifactId>microsphere-build</artifactId>
-        <version>0.0.21</version>
+        <version>0.2.3</version>
     </parent>
 
     <groupId>io.github.microsphere-projects</groupId>
@@ -52,39 +52,17 @@
     </scm>
 
     <properties>
-        <revision>0.0.1-SNAPSHOT</revision>
+        <revision>0.2.0-SNAPSHOT</revision>
+        <java.version>17</java.version>
     </properties>
 
     <modules>
         <module>microsphere-redis-parent</module>
         <module>microsphere-redis-dependencies</module>
         <module>microsphere-redis-core</module>
+        <module>microsphere-redis-generator</module>
         <module>microsphere-redis-spring</module>
         <module>microsphere-redis-replicator-spring</module>
     </modules>
 
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
-
-    <repositories>
-        <repository>
-            <id>snapshot</id>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-        </repository>
-    </repositories>
-    
 </project>

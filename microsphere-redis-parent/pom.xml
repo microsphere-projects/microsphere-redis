@@ -19,22 +19,115 @@
     <description>Microsphere Redis Parent</description>
 
     <properties>
-        <microsphere-spring-cloud.version>${revision}</microsphere-spring-cloud.version>
+        <spring-cloud-context.version>1.0.1.RELEASE</spring-cloud-context.version>
+        <!-- BOM versions -->
+        <microsphere-spring-boot.version>0.2.5</microsphere-spring-boot.version>
+        <junit.version>6.0.1</junit.version>
     </properties>
 
     <dependencyManagement>
+
         <dependencies>
 
-            <!-- Microsphere Spring Cloud Dependencies -->
+            <!-- Spring Cloud Context -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-context</artifactId>
+                <version>${spring-cloud-context.version}</version>
+            </dependency>
+
+            <!-- JUnit BOM -->
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>${junit.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Spring Boot Dependencies -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Microsphere Spring Boot Dependencies -->
             <dependency>
                 <groupId>io.github.microsphere-projects</groupId>
-                <artifactId>microsphere-spring-cloud-dependencies</artifactId>
-                <version>${microsphere-spring-cloud.version}</version>
+                <artifactId>microsphere-spring-boot-dependencies</artifactId>
+                <version>${microsphere-spring-boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
 
         </dependencies>
+
     </dependencyManagement>
+
+    <repositories>
+        <repository>
+            <id>spring-milestone</id>
+            <name>Spring Portfolio Milestone Repository</name>
+            <url>https://repo.spring.io/milestone</url>
+        </repository>
+    </repositories>
+
+    <profiles>
+        <profile>
+            <id>spring-boot-3.0</id>
+            <properties>
+                <spring-boot.version>3.0.13</spring-boot.version>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>spring-boot-3.1</id>
+            <properties>
+                <spring-boot.version>3.1.12</spring-boot.version>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>spring-boot-3.2</id>
+            <properties>
+                <spring-boot.version>3.2.12</spring-boot.version>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>spring-boot-3.3</id>
+            <properties>
+                <spring-boot.version>3.3.13</spring-boot.version>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>spring-boot-3.4</id>
+            <properties>
+                <spring-boot.version>3.4.13</spring-boot.version>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>spring-boot-3.5</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <spring-boot.version>3.5.8</spring-boot.version>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>spring-boot-4.0</id>
+            <properties>
+                <spring-boot.version>4.0.0</spring-boot.version>
+            </properties>
+        </profile>
+
+    </profiles>
 
 </project>

@@ -1,17 +1,17 @@
 package io.microsphere.redis.spring.context;
 
+import io.microsphere.logging.Logger;
 import io.microsphere.redis.spring.annotation.EnableRedisInterceptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotatedBeanDefinitionReader;
 import org.springframework.core.env.ConfigurableEnvironment;
 
-import static io.microsphere.redis.spring.config.RedisConfiguration.isCommandEventExposed;
-import static io.microsphere.redis.spring.util.RedisConstants.DEFAULT_INTERCEPTOR_ENABLED;
+import static io.microsphere.logging.LoggerFactory.getLogger;
+import static io.microsphere.redis.spring.util.RedisConstants.DEFAULT_MICROSPHERE_REDIS_INTERCEPTOR_ENABLED;
 import static io.microsphere.redis.spring.util.RedisConstants.DEFAULT_WRAP_REDIS_TEMPLATE_PLACEHOLDER;
-import static io.microsphere.redis.spring.util.RedisConstants.INTERCEPTOR_ENABLED_PROPERTY_NAME;
+import static io.microsphere.redis.spring.util.RedisConstants.MICROSPHERE_REDIS_INTERCEPTOR_ENABLED_PROPERTY_NAME;
+import static io.microsphere.redis.spring.util.RedisSpringUtils.isMicrosphereRedisCommandEventExposed;
 
 /**
  * {@link RedisModuleInitializer RedisModuleInitializer} Interceptor
@@ -22,14 +22,14 @@ import static io.microsphere.redis.spring.util.RedisConstants.INTERCEPTOR_ENABLE
  */
 public class RedisInterceptorModuleInitializer implements RedisModuleInitializer {
 
-    private static final Logger logger = LoggerFactory.getLogger(RedisInterceptorModuleInitializer.class);
+    private static final Logger logger = getLogger(RedisInterceptorModuleInitializer.class);
 
     @Override
     public boolean supports(ConfigurableApplicationContext context, BeanDefinitionRegistry registry) {
         ConfigurableEnvironment environment = context.getEnvironment();
-        String propertyName = INTERCEPTOR_ENABLED_PROPERTY_NAME;
-        boolean enabled = environment.getProperty(propertyName, boolean.class, DEFAULT_INTERCEPTOR_ENABLED);
-        logger.debug("Microsphere Redis Interceptor is '{}'", enabled ? "Enabled" : "Disabled");
+        String propertyName = MICROSPHERE_REDIS_INTERCEPTOR_ENABLED_PROPERTY_NAME;
+        boolean enabled = environment.getProperty(propertyName, boolean.class, DEFAULT_MICROSPHERE_REDIS_INTERCEPTOR_ENABLED);
+        logger.trace("Microsphere Redis Interceptor is '{}'", enabled ? "Enabled" : "Disabled");
         return enabled;
     }
 
@@ -37,7 +37,7 @@ public class RedisInterceptorModuleInitializer implements RedisModuleInitializer
     public void initialize(ConfigurableApplicationContext context, BeanDefinitionRegistry registry) {
         ConfigurableEnvironment environment = context.getEnvironment();
         AnnotatedBeanDefinitionReader reader = new AnnotatedBeanDefinitionReader(registry, environment);
-        Class<?> configClass = isCommandEventExposed(context) ? Config.class : NoExposingCommandEventConfig.class;
+        Class<?> configClass = isMicrosphereRedisCommandEventExposed(environment) ? Config.class : NoExposingCommandEventConfig.class;
         reader.register(configClass);
     }
 
@@ -53,5 +53,4 @@ public class RedisInterceptorModuleInitializer implements RedisModuleInitializer
     @EnableRedisInterceptor(wrapRedisTemplates = DEFAULT_WRAP_REDIS_TEMPLATE_PLACEHOLDER, exposeCommandEvent = false)
     private static class NoExposingCommandEventConfig {
     }
-
 }

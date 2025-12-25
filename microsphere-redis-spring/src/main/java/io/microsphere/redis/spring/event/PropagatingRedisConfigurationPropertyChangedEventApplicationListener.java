@@ -1,5 +1,6 @@
 package io.microsphere.redis.spring.event;
 
+import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -7,9 +8,12 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.event.SmartApplicationListener;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import static io.microsphere.redis.spring.util.RedisConstants.PROPERTY_NAME_PREFIX;
+import static io.microsphere.lang.function.Streams.filterSet;
+import static io.microsphere.redis.spring.util.RedisConstants.MICROSPHERE_REDIS_PROPERTY_NAME_PREFIX;
+import static io.microsphere.util.ClassLoaderUtils.isPresent;
+import static io.microsphere.util.ClassLoaderUtils.resolveClass;
+import static io.microsphere.util.StringUtils.startsWith;
 
 /**
  * {@link EnvironmentChangeEvent} {@link ApplicationListener} propagates {@link RedisConfigurationPropertyChangedEvent}
@@ -18,9 +22,11 @@ import static io.microsphere.redis.spring.util.RedisConstants.PROPERTY_NAME_PREF
  * @see RedisConfigurationPropertyChangedEvent
  * @since 1.0.0
  */
-public class PropagatingRedisConfigurationPropertyChangedEventApplicationListener implements SmartApplicationListener {
+public class PropagatingRedisConfigurationPropertyChangedEventApplicationListener implements SmartApplicationListener, BeanClassLoaderAware {
 
     public static final String ENVIRONMENT_CHANGE_EVENT_CLASS_NAME = "org.springframework.cloud.context.environment.EnvironmentChangeEvent";
+
+    private Class<?> eventType;
 
     private final ConfigurableApplicationContext context;
 
@@ -30,19 +36,28 @@ public class PropagatingRedisConfigurationPropertyChangedEventApplicationListene
 
     @Override
     public boolean supportsEventType(Class<? extends ApplicationEvent> eventType) {
-        return ENVIRONMENT_CHANGE_EVENT_CLASS_NAME.equals(eventType.getName());
+        return eventType.isAssignableFrom(this.eventType);
     }
 
     @Override
     public void onApplicationEvent(ApplicationEvent e) {
         EnvironmentChangeEvent environmentChangeEvent = (EnvironmentChangeEvent) e;
-        Set<String> keys = environmentChangeEvent.getKeys().stream().filter(this::isRedisPropertyName).collect(Collectors.toSet());
-        RedisConfigurationPropertyChangedEvent event = new RedisConfigurationPropertyChangedEvent(context, keys);
-        context.publishEvent(event);
+        Set<String> keys = filterSet(environmentChangeEvent.getKeys(), this::isRedisPropertyName);
+
+        RedisConfigurationPropertyChangedEvent event = new RedisConfigurationPropertyChangedEvent(this.context, keys);
+        this.context.publishEvent(event);
     }
 
-    private boolean isRedisPropertyName(String key) {
-        return key != null && key.startsWith(PROPERTY_NAME_PREFIX);
+    boolean isRedisPropertyName(String key) {
+        return startsWith(key, MICROSPHERE_REDIS_PROPERTY_NAME_PREFIX);
     }
 
+    @Override
+    public void setBeanClassLoader(ClassLoader classLoader) {
+        this.eventType = resolveClass(ENVIRONMENT_CHANGE_EVENT_CLASS_NAME, classLoader);
+    }
+
+    public static boolean supports(ClassLoader classLoader) {
+        return isPresent(ENVIRONMENT_CHANGE_EVENT_CLASS_NAME, classLoader);
+    }
 }

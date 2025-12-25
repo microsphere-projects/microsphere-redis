@@ -22,7 +22,8 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.type.AnnotationMetadata;
 
-import static io.microsphere.spring.util.BeanRegistrar.registerBeanDefinition;
+import static io.microsphere.redis.spring.context.RedisContext.BEAN_NAME;
+import static io.microsphere.spring.beans.factory.support.BeanRegistrar.registerBeanDefinition;
 
 /**
  * {@link RedisContext} {@link BeanDefinition} Registrar
@@ -30,7 +31,7 @@ import static io.microsphere.spring.util.BeanRegistrar.registerBeanDefinition;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
-public class RedisContextBeanDefinitionRegistrar implements ImportBeanDefinitionRegistrar {
+class RedisContextBeanDefinitionRegistrar implements ImportBeanDefinitionRegistrar {
 
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
@@ -38,6 +39,6 @@ public class RedisContextBeanDefinitionRegistrar implements ImportBeanDefinition
     }
 
     public void registerBeanDefinitions(BeanDefinitionRegistry registry) {
-        registerBeanDefinition(registry, RedisContext.BEAN_NAME, RedisContext.class);
+        registerBeanDefinition(registry, BEAN_NAME, RedisContext.class);
     }
 }

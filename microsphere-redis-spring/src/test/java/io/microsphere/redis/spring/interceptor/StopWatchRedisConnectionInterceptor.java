@@ -16,9 +16,10 @@
  */
 package io.microsphere.redis.spring.interceptor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.microsphere.logging.Logger;
 import org.springframework.data.redis.connection.RedisConnection;
+
+import static io.microsphere.logging.LoggerFactory.getLogger;
 
 /**
  * Logging
@@ -28,7 +29,7 @@ import org.springframework.data.redis.connection.RedisConnection;
  */
 public class StopWatchRedisConnectionInterceptor implements RedisConnectionInterceptor {
 
-    private static final Logger logger = LoggerFactory.getLogger(StopWatchRedisConnectionInterceptor.class);
+    private static final Logger logger = getLogger(StopWatchRedisConnectionInterceptor.class);
 
     @Override
     public void beforeExecute(RedisMethodContext context) {
@@ -40,5 +41,10 @@ public class StopWatchRedisConnectionInterceptor implements RedisConnectionInter
     public void afterExecute(RedisMethodContext<RedisConnection> context, Object result, Throwable failure) throws Throwable {
         context.stop();
         logger.info("{} , result : {} , failure : {}", context, result, failure);
+    }
+
+    @Override
+    public int getOrder() {
+        return 2;
     }
 }

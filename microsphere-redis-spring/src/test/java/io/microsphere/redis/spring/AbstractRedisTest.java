@@ -16,27 +16,45 @@
  */
 package io.microsphere.redis.spring;
 
-import io.microsphere.spring.test.redis.EnableRedisTest;
+import io.microsphere.redis.spring.config.RedisConfig;
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Import;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+
+import java.lang.reflect.Method;
+
+import static io.microsphere.reflect.MethodUtils.findMethod;
+import static io.microsphere.util.ArrayUtils.ofArray;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
+ * Abstract Redis Test
+ *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
- * @since
+ * @since 1.0.0
  */
-@ExtendWith(SpringExtension.class)
-@EnableRedisTest
+@SpringJUnitConfig
 @Disabled
+@Import(RedisConfig.class)
 public abstract class AbstractRedisTest {
+
+    public static final Method SET_METHOD = findMethod(RedisConnection.class, "set", byte[].class, byte[].class);
+
+    public static final Object[] SET_METHOD_ARGS = ofArray("key".getBytes(UTF_8), "value".getBytes(UTF_8));
+
+    public static final String SOURCE_BEAN_NAME_FOR_REDIS_TEMPLATE = "redisTemplate";
+
+    @Autowired
+    protected RedisTemplate redisTemplate;
 
     @Autowired
     protected StringRedisTemplate stringRedisTemplate;
 
     @Autowired
     protected ConfigurableApplicationContext context;
-
 }

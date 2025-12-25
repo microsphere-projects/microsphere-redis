@@ -1,16 +1,17 @@
 package io.microsphere.redis.replicator.spring;
 
-import io.microsphere.redis.spring.context.RedisModuleInitializer;
+import io.microsphere.logging.Logger;
 import io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.microsphere.redis.spring.context.RedisModuleInitializer;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.List;
 
-import static io.microsphere.spring.util.BeanRegistrar.registerBeanDefinition;
+import static io.microsphere.logging.LoggerFactory.getLogger;
+import static io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguration.isRedisReplicatorEnabled;
+import static io.microsphere.spring.beans.factory.support.BeanRegistrar.registerBeanDefinition;
 import static org.springframework.core.io.support.SpringFactoriesLoader.loadFactories;
 
 /**
@@ -21,11 +22,11 @@ import static org.springframework.core.io.support.SpringFactoriesLoader.loadFact
  */
 public class RedisReplicatorInitializer implements RedisModuleInitializer {
 
-    private static final Logger logger = LoggerFactory.getLogger(RedisReplicatorInitializer.class);
+    private static final Logger logger = getLogger(RedisReplicatorInitializer.class);
 
     @Override
     public boolean supports(ConfigurableApplicationContext context, BeanDefinitionRegistry registry) {
-        return RedisReplicatorConfiguration.isEnabled(context);
+        return isRedisReplicatorEnabled(context.getEnvironment());
     }
 
     @Override
@@ -77,7 +78,7 @@ public class RedisReplicatorInitializer implements RedisModuleInitializer {
                 } else {
                     redisReplicatorModuleInitializer.initializeProducerModule(context, registry);
                 }
-                logger.debug("Application context [id: {}] Initializes Redis Replicator {} module [{}]!",
+                logger.trace("Application context [id: {}] Initializes Redis Replicator {} module [{}]!",
                         context.getId(),
                         isConsumerModule ? "Consumer" : "Producer",
                         redisReplicatorModuleInitializer.getClass().getName()
