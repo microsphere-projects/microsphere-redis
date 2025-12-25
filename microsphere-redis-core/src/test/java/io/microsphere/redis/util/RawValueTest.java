@@ -49,7 +49,7 @@ class RawValueTest {
 
     @Test
     void testGetData() {
-        assertArrayEquals(TEST_DATA_BYTES, this.rawValue.data());
+        assertArrayEquals(TEST_DATA_BYTES, this.rawValue.getData());
     }
 
     @Test

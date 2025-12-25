@@ -1,5 +1,6 @@
 package io.microsphere.redis.spring.serializer;
 
+import io.microsphere.annotation.Nonnull;
 import io.microsphere.annotation.Nullable;
 import io.microsphere.logging.Logger;
 import io.microsphere.redis.metadata.Parameter;
@@ -10,15 +11,17 @@ import org.springframework.data.redis.connection.RedisGeoCommands.GeoLocation;
 import org.springframework.data.redis.connection.RedisListCommands.Position;
 import org.springframework.data.redis.connection.RedisStringCommands.SetOption;
 import org.springframework.data.redis.connection.RedisZSetCommands;
+import org.springframework.data.redis.connection.RedisZSetCommands.Aggregate;
+import org.springframework.data.redis.connection.RedisZSetCommands.Weights;
 import org.springframework.data.redis.connection.ReturnType;
 import org.springframework.data.redis.connection.SortParameters;
-import org.springframework.data.redis.connection.zset.Aggregate;
-import org.springframework.data.redis.connection.zset.Weights;
 import org.springframework.data.redis.core.types.Expiration;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -29,7 +32,10 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import static io.microsphere.invoke.MethodHandlesLookupUtils.findPublicVirtual;
+import static io.microsphere.lang.function.ThrowableSupplier.execute;
 import static io.microsphere.logging.LoggerFactory.getLogger;
+import static io.microsphere.redis.spring.serializer.AbstractSerializer.resolveTargetType;
 import static io.microsphere.redis.spring.serializer.BooleanSerializer.BOOLEAN_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.ByteArraySerializer.BYTE_ARRAY_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.DoubleSerializer.DOUBLE_SERIALIZER;
@@ -40,9 +46,11 @@ import static io.microsphere.redis.spring.serializer.LongSerializer.LONG_SERIALI
 import static io.microsphere.redis.spring.serializer.PointSerializer.POINT_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.RangeSerializer.RANGE_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.RedisZSetCommandsRangeSerializer.REDIS_ZSET_COMMANDS_RANGE_SERIALIZER;
+import static io.microsphere.redis.spring.serializer.RedisZSetCommandsWeightsSerializer.REDIS_ZSET_COMMANDS_WEIGHTS_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.ShortSerializer.SHORT_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.SortParametersSerializer.SORT_PARAMETERS_SERIALIZER;
-import static io.microsphere.redis.spring.serializer.WeightsSerializer.WEIGHTS_SERIALIZER;
+import static io.microsphere.reflect.MethodUtils.findMethod;
+import static io.microsphere.reflect.MethodUtils.invokeMethod;
 import static io.microsphere.util.ClassUtils.getType;
 import static io.microsphere.util.ClassUtils.getTypeName;
 import static io.microsphere.util.StringUtils.isBlank;
@@ -61,6 +69,20 @@ public abstract class Serializers {
 
     private static final ClassLoader classLoader = Serializers.class.getClassLoader();
 
+    /**
+     * The {@link MethodHandle} for {@link RedisSerializer#canSerialize(Class)}
+     *
+     * @since Spring Data Redis 2.2
+     */
+    private static final MethodHandle canSerializeMethodHandle = findPublicVirtual(RedisSerializer.class, "canSerialize", Class.class);
+
+    /**
+     * The {@link MethodHandle} for {@link RedisSerializer#getTargetType()}
+     *
+     * @since Spring Data Redis 2.2
+     */
+    private static final MethodHandle getTargetTypeMethodHandle = findPublicVirtual(RedisSerializer.class, "getTargetType");
+
     public static final JdkSerializationRedisSerializer DEFAULT_SERIALIZER = new JdkSerializationRedisSerializer();
 
     public static final StringRedisSerializer STRING_SERIALIZER = new StringRedisSerializer();
@@ -74,6 +96,44 @@ public abstract class Serializers {
     static {
         initializeBuiltinSerializers();
         initializeParameterizedSerializers();
+    }
+
+    /**
+     * Determine whether the {@link RedisSerializer} can serialize the specified {@link Class}
+     *
+     * @param redisSerializer the {@link RedisSerializer}
+     * @param type            the {@link Class}
+     * @return {@code true} if the {@link RedisSerializer} can serialize the specified {@link Class}
+     */
+    public static boolean canSerialize(RedisSerializer<?> redisSerializer, Class<?> type) {
+        if (canSerializeMethodHandle == null) {
+            Class<?> targetType = getTargetType(redisSerializer);
+            return targetType.isAssignableFrom(type);
+        }
+        return execute(() -> (Boolean) canSerializeMethodHandle.invoke(redisSerializer, type));
+    }
+
+    /**
+     * Determine the target type of the {@link RedisSerializer}
+     *
+     * @param redisSerializer the {@link RedisSerializer}
+     * @return the target type
+     */
+    @Nonnull
+    public static Class<?> getTargetType(RedisSerializer<?> redisSerializer) {
+        if (getTargetTypeMethodHandle == null) {
+            return doGetTargetType(redisSerializer);
+        }
+        return execute(() -> (Class<?>) getTargetTypeMethodHandle.invoke(redisSerializer));
+    }
+
+    static Class<?> doGetTargetType(RedisSerializer<?> redisSerializer) {
+        Method method = findMethod(redisSerializer.getClass(), "getTargetType");
+        if (method == null) {
+            return resolveTargetType(redisSerializer)
+                    .resolve();
+        }
+        return invokeMethod(redisSerializer, method);
     }
 
     @Nullable
@@ -298,14 +358,14 @@ public abstract class Serializers {
         // org.springframework.data.redis.connection.RedisZSetCommands.Range type 
         register(RedisZSetCommands.Range.class, REDIS_ZSET_COMMANDS_RANGE_SERIALIZER);
 
-        // org.springframework.data.domain.Range
+        // org.springframework.data.domain.Range type
         register(Range.class, RANGE_SERIALIZER);
 
         // org.springframework.data.redis.connection.zset.Aggregate
         register(Aggregate.class, new EnumSerializer(Aggregate.class));
 
-        // org.springframework.data.redis.connection.zset.Weights type 
-        register(Weights.class, WEIGHTS_SERIALIZER);
+        // org.springframework.data.redis.connection.RedisZSetCommands.Weights type
+        register(Weights.class, REDIS_ZSET_COMMANDS_WEIGHTS_SERIALIZER);
 
         // org.springframework.data.redis.connection.ReturnType type 
         register(ReturnType.class, new EnumSerializer(ReturnType.class));
@@ -344,14 +404,19 @@ public abstract class Serializers {
     private static List<RedisSerializer> loadSerializers() {
         return loadFactories(RedisSerializer.class, classLoader);
     }
-
     static void register(Class<?> type, RedisSerializer<?> serializer) {
         String typeName = type.getName();
-        RedisSerializer oldSerializer = typedSerializers.put(typeName, serializer);
-        logger.trace("The RedisSerializer[class : '{}' , target type : '{}'] for type['{}'] was registered", getTypeName(serializer), getTypeName(serializer.getTargetType()), getTypeName(type));
+        doRegister(typeName, serializer);
+    }
+
+    static void doRegister(String serializedTypeName, RedisSerializer<?> serializer) {
+        RedisSerializer oldSerializer = typedSerializers.put(serializedTypeName, serializer);
+        Class<?> targetType = getTargetType(serializer);
+        logger.trace("The RedisSerializer[class : '{}' , target type : '{}'] for serialized type[name : '{}'] was registered",
+                getTypeName(serializer), getTypeName(targetType), serializedTypeName);
         if (oldSerializer != null && !Objects.equals(oldSerializer, serializer)) {
-            logger.warn("The RedisSerializer for type['{}'] has been replaced old [class : '{}' , target type : '{}'] -> new [class : '{}' , target type : '{}']",
-                    getTypeName(type), getTypeName(oldSerializer), getTypeName(oldSerializer.getTargetType()), getTypeName(serializer), getTypeName(serializer.getTargetType()));
+            logger.warn("The RedisSerializer of serialized type[name : '{}'] has been replaced old [class : '{}'] -> new [class : '{}']",
+                    serializedTypeName, getTypeName(oldSerializer), getTypeName(serializer));
         }
     }
 

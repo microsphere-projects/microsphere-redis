@@ -70,10 +70,11 @@ public class RedisMetadata {
 
     @Override
     public final boolean equals(Object o) {
-        if (!(o instanceof RedisMetadata that)) {
+        if (!(o instanceof RedisMetadata)) {
             return false;
         }
 
+        RedisMetadata that = (RedisMetadata) o;
         return Objects.equals(this.getVersion(), that.getVersion())
                 && Objects.equals(this.getMethods(), that.getMethods());
     }

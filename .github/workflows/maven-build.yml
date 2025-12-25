@@ -10,9 +10,9 @@ name: Maven Build
 
 on:
   push:
-    branches: [ 'dev' ]
+    branches: [ 'dev-1.x' ]
   pull_request:
-    branches: [ 'main', 'dev' , 'release' ]
+    branches: [ 'dev-1.x' , 'release-1.x' ]
 
 jobs:
   build:
@@ -20,10 +20,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java: [ '17' , '21' , '25' ]
-        maven-profile-spring-boot: [ 'spring-boot-3.0' , 'spring-boot-3.1' , 'spring-boot-3.2' ,
-                                     'spring-boot-3.3' , 'spring-boot-3.4' , 'spring-boot-3.5'
-        ]
+        java: [ '8' , '17' , '21' , '25' ]
+        maven-profile-spring-boot: [ 'spring-boot-2.1' , 'spring-boot-2.2' , 'spring-boot-2.3' ,
+                                     'spring-boot-2.4' , 'spring-boot-2.5' , 'spring-boot-2.6' ,
+                                     'spring-boot-2.7' ]
     steps:
       - name: Docker Setup Compose
         uses: docker/setup-compose-action@v1.2.0

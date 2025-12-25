@@ -30,7 +30,19 @@ import org.springframework.mock.env.MockPropertySource;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
+import static io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration.DEFAULT_KAFKA_CONSUMER_ENABLED;
+import static io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration.DEFAULT_KAFKA_CONSUMER_ENABLED_PROPERTY_VALUE;
+import static io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration.DEFAULT_KAFKA_LISTENER_CONCURRENCY;
+import static io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration.DEFAULT_KAFKA_LISTENER_CONCURRENCY_PROPERTY_VALUE;
+import static io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration.DEFAULT_KAFKA_LISTENER_POLL_TIMEOUT;
+import static io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration.DEFAULT_KAFKA_LISTENER_POLL_TIMEOUT_PROPERTY_VALUE;
+import static io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration.GROUP_ID_CONFIG;
 import static io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration.KAFKA_CONSUMER_ENABLED_PROPERTY_NAME;
+import static io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration.KAFKA_CONSUMER_GROUP_ID_PREFIX;
+import static io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration.KAFKA_CONSUMER_PROPERTY_NAME_PREFIX;
+import static io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration.KAFKA_LISTENER_CONCURRENCY_PROPERTY_NAME;
+import static io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration.KAFKA_LISTENER_POLL_TIMEOUT_PROPERTY_NAME;
+import static io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration.KAFKA_LISTENER_PROPERTY_NAME_PREFIX;
 import static io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration.isKafkaConsumerEnabled;
 import static io.microsphere.spring.test.util.SpringTestUtils.testInSpringContainer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -65,6 +77,23 @@ class KafkaConsumerRedisReplicatorConfigurationTest {
 
     @Autowired
     private ApplicationContext context;
+
+    @Test
+    void testConstants() {
+        assertEquals("true", DEFAULT_KAFKA_CONSUMER_ENABLED_PROPERTY_VALUE);
+        assertEquals("10000", DEFAULT_KAFKA_LISTENER_POLL_TIMEOUT_PROPERTY_VALUE);
+        assertEquals("1", DEFAULT_KAFKA_LISTENER_CONCURRENCY_PROPERTY_VALUE);
+        assertEquals("group.id", GROUP_ID_CONFIG);
+        assertEquals("microsphere.redis.replicator.kafka.consumer.", KAFKA_CONSUMER_PROPERTY_NAME_PREFIX);
+        assertEquals("microsphere.redis.replicator.kafka.listener.", KAFKA_LISTENER_PROPERTY_NAME_PREFIX);
+        assertEquals("microsphere.redis.replicator.kafka.consumer.enabled", KAFKA_CONSUMER_ENABLED_PROPERTY_NAME);
+        assertEquals("microsphere.redis.replicator.kafka.listener.poll-timeout", KAFKA_LISTENER_POLL_TIMEOUT_PROPERTY_NAME);
+        assertEquals("microsphere.redis.replicator.kafka.listener.concurrency", KAFKA_LISTENER_CONCURRENCY_PROPERTY_NAME);
+        assertEquals("Redis-Replicator-", KAFKA_CONSUMER_GROUP_ID_PREFIX);
+        assertEquals(true, DEFAULT_KAFKA_CONSUMER_ENABLED);
+        assertEquals(10000, DEFAULT_KAFKA_LISTENER_POLL_TIMEOUT);
+        assertEquals(1, DEFAULT_KAFKA_LISTENER_CONCURRENCY);
+    }
 
     @Test
     void testProperties() {

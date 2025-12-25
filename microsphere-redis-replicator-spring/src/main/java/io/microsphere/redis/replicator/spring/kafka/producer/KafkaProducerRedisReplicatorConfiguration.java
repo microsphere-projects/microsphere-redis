@@ -7,6 +7,8 @@ import io.microsphere.redis.replicator.spring.config.RedisReplicatorConfiguratio
 import io.microsphere.redis.replicator.spring.kafka.KafkaRedisReplicatorConfiguration;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
@@ -106,10 +108,14 @@ public class KafkaProducerRedisReplicatorConfiguration extends KafkaRedisReplica
     }
 
     private void initRedisReplicatorKafkaTemplate() {
-        this.redisReplicatorKafkaTemplate = new KafkaTemplate<>(redisReplicatorProducerFactory());
-        this.redisReplicatorKafkaTemplate.setObservationEnabled(true);
-        this.redisReplicatorKafkaTemplate.setApplicationContext(context);
-        this.redisReplicatorKafkaTemplate.afterSingletonsInstantiated();
+        KafkaTemplate<byte[], byte[]> redisReplicatorKafkaTemplate = new KafkaTemplate<>(redisReplicatorProducerFactory());
+        if (redisReplicatorKafkaTemplate instanceof ApplicationContextAware) {
+            ((ApplicationContextAware) redisReplicatorKafkaTemplate).setApplicationContext(this.context);
+        }
+        if (redisReplicatorKafkaTemplate instanceof SmartInitializingSingleton) {
+            ((SmartInitializingSingleton) redisReplicatorKafkaTemplate).afterSingletonsInstantiated();
+        }
+        this.redisReplicatorKafkaTemplate = redisReplicatorKafkaTemplate;
     }
 
     private void destroyProducerFactory() {
@@ -121,10 +127,10 @@ public class KafkaProducerRedisReplicatorConfiguration extends KafkaRedisReplica
         }
     }
 
-    private void destroyRedisReplicatorKafkaTemplate() {
+    private void destroyRedisReplicatorKafkaTemplate() throws Exception {
         KafkaTemplate<byte[], byte[]> kafkaTemplate = this.getRedisReplicatorKafkaTemplate();
-        if (kafkaTemplate != null) {
-            kafkaTemplate.destroy();
+        if (kafkaTemplate instanceof DisposableBean) {
+            ((DisposableBean) kafkaTemplate).destroy();
         }
     }
 

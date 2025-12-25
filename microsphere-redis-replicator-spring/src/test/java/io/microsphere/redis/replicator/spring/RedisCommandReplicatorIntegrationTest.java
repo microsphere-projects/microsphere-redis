@@ -16,6 +16,7 @@
  */
 package io.microsphere.redis.replicator.spring;
 
+import io.microsphere.redis.replicator.spring.config.DefaultRedisConfig;
 import io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration;
 import io.microsphere.redis.replicator.spring.kafka.producer.RedisComandEventPartitioner;
 import io.microsphere.redis.spring.context.RedisInitializer;
@@ -31,6 +32,7 @@ import org.springframework.test.context.TestPropertySource;
  * @since 1.0.0
  */
 @ContextConfiguration(classes = {
+        DefaultRedisConfig.class,
         KafkaConsumerRedisReplicatorConfiguration.class,
         RedisCommandReplicator.class,
         RedisCommandReplicatorIntegrationTest.class},

@@ -52,17 +52,27 @@
     </scm>
 
     <properties>
-        <revision>0.2.0-SNAPSHOT</revision>
-        <java.version>17</java.version>
+        <revision>0.1.0-SNAPSHOT</revision>
     </properties>
 
     <modules>
         <module>microsphere-redis-parent</module>
         <module>microsphere-redis-dependencies</module>
         <module>microsphere-redis-core</module>
-        <module>microsphere-redis-generator</module>
         <module>microsphere-redis-spring</module>
         <module>microsphere-redis-replicator-spring</module>
     </modules>
+
+    <profiles>
+        <profile>
+            <id>java9+</id>
+            <activation>
+                <jdk>[9,)</jdk>
+            </activation>
+            <modules>
+                <module>microsphere-redis-generator</module>
+            </modules>
+        </profile>
+    </profiles>
 
 </project>

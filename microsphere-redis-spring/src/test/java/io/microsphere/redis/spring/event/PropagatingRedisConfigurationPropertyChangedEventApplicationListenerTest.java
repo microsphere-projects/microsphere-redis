@@ -94,6 +94,5 @@ class PropagatingRedisConfigurationPropertyChangedEventApplicationListenerTest {
         };
         this.context.addApplicationListener(listener);
         this.context.publishEvent(environmentChangeEvent);
-        this.context.removeApplicationListener(listener);
     }
 }

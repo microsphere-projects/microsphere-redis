@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
-import org.springframework.data.redis.RedisSystemException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.serializer.RedisSerializer;
@@ -78,7 +77,7 @@ public abstract class AbstractRedisCommandEventTest extends AbstractRedisTest {
             assertNotEquals(c, this);
             assertEquals(c.hashCode(), c.hashCode());
 
-            assertThrows(RedisSystemException.class, () -> {
+            assertThrows(RuntimeException.class, () -> {
                 c.execute("Not-Found-Command");
             });
 

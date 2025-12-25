@@ -105,7 +105,6 @@ public class EnumSerializer<E extends Enum> implements RedisSerializer<E> {
         return Objects.hash(enumType);
     }
 
-    @Override
     public Class<?> getTargetType() {
         return enumType;
     }

@@ -1,4 +1,4 @@
-version: 3.5.6
+version: 2.7.18
 methods:
 - index: 498782566
   interfaceName: org.springframework.data.redis.connection.RedisHyperLogLogCommands
@@ -55,25 +55,6 @@ methods:
 - index: 602339507
   interfaceName: org.springframework.data.redis.connection.ReactiveStringCommands
   methodName: set
-  parameterTypes:
-  - org.reactivestreams.Publisher
-  commands:
-  - SET
-  write: true
-- index: 1284629961
-  interfaceName: org.springframework.data.redis.connection.ReactiveStringCommands
-  methodName: setGet
-  parameterTypes:
-  - java.nio.ByteBuffer
-  - java.nio.ByteBuffer
-  - org.springframework.data.redis.core.types.Expiration
-  - org.springframework.data.redis.connection.RedisStringCommands$SetOption
-  commands:
-  - SET
-  write: true
-- index: 343658461
-  interfaceName: org.springframework.data.redis.connection.ReactiveStringCommands
-  methodName: setGet
   parameterTypes:
   - org.reactivestreams.Publisher
   commands:
@@ -488,17 +469,6 @@ methods:
   commands:
   - SET
   write: true
-- index: 912936977
-  interfaceName: org.springframework.data.redis.connection.RedisStringCommands
-  methodName: setGet
-  parameterTypes:
-  - '[B'
-  - '[B'
-  - org.springframework.data.redis.core.types.Expiration
-  - org.springframework.data.redis.connection.RedisStringCommands$SetOption
-  commands:
-  - SET
-  write: true
 - index: 867198643
   interfaceName: org.springframework.data.redis.connection.RedisStringCommands
   methodName: setNX
@@ -869,6 +839,14 @@ methods:
   methodName: randomKey
   parameterTypes:
   - org.springframework.data.redis.connection.RedisClusterNode
+- index: 1883034521
+  interfaceName: org.springframework.data.redis.connection.RedisServerCommands
+  methodName: bgWriteAof
+  parameterTypes: [
+    ]
+  commands:
+  - BGREWRITEAOF
+  write: false
 - index: 1236573254
   interfaceName: org.springframework.data.redis.connection.RedisServerCommands
   methodName: bgReWriteAof
@@ -1055,22 +1033,22 @@ methods:
   commands:
   - CLIENT LIST
   write: false
-- index: 896915872
+- index: 514273407
   interfaceName: org.springframework.data.redis.connection.RedisServerCommands
-  methodName: replicaOf
+  methodName: slaveOf
   parameterTypes:
   - java.lang.String
   - int
   commands:
-  - REPLICAOF
+  - SLAVEOF
   write: false
-- index: 1957588257
+- index: 874811744
   interfaceName: org.springframework.data.redis.connection.RedisServerCommands
-  methodName: replicaOfNoOne
+  methodName: slaveOfNoOne
   parameterTypes: [
     ]
   commands:
-  - REPLICAOF
+  - SLAVEOF
   write: false
 - index: 480247277
   interfaceName: org.springframework.data.redis.connection.RedisServerCommands
@@ -1430,9 +1408,9 @@ methods:
   methodName: masters
   parameterTypes: [
     ]
-- index: 548147788
+- index: 497327059
   interfaceName: org.springframework.data.redis.connection.RedisSentinelCommands
-  methodName: replicas
+  methodName: slaves
   parameterTypes:
   - org.springframework.data.redis.connection.NamedNode
 - index: 1040191947
@@ -1876,14 +1854,6 @@ methods:
   commands:
   - EXISTS
   write: false
-- index: 17922975
-  interfaceName: org.springframework.data.redis.connection.ReactiveKeyCommands
-  methodName: exists
-  parameterTypes:
-  - java.util.List
-  commands:
-  - EXISTS
-  write: false
 - index: 1154739945
   interfaceName: org.springframework.data.redis.connection.ReactiveKeyCommands
   methodName: exists
@@ -2069,18 +2039,6 @@ methods:
   - org.reactivestreams.Publisher
   commands:
   - UNLINK
-  write: true
-- index: 1590805078
-  interfaceName: org.springframework.data.redis.connection.ReactiveKeyCommands
-  methodName: applyExpiration
-  parameterTypes:
-  - org.reactivestreams.Publisher
-  commands:
-  - EXPIRE
-  - PEXPIRE
-  - EXPIREAT
-  - PEXPIREAT
-  - PERSIST
   write: true
 - index: 1762886023
   interfaceName: org.springframework.data.redis.connection.ReactiveKeyCommands
@@ -2897,45 +2855,12 @@ methods:
   commands:
   - RENAMENX
   write: true
-- index: 1430682315
-  interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
-  methodName: applyExpiration
-  parameterTypes:
-  - '[B'
-  - org.springframework.data.redis.core.types.Expiration
-  - org.springframework.data.redis.connection.ExpirationOptions
-  commands:
-  - EXPIRE
-  - PEXPIRE
-  - EXPIREAT
-  - PEXPIREAT
-  - PERSIST
-  write: true
 - index: 8908367
   interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
   methodName: expire
   parameterTypes:
   - '[B'
   - long
-  commands:
-  - EXPIRE
-  write: true
-- index: 1218410613
-  interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
-  methodName: expire
-  parameterTypes:
-  - '[B'
-  - long
-  - org.springframework.data.redis.connection.ExpirationOptions$Condition
-  commands:
-  - EXPIRE
-  write: true
-- index: 1901611518
-  interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
-  methodName: expire
-  parameterTypes:
-  - '[B'
-  - java.time.Duration
   commands:
   - EXPIRE
   write: true
@@ -2948,25 +2873,6 @@ methods:
   commands:
   - PEXPIRE
   write: true
-- index: 1424126697
-  interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
-  methodName: pExpire
-  parameterTypes:
-  - '[B'
-  - long
-  - org.springframework.data.redis.connection.ExpirationOptions$Condition
-  commands:
-  - PEXPIRE
-  write: true
-- index: 1145004938
-  interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
-  methodName: pExpire
-  parameterTypes:
-  - '[B'
-  - java.time.Duration
-  commands:
-  - PEXPIRE
-  write: true
 - index: 1190733724
   interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
   methodName: expireAt
@@ -2976,50 +2882,12 @@ methods:
   commands:
   - EXPIREAT
   write: true
-- index: 1029626882
-  interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
-  methodName: expireAt
-  parameterTypes:
-  - '[B'
-  - long
-  - org.springframework.data.redis.connection.ExpirationOptions$Condition
-  commands:
-  - EXPIREAT
-  write: true
-- index: 900267950
-  interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
-  methodName: expireAt
-  parameterTypes:
-  - '[B'
-  - java.time.Instant
-  commands:
-  - EXPIREAT
-  write: true
 - index: 1359027216
   interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
   methodName: pExpireAt
   parameterTypes:
   - '[B'
   - long
-  commands:
-  - PEXPIREAT
-  write: true
-- index: 1154287990
-  interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
-  methodName: pExpireAt
-  parameterTypes:
-  - '[B'
-  - long
-  - org.springframework.data.redis.connection.ExpirationOptions$Condition
-  commands:
-  - PEXPIREAT
-  write: true
-- index: 1414731846
-  interfaceName: org.springframework.data.redis.connection.RedisKeyCommands
-  methodName: pExpireAt
-  parameterTypes:
-  - '[B'
-  - java.time.Instant
   commands:
   - PEXPIREAT
   write: true
@@ -3221,21 +3089,21 @@ methods:
   commands:
   - CLUSTER NODES
   write: false
-- index: 555575300
+- index: 1512908931
   interfaceName: org.springframework.data.redis.connection.ReactiveClusterCommands
-  methodName: clusterGetReplicas
+  methodName: clusterGetSlaves
   parameterTypes:
   - org.springframework.data.redis.connection.RedisClusterNode
   commands:
-  - CLUSTER REPLICAS
+  - CLUSTER SLAVES
   write: false
-- index: 1155589944
+- index: 696543287
   interfaceName: org.springframework.data.redis.connection.ReactiveClusterCommands
-  methodName: clusterGetMasterReplicaMap
+  methodName: clusterGetMasterSlaveMap
   parameterTypes: [
     ]
   commands:
-  - CLUSTER REPLICAS
+  - CLUSTER SLAVES
   write: false
 - index: 219516686
   interfaceName: org.springframework.data.redis.connection.ReactiveClusterCommands
@@ -3900,13 +3768,13 @@ methods:
   commands:
   - XRANGE
   write: false
-- index: 228684343
+- index: 861907056
   interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
   methodName: xRange
   parameterTypes:
   - '[B'
   - org.springframework.data.domain.Range
-  - org.springframework.data.redis.connection.Limit
+  - org.springframework.data.redis.connection.RedisZSetCommands$Limit
   commands:
   - XRANGE
   write: false
@@ -3955,13 +3823,13 @@ methods:
   commands:
   - XREVRANGE
   write: false
-- index: 2049709774
+- index: 1623827559
   interfaceName: org.springframework.data.redis.connection.RedisStreamCommands
   methodName: xRevRange
   parameterTypes:
   - '[B'
   - org.springframework.data.domain.Range
-  - org.springframework.data.redis.connection.Limit
+  - org.springframework.data.redis.connection.RedisZSetCommands$Limit
   commands:
   - XREVRANGE
   write: false
@@ -4026,15 +3894,6 @@ methods:
   methodName: xAdd
   parameterTypes:
   - org.springframework.data.redis.connection.stream.ByteBufferRecord
-  commands:
-  - XADD
-  write: true
-- index: 800468332
-  interfaceName: org.springframework.data.redis.connection.ReactiveStreamCommands
-  methodName: xAdd
-  parameterTypes:
-  - org.springframework.data.redis.connection.stream.ByteBufferRecord
-  - org.springframework.data.redis.connection.RedisStreamCommands$XAddOptions
   commands:
   - XADD
   write: true
@@ -4225,13 +4084,13 @@ methods:
   commands:
   - XRANGE
   write: false
-- index: 1691143522
+- index: 13593655
   interfaceName: org.springframework.data.redis.connection.ReactiveStreamCommands
   methodName: xRange
   parameterTypes:
   - java.nio.ByteBuffer
   - org.springframework.data.domain.Range
-  - org.springframework.data.redis.connection.Limit
+  - org.springframework.data.redis.connection.RedisZSetCommands$Limit
   commands:
   - XRANGE
   write: false
@@ -4372,13 +4231,13 @@ methods:
   commands:
   - XREVRANGE
   write: false
-- index: 1891095083
+- index: 383918724
   interfaceName: org.springframework.data.redis.connection.ReactiveStreamCommands
   methodName: xRevRange
   parameterTypes:
   - java.nio.ByteBuffer
   - org.springframework.data.domain.Range
-  - org.springframework.data.redis.connection.Limit
+  - org.springframework.data.redis.connection.RedisZSetCommands$Limit
   commands:
   - XREVRANGE
   write: false
@@ -4914,12 +4773,12 @@ methods:
   commands:
   - ZRANGEBYSCORE
   write: false
-- index: 1057399726
+- index: 1213098594
   interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
   methodName: zRangeByScoreWithScores
   parameterTypes:
   - '[B'
-  - org.springframework.data.domain.Range
+  - org.springframework.data.redis.connection.RedisZSetCommands$Range
   commands:
   - ZRANGEBYSCORE
   write: false
@@ -4957,13 +4816,13 @@ methods:
   commands:
   - ZRANGEBYSCORE
   write: false
-- index: 399499165
+- index: 1109330184
   interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
   methodName: zRangeByScoreWithScores
   parameterTypes:
   - '[B'
-  - org.springframework.data.domain.Range
-  - org.springframework.data.redis.connection.Limit
+  - org.springframework.data.redis.connection.RedisZSetCommands$Range
+  - org.springframework.data.redis.connection.RedisZSetCommands$Limit
   commands:
   - ZRANGEBYSCORE
   write: false
@@ -4997,12 +4856,12 @@ methods:
   commands:
   - ZREVRANGE
   write: false
-- index: 1271212384
+- index: 1336516180
   interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
   methodName: zRevRangeByScore
   parameterTypes:
   - '[B'
-  - org.springframework.data.domain.Range
+  - org.springframework.data.redis.connection.RedisZSetCommands$Range
   commands:
   - ZREVRANGEBYSCORE
   write: false
@@ -5028,13 +4887,13 @@ methods:
   commands:
   - ZREVRANGEBYSCORE
   write: false
-- index: 1160488591
+- index: 1258972778
   interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
   methodName: zRevRangeByScore
   parameterTypes:
   - '[B'
-  - org.springframework.data.domain.Range
-  - org.springframework.data.redis.connection.Limit
+  - org.springframework.data.redis.connection.RedisZSetCommands$Range
+  - org.springframework.data.redis.connection.RedisZSetCommands$Limit
   commands:
   - ZREVRANGEBYSCORE
   write: false
@@ -5050,22 +4909,22 @@ methods:
   commands:
   - ZREVRANGEBYSCORE
   write: false
-- index: 1916579015
+- index: 1889512301
   interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
   methodName: zRevRangeByScoreWithScores
   parameterTypes:
   - '[B'
-  - org.springframework.data.domain.Range
+  - org.springframework.data.redis.connection.RedisZSetCommands$Range
   commands:
   - ZREVRANGEBYSCORE
   write: false
-- index: 1317612840
+- index: 1615967933
   interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
   methodName: zRevRangeByScoreWithScores
   parameterTypes:
   - '[B'
-  - org.springframework.data.domain.Range
-  - org.springframework.data.redis.connection.Limit
+  - org.springframework.data.redis.connection.RedisZSetCommands$Range
+  - org.springframework.data.redis.connection.RedisZSetCommands$Limit
   commands:
   - ZREVRANGEBYSCORE
   write: false
@@ -5079,21 +4938,21 @@ methods:
   commands:
   - ZCOUNT
   write: false
-- index: 864241810
+- index: 464219834
   interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
   methodName: zCount
   parameterTypes:
   - '[B'
-  - org.springframework.data.domain.Range
+  - org.springframework.data.redis.connection.RedisZSetCommands$Range
   commands:
   - ZCOUNT
   write: false
-- index: 1661757091
+- index: 143467561
   interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
   methodName: zLexCount
   parameterTypes:
   - '[B'
-  - org.springframework.data.domain.Range
+  - org.springframework.data.redis.connection.RedisZSetCommands$Range
   commands:
   - ZLEXCOUNT
   write: false
@@ -5187,12 +5046,12 @@ methods:
   commands:
   - ZREMRANGEBYRANK
   write: true
-- index: 674372316
+- index: 1567854448
   interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
   methodName: zRemRangeByLex
   parameterTypes:
   - '[B'
-  - org.springframework.data.domain.Range
+  - org.springframework.data.redis.connection.RedisZSetCommands$Range
   commands:
   - ZREMRANGEBYLEX
   write: true
@@ -5206,12 +5065,12 @@ methods:
   commands:
   - ZREMRANGEBYSCORE
   write: true
-- index: 674354665
+- index: 855918109
   interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
   methodName: zRemRangeByScore
   parameterTypes:
   - '[B'
-  - org.springframework.data.domain.Range
+  - org.springframework.data.redis.connection.RedisZSetCommands$Range
   commands:
   - ZREMRANGEBYSCORE
   write: true
@@ -5256,22 +5115,22 @@ methods:
   commands:
   - ZINTER
   write: false
-- index: 431410706
+- index: 1528452547
   interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
   methodName: zInterWithScores
   parameterTypes:
-  - org.springframework.data.redis.connection.zset.Aggregate
+  - org.springframework.data.redis.connection.RedisZSetCommands$Aggregate
   - '[I'
   - '[[B'
   commands:
   - ZINTER
   write: false
-- index: 1026575769
+- index: 704762835
   interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
   methodName: zInterWithScores
   parameterTypes:
-  - org.springframework.data.redis.connection.zset.Aggregate
-  - org.springframework.data.redis.connection.zset.Weights
+  - org.springframework.data.redis.connection.RedisZSetCommands$Aggregate
+  - org.springframework.data.redis.connection.RedisZSetCommands$Weights
   - '[[B'
   commands:
   - ZINTER
@@ -5285,24 +5144,24 @@ methods:
   commands:
   - ZINTERSTORE
   write: true
-- index: 1748325077
+- index: 1156695462
   interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
   methodName: zInterStore
   parameterTypes:
   - '[B'
-  - org.springframework.data.redis.connection.zset.Aggregate
+  - org.springframework.data.redis.connection.RedisZSetCommands$Aggregate
   - '[I'
   - '[[B'
   commands:
   - ZINTERSTORE
   write: true
-- index: 1075181860
+- index: 2000025680
   interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
   methodName: zInterStore
   parameterTypes:
   - '[B'
-  - org.springframework.data.redis.connection.zset.Aggregate
-  - org.springframework.data.redis.connection.zset.Weights
+  - org.springframework.data.redis.connection.RedisZSetCommands$Aggregate
+  - org.springframework.data.redis.connection.RedisZSetCommands$Weights
   - '[[B'
   commands:
   - ZINTERSTORE
@@ -5323,22 +5182,22 @@ methods:
   commands:
   - ZUNION
   write: false
-- index: 978825755
+- index: 647513782
   interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
   methodName: zUnionWithScores
   parameterTypes:
-  - org.springframework.data.redis.connection.zset.Aggregate
+  - org.springframework.data.redis.connection.RedisZSetCommands$Aggregate
   - '[I'
   - '[[B'
   commands:
   - ZUNION
   write: false
-- index: 135305708
+- index: 1864361664
   interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
   methodName: zUnionWithScores
   parameterTypes:
-  - org.springframework.data.redis.connection.zset.Aggregate
-  - org.springframework.data.redis.connection.zset.Weights
+  - org.springframework.data.redis.connection.RedisZSetCommands$Aggregate
+  - org.springframework.data.redis.connection.RedisZSetCommands$Weights
   - '[[B'
   commands:
   - ZUNION
@@ -5352,24 +5211,24 @@ methods:
   commands:
   - ZUNIONSTORE
   write: true
-- index: 2015013736
+- index: 1458743463
   interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
   methodName: zUnionStore
   parameterTypes:
   - '[B'
-  - org.springframework.data.redis.connection.zset.Aggregate
+  - org.springframework.data.redis.connection.RedisZSetCommands$Aggregate
   - '[I'
   - '[[B'
   commands:
   - ZUNIONSTORE
   write: true
-- index: 1560759279
+- index: 433108221
   interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
   methodName: zUnionStore
   parameterTypes:
   - '[B'
-  - org.springframework.data.redis.connection.zset.Aggregate
-  - org.springframework.data.redis.connection.zset.Weights
+  - org.springframework.data.redis.connection.RedisZSetCommands$Aggregate
+  - org.springframework.data.redis.connection.RedisZSetCommands$Weights
   - '[[B'
   commands:
   - ZUNIONSTORE
@@ -5393,12 +5252,12 @@ methods:
   commands:
   - ZRANGEBYSCORE
   write: false
-- index: 92095829
+- index: 1818780791
   interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
   methodName: zRangeByScore
   parameterTypes:
   - '[B'
-  - org.springframework.data.domain.Range
+  - org.springframework.data.redis.connection.RedisZSetCommands$Range
   commands:
   - ZRANGEBYSCORE
   write: false
@@ -5414,13 +5273,13 @@ methods:
   commands:
   - ZRANGEBYSCORE
   write: false
-- index: 384038724
+- index: 370393695
   interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
   methodName: zRangeByScore
   parameterTypes:
   - '[B'
-  - org.springframework.data.domain.Range
-  - org.springframework.data.redis.connection.Limit
+  - org.springframework.data.redis.connection.RedisZSetCommands$Range
+  - org.springframework.data.redis.connection.RedisZSetCommands$Limit
   commands:
   - ZRANGEBYSCORE
   write: false
@@ -5432,22 +5291,22 @@ methods:
   commands:
   - ZRANGEBYLEX
   write: false
-- index: 1574275768
+- index: 2089693436
   interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
   methodName: zRangeByLex
   parameterTypes:
   - '[B'
-  - org.springframework.data.domain.Range
+  - org.springframework.data.redis.connection.RedisZSetCommands$Range
   commands:
   - ZRANGEBYLEX
   write: false
-- index: 1737206473
+- index: 1048293138
   interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
   methodName: zRangeByLex
   parameterTypes:
   - '[B'
-  - org.springframework.data.domain.Range
-  - org.springframework.data.redis.connection.Limit
+  - org.springframework.data.redis.connection.RedisZSetCommands$Range
+  - org.springframework.data.redis.connection.RedisZSetCommands$Limit
   commands:
   - ZRANGEBYLEX
   write: false
@@ -5459,109 +5318,25 @@ methods:
   commands:
   - ZREVRANGEBYLEX
   write: false
-- index: 824302931
+- index: 1102550393
   interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
   methodName: zRevRangeByLex
   parameterTypes:
   - '[B'
-  - org.springframework.data.domain.Range
+  - org.springframework.data.redis.connection.RedisZSetCommands$Range
   commands:
   - ZREVRANGEBYLEX
   write: false
-- index: 1629136062
+- index: 1873684003
   interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
   methodName: zRevRangeByLex
   parameterTypes:
   - '[B'
-  - org.springframework.data.domain.Range
-  - org.springframework.data.redis.connection.Limit
+  - org.springframework.data.redis.connection.RedisZSetCommands$Range
+  - org.springframework.data.redis.connection.RedisZSetCommands$Limit
   commands:
   - ZREVRANGEBYLEX
   write: false
-- index: 1074831636
-  interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
-  methodName: zRangeStoreByLex
-  parameterTypes:
-  - '[B'
-  - '[B'
-  - org.springframework.data.domain.Range
-  commands:
-  - ZRANGESTORE
-  write: true
-- index: 1886787877
-  interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
-  methodName: zRangeStoreByLex
-  parameterTypes:
-  - '[B'
-  - '[B'
-  - org.springframework.data.domain.Range
-  - org.springframework.data.redis.connection.Limit
-  commands:
-  - ZRANGESTORE
-  write: true
-- index: 1033649215
-  interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
-  methodName: zRangeStoreRevByLex
-  parameterTypes:
-  - '[B'
-  - '[B'
-  - org.springframework.data.domain.Range
-  commands:
-  - ZRANGESTORE
-  write: true
-- index: 684044846
-  interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
-  methodName: zRangeStoreRevByLex
-  parameterTypes:
-  - '[B'
-  - '[B'
-  - org.springframework.data.domain.Range
-  - org.springframework.data.redis.connection.Limit
-  commands:
-  - ZRANGESTORE
-  write: true
-- index: 828088065
-  interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
-  methodName: zRangeStoreByScore
-  parameterTypes:
-  - '[B'
-  - '[B'
-  - org.springframework.data.domain.Range
-  commands:
-  - ZRANGESTORE
-  write: true
-- index: 1968613650
-  interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
-  methodName: zRangeStoreByScore
-  parameterTypes:
-  - '[B'
-  - '[B'
-  - org.springframework.data.domain.Range
-  - org.springframework.data.redis.connection.Limit
-  commands:
-  - ZRANGESTORE
-  write: true
-- index: 1802553966
-  interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
-  methodName: zRangeStoreRevByScore
-  parameterTypes:
-  - '[B'
-  - '[B'
-  - org.springframework.data.domain.Range
-  commands:
-  - ZRANGESTORE
-  write: true
-- index: 1004562047
-  interfaceName: org.springframework.data.redis.connection.RedisZSetCommands
-  methodName: zRangeStoreRevByScore
-  parameterTypes:
-  - '[B'
-  - '[B'
-  - org.springframework.data.domain.Range
-  - org.springframework.data.redis.connection.Limit
-  commands:
-  - ZRANGESTORE
-  write: true
 - index: 1575577071
   interfaceName: org.springframework.data.redis.connection.RedisHashCommands
   methodName: hSet
@@ -5730,162 +5505,6 @@ methods:
   - '[B'
   commands:
   - HSTRLEN
-  write: false
-- index: 1362952745
-  interfaceName: org.springframework.data.redis.connection.RedisHashCommands
-  methodName: applyHashFieldExpiration
-  parameterTypes:
-  - '[B'
-  - org.springframework.data.redis.core.types.Expiration
-  - '[[B'
-- index: 264081414
-  interfaceName: org.springframework.data.redis.connection.RedisHashCommands
-  methodName: applyHashFieldExpiration
-  parameterTypes:
-  - '[B'
-  - org.springframework.data.redis.core.types.Expiration
-  - org.springframework.data.redis.connection.ExpirationOptions
-  - '[[B'
-- index: 521240144
-  interfaceName: org.springframework.data.redis.connection.RedisHashCommands
-  methodName: hExpire
-  parameterTypes:
-  - '[B'
-  - long
-  - '[[B'
-  commands:
-  - HEXPIRE
-  write: true
-- index: 68717661
-  interfaceName: org.springframework.data.redis.connection.RedisHashCommands
-  methodName: hExpire
-  parameterTypes:
-  - '[B'
-  - java.time.Duration
-  - '[[B'
-  commands:
-  - HEXPIRE
-  write: true
-- index: 381686678
-  interfaceName: org.springframework.data.redis.connection.RedisHashCommands
-  methodName: hExpire
-  parameterTypes:
-  - '[B'
-  - long
-  - org.springframework.data.redis.connection.ExpirationOptions$Condition
-  - '[[B'
-  commands:
-  - HEXPIRE
-  write: true
-- index: 1848733238
-  interfaceName: org.springframework.data.redis.connection.RedisHashCommands
-  methodName: hpExpire
-  parameterTypes:
-  - '[B'
-  - long
-  - '[[B'
-  commands:
-  - HPEXPIRE
-  write: true
-- index: 2088172969
-  interfaceName: org.springframework.data.redis.connection.RedisHashCommands
-  methodName: hpExpire
-  parameterTypes:
-  - '[B'
-  - java.time.Duration
-  - '[[B'
-  commands:
-  - HPEXPIRE
-  write: true
-- index: 1285673884
-  interfaceName: org.springframework.data.redis.connection.RedisHashCommands
-  methodName: hpExpire
-  parameterTypes:
-  - '[B'
-  - long
-  - org.springframework.data.redis.connection.ExpirationOptions$Condition
-  - '[[B'
-  commands:
-  - HPEXPIRE
-  write: true
-- index: 741903683
-  interfaceName: org.springframework.data.redis.connection.RedisHashCommands
-  methodName: hExpireAt
-  parameterTypes:
-  - '[B'
-  - long
-  - '[[B'
-  commands:
-  - HEXPIREAT
-  write: true
-- index: 1955618531
-  interfaceName: org.springframework.data.redis.connection.RedisHashCommands
-  methodName: hExpireAt
-  parameterTypes:
-  - '[B'
-  - long
-  - org.springframework.data.redis.connection.ExpirationOptions$Condition
-  - '[[B'
-  commands:
-  - HEXPIREAT
-  write: true
-- index: 469849539
-  interfaceName: org.springframework.data.redis.connection.RedisHashCommands
-  methodName: hpExpireAt
-  parameterTypes:
-  - '[B'
-  - long
-  - '[[B'
-  commands:
-  - HPEXPIREAT
-  write: true
-- index: 1191037591
-  interfaceName: org.springframework.data.redis.connection.RedisHashCommands
-  methodName: hpExpireAt
-  parameterTypes:
-  - '[B'
-  - long
-  - org.springframework.data.redis.connection.ExpirationOptions$Condition
-  - '[[B'
-  commands:
-  - HPEXPIREAT
-  write: true
-- index: 45837741
-  interfaceName: org.springframework.data.redis.connection.RedisHashCommands
-  methodName: hPersist
-  parameterTypes:
-  - '[B'
-  - '[[B'
-  commands:
-  - HPERSIST
-  write: true
-- index: 1365950395
-  interfaceName: org.springframework.data.redis.connection.RedisHashCommands
-  methodName: hTtl
-  parameterTypes:
-  - '[B'
-  - '[[B'
-  commands:
-  - HTTL
-  write: false
-- index: 1581887529
-  interfaceName: org.springframework.data.redis.connection.RedisHashCommands
-  methodName: hTtl
-  parameterTypes:
-  - '[B'
-  - java.util.concurrent.TimeUnit
-  - '[[B'
-  commands:
-  - HTTL
-  write: false
-- index: 17296693
-  interfaceName: org.springframework.data.redis.connection.RedisHashCommands
-  methodName: hpTtl
-  parameterTypes:
-  - '[B'
-  - '[[B'
-  commands:
-  - HTTL
   write: false
 - index: 72104520
   interfaceName: org.springframework.data.redis.connection.ReactiveZSetCommands
@@ -6080,58 +5699,6 @@ methods:
   - ZRANGE
   - ZREVRANGE
   write: false
-- index: 99664724
-  interfaceName: org.springframework.data.redis.connection.ReactiveZSetCommands
-  methodName: zRangeStoreByScore
-  parameterTypes:
-  - java.nio.ByteBuffer
-  - java.nio.ByteBuffer
-  - org.springframework.data.domain.Range
-  - org.springframework.data.redis.connection.Limit
-  commands:
-  - ZRANGESTORE
-  write: true
-- index: 574541953
-  interfaceName: org.springframework.data.redis.connection.ReactiveZSetCommands
-  methodName: zRangeStoreByLex
-  parameterTypes:
-  - java.nio.ByteBuffer
-  - java.nio.ByteBuffer
-  - org.springframework.data.domain.Range
-  - org.springframework.data.redis.connection.Limit
-  commands:
-  - ZRANGESTORE
-  write: true
-- index: 522210531
-  interfaceName: org.springframework.data.redis.connection.ReactiveZSetCommands
-  methodName: zRangeStoreRevByScore
-  parameterTypes:
-  - java.nio.ByteBuffer
-  - java.nio.ByteBuffer
-  - org.springframework.data.domain.Range
-  - org.springframework.data.redis.connection.Limit
-  commands:
-  - ZRANGESTORE
-  write: true
-- index: 980323888
-  interfaceName: org.springframework.data.redis.connection.ReactiveZSetCommands
-  methodName: zRangeStoreRevByLex
-  parameterTypes:
-  - java.nio.ByteBuffer
-  - java.nio.ByteBuffer
-  - org.springframework.data.domain.Range
-  - org.springframework.data.redis.connection.Limit
-  commands:
-  - ZRANGESTORE
-  write: true
-- index: 57380518
-  interfaceName: org.springframework.data.redis.connection.ReactiveZSetCommands
-  methodName: zRangeStore
-  parameterTypes:
-  - org.reactivestreams.Publisher
-  commands:
-  - ZRANGESTORE
-  write: true
 - index: 34371220
   interfaceName: org.springframework.data.redis.connection.ReactiveZSetCommands
   methodName: zRangeByScore
@@ -6141,13 +5708,13 @@ methods:
   commands:
   - ZRANGEBYSCORE
   write: false
-- index: 1388973699
+- index: 230043306
   interfaceName: org.springframework.data.redis.connection.ReactiveZSetCommands
   methodName: zRangeByScore
   parameterTypes:
   - java.nio.ByteBuffer
   - org.springframework.data.domain.Range
-  - org.springframework.data.redis.connection.Limit
+  - org.springframework.data.redis.connection.RedisZSetCommands$Limit
   commands:
   - ZRANGEBYSCORE
   write: false
@@ -6160,13 +5727,13 @@ methods:
   commands:
   - ZRANGEBYSCORE
   write: false
-- index: 330059210
+- index: 308791857
   interfaceName: org.springframework.data.redis.connection.ReactiveZSetCommands
   methodName: zRangeByScoreWithScores
   parameterTypes:
   - java.nio.ByteBuffer
   - org.springframework.data.domain.Range
-  - org.springframework.data.redis.connection.Limit
+  - org.springframework.data.redis.connection.RedisZSetCommands$Limit
   commands:
   - ZRANGEBYSCORE
   write: false
@@ -6179,13 +5746,13 @@ methods:
   commands:
   - ZREVRANGEBYSCORE
   write: false
-- index: 1040873308
+- index: 907637571
   interfaceName: org.springframework.data.redis.connection.ReactiveZSetCommands
   methodName: zRevRangeByScore
   parameterTypes:
   - java.nio.ByteBuffer
   - org.springframework.data.domain.Range
-  - org.springframework.data.redis.connection.Limit
+  - org.springframework.data.redis.connection.RedisZSetCommands$Limit
   commands:
   - ZREVRANGEBYSCORE
   write: false
@@ -6198,13 +5765,13 @@ methods:
   commands:
   - ZREVRANGEBYSCORE
   write: false
-- index: 224803683
+- index: 389342090
   interfaceName: org.springframework.data.redis.connection.ReactiveZSetCommands
   methodName: zRevRangeByScoreWithScores
   parameterTypes:
   - java.nio.ByteBuffer
   - org.springframework.data.domain.Range
-  - org.springframework.data.redis.connection.Limit
+  - org.springframework.data.redis.connection.RedisZSetCommands$Limit
   commands:
   - ZREVRANGEBYSCORE
   write: false
@@ -6529,32 +6096,32 @@ methods:
   commands:
   - ZINTER
   write: false
-- index: 1843834560
+- index: 1542312059
   interfaceName: org.springframework.data.redis.connection.ReactiveZSetCommands
   methodName: zInterWithScores
   parameterTypes:
   - java.util.List
-  - org.springframework.data.redis.connection.zset.Weights
+  - org.springframework.data.redis.connection.RedisZSetCommands$Weights
   commands:
   - ZINTER
   write: false
-- index: 999614250
+- index: 1131999523
   interfaceName: org.springframework.data.redis.connection.ReactiveZSetCommands
   methodName: zInterWithScores
   parameterTypes:
   - java.util.List
   - java.util.List
-  - org.springframework.data.redis.connection.zset.Aggregate
+  - org.springframework.data.redis.connection.RedisZSetCommands$Aggregate
   commands:
   - ZINTER
   write: false
-- index: 882499475
+- index: 208346207
   interfaceName: org.springframework.data.redis.connection.ReactiveZSetCommands
   methodName: zInterWithScores
   parameterTypes:
   - java.util.List
-  - org.springframework.data.redis.connection.zset.Weights
-  - org.springframework.data.redis.connection.zset.Aggregate
+  - org.springframework.data.redis.connection.RedisZSetCommands$Weights
+  - org.springframework.data.redis.connection.RedisZSetCommands$Aggregate
   commands:
   - ZINTER
   write: false
@@ -6585,35 +6152,35 @@ methods:
   commands:
   - ZINTERSTORE
   write: true
-- index: 1870970350
+- index: 1205779223
   interfaceName: org.springframework.data.redis.connection.ReactiveZSetCommands
   methodName: zInterStore
   parameterTypes:
   - java.nio.ByteBuffer
   - java.util.List
-  - org.springframework.data.redis.connection.zset.Weights
+  - org.springframework.data.redis.connection.RedisZSetCommands$Weights
   commands:
   - ZINTERSTORE
   write: true
-- index: 936552004
+- index: 2111390767
   interfaceName: org.springframework.data.redis.connection.ReactiveZSetCommands
   methodName: zInterStore
   parameterTypes:
   - java.nio.ByteBuffer
   - java.util.List
   - java.util.List
-  - org.springframework.data.redis.connection.zset.Aggregate
+  - org.springframework.data.redis.connection.RedisZSetCommands$Aggregate
   commands:
   - ZINTERSTORE
   write: true
-- index: 810493915
+- index: 1871207823
   interfaceName: org.springframework.data.redis.connection.ReactiveZSetCommands
   methodName: zInterStore
   parameterTypes:
   - java.nio.ByteBuffer
   - java.util.List
-  - org.springframework.data.redis.connection.zset.Weights
-  - org.springframework.data.redis.connection.zset.Aggregate
+  - org.springframework.data.redis.connection.RedisZSetCommands$Weights
+  - org.springframework.data.redis.connection.RedisZSetCommands$Aggregate
   commands:
   - ZINTERSTORE
   write: true
@@ -6650,32 +6217,32 @@ methods:
   commands:
   - ZUNION
   write: false
-- index: 1916781651
+- index: 473825490
   interfaceName: org.springframework.data.redis.connection.ReactiveZSetCommands
   methodName: zUnionWithScores
   parameterTypes:
   - java.util.List
-  - org.springframework.data.redis.connection.zset.Weights
+  - org.springframework.data.redis.connection.RedisZSetCommands$Weights
   commands:
   - ZUNION
   write: false
-- index: 732776951
+- index: 2769782
   interfaceName: org.springframework.data.redis.connection.ReactiveZSetCommands
   methodName: zUnionWithScores
   parameterTypes:
   - java.util.List
   - java.util.List
-  - org.springframework.data.redis.connection.zset.Aggregate
+  - org.springframework.data.redis.connection.RedisZSetCommands$Aggregate
   commands:
   - ZUNION
   write: false
-- index: 426422624
+- index: 1580001300
   interfaceName: org.springframework.data.redis.connection.ReactiveZSetCommands
   methodName: zUnionWithScores
   parameterTypes:
   - java.util.List
-  - org.springframework.data.redis.connection.zset.Weights
-  - org.springframework.data.redis.connection.zset.Aggregate
+  - org.springframework.data.redis.connection.RedisZSetCommands$Weights
+  - org.springframework.data.redis.connection.RedisZSetCommands$Aggregate
   commands:
   - ZUNION
   write: false
@@ -6714,35 +6281,35 @@ methods:
   commands:
   - ZUNIONSTORE
   write: true
-- index: 1946062853
+- index: 56002090
   interfaceName: org.springframework.data.redis.connection.ReactiveZSetCommands
   methodName: zUnionStore
   parameterTypes:
   - java.nio.ByteBuffer
   - java.util.List
-  - org.springframework.data.redis.connection.zset.Weights
+  - org.springframework.data.redis.connection.RedisZSetCommands$Weights
   commands:
   - ZUNIONSTORE
   write: true
-- index: 500392783
+- index: 2001594082
   interfaceName: org.springframework.data.redis.connection.ReactiveZSetCommands
   methodName: zUnionStore
   parameterTypes:
   - java.nio.ByteBuffer
   - java.util.List
   - java.util.List
-  - org.springframework.data.redis.connection.zset.Aggregate
+  - org.springframework.data.redis.connection.RedisZSetCommands$Aggregate
   commands:
   - ZUNIONSTORE
   write: true
-- index: 1758630584
+- index: 502170812
   interfaceName: org.springframework.data.redis.connection.ReactiveZSetCommands
   methodName: zUnionStore
   parameterTypes:
   - java.nio.ByteBuffer
   - java.util.List
-  - org.springframework.data.redis.connection.zset.Weights
-  - org.springframework.data.redis.connection.zset.Aggregate
+  - org.springframework.data.redis.connection.RedisZSetCommands$Weights
+  - org.springframework.data.redis.connection.RedisZSetCommands$Aggregate
   commands:
   - ZUNIONSTORE
   write: true
@@ -6763,13 +6330,13 @@ methods:
   commands:
   - ZRANGEBYLEX
   write: false
-- index: 1927720048
+- index: 1014887593
   interfaceName: org.springframework.data.redis.connection.ReactiveZSetCommands
   methodName: zRangeByLex
   parameterTypes:
   - java.nio.ByteBuffer
   - org.springframework.data.domain.Range
-  - org.springframework.data.redis.connection.Limit
+  - org.springframework.data.redis.connection.RedisZSetCommands$Limit
   commands:
   - ZRANGEBYLEX
   write: false
@@ -6782,13 +6349,13 @@ methods:
   commands:
   - ZREVRANGEBYLEX
   write: false
-- index: 1263700087
+- index: 1863343568
   interfaceName: org.springframework.data.redis.connection.ReactiveZSetCommands
   methodName: zRevRangeByLex
   parameterTypes:
   - java.nio.ByteBuffer
   - org.springframework.data.domain.Range
-  - org.springframework.data.redis.connection.Limit
+  - org.springframework.data.redis.connection.RedisZSetCommands$Limit
   commands:
   - ZREVRANGEBYLEX
   write: false
@@ -6809,21 +6376,21 @@ methods:
   commands:
   - CLUSTER NODES
   write: false
-- index: 20938366
+- index: 668694143
   interfaceName: org.springframework.data.redis.connection.RedisClusterCommands
-  methodName: clusterGetReplicas
+  methodName: clusterGetSlaves
   parameterTypes:
   - org.springframework.data.redis.connection.RedisClusterNode
   commands:
-  - CLUSTER REPLICAS
+  - CLUSTER SLAVES
   write: false
-- index: 457800758
+- index: 1570102091
   interfaceName: org.springframework.data.redis.connection.RedisClusterCommands
-  methodName: clusterGetMasterReplicaMap
+  methodName: clusterGetMasterSlaveMap
   parameterTypes: [
     ]
   commands:
-  - CLUSTER REPLICAS
+  - CLUSTER SLAVES
   write: false
 - index: 1218393937
   interfaceName: org.springframework.data.redis.connection.RedisClusterCommands
@@ -7195,169 +6762,3 @@ methods:
   methodName: hStrLen
   parameterTypes:
   - org.reactivestreams.Publisher
-- index: 68115392
-  interfaceName: org.springframework.data.redis.connection.ReactiveHashCommands
-  methodName: hExpire
-  parameterTypes:
-  - java.nio.ByteBuffer
-  - java.time.Duration
-  - java.nio.ByteBuffer
-  commands:
-  - HEXPIRE
-  write: true
-- index: 780113702
-  interfaceName: org.springframework.data.redis.connection.ReactiveHashCommands
-  methodName: hExpire
-  parameterTypes:
-  - java.nio.ByteBuffer
-  - java.time.Duration
-  - java.util.List
-  commands:
-  - HEXPIRE
-  write: true
-- index: 1028968249
-  interfaceName: org.springframework.data.redis.connection.ReactiveHashCommands
-  methodName: applyHashFieldExpiration
-  parameterTypes:
-  - org.reactivestreams.Publisher
-  commands:
-  - HEXPIRE
-  write: true
-- index: 732026558
-  interfaceName: org.springframework.data.redis.connection.ReactiveHashCommands
-  methodName: hpExpire
-  parameterTypes:
-  - java.nio.ByteBuffer
-  - java.time.Duration
-  - java.nio.ByteBuffer
-  commands:
-  - HEXPIRE
-  write: true
-- index: 983806488
-  interfaceName: org.springframework.data.redis.connection.ReactiveHashCommands
-  methodName: hpExpire
-  parameterTypes:
-  - java.nio.ByteBuffer
-  - java.time.Duration
-  - java.util.List
-  commands:
-  - HEXPIRE
-  write: true
-- index: 184981990
-  interfaceName: org.springframework.data.redis.connection.ReactiveHashCommands
-  methodName: hExpireAt
-  parameterTypes:
-  - java.nio.ByteBuffer
-  - java.time.Instant
-  - java.nio.ByteBuffer
-  commands:
-  - HEXPIREAT
-  write: true
-- index: 587477440
-  interfaceName: org.springframework.data.redis.connection.ReactiveHashCommands
-  methodName: hExpireAt
-  parameterTypes:
-  - java.nio.ByteBuffer
-  - java.time.Instant
-  - java.util.List
-  commands:
-  - HEXPIREAT
-  write: true
-- index: 780421336
-  interfaceName: org.springframework.data.redis.connection.ReactiveHashCommands
-  methodName: hpExpireAt
-  parameterTypes:
-  - java.nio.ByteBuffer
-  - java.time.Instant
-  - java.nio.ByteBuffer
-  commands:
-  - HPEXPIREAT
-  write: true
-- index: 1740526398
-  interfaceName: org.springframework.data.redis.connection.ReactiveHashCommands
-  methodName: hpExpireAt
-  parameterTypes:
-  - java.nio.ByteBuffer
-  - java.time.Instant
-  - java.util.List
-  commands:
-  - HPEXPIREAT
-  write: true
-- index: 303008182
-  interfaceName: org.springframework.data.redis.connection.ReactiveHashCommands
-  methodName: hPersist
-  parameterTypes:
-  - java.nio.ByteBuffer
-  - java.nio.ByteBuffer
-  commands:
-  - HPERSIST
-  write: true
-- index: 1266196464
-  interfaceName: org.springframework.data.redis.connection.ReactiveHashCommands
-  methodName: hPersist
-  parameterTypes:
-  - java.nio.ByteBuffer
-  - java.util.List
-  commands:
-  - HPERSIST
-  write: true
-- index: 9154392
-  interfaceName: org.springframework.data.redis.connection.ReactiveHashCommands
-  methodName: hPersist
-  parameterTypes:
-  - org.reactivestreams.Publisher
-  commands:
-  - HPERSIST
-  write: true
-- index: 1151654174
-  interfaceName: org.springframework.data.redis.connection.ReactiveHashCommands
-  methodName: hTtl
-  parameterTypes:
-  - java.nio.ByteBuffer
-  - java.nio.ByteBuffer
-  commands:
-  - HTTL
-  write: false
-- index: 933671032
-  interfaceName: org.springframework.data.redis.connection.ReactiveHashCommands
-  methodName: hTtl
-  parameterTypes:
-  - java.nio.ByteBuffer
-  - java.util.List
-  commands:
-  - HTTL
-  write: false
-- index: 216382960
-  interfaceName: org.springframework.data.redis.connection.ReactiveHashCommands
-  methodName: hTtl
-  parameterTypes:
-  - org.reactivestreams.Publisher
-  commands:
-  - HTTL
-  write: false
-- index: 1142095388
-  interfaceName: org.springframework.data.redis.connection.ReactiveHashCommands
-  methodName: hpTtl
-  parameterTypes:
-  - java.nio.ByteBuffer
-  - java.nio.ByteBuffer
-  commands:
-  - HPTTL
-  write: false
-- index: 322206774
-  interfaceName: org.springframework.data.redis.connection.ReactiveHashCommands
-  methodName: hpTtl
-  parameterTypes:
-  - java.nio.ByteBuffer
-  - java.util.List
-  commands:
-  - HPTTL
-  write: false
-- index: 398781582
-  interfaceName: org.springframework.data.redis.connection.ReactiveHashCommands
-  methodName: hpTtl
-  parameterTypes:
-  - org.reactivestreams.Publisher
-  commands:
-  - HPTTL
-  write: false

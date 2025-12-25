@@ -14,49 +14,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.microsphere.redis.util;
 
-import java.util.Arrays;
+package io.microsphere.redis.spring.serializer;
 
-import static io.microsphere.util.ArrayUtils.arrayEquals;
+
+import org.springframework.data.redis.connection.RedisZSetCommands.Weights;
+import org.springframework.data.redis.serializer.RedisSerializer;
+
+import static io.microsphere.redis.spring.serializer.RedisZSetCommandsWeightsSerializer.REDIS_ZSET_COMMANDS_WEIGHTS_SERIALIZER;
+import static org.springframework.data.redis.connection.RedisZSetCommands.Weights.of;
 
 /**
- * The Redis Raw Value stores on the byte array
+ * {@link RedisZSetCommandsWeightsSerializer} Test
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
+ * @see RedisZSetCommandsWeightsSerializer
  * @since 1.0.0
  */
-public class RawValue {
+class RedisZSetCommandsWeightsSerializerTest extends AbstractSerializerTest<Weights> {
 
-    private final byte[] data;
-
-    public RawValue(byte[] data) {
-        this.data = data;
-    }
-
-    public byte[] getData() {
-        return data;
+    @Override
+    protected RedisSerializer<Weights> getSerializer() {
+        return REDIS_ZSET_COMMANDS_WEIGHTS_SERIALIZER;
     }
 
     @Override
-    public final boolean equals(Object o) {
-        if (o == this) {
-            return true;
-        }
-        if (!(o instanceof RawValue)) {
-            return false;
-        }
-
-        RawValue rawValue = (RawValue) o;
-        return arrayEquals(data, rawValue.data);
+    protected Weights getValue() {
+        return of(1.0, 2.0, 3.0);
     }
 
     @Override
-    public int hashCode() {
-        return Arrays.hashCode(data);
-    }
-
-    public static RawValue of(byte[] bytes) {
-        return new RawValue(bytes);
+    protected Object getTestData(Weights value) {
+        return value.toList();
     }
 }

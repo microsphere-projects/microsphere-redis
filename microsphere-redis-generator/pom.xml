@@ -18,6 +18,11 @@
     <name>Microsphere :: Redis :: Generator</name>
     <description>Microsphere Redis Generator</description>
 
+    <properties>
+        <sourcePath>${project.build.directory}/classes</sourcePath>
+        <java.version>9</java.version>
+    </properties>
+
     <dependencies>
 
         <!-- Microsphere Annotation Processor -->
@@ -70,11 +75,6 @@
         </dependency>
 
     </dependencies>
-
-    <properties>
-        <sourcePath>${project.build.directory}/classes</sourcePath>
-        <classPath>${project.build.directory}/lib</classPath>
-    </properties>
 
     <build>
         <plugins>

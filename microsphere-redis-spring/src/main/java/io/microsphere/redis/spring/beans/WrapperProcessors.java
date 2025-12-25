@@ -24,6 +24,7 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.core.ResolvableType;
 
 import java.util.HashMap;
@@ -35,6 +36,7 @@ import java.util.Set;
 import static io.microsphere.collection.CollectionUtils.size;
 import static io.microsphere.collection.ListUtils.newArrayList;
 import static io.microsphere.spring.beans.factory.BeanFactoryUtils.asConfigurableListableBeanFactory;
+import static io.microsphere.spring.beans.factory.config.BeanDefinitionUtils.getResolvableType;
 import static java.util.Collections.emptyList;
 import static org.springframework.core.annotation.AnnotationAwareOrderComparator.sort;
 
@@ -91,7 +93,7 @@ public class WrapperProcessors implements InitializingBean, BeanFactoryAware {
         String[] beanNames = beanFactory.getBeanNamesForType(WrapperProcessor.class);
         for (String beanName : beanNames) {
             BeanDefinition beanDefinition = beanFactory.getBeanDefinition(beanName);
-            ResolvableType resolvableType = beanDefinition.getResolvableType();
+            ResolvableType resolvableType = getResolvableType((AbstractBeanDefinition) beanDefinition);
             Class<?> wrapperClass = resolvableType.as(WrapperProcessor.class).getGeneric(0).resolve();
             Set<String> wrapperProcessorBeanNames = wrapperProcessorBeanNamesMap.computeIfAbsent(wrapperClass, k -> new LinkedHashSet<>());
             wrapperProcessorBeanNames.add(beanName);
