@@ -45,7 +45,7 @@ public abstract class AbstractSerializerTest<T> {
         }
 
         Class<?> targetType = getTargetType(serializer);
-        ResolvableType resolvableType = forType(getClass()).getSuperType().getGeneric(0);
+        ResolvableType resolvableType = forType(getClass()).as(AbstractSerializerTest.class).getGeneric(0);
         Class<?> parameterType = resolvableType.resolve();
 
         assertSame(targetType, parameterType);
