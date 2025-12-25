@@ -115,17 +115,6 @@
 
     <profiles>
         <profile>
-            <id>spring-boot-2.0</id>
-            <dependencies>
-                <dependency>
-                    <groupId>io.github.microsphere-projects</groupId>
-                    <artifactId>microsphere-redis-spring-compatible</artifactId>
-                    <version>${revision}</version>
-                </dependency>
-            </dependencies>
-        </profile>
-
-        <profile>
             <id>spring-boot-2.1</id>
             <dependencies>
                 <dependency>
