@@ -8,6 +8,7 @@ import io.microsphere.redis.replicator.spring.event.RedisCommandReplicatedEvent;
 import io.microsphere.redis.replicator.spring.kafka.KafkaRedisReplicatorConfiguration;
 import io.microsphere.redis.spring.config.RedisConfiguration;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
+import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.springframework.context.ApplicationContext;
@@ -27,13 +28,13 @@ import static io.microsphere.annotation.ConfigurationProperty.APPLICATION_SOURCE
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.serializer.Serializers.deserialize;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.getBoolean;
+import static io.microsphere.reflect.FieldUtils.getStaticFieldValue;
 import static io.microsphere.spring.core.env.PropertySourcesUtils.getSubProperties;
 import static io.microsphere.util.ArrayUtils.length;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Integer.parseInt;
 import static java.lang.Math.max;
 import static org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG;
-import static org.apache.kafka.clients.CommonClientConfigs.GROUP_ID_CONFIG;
 
 /**
  * Kafka Consumer {@link KafkaRedisReplicatorConfiguration}
@@ -48,11 +49,15 @@ public class KafkaConsumerRedisReplicatorConfiguration extends KafkaRedisReplica
 
     private static final Logger logger = getLogger(KafkaConsumerRedisReplicatorConfiguration.class);
 
-    private static final String DEFAULT_KAFKA_CONSUMER_ENABLED_PROPERTY_VALUE = "true";
+    private static final String KAFKA_GROUP_ID_CONFIG = getStaticFieldValue(CommonClientConfigs.class, "GROUP_ID_CONFIG");
 
-    private static final String DEFAULT_KAFKA_LISTENER_POLL_TIMEOUT_PROPERTY_VALUE = "10000";
+    static final String DEFAULT_KAFKA_CONSUMER_ENABLED_PROPERTY_VALUE = "true";
 
-    private static final String DEFAULT_KAFKA_LISTENER_CONCURRENCY_PROPERTY_VALUE = "1";
+    static final String DEFAULT_KAFKA_LISTENER_POLL_TIMEOUT_PROPERTY_VALUE = "10000";
+
+    static final String DEFAULT_KAFKA_LISTENER_CONCURRENCY_PROPERTY_VALUE = "1";
+
+    static final String GROUP_ID_CONFIG = KAFKA_GROUP_ID_CONFIG == null ? "group.id" : KAFKA_GROUP_ID_CONFIG;
 
     public static final String KAFKA_CONSUMER_PROPERTY_NAME_PREFIX = KafkaRedisReplicatorConfiguration.KAFKA_PROPERTY_NAME_PREFIX + "consumer.";
 
