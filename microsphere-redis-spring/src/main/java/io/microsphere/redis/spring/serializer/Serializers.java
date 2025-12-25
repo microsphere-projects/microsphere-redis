@@ -12,6 +12,7 @@ import org.springframework.data.redis.connection.RedisListCommands.Position;
 import org.springframework.data.redis.connection.RedisStringCommands.SetOption;
 import org.springframework.data.redis.connection.RedisZSetCommands;
 import org.springframework.data.redis.connection.RedisZSetCommands.Aggregate;
+import org.springframework.data.redis.connection.RedisZSetCommands.Weights;
 import org.springframework.data.redis.connection.ReturnType;
 import org.springframework.data.redis.connection.SortParameters;
 import org.springframework.data.redis.core.types.Expiration;
@@ -20,6 +21,7 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.lang.invoke.MethodHandle;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 import static io.microsphere.invoke.MethodHandlesLookupUtils.findPublicVirtual;
 import static io.microsphere.lang.function.ThrowableSupplier.execute;
 import static io.microsphere.logging.LoggerFactory.getLogger;
+import static io.microsphere.redis.spring.serializer.AbstractSerializer.resolveTargetType;
 import static io.microsphere.redis.spring.serializer.BooleanSerializer.BOOLEAN_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.ByteArraySerializer.BYTE_ARRAY_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.DoubleSerializer.DOUBLE_SERIALIZER;
@@ -43,14 +46,16 @@ import static io.microsphere.redis.spring.serializer.LongSerializer.LONG_SERIALI
 import static io.microsphere.redis.spring.serializer.PointSerializer.POINT_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.RangeSerializer.RANGE_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.RedisZSetCommandsRangeSerializer.REDIS_ZSET_COMMANDS_RANGE_SERIALIZER;
+import static io.microsphere.redis.spring.serializer.RedisZSetCommandsWeightsSerializer.REDIS_ZSET_COMMANDS_WEIGHTS_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.ShortSerializer.SHORT_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.SortParametersSerializer.SORT_PARAMETERS_SERIALIZER;
+import static io.microsphere.redis.spring.serializer.WeightsSerializer.WEIGHTS_SERIALIZER;
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.loadClass;
+import static io.microsphere.reflect.MethodUtils.findMethod;
+import static io.microsphere.reflect.MethodUtils.invokeMethod;
 import static io.microsphere.util.ClassUtils.getType;
 import static io.microsphere.util.ClassUtils.getTypeName;
-import static io.microsphere.util.ClassUtils.newInstance;
 import static io.microsphere.util.StringUtils.isBlank;
-import static org.springframework.core.ResolvableType.forClass;
 import static org.springframework.core.io.support.SpringFactoriesLoader.loadFactories;
 
 /**
@@ -125,14 +130,12 @@ public abstract class Serializers {
     }
 
     static Class<?> doGetTargetType(RedisSerializer<?> redisSerializer) {
-        return resolveTargetType(redisSerializer)
-                .resolve();
-    }
-
-    static ResolvableType resolveTargetType(RedisSerializer<?> redisSerializer) {
-        return forClass(redisSerializer.getClass())
-                .as(RedisSerializer.class)
-                .getGeneric(0);
+        Method method = findMethod(redisSerializer.getClass(), "getTargetType");
+        if (method == null) {
+            return resolveTargetType(redisSerializer)
+                    .resolve();
+        }
+        return invokeMethod(redisSerializer, method);
     }
 
     @Nullable
@@ -357,14 +360,18 @@ public abstract class Serializers {
         // org.springframework.data.redis.connection.RedisZSetCommands.Range type 
         register(RedisZSetCommands.Range.class, REDIS_ZSET_COMMANDS_RANGE_SERIALIZER);
 
-        // org.springframework.data.domain.Range
+        // org.springframework.data.domain.Range type
         register(Range.class, RANGE_SERIALIZER);
 
         // org.springframework.data.redis.connection.zset.Aggregate
         register(Aggregate.class, new EnumSerializer(Aggregate.class));
 
+        // org.springframework.data.redis.connection.RedisZSetCommands.Weights type
+
+        register(Weights.class, REDIS_ZSET_COMMANDS_WEIGHTS_SERIALIZER);
+
         // org.springframework.data.redis.connection.zset.Weights type 
-        register("org.springframework.data.redis.connection.zset.Weights", "io.microsphere.redis.spring.serializer.WeightsSerializer");
+        register("org.springframework.data.redis.connection.zset.Weights", WEIGHTS_SERIALIZER);
 
         // org.springframework.data.redis.connection.ReturnType type 
         register(ReturnType.class, new EnumSerializer(ReturnType.class));
@@ -404,14 +411,12 @@ public abstract class Serializers {
         return loadFactories(RedisSerializer.class, classLoader);
     }
 
-    static void register(String serializedTypeName, String serializerClassName) {
+    static void register(String serializedTypeName, RedisSerializer<?> serializer) {
         Class<?> serializedType = loadClass(serializedTypeName);
         if (serializedType == null) {
             return;
         }
-        Class<RedisSerializer<?>> serializerClass = (Class<RedisSerializer<?>>) loadClass(serializerClassName);
-        RedisSerializer<?> redisSerializer = newInstance(serializerClass);
-        register(serializedType, redisSerializer);
+        register(serializedType, serializer);
     }
 
     static void register(Class<?> type, RedisSerializer<?> serializer) {
