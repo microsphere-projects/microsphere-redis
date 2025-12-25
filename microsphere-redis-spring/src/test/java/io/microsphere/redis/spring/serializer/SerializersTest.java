@@ -30,10 +30,13 @@ import static io.microsphere.redis.spring.serializer.PointSerializer.POINT_SERIA
 import static io.microsphere.redis.spring.serializer.RedisZSetCommandsRangeSerializer.REDIS_ZSET_COMMANDS_RANGE_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.Serializers.DEFAULT_SERIALIZER;
 import static io.microsphere.redis.spring.serializer.Serializers.STRING_SERIALIZER;
+import static io.microsphere.redis.spring.serializer.Serializers.canSerialize;
 import static io.microsphere.redis.spring.serializer.Serializers.defaultDeserialize;
 import static io.microsphere.redis.spring.serializer.Serializers.defaultSerialize;
 import static io.microsphere.redis.spring.serializer.Serializers.deserialize;
+import static io.microsphere.redis.spring.serializer.Serializers.doGetTargetType;
 import static io.microsphere.redis.spring.serializer.Serializers.getSerializer;
+import static io.microsphere.redis.spring.serializer.Serializers.getTargetType;
 import static io.microsphere.redis.spring.serializer.Serializers.initializeParameterizedSerializer;
 import static io.microsphere.redis.spring.serializer.Serializers.register;
 import static io.microsphere.redis.spring.serializer.Serializers.serialize;
@@ -47,6 +50,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.data.redis.core.types.Expiration.seconds;
 
 /**
@@ -57,6 +61,28 @@ import static org.springframework.data.redis.core.types.Expiration.seconds;
  * @since 1.0.0
  */
 class SerializersTest {
+
+    @Test
+    void testCanSerialize() {
+        assertTrue(canSerialize(EXPIRATION_SERIALIZER, Expiration.class));
+        assertTrue(canSerialize(STRING_SERIALIZER, String.class));
+        assertTrue(canSerialize(DEFAULT_SERIALIZER, Object.class));
+        assertFalse(canSerialize(EXPIRATION_SERIALIZER, TimeUnit.class));
+    }
+
+    @Test
+    void testGetTargetType() {
+        assertEquals(Expiration.class, getTargetType(EXPIRATION_SERIALIZER));
+        assertEquals(String.class, getTargetType(STRING_SERIALIZER));
+        assertEquals(Object.class, getTargetType(DEFAULT_SERIALIZER));
+    }
+
+    @Test
+    void testDoGetTargetType() {
+        assertEquals(Expiration.class, doGetTargetType(EXPIRATION_SERIALIZER));
+        assertEquals(String.class, doGetTargetType(STRING_SERIALIZER));
+        assertEquals(Object.class, doGetTargetType(DEFAULT_SERIALIZER));
+    }
 
     @Test
     void testTypedSerializers() {
