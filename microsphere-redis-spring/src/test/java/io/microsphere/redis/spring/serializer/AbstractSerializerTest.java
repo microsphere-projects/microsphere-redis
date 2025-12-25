@@ -6,6 +6,8 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 
 import java.util.function.Supplier;
 
+import static io.microsphere.redis.spring.serializer.Serializers.canSerialize;
+import static io.microsphere.redis.spring.serializer.Serializers.getTargetType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -42,12 +44,12 @@ public abstract class AbstractSerializerTest<T> {
             assertEquals(value, deserialized);
         }
 
-        Class<?> targetType = serializer.getTargetType();
+        Class<?> targetType = getTargetType(serializer);
         ResolvableType resolvableType = forType(getClass()).getSuperType().getGeneric(0);
         Class<?> parameterType = resolvableType.resolve();
 
         assertSame(targetType, parameterType);
-        assertTrue(serializer.canSerialize(parameterType));
+        assertTrue(canSerialize(serializer, parameterType));
 
         if (serializer instanceof AbstractSerializer) {
             AbstractSerializer abstractSerializer = (AbstractSerializer) serializer;
