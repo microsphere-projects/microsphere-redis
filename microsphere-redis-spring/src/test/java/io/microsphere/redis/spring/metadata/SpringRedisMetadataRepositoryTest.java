@@ -26,7 +26,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.data.redis.connection.RedisCommands;
 import org.springframework.data.redis.connection.RedisConnection;
 
-import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
@@ -42,7 +41,6 @@ import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository
 import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.getWriteCommandMethod;
 import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.getWriteParameterMetadataList;
 import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.init;
-import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.initRedisConnectionInterface;
 import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.isWrite;
 import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.isWriteCommandMethod;
 import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.redisCommandInterfacesCache;
@@ -64,7 +62,6 @@ import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.REDIS_TX_
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.REDIS_ZSET_COMMANDS_INTERFACE_NAME;
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.loadClass;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodIndex;
-import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.util.ArrayUtils.EMPTY_STRING_ARRAY;
 import static io.microsphere.util.ArrayUtils.forEach;
 import static io.microsphere.util.IterableUtils.forEach;
@@ -182,15 +179,6 @@ class SpringRedisMetadataRepositoryTest {
     @Test
     void testCacheMethodInfoWithNull() {
         cacheMethodInfo(null, null);
-    }
-
-    @Test
-    void testInitRedisConnectionInterface() {
-        Method method = findMethod(String.class, "toUpperCase");
-        initRedisConnectionInterface(method);
-
-        Method method1 = findMethod(RedisCommandsExt.class, "set", byte[].class);
-        initRedisConnectionInterface(method1);
     }
 
     @Test

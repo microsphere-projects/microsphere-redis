@@ -27,12 +27,9 @@ import static io.microsphere.redis.spring.serializer.Serializers.getSerializer;
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.isRedisCommandsInterface;
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.loadClasses;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodId;
-import static io.microsphere.redis.util.RedisCommandUtils.buildMethodIndex;
-import static io.microsphere.redis.util.RedisCommandUtils.getParameterClassNames;
 import static io.microsphere.reflect.AccessibleObjectUtils.trySetAccessible;
 import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.util.ClassUtils.getAllInterfaces;
-import static io.microsphere.util.ClassUtils.isAssignableFrom;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Stream.of;
@@ -156,8 +153,6 @@ public abstract class SpringRedisMetadataRepository {
         }
 
         initRedisCommandBindings();
-
-        initRedisConnectionInterfaces();
     }
 
     private static void initRedisCommandBindings() {
@@ -179,55 +174,6 @@ public abstract class SpringRedisMetadataRepository {
         Method redisCommandMethod = findMethod(interfaceClass, methodName, parameterClasses);
 
         cacheMethodInfo(redisCommandMethod, methodMetadata);
-    }
-
-    static void initRedisConnectionInterfaces() {
-        initRedisConnectionInterface();
-    }
-
-    static void initRedisConnectionInterface() {
-        for (Method method : redisCommandMethods) {
-            initRedisConnectionInterface(method);
-        }
-    }
-
-    static void initRedisConnectionInterface(Method method) {
-        // Find the method override one of The RedisCommands interfaces' methods
-        MethodInfo methodInfo = getMethodInfo(method);
-        if (methodInfo == null) {
-            Class<?> declaringClass = method.getDeclaringClass();
-            if (isAssignableFrom(RedisCommands.class, declaringClass)) {
-                String methodName = method.getName();
-                Class<?>[] parameterTypes = method.getParameterTypes();
-                Method overridenMethod = findMethod(RedisCommands.class, methodName, parameterTypes);
-                if (overridenMethod != null) {
-                    methodInfo = getMethodInfo(overridenMethod);
-                    if (methodInfo != null) {
-                        MethodMetadata methodMetadata = methodInfo.getMethodMetadata();
-                        createAndCacheMethodInfo(method, methodMetadata);
-                    }
-                }
-            }
-        }
-    }
-
-    static void createAndCacheMethodInfo(Method overrider, MethodMetadata overriddenMethodMetadata) {
-        int index = buildMethodIndex(overrider);
-        String interfaceName = overrider.getDeclaringClass().getName();
-        String methodName = overrider.getName();
-        String[] parameterTypes = getParameterClassNames(overrider.getParameterTypes());
-        String[] commands = overriddenMethodMetadata.getCommands();
-        boolean write = overriddenMethodMetadata.isWrite();
-
-        MethodMetadata methodMetadata = new MethodMetadata();
-        methodMetadata.setIndex(index);
-        methodMetadata.setInterfaceName(interfaceName);
-        methodMetadata.setMethodName(methodName);
-        methodMetadata.setParameterTypes(parameterTypes);
-        methodMetadata.setCommands(commands);
-        methodMetadata.setWrite(write);
-
-        cacheMethodInfo(overrider, methodMetadata);
     }
 
     static MethodInfo getMethodInfo(String interfaceName, String methodName, String... parameterTypes) {
