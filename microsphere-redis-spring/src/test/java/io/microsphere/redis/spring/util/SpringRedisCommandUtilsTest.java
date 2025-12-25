@@ -269,7 +269,7 @@ class SpringRedisCommandUtilsTest {
             assertSameType(redisConnection, getRedisCommands(redisConnection, REDIS_PUB_SUB_COMMANDS_INTERFACE_NAME));
             assertSameType(redisConnection, getRedisCommands(redisConnection, REDIS_CONNECTION_COMMANDS_INTERFACE_NAME));
             assertSameType(redisConnection.serverCommands(), getRedisCommands(redisConnection, REDIS_SERVER_COMMANDS_INTERFACE_NAME));
-            assertSameType(redisConnection.streamCommands(), getRedisCommands(redisConnection, REDIS_STREAM_COMMANDS_INTERFACE_NAME));
+            assertSameType(redisConnection, getRedisCommands(redisConnection, REDIS_STREAM_COMMANDS_INTERFACE_NAME));
             assertSameType(redisConnection.scriptingCommands(), getRedisCommands(redisConnection, REDIS_SCRIPTING_COMMANDS_INTERFACE_NAME));
             assertSameType(redisConnection.geoCommands(), getRedisCommands(redisConnection, REDIS_GEO_COMMANDS_INTERFACE_NAME));
             assertSameType(redisConnection.hyperLogLogCommands(), getRedisCommands(redisConnection, REDIS_HYPER_LOG_LOG_COMMANDS_INTERFACE_NAME));
@@ -297,8 +297,9 @@ class SpringRedisCommandUtilsTest {
     void testInitializeParameters() {
         assertTrue(initializeParameters(SET_METHOD, SET_METHOD_ARGS, (parameter, integer) -> {
             ParameterMetadata metadata = parameter.getMetadata();
-            assertEquals(integer, metadata.getParameterIndex());
-            assertEquals(integer == 0 ? "key" : "value", metadata.getParameterName());
+            int index = integer.intValue();
+            assertEquals(index, metadata.getParameterIndex());
+            assertEquals(index == 0 ? "key" : "value", metadata.getParameterName());
             assertEquals("[B", metadata.getParameterType());
         }, (parameter, integer) -> {
             assertArrayEquals((byte[]) parameter.getValue(), parameter.getRawValue());
