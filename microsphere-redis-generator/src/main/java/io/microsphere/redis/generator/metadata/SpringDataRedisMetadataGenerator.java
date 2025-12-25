@@ -23,6 +23,7 @@ import io.microsphere.redis.generator.doclet.SpringDataRedisMetadataGenerationDo
 
 import javax.tools.DocumentationTool;
 import javax.tools.DocumentationTool.DocumentationTask;
+import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import java.io.File;
 import java.io.IOException;
@@ -114,12 +115,12 @@ public class SpringDataRedisMetadataGenerator {
 
         logger.info("The Documentation Tools' Class-Paths : {}", classPaths);
 
-        var docUtils = standardFileManager.getJavaFileObjects(sourceFiles.toArray(new Path[0]));
+        Iterable<? extends JavaFileObject> javaFileObjects = standardFileManager.getJavaFileObjects(sourceFiles.toArray(new Path[0]));
 
         Set<String> options = of(METADATA_FILE_OPTION_NAME + EQUAL + targetFilePath);
 
         DocumentationTask docTask = documentationTool.getTask(null, standardFileManager, null,
-                SpringDataRedisMetadataGenerationDoclet.class, options, docUtils);
+                SpringDataRedisMetadataGenerationDoclet.class, options, javaFileObjects);
 
         boolean result = docTask.call();
 
