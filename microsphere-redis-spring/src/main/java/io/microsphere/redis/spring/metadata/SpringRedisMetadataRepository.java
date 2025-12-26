@@ -27,6 +27,7 @@ import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.isRedisCo
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.loadClasses;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodId;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodIndex;
+import static io.microsphere.redis.util.RedisCommandUtils.buildParameterMetadataList;
 import static io.microsphere.redis.util.RedisCommandUtils.getParameterClassNames;
 import static io.microsphere.reflect.AccessibleObjectUtils.trySetAccessible;
 import static io.microsphere.reflect.MethodUtils.findMethod;
@@ -214,6 +215,7 @@ public abstract class SpringRedisMetadataRepository {
         int index = buildMethodIndex(overrider);
         String interfaceName = overrider.getDeclaringClass().getName();
         String methodName = overrider.getName();
+        String[] parameterNames = overriddenMethodMetadata.getParameterNames();
         String[] parameterTypes = getParameterClassNames(overrider.getParameterTypes());
         String[] commands = overriddenMethodMetadata.getCommands();
         boolean write = overriddenMethodMetadata.isWrite();
@@ -222,6 +224,7 @@ public abstract class SpringRedisMetadataRepository {
         methodMetadata.setIndex(index);
         methodMetadata.setInterfaceName(interfaceName);
         methodMetadata.setMethodName(methodName);
+        methodMetadata.setParameterNames(parameterNames);
         methodMetadata.setParameterTypes(parameterTypes);
         methodMetadata.setCommands(commands);
         methodMetadata.setWrite(write);
@@ -250,7 +253,7 @@ public abstract class SpringRedisMetadataRepository {
 
         trySetAccessible(redisCommandMethod);
 
-        List<ParameterMetadata> parameterMetadataList = buildParameterMetadataList(methodMetadata);
+        List<ParameterMetadata> parameterMetadataList = getParameterMetadataList(redisCommandMethod, methodMetadata);
 
         parameterMetadataList.forEach(parameterMetadata -> {
             // Preload the RedisSerializer implementation for the Method parameter type
@@ -268,9 +271,12 @@ public abstract class SpringRedisMetadataRepository {
         cache(methodInfoCache, methodId, methodInfo);
     }
 
-    static List<ParameterMetadata> buildParameterMetadataList(MethodMetadata methodMetadata) {
-        String[] parameterTypes = methodMetadata.getParameterTypes();
+    static List<ParameterMetadata> getParameterMetadataList(Method redisCommandMethod, MethodMetadata methodMetadata) {
         String[] parameterNames = methodMetadata.getParameterNames();
+        if (parameterNames == null) {
+            return buildParameterMetadataList(redisCommandMethod);
+        }
+        String[] parameterTypes = methodMetadata.getParameterTypes();
         int parameterCount = parameterTypes.length;
         List<ParameterMetadata> parameterMetadataList = newArrayList(parameterCount);
         for (int i = 0; i < parameterCount; i++) {
