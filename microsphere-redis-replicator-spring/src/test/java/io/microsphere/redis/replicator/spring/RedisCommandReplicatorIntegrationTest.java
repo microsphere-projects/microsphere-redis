@@ -35,7 +35,8 @@ import org.springframework.test.context.TestPropertySource;
         DefaultRedisConfig.class,
         KafkaConsumerRedisReplicatorConfiguration.class,
         RedisCommandReplicator.class,
-        RedisCommandReplicatorIntegrationTest.class},
+        RedisCommandReplicatorIntegrationTest.class
+},
         initializers = RedisInitializer.class)
 @TestPropertySource(properties = {
         "microsphere.redis.enabled=true"

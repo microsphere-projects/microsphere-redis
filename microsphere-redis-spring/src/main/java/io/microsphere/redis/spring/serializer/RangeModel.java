@@ -33,11 +33,11 @@ import static org.springframework.data.domain.Range.Bound.unbounded;
 import static org.springframework.data.domain.Range.of;
 
 /**
- * The model class to adapter {@link org.springframework.data.redis.connection.RedisZSetCommands.Range} or {@link Range}.
+ * The model class to adapter {@link RedisZSetCommands.Range} or {@link Range}.
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @see Range
- * @see org.springframework.data.redis.connection.RedisZSetCommands.Range
+ * @see RedisZSetCommands.Range
  * @since 1.0.0
  */
 public class RangeModel implements Externalizable {

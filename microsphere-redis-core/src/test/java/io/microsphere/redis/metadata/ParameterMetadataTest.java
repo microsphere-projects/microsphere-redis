@@ -66,7 +66,7 @@ class ParameterMetadataTest {
     void testHashCode() {
         assertEquals(this.parameterMetadata.hashCode(), new ParameterMetadata(0, "java.lang.String", "name").hashCode());
         assertEquals(this.parameterMetadata.hashCode(), new ParameterMetadata(0, "java.lang.String").hashCode());
-        assertFalse(this.parameterMetadata.hashCode()  == new ParameterMetadata(1, "java.lang.String").hashCode());
+        assertNotEquals(this.parameterMetadata.hashCode(), new ParameterMetadata(1, "java.lang.String").hashCode());
     }
 
     @Test
