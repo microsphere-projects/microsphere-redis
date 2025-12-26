@@ -5,7 +5,7 @@ import org.springframework.core.ResolvableType;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
 
-import static org.springframework.core.ResolvableType.forType;
+import static org.springframework.core.ResolvableType.forClass;
 
 /**
  * Abstract {@link RedisSerializer} Class
@@ -95,6 +95,6 @@ public abstract class AbstractSerializer<T> implements RedisSerializer<T> {
     protected abstract T doDeserialize(@Nonnull byte[] bytes) throws SerializationException;
 
     private ResolvableType resolvableType() {
-        return forType(getClass()).as(RedisSerializer.class).getGeneric(0);
+        return forClass(getClass()).as(RedisSerializer.class).getGeneric(0);
     }
 }
