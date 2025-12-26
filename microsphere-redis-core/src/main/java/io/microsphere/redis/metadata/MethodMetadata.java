@@ -41,6 +41,8 @@ public class MethodMetadata {
 
     private String methodName;
 
+    private String[] parameterNames;
+
     private String[] parameterTypes;
 
     private String[] commands;
@@ -69,6 +71,14 @@ public class MethodMetadata {
 
     public void setMethodName(String methodName) {
         this.methodName = methodName;
+    }
+
+    public String[] getParameterNames() {
+        return parameterNames;
+    }
+
+    public void setParameterNames(String[] parameterNames) {
+        this.parameterNames = parameterNames;
     }
 
     public String[] getParameterTypes() {
@@ -106,29 +116,31 @@ public class MethodMetadata {
         MethodMetadata that = (MethodMetadata) o;
         return this.index == that.index
                 && this.write == that.write
-                && Objects.equals(interfaceName, that.interfaceName)
-                && Objects.equals(methodName, that.methodName)
-                && arrayEquals(parameterTypes, that.parameterTypes)
-                && arrayEquals(commands, that.commands);
+                && Objects.equals(this.interfaceName, that.interfaceName)
+                && Objects.equals(this.methodName, that.methodName)
+                && arrayEquals(this.parameterNames, that.parameterNames)
+                && arrayEquals(this.parameterTypes, that.parameterTypes)
+                && arrayEquals(this.commands, that.commands);
     }
 
     @Override
     public int hashCode() {
-        int result = hash(index, interfaceName, methodName, write);
-        result = 31 * result + Arrays.hashCode(parameterTypes);
-        result = 31 * result + Arrays.hashCode(commands);
+        int result = hash(this.index, this.interfaceName, this.methodName, this.write);
+        result = 31 * result + Arrays.hashCode(this.parameterTypes);
+        result = 31 * result + Arrays.hashCode(this.commands);
         return result;
     }
 
     @Override
     public String toString() {
         return new StringJoiner(COMMA, MethodMetadata.class.getSimpleName() + LEFT_SQUARE_BRACKET, RIGHT_SQUARE_BRACKET)
-                .add("id=" + index)
-                .add("interfaceName='" + interfaceName + "'")
-                .add("methodName='" + methodName + "'")
-                .add("parameterTypes=" + arrayToString(parameterTypes))
-                .add("commands=" + arrayToString(commands))
-                .add("write=" + write)
+                .add("id=" + this.index)
+                .add("interfaceName='" + this.interfaceName + "'")
+                .add("methodName='" + this.methodName + "'")
+                .add("parameterNames=" + arrayToString(this.parameterNames))
+                .add("parameterTypes=" + arrayToString(this.parameterTypes))
+                .add("commands=" + arrayToString(this.commands))
+                .add("write=" + this.write)
                 .toString();
     }
 }
