@@ -48,11 +48,11 @@ public class KafkaConsumerRedisReplicatorConfiguration extends KafkaRedisReplica
 
     private static final Logger logger = getLogger(KafkaConsumerRedisReplicatorConfiguration.class);
 
-    private static final String DEFAULT_KAFKA_CONSUMER_ENABLED_PROPERTY_VALUE = "true";
+    static final String DEFAULT_KAFKA_CONSUMER_ENABLED_PROPERTY_VALUE = "true";
 
-    private static final String DEFAULT_KAFKA_LISTENER_POLL_TIMEOUT_PROPERTY_VALUE = "10000";
+    static final String DEFAULT_KAFKA_LISTENER_POLL_TIMEOUT_PROPERTY_VALUE = "10000";
 
-    private static final String DEFAULT_KAFKA_LISTENER_CONCURRENCY_PROPERTY_VALUE = "1";
+    static final String DEFAULT_KAFKA_LISTENER_CONCURRENCY_PROPERTY_VALUE = "1";
 
     public static final String KAFKA_CONSUMER_PROPERTY_NAME_PREFIX = KafkaRedisReplicatorConfiguration.KAFKA_PROPERTY_NAME_PREFIX + "consumer.";
 
