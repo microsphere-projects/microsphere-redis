@@ -294,8 +294,9 @@ class SpringRedisCommandUtilsTest {
     void testInitializeParameters() {
         assertTrue(initializeParameters(SET_METHOD, SET_METHOD_ARGS, (parameter, integer) -> {
             ParameterMetadata metadata = parameter.getMetadata();
-            assertEquals(integer, metadata.getParameterIndex());
-            assertEquals(integer == 0 ? "key" : "value", metadata.getParameterName());
+            int index = integer.intValue();
+            assertEquals(index, metadata.getParameterIndex());
+            assertEquals(index == 0 ? "key" : "value", metadata.getParameterName());
             assertEquals("[B", metadata.getParameterType());
         }, (parameter, integer) -> {
             assertArrayEquals((byte[]) parameter.getValue(), parameter.getRawValue());

@@ -5,6 +5,10 @@ import io.microsphere.annotation.Nullable;
 import java.util.Objects;
 import java.util.StringJoiner;
 
+import static io.microsphere.constants.SymbolConstants.COMMA;
+import static io.microsphere.constants.SymbolConstants.LEFT_SQUARE_BRACKET;
+import static io.microsphere.constants.SymbolConstants.RIGHT_SQUARE_BRACKET;
+
 /**
  * Redis Command Method parameter meta information
  *
@@ -57,7 +61,7 @@ public final class ParameterMetadata {
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", ParameterMetadata.class.getSimpleName() + "[", "]")
+        return new StringJoiner(COMMA, ParameterMetadata.class.getSimpleName() + LEFT_SQUARE_BRACKET, RIGHT_SQUARE_BRACKET)
                 .add("parameterIndex=" + parameterIndex)
                 .add("parameterType='" + parameterType + "'")
                 .add("parameterName='" + parameterName + "'")
