@@ -270,8 +270,8 @@ public abstract class SpringRedisMetadataRepository {
 
     static List<ParameterMetadata> buildParameterMetadataList(MethodMetadata methodMetadata) {
         String[] parameterTypes = methodMetadata.getParameterTypes();
+        String[] parameterNames = methodMetadata.getParameterNames();
         int parameterCount = parameterTypes.length;
-        String[] parameterNames = methodMetadata.getParameterTypes();
         List<ParameterMetadata> parameterMetadataList = newArrayList(parameterCount);
         for (int i = 0; i < parameterCount; i++) {
             String parameterType = parameterTypes[i];
