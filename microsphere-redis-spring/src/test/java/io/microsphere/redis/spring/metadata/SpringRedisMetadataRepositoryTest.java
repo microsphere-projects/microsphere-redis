@@ -36,6 +36,7 @@ import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository
 import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.cacheMethodInfo;
 import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.getMethodIndex;
 import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.getMethodInfo;
+import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.getParameterMetadataList;
 import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.getRedisCommandBindingFunction;
 import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.getRedisCommandInterfaceClass;
 import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.getRedisCommandMethod;
@@ -64,6 +65,7 @@ import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.REDIS_TX_
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.REDIS_ZSET_COMMANDS_INTERFACE_NAME;
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.loadClass;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodIndex;
+import static io.microsphere.redis.util.RedisCommandUtils.buildParameterMetadataList;
 import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.util.ArrayUtils.EMPTY_STRING_ARRAY;
 import static io.microsphere.util.ArrayUtils.forEach;
@@ -191,6 +193,14 @@ class SpringRedisMetadataRepositoryTest {
 
         Method method1 = findMethod(RedisCommandsExt.class, "set", byte[].class);
         initRedisConnectionInterface(method1);
+    }
+
+    @Test
+    void testGetParameterMetadataList() {
+        MethodMetadata methodMetadata = new MethodMetadata();
+        forEach(redisCommandMethods, method -> {
+            assertEquals(buildParameterMetadataList(method), getParameterMetadataList(method, methodMetadata));
+        });
     }
 
     @Test
