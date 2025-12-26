@@ -13,7 +13,6 @@ import org.springframework.data.redis.connection.RedisCommands;
 import org.springframework.data.redis.connection.RedisConnection;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,6 +26,7 @@ import static io.microsphere.redis.spring.serializer.Serializers.getSerializer;
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.isRedisCommandsInterface;
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.loadClasses;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodId;
+import static io.microsphere.redis.util.RedisCommandUtils.buildParameterMetadataList;
 import static io.microsphere.reflect.AccessibleObjectUtils.trySetAccessible;
 import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.util.ClassUtils.getAllInterfaces;
@@ -216,14 +216,16 @@ public abstract class SpringRedisMetadataRepository {
     }
 
     static List<ParameterMetadata> getParameterMetadataList(Method redisCommandMethod, MethodMetadata methodMetadata) {
+        String[] parameterNames = methodMetadata.getParameterNames();
+        if (parameterNames == null) {
+            return buildParameterMetadataList(redisCommandMethod);
+        }
         String[] parameterTypes = methodMetadata.getParameterTypes();
         int parameterCount = parameterTypes.length;
-        Parameter[] parameters = redisCommandMethod.getParameters();
         List<ParameterMetadata> parameterMetadataList = newArrayList(parameterCount);
         for (int i = 0; i < parameterCount; i++) {
-            Parameter parameter = parameters[i];
             String parameterType = parameterTypes[i];
-            String parameterName = parameter.getName();
+            String parameterName = parameterNames[i];
             ParameterMetadata parameterMetadata = new ParameterMetadata(i, parameterType, parameterName);
             parameterMetadataList.add(parameterMetadata);
         }
