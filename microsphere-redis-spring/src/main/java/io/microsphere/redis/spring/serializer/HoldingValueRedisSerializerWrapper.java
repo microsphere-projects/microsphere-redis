@@ -46,7 +46,7 @@ public class HoldingValueRedisSerializerWrapper<T> implements RedisSerializer<T>
         ValueHolder valueHolder = get();
         byte[] rawValue = valueHolder.getRawValue(value);
         if (rawValue == null) {
-            rawValue = delegate.serialize(value);
+            rawValue = this.delegate.serialize(value);
             // Cache the first time serialization
             valueHolder.set(value, rawValue);
         }
@@ -60,7 +60,7 @@ public class HoldingValueRedisSerializerWrapper<T> implements RedisSerializer<T>
         ValueHolder valueHolder = get();
         T value = (T) valueHolder.getValue(bytes);
         if (value == null) {
-            value = delegate.deserialize(bytes);
+            value = this.delegate.deserialize(bytes);
             valueHolder.set(value, bytes);
         }
         return value;
@@ -68,12 +68,12 @@ public class HoldingValueRedisSerializerWrapper<T> implements RedisSerializer<T>
 
     @Override
     public boolean canSerialize(Class type) {
-        return delegate.canSerialize(type);
+        return this.delegate.canSerialize(type);
     }
 
     @Override
     public Class<?> getTargetType() {
-        return delegate.getTargetType();
+        return this.delegate.getTargetType();
     }
 
     @Override
