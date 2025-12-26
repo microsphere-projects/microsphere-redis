@@ -47,6 +47,7 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.NestingKind;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementScanner9;
 import javax.tools.JavaCompiler;
@@ -68,7 +69,7 @@ import static com.sun.source.doctree.DocTree.Kind.SEE;
 import static io.microsphere.annotation.processor.util.ElementUtils.isInterface;
 import static io.microsphere.annotation.processor.util.MethodUtils.findDeclaredMethods;
 import static io.microsphere.annotation.processor.util.MethodUtils.getMethodName;
-import static io.microsphere.annotation.processor.util.MethodUtils.getMethodParameterTypeNames;
+import static io.microsphere.annotation.processor.util.TypeUtils.getTypeName;
 import static io.microsphere.collection.ListUtils.newLinkedList;
 import static io.microsphere.collection.MapUtils.newHashMap;
 import static io.microsphere.collection.MapUtils.newLinkedHashMap;
@@ -85,7 +86,6 @@ import static io.microsphere.redis.util.RedisCommandUtils.getRedisWriteCommands;
 import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.text.FormatUtils.format;
 import static io.microsphere.util.ArrayUtils.arrayToString;
-import static io.microsphere.util.ArrayUtils.length;
 import static io.microsphere.util.StringUtils.substringBetween;
 import static javax.lang.model.SourceVersion.latest;
 import static javax.lang.model.element.ElementKind.METHOD;
@@ -138,6 +138,11 @@ public class SpringDataRedisMetadataGenerationDoclet implements Doclet {
      * The metadata key of Spring Data Redis Command Method Name
      */
     public static final String METHOD_NAME_KEY = "methodName";
+
+    /**
+     * The metadata key of Spring Data Redis Command Method Parameters' names
+     */
+    private static final String METHOD_PARAMETER_NAMES_KEY = "parameterNames";
 
     /**
      * The metadata key of Spring Data Redis Command Method Parameters' types
@@ -271,25 +276,6 @@ public class SpringDataRedisMetadataGenerationDoclet implements Doclet {
 
     private boolean hasMethods(TypeMirror type) {
         return !findDeclaredMethods(type).isEmpty();
-    }
-
-    private String[] resolveMethodParameterClassNames(ExecutableElement methodElement) {
-        ClassLoader classLoader = getClassLoader();
-        String[] methodParameterTypeNames = getMethodParameterTypeNames(methodElement);
-        int length = length(methodParameterTypeNames);
-        String[] methodParameterClassNames = new String[length];
-        for (int i = 0; i < length; i++) {
-            String methodParameterTypeName = methodParameterTypeNames[i];
-            String methodParameterClassName = normalizeClassName(methodParameterTypeName);
-
-            Class<?> methodParameterClass = loadClass(classLoader, methodParameterClassName);
-            if (methodParameterClass == null) {
-                methodParameterClass = deduceMethodParameterClass(methodElement, methodParameterClassName, i, length, classLoader);
-            }
-
-            methodParameterClassNames[i] = methodParameterClass.getName();
-        }
-        return methodParameterClassNames;
     }
 
     private String normalizeClassName(String typeName) {
@@ -473,13 +459,20 @@ public class SpringDataRedisMetadataGenerationDoclet implements Doclet {
                 DocCommentTree dcTree = docTrees.getDocCommentTree(e);
                 String interfaceName = methodElement.getEnclosingElement().toString();
                 String methodName = getMethodName(methodElement);
-                String[] methodParameterTypeNames = resolveMethodParameterClassNames(methodElement);
+                List<? extends VariableElement> parameters = methodElement.getParameters();
+                int parameterCount = parameters.size();
+                String[] methodParameterNames = new String[parameterCount];
+                String[] methodParameterTypeNames = new String[parameterCount];
+
+                resolveMethodParameters(methodElement, parameters, parameterCount, methodParameterNames, methodParameterTypeNames);
+
                 int index = buildMethodIndex(interfaceName, methodName, methodParameterTypeNames);
 
                 Map<String, Object> redisMethodMetadataMap = newLinkedHashMap();
                 redisMethodMetadataMap.put(INDEX_KEY, index);
                 redisMethodMetadataMap.put(INTERFACE_NAME_KEY, interfaceName);
                 redisMethodMetadataMap.put(METHOD_NAME_KEY, methodName);
+                redisMethodMetadataMap.put(METHOD_PARAMETER_NAMES_KEY, methodParameterNames);
                 redisMethodMetadataMap.put(METHOD_PARAMETER_TYPES_KEY, methodParameterTypeNames);
 
                 if (dcTree != null) {
@@ -490,6 +483,24 @@ public class SpringDataRedisMetadataGenerationDoclet implements Doclet {
                 logger.info("Redis Method Metadata : {}", redisMethodMetadataMap);
             }
             return null;
+        }
+
+        private void resolveMethodParameters(ExecutableElement methodElement, List<? extends VariableElement> parameters,
+                                             int parameterCount, String[] methodParameterNames, String[] methodParameterTypeNames) {
+            ClassLoader classLoader = getClassLoader();
+            for (int i = 0; i < parameterCount; i++) {
+                VariableElement parameter = parameters.get(i);
+                String parameterName = parameter.getSimpleName().toString();
+                String parameterTypeName = getTypeName(parameter.asType());
+                String parameterClassName = normalizeClassName(parameterTypeName);
+
+                Class<?> parameterClass = loadClass(classLoader, parameterClassName);
+                if (parameterClass == null) {
+                    parameterClass = deduceMethodParameterClass(methodElement, parameterClassName, i, parameterCount, classLoader);
+                }
+                methodParameterNames[i] = parameterName;
+                methodParameterTypeNames[i] = parameterClass.getName();
+            }
         }
     }
 
