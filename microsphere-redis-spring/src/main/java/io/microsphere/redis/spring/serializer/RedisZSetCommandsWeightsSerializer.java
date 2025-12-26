@@ -17,39 +17,42 @@
 
 package io.microsphere.redis.spring.serializer;
 
-import org.springframework.data.domain.Range;
+import org.springframework.data.redis.connection.RedisZSetCommands;
+import org.springframework.data.redis.connection.RedisZSetCommands.Weights;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
 
-import static io.microsphere.redis.spring.serializer.RangeModel.from;
-import static io.microsphere.redis.spring.serializer.Serializers.defaultDeserialize;
+import java.util.List;
+
 import static io.microsphere.redis.spring.serializer.Serializers.defaultSerialize;
 
 /**
- * {@link RedisSerializer} class for {@link Range}
+ * {@link RedisZSetCommands.Weights} {@link RedisSerializer} Class
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
- * @see Range
- * @see RedisZSetCommandsRangeSerializer
+ * @see AbstractSerializer
+ * @see RedisZSetCommands
+ * @see Weights
  * @since 1.0.0
  */
-public class RangeSerializer extends AbstractSerializer<Range> {
+public class RedisZSetCommandsWeightsSerializer extends AbstractSerializer<Weights> {
 
-    public static final RangeSerializer RANGE_SERIALIZER = new RangeSerializer();
+    public static final RedisZSetCommandsWeightsSerializer REDIS_ZSET_COMMANDS_WEIGHTS_SERIALIZER = new RedisZSetCommandsWeightsSerializer();
 
     @Override
-    protected byte[] doSerialize(Range range) throws SerializationException {
-        RangeModel rangeModel = from(range);
-        return defaultSerialize(rangeModel);
-    }
-
-    public byte[] serialize(RangeModel rangeModel) throws SerializationException {
-        return defaultSerialize(rangeModel);
+    protected byte[] doSerialize(Weights weights) throws SerializationException {
+        List<Double> doubles = weights.toList();
+        return defaultSerialize(doubles);
     }
 
     @Override
-    protected Range doDeserialize(byte[] bytes) throws SerializationException {
-        RangeModel rangeModel = defaultDeserialize(bytes);
-        return rangeModel.toRange();
+    protected Weights doDeserialize(byte[] bytes) throws SerializationException {
+        List<Double> doubles = Serializers.deserialize(bytes, List.class);
+        int size = doubles.size();
+        double[] weights = new double[size];
+        for (int i = 0; i < size; i++) {
+            weights[i] = doubles.get(i);
+        }
+        return Weights.of(weights);
     }
 }

@@ -39,12 +39,10 @@ import org.springframework.data.redis.connection.ReactivePubSubCommands;
 import org.springframework.data.redis.connection.ReactiveScriptingCommands;
 import org.springframework.data.redis.connection.ReactiveServerCommands;
 import org.springframework.data.redis.connection.ReactiveSetCommands;
-import org.springframework.data.redis.connection.ReactiveStreamCommands;
 import org.springframework.data.redis.connection.ReactiveZSetCommands;
 import org.springframework.data.redis.connection.RedisClusterCommands;
 import org.springframework.data.redis.connection.RedisClusterConnection;
 import org.springframework.data.redis.connection.RedisCommands;
-import org.springframework.data.redis.connection.RedisCommandsProvider;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionCommands;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -58,7 +56,6 @@ import org.springframework.data.redis.connection.RedisScriptingCommands;
 import org.springframework.data.redis.connection.RedisSentinelCommands;
 import org.springframework.data.redis.connection.RedisServerCommands;
 import org.springframework.data.redis.connection.RedisSetCommands;
-import org.springframework.data.redis.connection.RedisStreamCommands;
 import org.springframework.data.redis.connection.RedisStringCommands;
 import org.springframework.data.redis.connection.RedisTxCommands;
 import org.springframework.data.redis.connection.RedisZSetCommands;
@@ -96,6 +93,7 @@ import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.getRedisC
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.initializeParameters;
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.isRedisCommandsExecuteMethod;
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.isRedisCommandsInterface;
+import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.loadClass;
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.loadClasses;
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.resolveInterfaceName;
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.resolveSimpleInterfaceName;
@@ -217,7 +215,10 @@ class SpringRedisCommandUtilsTest {
         assertTrue(isRedisCommandsInterface(RedisSentinelCommands.class));
         assertTrue(isRedisCommandsInterface(RedisServerCommands.class));
         assertTrue(isRedisCommandsInterface(RedisSetCommands.class));
-        assertTrue(isRedisCommandsInterface(RedisStreamCommands.class));
+        Class<?> redisStreamCommandsInterfaceClass = loadClass(REDIS_STREAM_COMMANDS_INTERFACE_NAME);
+        if (redisStreamCommandsInterfaceClass != null) {
+            assertTrue(isRedisCommandsInterface(redisStreamCommandsInterfaceClass));
+        }
         assertTrue(isRedisCommandsInterface(RedisStringCommands.class));
         assertTrue(isRedisCommandsInterface(RedisTxCommands.class));
         assertTrue(isRedisCommandsInterface(RedisZSetCommands.class));
@@ -241,12 +242,14 @@ class SpringRedisCommandUtilsTest {
         assertTrue(isRedisCommandsInterface(ReactiveScriptingCommands.class));
         assertTrue(isRedisCommandsInterface(ReactiveServerCommands.class));
         assertTrue(isRedisCommandsInterface(ReactiveSetCommands.class));
-        assertTrue(isRedisCommandsInterface(ReactiveStreamCommands.class));
+        Class<?> reactiveStreamCommandsInterfaceClass = loadClass("org.springframework.data.redis.connection.ReactiveStreamCommands");
+        if (reactiveStreamCommandsInterfaceClass != null) {
+            assertTrue(isRedisCommandsInterface(reactiveStreamCommandsInterfaceClass));
+        }
         assertTrue(isRedisCommandsInterface(RedisStringCommands.class));
         assertTrue(isRedisCommandsInterface(ReactiveZSetCommands.class));
 
         assertFalse(isRedisCommandsInterface(DefaultStringRedisConnection.class));
-        assertFalse(isRedisCommandsInterface(RedisCommandsProvider.class));
         assertFalse(isRedisCommandsInterface(AutoCloseable.class));
         assertFalse(isRedisCommandsInterface(Object.class));
     }
@@ -256,23 +259,23 @@ class SpringRedisCommandUtilsTest {
         testInSpringContainer(context -> {
             RedisConnectionFactory redisConnectionFactory = context.getBean(RedisConnectionFactory.class);
             RedisConnection redisConnection = redisConnectionFactory.getConnection();
-            assertSame(redisConnection.keyCommands(), getRedisCommands(redisConnection, REDIS_KEY_COMMANDS_INTERFACE_NAME));
-            assertSame(redisConnection.stringCommands(), getRedisCommands(redisConnection, REDIS_STRING_COMMANDS_INTERFACE_NAME));
-            assertSame(redisConnection.listCommands(), getRedisCommands(redisConnection, REDIS_LIST_COMMANDS_INTERFACE_NAME));
-            assertSame(redisConnection.setCommands(), getRedisCommands(redisConnection, REDIS_SET_COMMANDS_INTERFACE_NAME));
-            assertSame(redisConnection.zSetCommands(), getRedisCommands(redisConnection, REDIS_ZSET_COMMANDS_INTERFACE_NAME));
-            assertSame(redisConnection.hashCommands(), getRedisCommands(redisConnection, REDIS_HASH_COMMANDS_INTERFACE_NAME));
-            assertSame(redisConnection.commands(), getRedisCommands(redisConnection, REDIS_TX_COMMANDS_INTERFACE_NAME));
-            assertSame(redisConnection.commands(), getRedisCommands(redisConnection, REDIS_PUB_SUB_COMMANDS_INTERFACE_NAME));
-            assertSame(redisConnection.commands(), getRedisCommands(redisConnection, REDIS_CONNECTION_COMMANDS_INTERFACE_NAME));
-            assertSame(redisConnection.serverCommands(), getRedisCommands(redisConnection, REDIS_SERVER_COMMANDS_INTERFACE_NAME));
-            assertSame(redisConnection.streamCommands(), getRedisCommands(redisConnection, REDIS_STREAM_COMMANDS_INTERFACE_NAME));
-            assertSame(redisConnection.scriptingCommands(), getRedisCommands(redisConnection, REDIS_SCRIPTING_COMMANDS_INTERFACE_NAME));
-            assertSame(redisConnection.geoCommands(), getRedisCommands(redisConnection, REDIS_GEO_COMMANDS_INTERFACE_NAME));
-            assertSame(redisConnection.hyperLogLogCommands(), getRedisCommands(redisConnection, REDIS_HYPER_LOG_LOG_COMMANDS_INTERFACE_NAME));
-            assertSame(redisConnection.commands(), getRedisCommands(redisConnection, ""));
-            assertSame(redisConnection.commands(), getRedisCommands(redisConnection, null));
-            assertSame(redisConnection.commands(), getRedisCommands(redisConnection, "others"));
+            assertSameType(redisConnection.keyCommands(), getRedisCommands(redisConnection, REDIS_KEY_COMMANDS_INTERFACE_NAME));
+            assertSameType(redisConnection.stringCommands(), getRedisCommands(redisConnection, REDIS_STRING_COMMANDS_INTERFACE_NAME));
+            assertSameType(redisConnection.listCommands(), getRedisCommands(redisConnection, REDIS_LIST_COMMANDS_INTERFACE_NAME));
+            assertSameType(redisConnection.setCommands(), getRedisCommands(redisConnection, REDIS_SET_COMMANDS_INTERFACE_NAME));
+            assertSameType(redisConnection.zSetCommands(), getRedisCommands(redisConnection, REDIS_ZSET_COMMANDS_INTERFACE_NAME));
+            assertSameType(redisConnection.hashCommands(), getRedisCommands(redisConnection, REDIS_HASH_COMMANDS_INTERFACE_NAME));
+            assertSameType(redisConnection, getRedisCommands(redisConnection, REDIS_TX_COMMANDS_INTERFACE_NAME));
+            assertSameType(redisConnection, getRedisCommands(redisConnection, REDIS_PUB_SUB_COMMANDS_INTERFACE_NAME));
+            assertSameType(redisConnection, getRedisCommands(redisConnection, REDIS_CONNECTION_COMMANDS_INTERFACE_NAME));
+            assertSameType(redisConnection.serverCommands(), getRedisCommands(redisConnection, REDIS_SERVER_COMMANDS_INTERFACE_NAME));
+            assertSameType(redisConnection, getRedisCommands(redisConnection, REDIS_STREAM_COMMANDS_INTERFACE_NAME));
+            assertSameType(redisConnection.scriptingCommands(), getRedisCommands(redisConnection, REDIS_SCRIPTING_COMMANDS_INTERFACE_NAME));
+            assertSameType(redisConnection.geoCommands(), getRedisCommands(redisConnection, REDIS_GEO_COMMANDS_INTERFACE_NAME));
+            assertSameType(redisConnection.hyperLogLogCommands(), getRedisCommands(redisConnection, REDIS_HYPER_LOG_LOG_COMMANDS_INTERFACE_NAME));
+            assertSameType(redisConnection, getRedisCommands(redisConnection, ""));
+            assertSameType(redisConnection, getRedisCommands(redisConnection, null));
+            assertSameType(redisConnection, getRedisCommands(redisConnection, "others"));
         }, RedisConfig.class);
     }
 
@@ -284,9 +287,9 @@ class SpringRedisCommandUtilsTest {
             RedisContext redisContext = get(context);
             RedisMethodContext redisMethodContext = new RedisMethodContext(redisConnection, SET_METHOD, SET_METHOD_ARGS, redisContext, redisConnectionFactory, SOURCE_BEAN_NAME_FOR_REDIS_TEMPLATE);
             RedisCommandEvent event = new RedisCommandEvent(redisMethodContext);
-            assertEquals("org.springframework.data.redis.connection.DefaultedRedisConnection.set([B,[B)", buildCommandMethodId(event));
+            assertEquals("org.springframework.data.redis.connection.RedisStringCommands.set([B,[B)", buildCommandMethodId(event));
             assertEquals(buildCommandMethodId(event), buildMethodId(SET_METHOD));
-            assertEquals(buildCommandMethodId(event), buildMethodId("org.springframework.data.redis.connection.DefaultedRedisConnection", "set", byte[].class, byte[].class));
+            assertEquals(buildCommandMethodId(event), buildMethodId("org.springframework.data.redis.connection.RedisStringCommands", "set", byte[].class, byte[].class));
         }, RedisContextConfig.class);
     }
 
@@ -294,8 +297,9 @@ class SpringRedisCommandUtilsTest {
     void testInitializeParameters() {
         assertTrue(initializeParameters(SET_METHOD, SET_METHOD_ARGS, (parameter, integer) -> {
             ParameterMetadata metadata = parameter.getMetadata();
-            assertEquals(integer, metadata.getParameterIndex());
-            assertEquals(integer == 0 ? "key" : "value", metadata.getParameterName());
+            int index = integer.intValue();
+            assertEquals(index, metadata.getParameterIndex());
+            assertEquals(index == 0 ? "key" : "value", metadata.getParameterName());
             assertEquals("[B", metadata.getParameterType());
         }, (parameter, integer) -> {
             assertArrayEquals((byte[]) parameter.getValue(), parameter.getRawValue());
@@ -333,5 +337,9 @@ class SpringRedisCommandUtilsTest {
     void assertInterfaceName(String interfaceName) {
         assertEquals(interfaceName, resolveInterfaceName(resolveSimpleInterfaceName(interfaceName)));
         assertEquals(interfaceName, resolveInterfaceName(interfaceName));
+    }
+
+    void assertSameType(Object one, Object another) {
+        assertSame(one.getClass(), another.getClass());
     }
 }

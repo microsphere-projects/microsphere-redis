@@ -14,9 +14,9 @@ on:
   workflow_dispatch:
     inputs:
       revision:
-        description: 'The version to publish for Spring Boot 3+ and JDK 17+'
+        description: 'The version to publish for Spring Data Redis 2.0.x - 2.7.x'
         required: true
-        default: '2.0.0-SNAPSHOT'
+        default: '1.0.0-SNAPSHOT'
 
 jobs:
   build:

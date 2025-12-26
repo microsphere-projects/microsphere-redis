@@ -63,6 +63,10 @@ class MethodMetadataTest {
         assertNotEquals(this.methodMetadata, methodMetadata1);
         assertNotEquals(methodMetadata1, this.methodMetadata);
 
+        methodMetadata1.setParameterNames(ofArray("a", "b"));
+        assertNotEquals(this.methodMetadata, methodMetadata1);
+        assertNotEquals(methodMetadata1, this.methodMetadata);
+
         methodMetadata1.setMethodName("");
         assertNotEquals(this.methodMetadata, methodMetadata1);
         assertNotEquals(methodMetadata1, this.methodMetadata);
@@ -91,13 +95,15 @@ class MethodMetadataTest {
         short index = 0;
         String interfaceName = "io.microsphere.redis.metadata.MethodMetadataTest";
         String methodName = "test";
-        String[] parameterTypes = new String[]{"java.lang.String"};
+        String[] parameterNames = ofArray("name");
+        String[] parameterTypes = ofArray("java.lang.String");
         String[] commands = ofArray("X");
         boolean write = true;
 
         methodMetadata.setIndex(index);
         methodMetadata.setInterfaceName(interfaceName);
         methodMetadata.setMethodName(methodName);
+        methodMetadata.setParameterNames(parameterNames);
         methodMetadata.setParameterTypes(parameterTypes);
         methodMetadata.setCommands(commands);
         methodMetadata.setWrite(write);
@@ -106,6 +112,7 @@ class MethodMetadataTest {
         assertEquals(interfaceName, methodMetadata.getInterfaceName());
         assertEquals(methodName, methodMetadata.getMethodName());
         assertArrayEquals(parameterTypes, methodMetadata.getParameterTypes());
+        assertArrayEquals(parameterNames, methodMetadata.getParameterNames());
         assertArrayEquals(commands, methodMetadata.getCommands());
         assertEquals(write, methodMetadata.isWrite());
     }

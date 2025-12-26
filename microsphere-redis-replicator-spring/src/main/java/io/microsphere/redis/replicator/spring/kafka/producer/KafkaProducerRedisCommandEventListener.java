@@ -93,7 +93,9 @@ public class KafkaProducerRedisCommandEventListener implements ApplicationListen
         // Use a timestamp of the event
         long timestamp = event.getTimestamp();
 
-        CompletableFuture<SendResult<byte[], byte[]>> future = this.redisReplicatorKafkaTemplate.send(topic, partition, timestamp, key, value);
+        CompletableFuture<SendResult<byte[], byte[]>> future = this.redisReplicatorKafkaTemplate
+                .send(topic, partition, timestamp, key, value)
+                .completable();
 
         future.whenComplete(this::onComplete);
     }

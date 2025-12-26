@@ -6,6 +6,10 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.StringJoiner;
 
+import static io.microsphere.constants.SymbolConstants.COMMA;
+import static io.microsphere.constants.SymbolConstants.LEFT_SQUARE_BRACKET;
+import static io.microsphere.constants.SymbolConstants.RIGHT_SQUARE_BRACKET;
+
 /**
  * Redis Command Method parameters encapsulate the object
  *
@@ -71,7 +75,7 @@ public class Parameter {
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", Parameter.class.getSimpleName() + "[", "]")
+        return new StringJoiner(COMMA, Parameter.class.getSimpleName() + LEFT_SQUARE_BRACKET, RIGHT_SQUARE_BRACKET)
                 .add("value=" + value)
                 .add("metadata=" + metadata)
                 .add("rawValue=" + Arrays.toString(rawValue))

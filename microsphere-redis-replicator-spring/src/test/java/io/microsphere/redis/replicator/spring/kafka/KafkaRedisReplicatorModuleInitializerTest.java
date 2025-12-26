@@ -29,6 +29,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.mock.env.MockEnvironment;
 
 import static io.microsphere.redis.replicator.spring.kafka.KafkaRedisReplicatorConfiguration.DEFAULT_SPRING_KAFKA_BOOTSTRAP_SERVERS_PROPERTY_VALUE;
@@ -89,7 +90,10 @@ class KafkaRedisReplicatorModuleInitializerTest {
     void testSupportsOnUnsupported() {
         assertFalse(this.initializer.supports(this.context));
 
-        this.context.setClassLoader(getSystemClassLoader().getParent());
+        if (this.context instanceof DefaultResourceLoader) {
+            ((DefaultResourceLoader) this.context).setClassLoader(getSystemClassLoader().getParent());
+        }
+
         assertFalse(this.initializer.supports(this.context));
     }
 

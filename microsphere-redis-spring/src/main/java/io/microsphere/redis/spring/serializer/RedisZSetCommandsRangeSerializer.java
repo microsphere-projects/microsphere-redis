@@ -6,6 +6,7 @@ import org.springframework.data.redis.connection.RedisZSetCommands.Range.Boundar
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
 
+import static io.microsphere.redis.spring.serializer.RangeModel.from;
 import static io.microsphere.redis.spring.serializer.RangeSerializer.RANGE_SERIALIZER;
 import static org.springframework.data.redis.connection.RedisZSetCommands.Range.range;
 import static org.springframework.data.redis.connection.RedisZSetCommands.Range.unbounded;
@@ -20,14 +21,13 @@ import static org.springframework.data.redis.connection.RedisZSetCommands.Range.
  * @see RangeSerializer
  * @since 1.0.0
  */
-@Deprecated
 public class RedisZSetCommandsRangeSerializer extends AbstractSerializer<RedisZSetCommands.Range> {
 
     public static final RedisZSetCommandsRangeSerializer REDIS_ZSET_COMMANDS_RANGE_SERIALIZER = new RedisZSetCommandsRangeSerializer();
 
     @Override
     protected byte[] doSerialize(RedisZSetCommands.Range range) throws SerializationException {
-        return RANGE_SERIALIZER.serialize(range.toRange());
+        return RANGE_SERIALIZER.serialize(from(range));
     }
 
     @Override

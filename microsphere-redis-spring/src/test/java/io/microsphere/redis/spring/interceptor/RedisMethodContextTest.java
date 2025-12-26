@@ -16,10 +16,10 @@
  */
 package io.microsphere.redis.spring.interceptor;
 
+import io.microsphere.redis.metadata.Parameter;
 import io.microsphere.redis.spring.AbstractRedisTest;
 import io.microsphere.redis.spring.config.RedisContextConfig;
 import io.microsphere.redis.spring.context.RedisContext;
-import io.microsphere.redis.metadata.Parameter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -156,8 +156,8 @@ class RedisMethodContextTest extends AbstractRedisTest {
         java.lang.reflect.Parameter[] params = method.getParameters();
         for (int i = 0; i < parameterCount; i++) {
             java.lang.reflect.Parameter param = params[i];
-            String parameterName = param.getName();
             Parameter parameter = context.getParameter(i);
+            String parameterName = param.isNamePresent() ? param.getName() : parameter.getMetadata().getParameterName();
             assertEquals(parameterName, parameter.getMetadata().getParameterName());
             assertEquals(param.getType().getName(), parameter.getParameterType());
             assertEquals(context.getParameter(parameterName), parameter);
