@@ -9,8 +9,6 @@ import io.microsphere.redis.metadata.ParameterMetadata;
 import io.microsphere.redis.metadata.RedisMetadata;
 import io.microsphere.redis.spring.util.SpringRedisCommandUtils;
 import io.microsphere.redis.util.RedisCommandUtils;
-import org.springframework.core.DefaultParameterNameDiscoverer;
-import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.data.redis.connection.RedisCommands;
 import org.springframework.data.redis.connection.RedisConnection;
 
@@ -48,8 +46,6 @@ import static org.springframework.util.ReflectionUtils.invokeMethod;
 public abstract class SpringRedisMetadataRepository {
 
     private static final Logger logger = getLogger(SpringRedisMetadataRepository.class);
-
-    private static final ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
     static Method[] redisConnectionMethods = RedisConnection.class.getMethods();
 
@@ -254,7 +250,7 @@ public abstract class SpringRedisMetadataRepository {
 
         trySetAccessible(redisCommandMethod);
 
-        List<ParameterMetadata> parameterMetadataList = getParameterMetadataList(redisCommandMethod, methodMetadata);
+        List<ParameterMetadata> parameterMetadataList = buildParameterMetadataList(methodMetadata);
 
         parameterMetadataList.forEach(parameterMetadata -> {
             // Preload the RedisSerializer implementation for the Method parameter type
@@ -272,10 +268,10 @@ public abstract class SpringRedisMetadataRepository {
         cache(methodInfoCache, methodId, methodInfo);
     }
 
-    static List<ParameterMetadata> getParameterMetadataList(Method redisCommandMethod, MethodMetadata methodMetadata) {
+    static List<ParameterMetadata> buildParameterMetadataList(MethodMetadata methodMetadata) {
         String[] parameterTypes = methodMetadata.getParameterTypes();
         int parameterCount = parameterTypes.length;
-        String[] parameterNames = parameterNameDiscoverer.getParameterNames(redisCommandMethod);
+        String[] parameterNames = methodMetadata.getParameterTypes();
         List<ParameterMetadata> parameterMetadataList = newArrayList(parameterCount);
         for (int i = 0; i < parameterCount; i++) {
             String parameterType = parameterTypes[i];
