@@ -30,7 +30,21 @@ import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository
 import static io.microsphere.spring.beans.factory.support.BeanRegistrar.registerBeanDefinition;
 
 /**
- * {@link RedisConfiguration} {@link BeanDefinition} Registrar
+ * {@link ImportBeanDefinitionRegistrar} implementation that programmatically registers the
+ * {@link RedisConfiguration} bean and, when the Spring Cloud Environment is available,
+ * also registers the {@link PropagatingRedisConfigurationPropertyChangedEventApplicationListener}.
+ * This registrar is triggered by the {@link EnableRedisConfiguration} annotation via
+ * its {@link Import} meta-annotation.
+ *
+ * <h3>Example Usage</h3>
+ * <pre>{@code
+ *   // Applied automatically when @EnableRedisConfiguration is present on a @Configuration class.
+ *   // Manual registration (e.g. in tests):
+ *   BeanDefinitionRegistry registry = ...; // e.g. GenericApplicationContext
+ *   RedisConfigurationBeanDefinitionRegistrar registrar = new RedisConfigurationBeanDefinitionRegistrar();
+ *   registrar.setBeanClassLoader(getClass().getClassLoader());
+ *   registrar.registerBeanDefinitions(registry);
+ * }</pre>
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
@@ -48,6 +62,12 @@ class RedisConfigurationBeanDefinitionRegistrar implements ImportBeanDefinitionR
         registerBeanDefinitions(registry);
     }
 
+    /**
+     * Registers {@link RedisConfiguration} and, when a compatible Spring Cloud Environment is on the
+     * classpath, the {@link PropagatingRedisConfigurationPropertyChangedEventApplicationListener}.
+     *
+     * @param registry the Spring bean-definition registry to register beans into
+     */
     public void registerBeanDefinitions(BeanDefinitionRegistry registry) {
         registerRedisConfiguration(registry);
         registerApplicationListeners(registry);

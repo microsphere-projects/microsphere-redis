@@ -17,7 +17,27 @@ import static org.springframework.core.annotation.AnnotationAwareOrderComparator
 import static org.springframework.core.io.support.SpringFactoriesLoader.loadFactories;
 
 /**
- * Redis Initializer
+ * Spring {@link ApplicationContextInitializer} that bootstraps the Microsphere Redis module
+ * during application context initialization.  It loads all {@link RedisModuleInitializer}
+ * implementations via {@link org.springframework.core.io.support.SpringFactoriesLoader},
+ * sorts them by {@link org.springframework.core.Ordered} precedence, and calls
+ * {@link RedisModuleInitializer#initialize(ConfigurableApplicationContext, org.springframework.beans.factory.support.BeanDefinitionRegistry)}
+ * on each one that {@linkplain RedisModuleInitializer#supports supports} the current context.
+ *
+ * <p>Bootstrap contexts (detected by the presence of a Bootstrap property source) and contexts where
+ * Microsphere Redis is disabled are skipped.
+ *
+ * <h3>Example Usage</h3>
+ * <pre>{@code
+ *   // Registered automatically via spring.factories / META-INF/spring/...factories:
+ *   // org.springframework.context.ApplicationContextInitializer=\
+ *   //   io.microsphere.redis.spring.context.RedisInitializer
+ *
+ *   // Manual registration for tests:
+ *   SpringApplication app = new SpringApplication(MyApp.class);
+ *   app.addInitializers(new RedisInitializer());
+ *   app.run(args);
+ * }</pre>
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @since 1.0.0
