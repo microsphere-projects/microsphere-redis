@@ -39,7 +39,34 @@ import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.resolveSi
 import static java.nio.charset.StandardCharsets.US_ASCII;
 
 /**
- * {@link RedisSerializer} for {@link RedisCommandEvent}
+ * {@link RedisSerializer} for {@link RedisCommandEvent} that supports multiple wire-format
+ * versions via an internal {@link VersionedRedisSerializer} enum:
+ * <ul>
+ *   <li>{@link #VERSION_DEFAULT} ({@code 0}) – encodes interface name, method name, and
+ *       parameter types as strings.</li>
+ *   <li>{@link #VERSION_V1} ({@code 1}) – encodes the method as a compact 4-byte integer
+ *       index looked up from {@link io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository}.</li>
+ * </ul>
+ *
+ * <p>The version byte is written as the first byte during serialization and read back during
+ * deserialization to select the correct decoder.
+ *
+ * <h3>Example Usage</h3>
+ * <pre>{@code
+ *   RedisCommandEventSerializer serializer = new RedisCommandEventSerializer();
+ *
+ *   // Serialize using the version embedded in the event
+ *   RedisCommandEvent event = ...; // from EventPublishingRedisCommandInterceptor
+ *   byte[] bytes = serializer.serialize(event);
+ *
+ *   // Deserialize back
+ *   RedisCommandEvent restored = serializer.deserialize(bytes);
+ *   System.out.println(restored.getMethodName());
+ *
+ *   // Use the pre-built singleton (VERSION_DEFAULT)
+ *   RedisSerializer<RedisCommandEvent> defaultSerializer =
+ *           RedisCommandEventSerializer.DEFAULT_REDIS_COMMAND_EVENT_REDIS_SERIALIZER;
+ * }</pre>
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0

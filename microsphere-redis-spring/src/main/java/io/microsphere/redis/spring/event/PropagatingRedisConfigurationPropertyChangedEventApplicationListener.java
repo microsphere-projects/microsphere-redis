@@ -16,7 +16,30 @@ import static io.microsphere.util.ClassLoaderUtils.resolveClass;
 import static io.microsphere.util.StringUtils.startsWith;
 
 /**
- * {@link EnvironmentChangeEvent} {@link ApplicationListener} propagates {@link RedisConfigurationPropertyChangedEvent}
+ * Spring {@link SmartApplicationListener} that listens for
+ * {@link EnvironmentChangeEvent}s (from Spring Cloud) and republishes
+ * the changed property names as a {@link RedisConfigurationPropertyChangedEvent} on the application
+ * context, filtered to properties whose names start with the prefix
+ * {@code microsphere.redis.}.
+ *
+ * <p>Only registered when Spring Cloud's {@code EnvironmentChangeEvent} class is available on the
+ * classpath (checked via {@link #supports(ClassLoader)}).
+ *
+ * <h3>Example Usage</h3>
+ * <pre>{@code
+ *   // Automatically registered by RedisConfigurationBeanDefinitionRegistrar when supported.
+ *   // Can be checked at configuration time:
+ *   boolean supported = PropagatingRedisConfigurationPropertyChangedEventApplicationListener
+ *           .supports(getClass().getClassLoader());
+ *
+ *   // Listening for the propagated event:
+ *   @Component
+ *   public class MyListener implements ApplicationListener<RedisConfigurationPropertyChangedEvent> {
+ *       public void onApplicationEvent(RedisConfigurationPropertyChangedEvent event) {
+ *           System.out.println("Changed Redis properties: " + event.getPropertyNames());
+ *       }
+ *   }
+ * }</pre>
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @see RedisConfigurationPropertyChangedEvent
@@ -30,6 +53,12 @@ public class PropagatingRedisConfigurationPropertyChangedEventApplicationListene
 
     private final ConfigurableApplicationContext context;
 
+    /**
+     * Creates a listener that re-publishes Redis-property-change events onto the given context.
+     *
+     * @param context the application context to which {@link RedisConfigurationPropertyChangedEvent}s
+     *                will be published
+     */
     public PropagatingRedisConfigurationPropertyChangedEventApplicationListener(ConfigurableApplicationContext context) {
         this.context = context;
     }
@@ -57,6 +86,13 @@ public class PropagatingRedisConfigurationPropertyChangedEventApplicationListene
         this.eventType = resolveClass(ENVIRONMENT_CHANGE_EVENT_CLASS_NAME, classLoader);
     }
 
+    /**
+     * Returns {@code true} when Spring Cloud's {@code EnvironmentChangeEvent} class is available
+     * on the given class loader, meaning this listener can be safely registered.
+     *
+     * @param classLoader the class loader to check
+     * @return {@code true} if Spring Cloud is present on the classpath
+     */
     public static boolean supports(ClassLoader classLoader) {
         return isPresent(ENVIRONMENT_CHANGE_EVENT_CLASS_NAME, classLoader);
     }

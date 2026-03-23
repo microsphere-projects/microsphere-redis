@@ -26,7 +26,30 @@ import static io.microsphere.constants.SymbolConstants.LEFT_SQUARE_BRACKET;
 import static io.microsphere.constants.SymbolConstants.RIGHT_SQUARE_BRACKET;
 
 /**
- * Redis Metadata
+ * Top-level container for Redis metadata that groups a version string and a list of
+ * {@link MethodMetadata} instances.  Typically deserialized from YAML resources located at
+ * {@code META-INF/spring-data-redis-metadata.yaml} on the classpath.
+ *
+ * <h3>Example Usage</h3>
+ * <pre>{@code
+ *   RedisMetadata metadata = new RedisMetadata();
+ *   metadata.setVersion("1.0.0");
+ *
+ *   MethodMetadata method = new MethodMetadata();
+ *   method.setMethodName("set");
+ *   method.setCommands(new String[]{"SET"});
+ *   method.setWrite(true);
+ *   metadata.getMethods().add(method);
+ *
+ *   System.out.println(metadata.getVersion());        // "1.0.0"
+ *   System.out.println(metadata.getMethods().size()); // 1
+ *
+ *   // Merge two instances
+ *   RedisMetadata other = new RedisMetadata();
+ *   other.setVersion("2.0.0");
+ *   metadata.merge(other);
+ *   System.out.println(metadata.getVersion());        // "2.0.0"
+ * }</pre>
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @see MethodMetadata
@@ -38,14 +61,30 @@ public class RedisMetadata {
 
     private List<MethodMetadata> methods;
 
+    /**
+     * Returns the schema/data version string of this metadata (e.g. {@code "1.0.0"}).
+     *
+     * @return version string, may be {@code null} if not set
+     */
     public String getVersion() {
         return version;
     }
 
+    /**
+     * Sets the version string.
+     *
+     * @param version the version string to set
+     */
     public void setVersion(String version) {
         this.version = version;
     }
 
+    /**
+     * Returns the list of {@link MethodMetadata} entries, lazily initializing it to an empty
+     * {@link java.util.LinkedList} if not yet set.
+     *
+     * @return non-null mutable list of {@link MethodMetadata}
+     */
     public List<MethodMetadata> getMethods() {
         List<MethodMetadata> methods = this.methods;
         if (methods == null) {
@@ -55,10 +94,22 @@ public class RedisMetadata {
         return methods;
     }
 
+    /**
+     * Sets the list of {@link MethodMetadata}.
+     *
+     * @param methods the list of method metadata to set
+     */
     public void setMethods(List<MethodMetadata> methods) {
         this.methods = methods;
     }
 
+    /**
+     * Merges another {@link RedisMetadata} into this instance by adopting the other's version
+     * string and appending all of its method metadata entries to this instance's list.
+     *
+     * @param another the {@link RedisMetadata} to merge into this instance
+     * @return this instance (for chaining)
+     */
     public RedisMetadata merge(RedisMetadata another) {
         List<MethodMetadata> methods = getMethods();
         // Merge the version

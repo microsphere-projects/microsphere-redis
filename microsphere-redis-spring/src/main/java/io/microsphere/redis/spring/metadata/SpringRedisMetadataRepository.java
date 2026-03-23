@@ -26,17 +26,42 @@ import static io.microsphere.redis.spring.serializer.Serializers.getSerializer;
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.isRedisCommandsInterface;
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.loadClasses;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodId;
+import static io.microsphere.redis.util.RedisCommandUtils.buildMethodIndex;
 import static io.microsphere.redis.util.RedisCommandUtils.buildParameterMetadataList;
+import static io.microsphere.redis.util.RedisCommandUtils.getParameterClassNames;
 import static io.microsphere.reflect.AccessibleObjectUtils.trySetAccessible;
 import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.util.ClassUtils.getAllInterfaces;
+import static io.microsphere.util.ClassUtils.isAssignableFrom;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Stream.of;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
 
 /**
- * Spring Data Redis Metadata Repository
+ * Static repository and cache for all Spring Data Redis method metadata loaded from the
+ * {@code META-INF/spring-data-redis-metadata.yaml} YAML descriptors.
+ * Provides lookup methods to resolve {@link MethodInfo}, check whether a method is a Redis
+ * write command, and obtain the binding function for a Redis command sub-interface.
+ *
+ * <p>The repository is eagerly initialised in a static initializer by calling {@link #initCache()}.
+ *
+ * <h3>Example Usage</h3>
+ * <pre>{@code
+ *   // Trigger initialization (no-op if already done via static block):
+ *   SpringRedisMetadataRepository.init();
+ *
+ *   // Check whether a method is a write command
+ *   Method method = RedisStringCommands.class.getMethod("set", byte[].class, byte[].class);
+ *   boolean write = SpringRedisMetadataRepository.isWriteCommandMethod(method); // true
+ *
+ *   // Resolve a method by index
+ *   Integer index = SpringRedisMetadataRepository.getMethodIndex(method);
+ *   Method resolved = SpringRedisMetadataRepository.getRedisCommandMethod(index);
+ *
+ *   // Get the parameter metadata list for a write command
+ *   List<ParameterMetadata> params = SpringRedisMetadataRepository.getWriteParameterMetadataList(method);
+ * }</pre>
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @since 1.0.0
@@ -81,34 +106,70 @@ public abstract class SpringRedisMetadataRepository {
     }
 
     /**
-     * Initialize the Redis Metadata Repository
+     * Triggers initialization of the Redis metadata repository.
+     * The static initializer already calls {@link #initCache()} eagerly,
+     * so this method is effectively a no-op, but is provided for explicit bootstrapping.
      */
     public static void init() {
     }
 
+    /**
+     * Returns the numeric method index for the given {@link Method}, or {@code null} if not found.
+     *
+     * @param redisCommandMethod the Redis command method
+     * @return the method index, or {@code null}
+     */
     @Nullable
     public static Integer getMethodIndex(Method redisCommandMethod) {
         MethodInfo methodInfo = getMethodInfo(redisCommandMethod);
         return methodInfo == null ? null : methodInfo.getMethodMetadata().getIndex();
     }
 
+    /**
+     * Returns the {@link Method} associated with the given numeric method index, or {@code null} if not found.
+     *
+     * @param methodIndex the method index (absolute hash of the method id)
+     * @return the Redis command {@link Method}, or {@code null}
+     */
     @Nullable
     public static Method getRedisCommandMethod(int methodIndex) {
         MethodInfo methodInfo = getMethodInfo(methodIndex);
         return methodInfo == null ? null : methodInfo.getMethod();
     }
 
+    /**
+     * Returns the {@link Method} identified by interface name, method name, and parameter types,
+     * or {@code null} if not found.
+     *
+     * @param interfaceName  the fully-qualified Redis command interface name
+     * @param methodName     the method name
+     * @param parameterTypes the parameter type names (varargs)
+     * @return the Redis command {@link Method}, or {@code null}
+     */
     @Nullable
     public static Method getRedisCommandMethod(String interfaceName, String methodName, String... parameterTypes) {
         MethodInfo methodInfo = getMethodInfo(interfaceName, methodName, parameterTypes);
         return methodInfo == null ? null : methodInfo.getMethod();
     }
 
+    /**
+     * Returns {@code true} if the given method is a known Redis <em>write</em> command.
+     *
+     * @param method the method to check
+     * @return {@code true} for write commands (e.g. SET, DEL)
+     */
     public static boolean isWriteCommandMethod(Method method) {
         MethodInfo methodInfo = getMethodInfo(method);
         return isWrite(methodInfo);
     }
 
+    /**
+     * Returns the {@link ParameterMetadata} list for the given method if it is a write command,
+     * or {@code null} if it is not a write command or is unknown.
+     *
+     * @param method the Redis command method
+     * @return the parameter metadata list, or {@code null}
+     */
     @Nullable
     public static List<ParameterMetadata> getWriteParameterMetadataList(Method method) {
         MethodInfo methodInfo = getMethodInfo(method);
@@ -118,6 +179,15 @@ public abstract class SpringRedisMetadataRepository {
         return null;
     }
 
+    /**
+     * Returns the write command {@link Method} identified by interface name, method name, and parameter types,
+     * or {@code null} if not found or if the method is not a write command.
+     *
+     * @param interfaceName  the fully-qualified Redis command interface name
+     * @param methodName     the method name
+     * @param parameterTypes the parameter type names (varargs)
+     * @return the write command {@link Method}, or {@code null}
+     */
     @Nullable
     public static Method getWriteCommandMethod(String interfaceName, String methodName, String... parameterTypes) {
         MethodInfo methodInfo = getMethodInfo(interfaceName, methodName, parameterTypes);
@@ -138,6 +208,15 @@ public abstract class SpringRedisMetadataRepository {
         return redisCommandInterfacesCache.get(interfaceName);
     }
 
+    /**
+     * Returns the binding function that retrieves the Redis sub-command object from a
+     * {@link RedisConnection} for the given interface name (e.g.
+     * {@code redisConnection.stringCommands()}). Falls back to returning the connection
+     * itself when no specific binding exists.
+     *
+     * @param interfaceName the fully-qualified Redis command interface name
+     * @return non-null function
+     */
     @Nonnull
     public static Function<RedisConnection, Object> getRedisCommandBindingFunction(String interfaceName) {
         return redisCommandBindings.getOrDefault(interfaceName, redisConnection -> redisConnection);
@@ -174,6 +253,57 @@ public abstract class SpringRedisMetadataRepository {
         Method redisCommandMethod = findMethod(interfaceClass, methodName, parameterClasses);
 
         cacheMethodInfo(redisCommandMethod, methodMetadata);
+    }
+
+    static void initRedisConnectionInterfaces() {
+        initRedisConnectionInterface();
+    }
+
+    static void initRedisConnectionInterface() {
+        for (Method method : redisCommandMethods) {
+            initRedisConnectionInterface(method);
+        }
+    }
+
+    static void initRedisConnectionInterface(Method method) {
+        // Find the method override one of The RedisCommands interfaces' methods
+        MethodInfo methodInfo = getMethodInfo(method);
+        if (methodInfo == null) {
+            Class<?> declaringClass = method.getDeclaringClass();
+            if (isAssignableFrom(RedisCommands.class, declaringClass)) {
+                String methodName = method.getName();
+                Class<?>[] parameterTypes = method.getParameterTypes();
+                Method overridenMethod = findMethod(RedisCommands.class, methodName, parameterTypes);
+                if (overridenMethod != null) {
+                    methodInfo = getMethodInfo(overridenMethod);
+                    if (methodInfo != null) {
+                        MethodMetadata methodMetadata = methodInfo.getMethodMetadata();
+                        createAndCacheMethodInfo(method, methodMetadata);
+                    }
+                }
+            }
+        }
+    }
+
+    static void createAndCacheMethodInfo(Method overrider, MethodMetadata overriddenMethodMetadata) {
+        int index = buildMethodIndex(overrider);
+        String interfaceName = overrider.getDeclaringClass().getName();
+        String methodName = overrider.getName();
+        String[] parameterNames = overriddenMethodMetadata.getParameterNames();
+        String[] parameterTypes = getParameterClassNames(overrider.getParameterTypes());
+        String[] commands = overriddenMethodMetadata.getCommands();
+        boolean write = overriddenMethodMetadata.isWrite();
+
+        MethodMetadata methodMetadata = new MethodMetadata();
+        methodMetadata.setIndex(index);
+        methodMetadata.setInterfaceName(interfaceName);
+        methodMetadata.setMethodName(methodName);
+        methodMetadata.setParameterNames(parameterNames);
+        methodMetadata.setParameterTypes(parameterTypes);
+        methodMetadata.setCommands(commands);
+        methodMetadata.setWrite(write);
+
+        cacheMethodInfo(overrider, methodMetadata);
     }
 
     static MethodInfo getMethodInfo(String interfaceName, String methodName, String... parameterTypes) {

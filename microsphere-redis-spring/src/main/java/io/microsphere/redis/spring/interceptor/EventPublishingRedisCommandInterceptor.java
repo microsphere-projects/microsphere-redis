@@ -27,7 +27,23 @@ import org.springframework.data.redis.connection.RedisCommands;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 
 /**
- * {@link RedisCommandInterceptor} publishes {@link RedisCommandEvent}
+ * {@link RedisCommandInterceptor} that publishes a {@link RedisCommandEvent} to the Spring
+ * application context after each successful Redis <em>write</em> command, provided that
+ * command-event exposure is enabled ({@link RedisConfiguration#isCommandEventExposed()}).
+ *
+ * <h3>Example Usage</h3>
+ * <pre>{@code
+ *   // Registered automatically by @EnableRedisInterceptor(exposeCommandEvent = true).
+ *   // Listen for the events published by this interceptor:
+ *   @Component
+ *   public class MyRedisCommandListener implements ApplicationListener<RedisCommandEvent> {
+ *       @Override
+ *       public void onApplicationEvent(RedisCommandEvent event) {
+ *           System.out.println("Redis write command executed: " + event.getMethodName());
+ *           System.out.println("Application: " + event.getApplicationName());
+ *       }
+ *   }
+ * }</pre>
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @see RedisCommandInterceptor
@@ -47,10 +63,22 @@ public class EventPublishingRedisCommandInterceptor implements RedisCommandInter
 
     private ApplicationEventPublisher applicationEventPublisher;
 
+    /**
+     * Creates the interceptor with the given {@link RedisConfiguration}.
+     *
+     * @param redisConfiguration the Redis configuration used to check whether command-event
+     *                           exposure is currently enabled
+     */
     public EventPublishingRedisCommandInterceptor(RedisConfiguration redisConfiguration) {
         this.redisConfiguration = redisConfiguration;
     }
 
+    /**
+     * Returns {@code true} when command-event exposure is enabled via
+     * {@link RedisConfiguration#isCommandEventExposed()}.
+     *
+     * @return {@code true} if {@link RedisCommandEvent} should be published
+     */
     public boolean isEnabled() {
         return this.redisConfiguration.isCommandEventExposed();
     }

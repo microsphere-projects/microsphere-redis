@@ -36,7 +36,6 @@ import static io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsume
 import static io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration.DEFAULT_KAFKA_LISTENER_CONCURRENCY_PROPERTY_VALUE;
 import static io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration.DEFAULT_KAFKA_LISTENER_POLL_TIMEOUT;
 import static io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration.DEFAULT_KAFKA_LISTENER_POLL_TIMEOUT_PROPERTY_VALUE;
-import static io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration.GROUP_ID_CONFIG;
 import static io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration.KAFKA_CONSUMER_ENABLED_PROPERTY_NAME;
 import static io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration.KAFKA_CONSUMER_GROUP_ID_PREFIX;
 import static io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration.KAFKA_CONSUMER_PROPERTY_NAME_PREFIX;
@@ -45,6 +44,7 @@ import static io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsume
 import static io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration.KAFKA_LISTENER_PROPERTY_NAME_PREFIX;
 import static io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration.isKafkaConsumerEnabled;
 import static io.microsphere.spring.test.util.SpringTestUtils.testInSpringContainer;
+import static org.apache.kafka.clients.CommonClientConfigs.GROUP_ID_CONFIG;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
