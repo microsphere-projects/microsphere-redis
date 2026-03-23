@@ -62,7 +62,30 @@ import static org.springframework.util.StringUtils.hasText;
 import static org.springframework.util.StringUtils.trimAllWhitespace;
 
 /**
- * The utils class for Microsphere Redis Spring
+ * Utility class for the Microsphere Redis Spring integration.  Provides helper methods for:
+ * <ul>
+ *   <li>Reading Redis-related configuration properties from the Spring {@link Environment}</li>
+ *   <li>Looking up {@link RedisTemplate} and {@link RedisConnectionFactory} beans in the
+ *       application context</li>
+ *   <li>Finding {@link RedisCommandInterceptor} and {@link RedisConnectionInterceptor} beans</li>
+ *   <li>Resolving the set of {@link RedisTemplate} bean names to wrap</li>
+ * </ul>
+ *
+ * <h3>Example Usage</h3>
+ * <pre>{@code
+ *   // Check if Redis interception is enabled
+ *   boolean enabled = RedisSpringUtils.isMicrosphereRedisEnabled(environment);
+ *
+ *   // Find all RedisTemplate bean names
+ *   Set<String> names = RedisSpringUtils.findRedisTemplateBeanNames(beanFactory);
+ *
+ *   // Resolve the set of beans to wrap from config or annotation attributes
+ *   Set<String> toWrap = RedisSpringUtils.getWrappedRedisTemplateBeanNames(
+ *           beanFactory, environment, "redisTemplate", "stringRedisTemplate");
+ *
+ *   // Unwrap a proxy RedisConnection back to the real connection
+ *   RedisConnection raw = RedisSpringUtils.getRawRedisConnection(proxiedConnection);
+ * }</pre>
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @see Utils
@@ -251,6 +274,17 @@ public abstract class RedisSpringUtils implements Utils {
         return redisConnection;
     }
 
+    /**
+     * Reads a boolean configuration property from the Spring {@link Environment}, logs the
+     * resolved value, and returns it.
+     *
+     * @param environment   the Spring environment
+     * @param propertyName  the property name to look up (e.g. {@code "microsphere.redis.enabled"})
+     * @param defaultValue  the value to use when the property is not set
+     * @param feature       a human-readable feature label used in the log message (e.g. {@code "Configuration"})
+     * @param statusIfTrue  the label used in the log message when the value is {@code true} (e.g. {@code "enabled"})
+     * @return the resolved boolean value
+     */
     public static boolean getBoolean(Environment environment, String propertyName, boolean defaultValue, String feature, String statusIfTrue) {
         Boolean propertyValue = environment.getProperty(propertyName, Boolean.class);
         boolean value = propertyValue == null ? defaultValue : propertyValue.booleanValue();

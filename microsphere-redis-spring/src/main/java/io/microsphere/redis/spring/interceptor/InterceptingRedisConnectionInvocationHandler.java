@@ -18,7 +18,28 @@ import static io.microsphere.reflect.AccessibleObjectUtils.trySetAccessible;
 import static java.lang.System.identityHashCode;
 
 /**
- * {@link InvocationHandler} for Intercepting {@link RedisConnection}
+ * JDK {@link InvocationHandler} used as the backing handler for the proxy {@link RedisConnection}
+ * created by {@link RedisConnectionFactoryProxyBeanPostProcessor#newProxyRedisConnection}.
+ * For every method call it:
+ * <ol>
+ *   <li>Short-circuits {@link Object#equals}, {@link Object#hashCode}, and
+ *       {@link DelegatingWrapper#getDelegate()} without creating a context object.</li>
+ *   <li>Creates a {@link RedisMethodContext} and invokes all registered
+ *       {@link RedisConnectionInterceptor}s and {@link RedisCommandInterceptor}s
+ *       in {@link #beforeExecute} / {@link #afterExecute} phases.</li>
+ *   <li>Delegates the actual call to the real {@link RedisConnection}.</li>
+ * </ol>
+ *
+ * <h3>Example Usage</h3>
+ * <pre>{@code
+ *   // Created internally by RedisConnectionFactoryProxyBeanPostProcessor:
+ *   InvocationHandler handler = new InterceptingRedisConnectionInvocationHandler(
+ *           rawConnection, redisContext, redisTemplate, "redisTemplate");
+ *   RedisConnection proxy = (RedisConnection) Proxy.newProxyInstance(
+ *           classLoader,
+ *           new Class[]{RedisConnection.class, DelegatingWrapper.class},
+ *           handler);
+ * }</pre>
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @see RedisConnectionFactory
@@ -67,6 +88,15 @@ public class InterceptingRedisConnectionInvocationHandler implements InvocationH
 
     private final boolean hasRedisCommandInterceptors;
 
+    /**
+     * Creates an invocation handler that wraps the given raw {@link RedisConnection} and routes
+     * every method call through all registered interceptors.
+     *
+     * @param rawRedisConnection the real (non-proxied) {@link RedisConnection}
+     * @param redisContext       the {@link RedisContext} providing interceptors and configuration
+     * @param sourceBean         the originating bean (e.g. a {@link org.springframework.data.redis.core.RedisTemplate})
+     * @param sourceBeanName     the Spring bean name of the originating bean
+     */
     public InterceptingRedisConnectionInvocationHandler(RedisConnection rawRedisConnection, RedisContext redisContext,
                                                         Object sourceBean, String sourceBeanName) {
         this.rawRedisConnection = rawRedisConnection;

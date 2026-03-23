@@ -42,7 +42,27 @@ import static io.microsphere.reflect.MethodUtils.findMethod;
 import static java.lang.reflect.Proxy.newProxyInstance;
 
 /**
- * {@link RedisConnectionFactory} Proxy {@link BeanPostProcessor}
+ * {@link BeanPostProcessor} that wraps every {@link RedisConnectionFactory} bean in an AOP proxy
+ * so that each call to {@link RedisConnectionFactory#getConnection()} returns a JDK dynamic proxy
+ * that implements both {@link RedisConnection} and {@link DelegatingWrapper}.  The proxy delegates
+ * all calls to an {@link InterceptingRedisConnectionInvocationHandler}, enabling transparent
+ * interception of Redis commands.
+ *
+ * <p>Registered by {@link io.microsphere.redis.spring.annotation.RedisInterceptorBeanDefinitionRegistrar}
+ * when no explicit {@link org.springframework.data.redis.core.RedisTemplate} bean names are specified
+ * via {@link io.microsphere.redis.spring.annotation.EnableRedisInterceptor#wrapRedisTemplates()}.
+ *
+ * <h3>Example Usage</h3>
+ * <pre>{@code
+ *   // Registered automatically by @EnableRedisInterceptor when wrapRedisTemplates is empty.
+ *   // Manual registration in a BeanFactory:
+ *   ConfigurableBeanFactory beanFactory = ...;
+ *   beanFactory.addBeanPostProcessor(new RedisConnectionFactoryProxyBeanPostProcessor(beanFactory));
+ *
+ *   // Retrieve the raw (pre-proxy) RedisConnectionFactory for a bean named "redisConnectionFactory"
+ *   RedisConnectionFactory raw =
+ *       RedisConnectionFactoryProxyBeanPostProcessor.getRawRedisConnectionFactory(beanFactory, "redisConnectionFactory");
+ * }</pre>
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @see RedisConnectionFactory
@@ -61,6 +81,12 @@ public class RedisConnectionFactoryProxyBeanPostProcessor extends GenericBeanPos
 
     private final ConfigurableBeanFactory beanFactory;
 
+    /**
+     * Creates a new {@link RedisConnectionFactoryProxyBeanPostProcessor} bound to the given bean factory.
+     *
+     * @param beanFactory the Spring {@link ConfigurableBeanFactory} used to look up the
+     *                    {@link RedisContext} and to store raw factory references
+     */
     public RedisConnectionFactoryProxyBeanPostProcessor(ConfigurableBeanFactory beanFactory) {
         this.beanFactory = beanFactory;
     }
@@ -88,6 +114,17 @@ public class RedisConnectionFactoryProxyBeanPostProcessor extends GenericBeanPos
         return (RedisConnectionFactory) proxyFactory.getProxy();
     }
 
+    /**
+     * Creates a JDK dynamic proxy that wraps {@code connection} and implements both
+     * {@link RedisConnection} and {@link DelegatingWrapper}. The proxy intercepts every
+     * method call through an {@link InterceptingRedisConnectionInvocationHandler}.
+     *
+     * @param connection     the real {@link RedisConnection} to wrap
+     * @param redisContext   the {@link RedisContext} providing interceptors and configuration
+     * @param sourceBean     the source bean (e.g. the {@link RedisConnectionFactory} or template)
+     * @param sourceBeanName the Spring bean name of the source bean
+     * @return a proxy {@link RedisConnection} that intercepts all commands
+     */
     public static RedisConnection newProxyRedisConnection(RedisConnection connection, RedisContext redisContext,
                                                           Object sourceBean, String sourceBeanName) {
         ClassLoader classLoader = redisContext.getClassLoader();
@@ -100,6 +137,14 @@ public class RedisConnectionFactoryProxyBeanPostProcessor extends GenericBeanPos
         beanDefinition.setAttribute(SOURCE_BEAN_ATTRIBUTE_NAME, redisConnectionFactory);
     }
 
+    /**
+     * Retrieves the original (pre-proxy) {@link RedisConnectionFactory} for the given bean name.
+     * Falls back to resolving the bean from the factory if the attribute was never stored.
+     *
+     * @param beanFactory the Spring bean factory
+     * @param beanName    the name of the proxied {@link RedisConnectionFactory} bean
+     * @return the original {@link RedisConnectionFactory}; never {@code null}
+     */
     public static RedisConnectionFactory getRawRedisConnectionFactory(ConfigurableBeanFactory beanFactory, String beanName) {
         BeanDefinition beanDefinition = beanFactory.getMergedBeanDefinition(beanName);
         RedisConnectionFactory redisConnectionFactory = (RedisConnectionFactory) beanDefinition.getAttribute(SOURCE_BEAN_ATTRIBUTE_NAME);

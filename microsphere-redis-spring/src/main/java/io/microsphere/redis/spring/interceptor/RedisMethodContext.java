@@ -47,8 +47,33 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableMap;
 
 /**
- * Redis Method Context
+ * Execution context for a single intercepted Redis method call.  Encapsulates the target
+ * Redis object, the reflected method, its arguments, timing data, the source bean info, and
+ * a key-value attribute bag for sharing data between interceptor phases.
  *
+ * <p>Instances are created by {@link InterceptingRedisConnectionInvocationHandler} and stored
+ * in a thread-local for cross-interceptor access via {@link #get()} / {@link #set(RedisMethodContext)}.
+ *
+ * <h3>Example Usage</h3>
+ * <pre>{@code
+ *   // Inside a RedisCommandInterceptor:
+ *   @Override
+ *   public void beforeExecute(RedisMethodContext<RedisCommands> context) throws Throwable {
+ *       context.start(); // start nano-timer
+ *       System.out.println("Command: " + context.getMethod().getName());
+ *       System.out.println("Is write: " + context.isWriteMethod());
+ *   }
+ *
+ *   @Override
+ *   public void afterExecute(RedisMethodContext<RedisCommands> context, Object result, Throwable failure) {
+ *       context.stop();
+ *       long ms = context.getDuration(TimeUnit.MILLISECONDS);
+ *       System.out.println("Duration: " + ms + " ms, result=" + result);
+ *   }
+ * }</pre>
+ *
+ * @param <T> the type of the target Redis interface (e.g. {@link org.springframework.data.redis.connection.RedisConnection}
+ *            or {@link org.springframework.data.redis.connection.RedisCommands})
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
@@ -86,10 +111,28 @@ public class RedisMethodContext<T> {
 
     private Map<String, Object> attributes;
 
+    /**
+     * Creates a {@link RedisMethodContext} without a source bean reference.
+     *
+     * @param target       the target Redis interface instance being invoked
+     * @param method       the {@link Method} being invoked on the target
+     * @param args         the arguments passed to the method
+     * @param redisContext the {@link RedisContext} providing shared infrastructure
+     */
     public RedisMethodContext(T target, Method method, Object[] args, RedisContext redisContext) {
         this(target, method, args, redisContext, null, null);
     }
 
+    /**
+     * Creates a {@link RedisMethodContext} with an explicit source bean reference.
+     *
+     * @param target         the target Redis interface instance being invoked
+     * @param method         the {@link Method} being invoked on the target
+     * @param args           the arguments passed to the method
+     * @param redisContext   the {@link RedisContext} providing shared infrastructure
+     * @param sourceBean     the originating Spring bean (e.g. a {@link org.springframework.data.redis.core.RedisTemplate})
+     * @param sourceBeanName the Spring bean name of the originating bean
+     */
     public RedisMethodContext(T target, Method method, Object[] args, RedisContext redisContext, Object sourceBean, String sourceBeanName) {
         this.target = target;
         this.method = method;
@@ -99,26 +142,57 @@ public class RedisMethodContext<T> {
         this.sourceBeanName = sourceBeanName;
     }
 
+    /**
+     * Returns the target Redis interface instance (e.g. a {@link org.springframework.data.redis.connection.RedisConnection}).
+     *
+     * @return the target; never {@code null}
+     */
     public T getTarget() {
         return this.target;
     }
 
+    /**
+     * Returns the reflected {@link Method} that was invoked on the target.
+     *
+     * @return the method; never {@code null}
+     */
     public Method getMethod() {
         return this.method;
     }
 
+    /**
+     * Returns the actual arguments supplied to the invoked method.
+     *
+     * @return the argument array; may be {@code null} for no-argument methods
+     */
     public Object[] getArgs() {
         return this.args;
     }
 
+    /**
+     * Returns the originating Spring bean (e.g. the {@link org.springframework.data.redis.core.RedisTemplate}
+     * or the {@link org.springframework.data.redis.connection.RedisConnectionFactory}).
+     *
+     * @return the source bean, or {@code null} if not available
+     */
     public Object getSourceBean() {
         return this.sourceBean;
     }
 
+    /**
+     * Returns the Spring bean name of the originating bean.
+     *
+     * @return the source bean name, or {@code null} if not set
+     */
     public String getSourceBeanName() {
         return this.sourceBeanName;
     }
 
+    /**
+     * Returns the {@link RedisContext} associated with this method invocation.
+     *
+     * @return the {@link RedisContext}; never {@code null}
+     */
     public RedisContext getRedisContext() {
         return this.redisContext;
     }
@@ -264,6 +338,13 @@ public class RedisMethodContext<T> {
         return timeUnit.convert(durationNanos, TimeUnit.NANOSECONDS);
     }
 
+    /**
+     * Returns {@code true} if the intercepted method is a Redis write command.
+     * The result is lazily resolved from the {@link io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository}
+     * or from initialized parameters when {@code isWriteMethod(true)} is called first.
+     *
+     * @return {@code true} for write commands (e.g. SET, DEL)
+     */
     public boolean isWriteMethod() {
         if (write == null) {
             return isWriteMethod(false);
@@ -271,6 +352,14 @@ public class RedisMethodContext<T> {
         return write;
     }
 
+    /**
+     * Returns {@code true} if the intercepted method is a Redis write command, optionally
+     * initialising parameter metadata (which also populates the {@link #getParameters()} result).
+     *
+     * @param initializedParameters if {@code true}, also calls {@link #initParameters()} so that
+     *                              {@link #getParameters()} returns meaningful values afterwards
+     * @return {@code true} for write commands
+     */
     public boolean isWriteMethod(boolean initializedParameters) {
         if (initializedParameters) {
             initParameters();
@@ -280,6 +369,12 @@ public class RedisMethodContext<T> {
         return this.write;
     }
 
+    /**
+     * Returns the {@link Parameter} array for the intercepted method, lazily initialising it
+     * on the first call.
+     *
+     * @return array of {@link Parameter}; empty array for no-parameter methods
+     */
     public Parameter[] getParameters() {
         if (parameters == null) {
             initParameters();
@@ -287,10 +382,23 @@ public class RedisMethodContext<T> {
         return parameters;
     }
 
+    /**
+     * Returns the number of parameters in the intercepted method (equivalent to
+     * {@code getParameters().length}).
+     *
+     * @return parameter count (≥ 0)
+     */
     public int getParameterCount() {
         return getParameters().length;
     }
 
+    /**
+     * Finds and returns the {@link Parameter} with the given parameter name, or
+     * {@code null} if no parameter with that name is found.
+     *
+     * @param parameterName the parameter name to look up
+     * @return the matching {@link Parameter}, or {@code null}
+     */
     @Nullable
     public Parameter getParameter(Object parameterName) {
         Parameter[] parameters = getParameters();
@@ -303,6 +411,12 @@ public class RedisMethodContext<T> {
         return null;
     }
 
+    /**
+     * Returns the {@link Parameter} at the given zero-based index.
+     *
+     * @param index the zero-based parameter position
+     * @return the {@link Parameter} at {@code index}
+     */
     public Parameter getParameter(int index) {
         return getParameters()[index];
     }
@@ -348,6 +462,12 @@ public class RedisMethodContext<T> {
         return redisContext.getApplicationName();
     }
 
+    /**
+     * Returns {@code true} when the source bean originates from a
+     * {@link org.springframework.data.redis.core.RedisTemplate} bean.
+     *
+     * @return {@code true} if the source is a {@link org.springframework.data.redis.core.RedisTemplate}
+     */
     public boolean isSourceFromRedisTemplate() {
         Boolean sourceFromRedisTemplate = this.sourceFromRedisTemplate;
         if (sourceFromRedisTemplate == null) {
@@ -357,6 +477,12 @@ public class RedisMethodContext<T> {
         return sourceFromRedisTemplate;
     }
 
+    /**
+     * Returns {@code true} when the source bean originates from a
+     * {@link org.springframework.data.redis.connection.RedisConnectionFactory} bean.
+     *
+     * @return {@code true} if the source is a {@link org.springframework.data.redis.connection.RedisConnectionFactory}
+     */
     public boolean isSourceFromRedisConnectionFactory() {
         Boolean sourceFromRedisConnectionFactory = this.sourceFromRedisConnectionFactory;
         if (sourceFromRedisConnectionFactory == null) {
@@ -382,15 +508,32 @@ public class RedisMethodContext<T> {
                 .toString();
     }
 
+    /**
+     * Stores the given {@link RedisMethodContext} in the current thread's thread-local variable,
+     * making it accessible to other components via {@link #get()}.
+     *
+     * @param redisMethodContext the context to store; should not be {@code null}
+     */
     public static void set(RedisMethodContext redisMethodContext) {
         redisMethodContextThreadLocal.set(redisMethodContext);
         logger.trace("{} stores into ThreadLocal", redisMethodContext);
     }
 
+    /**
+     * Returns the {@link RedisMethodContext} bound to the current thread, or {@code null} if
+     * none has been set.
+     *
+     * @param <T> the target type
+     * @return the current thread's context, or {@code null}
+     */
     public static <T> RedisMethodContext<T> get() {
         return (RedisMethodContext<T>) redisMethodContextThreadLocal.get();
     }
 
+    /**
+     * Removes the {@link RedisMethodContext} from the current thread, preventing memory leaks
+     * in thread-pool environments.
+     */
     public static void clear() {
         redisMethodContextThreadLocal.remove();
     }

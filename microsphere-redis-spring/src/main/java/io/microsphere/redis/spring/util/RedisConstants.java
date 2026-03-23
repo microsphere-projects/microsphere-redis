@@ -31,7 +31,20 @@ import static java.lang.Boolean.parseBoolean;
 import static java.lang.System.getProperty;
 
 /**
- * The constants of Redis
+ * Constants interface for the Microsphere Redis Spring integration, grouping all
+ * configuration property names, their default values, and well-known Spring bean names.
+ *
+ * <h3>Example Usage</h3>
+ * <pre>{@code
+ *   // Check whether Microsphere Redis is enabled via the environment
+ *   boolean enabled = environment.getProperty(
+ *           RedisConstants.MICROSPHERE_REDIS_ENABLED_PROPERTY_NAME, Boolean.class,
+ *           RedisConstants.DEFAULT_MICROSPHERE_REDIS_ENABLED);
+ *
+ *   // Resolve the standard RedisTemplate bean
+ *   RedisTemplate<?, ?> template = beanFactory.getBean(
+ *           RedisConstants.REDIS_TEMPLATE_BEAN_NAME, RedisTemplate.class);
+ * }</pre>
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0

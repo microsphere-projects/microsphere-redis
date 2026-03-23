@@ -20,13 +20,34 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.data.redis.core.RedisOperations;
 
 /**
- * {@link RedisOperations Redis Operation} Event
+ * Base Spring {@link ApplicationEvent} for high-level Redis operations executed through
+ * {@link RedisOperations}.  Subclasses can carry more specific operation details.
+ *
+ * <h3>Example Usage</h3>
+ * <pre>{@code
+ *   // Publishing a Redis operation event:
+ *   applicationContext.publishEvent(new RedisOperationEvent(redisTemplate));
+ *
+ *   // Listening for Redis operation events:
+ *   @Component
+ *   public class MyOperationListener implements ApplicationListener<RedisOperationEvent> {
+ *       @Override
+ *       public void onApplicationEvent(RedisOperationEvent event) {
+ *           System.out.println("Redis operation source: " + event.getSource());
+ *       }
+ *   }
+ * }</pre>
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
 public class RedisOperationEvent extends ApplicationEvent {
 
+    /**
+     * Creates a new {@link RedisOperationEvent}.
+     *
+     * @param source the object on which the event initially occurred (e.g. a {@link RedisOperations} instance)
+     */
     public RedisOperationEvent(Object source) {
         super(source);
     }

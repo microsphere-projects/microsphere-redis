@@ -49,8 +49,30 @@ import static io.microsphere.util.StringUtils.isBlank;
 import static org.springframework.core.io.support.SpringFactoriesLoader.loadFactories;
 
 /**
- * {@link RedisSerializer} Utilities class, mainly used for Redis command method parameter type
- * serialization and deserialization
+ * Static utility class that maintains a type-to-{@link RedisSerializer} registry and provides
+ * helper methods for serializing/deserializing Redis command method parameters.
+ *
+ * <p>Built-in serializers are registered for primitive types, common collections, enumerations,
+ * and Spring Data Redis types during static initialization.  Custom serializers can be contributed
+ * via {@code spring.factories} ({@code RedisSerializer} key).
+ *
+ * <h3>Example Usage</h3>
+ * <pre>{@code
+ *   // Serialize a value using its inferred type
+ *   byte[] bytes = Serializers.serialize("my-redis-key");
+ *
+ *   // Serialize with an explicit type
+ *   byte[] bytes2 = Serializers.serialize(42L, Long.class);
+ *
+ *   // Deserialize by type name
+ *   String key = (String) Serializers.deserialize(bytes, "java.lang.String");
+ *
+ *   // Deserialize with a Class
+ *   Long value = Serializers.deserialize(bytes2, Long.class);
+ *
+ *   // Resolve the serializer for a specific type
+ *   RedisSerializer<Long> longSerializer = Serializers.getSerializer(Long.class);
+ * }</pre>
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @since 1.0.0
@@ -76,16 +98,37 @@ public abstract class Serializers {
         initializeParameterizedSerializers();
     }
 
+    /**
+     * Resolves the {@link RedisSerializer} for the runtime type of the given object.
+     *
+     * @param object the object whose type is used to look up the serializer; may be {@code null}
+     * @return the matching {@link RedisSerializer}, or {@code null} if {@code object} is {@code null}
+     */
     @Nullable
     public static RedisSerializer<?> getSerializer(Object object) {
         return getSerializer(getType(object));
     }
 
+    /**
+     * Resolves the {@link RedisSerializer} for the given {@link Class}.
+     *
+     * @param <T>  the target type
+     * @param type the class to look up the serializer for; may be {@code null}
+     * @return the matching {@link RedisSerializer}, or {@code null} if {@code type} is {@code null}
+     */
     @Nullable
     public static <T> RedisSerializer<T> getSerializer(Class<?> type) {
         return type == null ? null : (RedisSerializer<T>) getSerializer(type.getName());
     }
 
+    /**
+     * Resolves the {@link RedisSerializer} for the given fully-qualified type name.
+     * Falls back to {@link #DEFAULT_SERIALIZER} if no specific serializer is registered and
+     * caches that default for future lookups.
+     *
+     * @param typeName the fully-qualified type name (e.g. {@code "java.lang.String"})
+     * @return the matching or default {@link RedisSerializer}; never {@code null} for non-blank input
+     */
     @Nullable
     public static RedisSerializer<?> getSerializer(String typeName) {
         if (isBlank(typeName)) {
@@ -104,6 +147,15 @@ public abstract class Serializers {
         return serializer;
     }
 
+    /**
+     * Serializes the value of a {@link Parameter} to a raw byte array, caching the result on
+     * the parameter object itself.  If the parameter already holds a raw value it is returned
+     * directly without re-serializing.
+     *
+     * @param parameter the parameter whose value should be serialized; may be {@code null}
+     * @return the serialized bytes, or {@code null} if {@code parameter} is {@code null} or
+     *         serialization produced no output
+     */
     @Nullable
     public static byte[] serializeRawParameter(Parameter parameter) {
         if (parameter == null) {
@@ -121,6 +173,12 @@ public abstract class Serializers {
         return rawParameterValue;
     }
 
+    /**
+     * Serializes the given object using {@link #DEFAULT_SERIALIZER} (JDK serialization).
+     *
+     * @param object the object to serialize; may be {@code null}
+     * @return the serialized bytes, or {@code null}
+     */
     @Nullable
     public static byte[] defaultSerialize(Object object) {
         return DEFAULT_SERIALIZER.serialize(object);
@@ -139,11 +197,25 @@ public abstract class Serializers {
         return (T) DEFAULT_SERIALIZER.deserialize(bytes);
     }
 
+    /**
+     * Serializes the given object using the {@link RedisSerializer} registered for its runtime type.
+     *
+     * @param object the object to serialize; may be {@code null}
+     * @return the serialized bytes, or {@code null} if {@code object} is {@code null} or
+     *         no serializer is found
+     */
     @Nullable
     public static byte[] serialize(Object object) {
         return object == null ? null : serialize(object, object.getClass());
     }
 
+    /**
+     * Serializes the given object using the {@link RedisSerializer} registered for the given {@code type}.
+     *
+     * @param object the object to serialize; may be {@code null}
+     * @param type   the type to use when resolving the serializer; may be {@code null}
+     * @return the serialized bytes, or {@code null} if no serializer is found
+     */
     @Nullable
     public static byte[] serialize(Object object, Class type) {
         if (object == null) {
@@ -153,6 +225,14 @@ public abstract class Serializers {
         return redisSerializer == null ? null : redisSerializer.serialize(object);
     }
 
+    /**
+     * Deserializes {@code bytes} to an object using the {@link RedisSerializer} registered for
+     * the given type name.  Logs an error and returns {@code null} if no serializer is found.
+     *
+     * @param bytes         the raw bytes to deserialize
+     * @param parameterType the fully-qualified type name of the target object
+     * @return the deserialized object, or {@code null} on failure
+     */
     @Nullable
     public static Object deserialize(byte[] bytes, String parameterType) {
         RedisSerializer<?> serializer = getSerializer(parameterType);
@@ -164,6 +244,15 @@ public abstract class Serializers {
         return object;
     }
 
+    /**
+     * Deserializes {@code bytes} to an instance of the given {@link Class}.
+     * Logs an error and returns {@code null} if the deserialized object is not assignable to {@code type}.
+     *
+     * @param <T>   the target type
+     * @param bytes the raw bytes to deserialize
+     * @param type  the target class
+     * @return the cast deserialized object, or {@code null} on failure
+     */
     @Nullable
     public static <T> T deserialize(byte[] bytes, Class<T> type) {
         RedisSerializer<?> serializer = getSerializer(type);
