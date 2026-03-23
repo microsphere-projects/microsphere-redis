@@ -28,7 +28,35 @@ import static io.microsphere.util.StringUtils.isNotBlank;
 import static org.springframework.util.ClassUtils.forName;
 
 /**
- * {@link RedisCommands Redis Command} Utilities Class
+ * Utility class for Spring Data Redis command interface resolution and parameter initialisation.
+ * Provides helpers for:
+ * <ul>
+ *   <li>Resolving a Redis command sub-interface (e.g. {@link org.springframework.data.redis.connection.RedisStringCommands})
+ *       from a {@link RedisConnection} by interface name</li>
+ *   <li>Checking whether a class is a Redis command interface</li>
+ *   <li>Abbreviating / expanding interface class names</li>
+ *   <li>Initialising {@link io.microsphere.redis.metadata.Parameter} instances for a write command
+ *       method call and serialising their values</li>
+ *   <li>Loading classes by name with a local cache</li>
+ * </ul>
+ *
+ * <h3>Example Usage</h3>
+ * <pre>{@code
+ *   // Check whether a class is a Redis command sub-interface
+ *   boolean isCmd = SpringRedisCommandUtils.isRedisCommandsInterface(RedisStringCommands.class); // true
+ *
+ *   // Resolve the sub-command object from a RedisConnection by interface name
+ *   Object stringCommands = SpringRedisCommandUtils.getRedisCommands(
+ *           redisConnection, RedisConstants.REDIS_STRING_COMMANDS_INTERFACE_NAME);
+ *
+ *   // Abbreviate the full interface name for compact wire format
+ *   String simple = SpringRedisCommandUtils.resolveSimpleInterfaceName(
+ *           "org.springframework.data.redis.connection.RedisStringCommands"); // "RedisStringCommands"
+ *
+ *   // Expand an abbreviated name back to the full name
+ *   String full = SpringRedisCommandUtils.resolveInterfaceName("RedisStringCommands");
+ *   // "org.springframework.data.redis.connection.RedisStringCommands"
+ * }</pre>
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @since 1.0.0
@@ -138,6 +166,14 @@ public abstract class SpringRedisCommandUtils {
 
     static final ConcurrentMap<String, Class<?>> classesCache = new ConcurrentHashMap<>(256);
 
+    /**
+     * Returns the simple (unqualified) form of a Redis command interface name by stripping
+     * the {@code org.springframework.data.redis.connection.} package prefix, or the original
+     * name if the prefix is not present.
+     *
+     * @param interfaceName the fully-qualified or simple interface name
+     * @return the simple interface name, e.g. {@code "RedisStringCommands"}
+     */
     public static String resolveSimpleInterfaceName(String interfaceName) {
         int index = interfaceName.indexOf(REDIS_COMMANDS_PACKAGE_NAME);
         if (index == 0) {
@@ -147,6 +183,14 @@ public abstract class SpringRedisCommandUtils {
         }
     }
 
+    /**
+     * Returns the fully-qualified form of a Redis command interface name by prepending
+     * the {@code org.springframework.data.redis.connection.} package prefix when the name
+     * contains no dot, or the original name otherwise.
+     *
+     * @param interfaceName the simple or fully-qualified interface name
+     * @return the fully-qualified interface name
+     */
     public static String resolveInterfaceName(String interfaceName) {
         int index = interfaceName.indexOf(DOT_CHAR);
         if (index == INDEX_NOT_FOUND) {
@@ -156,6 +200,14 @@ public abstract class SpringRedisCommandUtils {
         }
     }
 
+    /**
+     * Returns {@code true} if the given class is a Redis command sub-interface (i.e. it is
+     * an interface that either extends {@link RedisCommands} or has a name matching the
+     * Spring Data Redis command interface naming convention).
+     *
+     * @param interfaceClass the class to test
+     * @return {@code true} if the class is a Redis command interface
+     */
     public static boolean isRedisCommandsInterface(Class<?> interfaceClass) {
         if (interfaceClass.isInterface()) {
             if (RedisCommands.class.isAssignableFrom(interfaceClass)) {
@@ -166,12 +218,29 @@ public abstract class SpringRedisCommandUtils {
         return false;
     }
 
+    /**
+     * Returns {@code true} if the given class name follows the Spring Data Redis command interface
+     * naming convention ({@code Redis*Commands} or {@code Reactive*Commands} in the
+     * {@code org.springframework.data.redis.connection} package).
+     *
+     * @param interfaceClassName the fully-qualified class name to test
+     * @return {@code true} if the name matches the Redis command interface convention
+     */
     public static boolean isRedisCommandsInterface(String interfaceClassName) {
         return interfaceClassName.endsWith(REDIS_COMMANDS_INTERFACE_NAME_SUFFIX) &&
                 (interfaceClassName.startsWith(REDIS_COMMANDS_INTERFACE_NAME_PREFIX)
                         || interfaceClassName.startsWith(REACTIVE_COMMANDS_INTERFACE_NAME_PREFIX));
     }
 
+    /**
+     * Retrieves the Redis command sub-object (e.g. the result of
+     * {@code redisConnection.stringCommands()}) for the given interface name.  Falls back to
+     * {@link RedisConnection#commands()} for unknown or null interface names.
+     *
+     * @param redisConnection the source {@link RedisConnection}
+     * @param interfaceName   the fully-qualified Redis command interface name
+     * @return the matching command sub-object; never {@code null}
+     */
     @Nonnull
     public static Object getRedisCommands(RedisConnection redisConnection, String interfaceName) {
         Object redisCommands = null;
@@ -197,6 +266,12 @@ public abstract class SpringRedisCommandUtils {
         return redisCommands == null ? redisConnection.commands() : redisCommands;
     }
 
+    /**
+     * Builds the method id string for the Redis command method carried by the given event.
+     *
+     * @param event the {@link RedisCommandEvent} whose method should be used
+     * @return non-null method id string
+     */
     public static String buildCommandMethodId(RedisCommandEvent event) {
         return buildMethodId(event.getMethod());
     }
@@ -265,6 +340,14 @@ public abstract class SpringRedisCommandUtils {
         return REDIS_COMMANDS_EXECUTE_METHOD.equals(method);
     }
 
+    /**
+     * Loads an array of {@link Class} objects by their fully-qualified names, using the shared
+     * {@link io.microsphere.redis.util.RedisUtils#CLASS_LOADER} and a local cache.
+     *
+     * @param classNames the fully-qualified class names to load
+     * @return array of loaded {@link Class} objects; elements may be {@code null} if the class
+     *         could not be found
+     */
     public static Class<?>[] loadClasses(String... classNames) {
         int length = classNames.length;
         Class<?>[] classes = new Class[length];
@@ -274,10 +357,25 @@ public abstract class SpringRedisCommandUtils {
         return classes;
     }
 
+    /**
+     * Loads a single {@link Class} by its fully-qualified name using the default
+     * {@link io.microsphere.redis.util.RedisUtils#CLASS_LOADER}.
+     *
+     * @param className the fully-qualified class name
+     * @return the loaded {@link Class}, or {@code null} if not found
+     */
     public static Class<?> loadClass(String className) {
         return loadClass(CLASS_LOADER, className);
     }
 
+    /**
+     * Loads a single {@link Class} by name using the given {@link ClassLoader}, caching the
+     * result to avoid repeated class-loading overhead.
+     *
+     * @param classLoader the class loader to use
+     * @param className   the fully-qualified class name
+     * @return the loaded {@link Class}, or {@code null} if not found
+     */
     public static Class<?> loadClass(ClassLoader classLoader, String className) {
         return classesCache.computeIfAbsent(className, k -> {
             try {

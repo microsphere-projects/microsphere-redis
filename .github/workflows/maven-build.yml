@@ -10,9 +10,9 @@ name: Maven Build
 
 on:
   push:
-    branches: [ 'dev' ]
+    branches: [ 'main' , 'dev' ]
   pull_request:
-    branches: [ 'main', 'dev' , 'release' ]
+    branches: [ 'main' , 'dev' , 'release' ]
 
 jobs:
   build:
@@ -38,17 +38,17 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: ${{ matrix.java }}
-          cache: maven
 
       - name: Run Docker Compose
         run: docker compose -f "docker/test-services.yml" up -d
 
       - name: Build with Maven
-        run: mvn
+        run: ./mvnw
           --batch-mode
           --update-snapshots
           --file pom.xml
           -Drevision=0.0.1-SNAPSHOT
+          -Dsurefire.useSystemClassLoader=false
           test
           --activate-profiles test,coverage,${{ matrix.maven-profile-spring-boot }}
 

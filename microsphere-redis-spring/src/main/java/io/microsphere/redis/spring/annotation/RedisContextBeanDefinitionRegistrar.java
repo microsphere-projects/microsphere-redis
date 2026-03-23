@@ -26,7 +26,18 @@ import static io.microsphere.redis.spring.context.RedisContext.BEAN_NAME;
 import static io.microsphere.spring.beans.factory.support.BeanRegistrar.registerBeanDefinition;
 
 /**
- * {@link RedisContext} {@link BeanDefinition} Registrar
+ * {@link ImportBeanDefinitionRegistrar} implementation that programmatically registers the
+ * {@link RedisContext} bean under its canonical bean name.
+ * Triggered by the {@link EnableRedisContext} annotation.
+ *
+ * <h3>Example Usage</h3>
+ * <pre>{@code
+ *   // Applied automatically when @EnableRedisContext is present on a @Configuration class.
+ *   // Manual registration (e.g. in tests):
+ *   BeanDefinitionRegistry registry = ...; // e.g. GenericApplicationContext
+ *   RedisContextBeanDefinitionRegistrar registrar = new RedisContextBeanDefinitionRegistrar();
+ *   registrar.registerBeanDefinitions(registry);
+ * }</pre>
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
@@ -38,6 +49,11 @@ class RedisContextBeanDefinitionRegistrar implements ImportBeanDefinitionRegistr
         registerBeanDefinitions(registry);
     }
 
+    /**
+     * Registers a {@link BeanDefinition} for the {@link RedisContext} bean into the given registry.
+     *
+     * @param registry the Spring bean-definition registry to register beans into
+     */
     public void registerBeanDefinitions(BeanDefinitionRegistry registry) {
         registerBeanDefinition(registry, BEAN_NAME, RedisContext.class);
     }

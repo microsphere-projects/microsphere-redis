@@ -39,7 +39,20 @@ import static java.util.Collections.emptyList;
 import static org.springframework.core.annotation.AnnotationAwareOrderComparator.sort;
 
 /**
- * The composite class of {@link WrapperProcessor}
+ * Composite registry of all {@link WrapperProcessor} beans available in the Spring
+ * {@link org.springframework.beans.factory.BeanFactory}. On initialisation it discovers
+ * every {@link WrapperProcessor} bean and builds an internal map from the wrapper type
+ * (the first generic argument) to the ordered list of matching processor bean names.
+ *
+ * <h3>Example Usage</h3>
+ * <pre>{@code
+ *   // Retrieve from the application context via the canonical bean name
+ *   WrapperProcessors wrapperProcessors = WrapperProcessors.get(applicationContext);
+ *
+ *   // Apply all registered processors for a RedisTemplateWrapper
+ *   RedisTemplateWrapper wrapper = new RedisTemplateWrapper("redisTemplate", delegate, redisContext);
+ *   wrapper = wrapperProcessors.process(wrapper);
+ * }</pre>
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
@@ -52,6 +65,15 @@ public class WrapperProcessors implements InitializingBean, BeanFactoryAware {
 
     private Map<Class<?>, Set<String>> wrapperProcessorsMap;
 
+    /**
+     * Applies all registered {@link WrapperProcessor} instances whose wrapper type matches the
+     * runtime type of {@code wrapper}, in annotation-order, and returns the (potentially
+     * replaced) wrapper.
+     *
+     * @param <W>     the wrapper type
+     * @param wrapper the wrapper to process
+     * @return the processed (possibly different) wrapper instance
+     */
     public <W extends Wrapper> W process(W wrapper) {
         Class<?> wrapperType = wrapper.getClass();
         for (WrapperProcessor<W> wrapperProcessor : getWrapperProcessors(wrapperType)) {
@@ -99,6 +121,13 @@ public class WrapperProcessors implements InitializingBean, BeanFactoryAware {
         return wrapperProcessorBeanNamesMap;
     }
 
+    /**
+     * Retrieves the singleton {@link WrapperProcessors} bean from the given
+     * {@link BeanFactory} using the canonical {@link #BEAN_NAME}.
+     *
+     * @param beanFactory the Spring bean factory containing the {@link WrapperProcessors} bean
+     * @return the {@link WrapperProcessors} singleton; never {@code null}
+     */
     public static WrapperProcessors get(BeanFactory beanFactory) {
         return beanFactory.getBean(BEAN_NAME, WrapperProcessors.class);
     }
