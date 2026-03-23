@@ -27,7 +27,20 @@ import static io.microsphere.redis.util.RedisUtils.loadResources;
 import static io.microsphere.util.ClassLoaderUtils.getClassLoader;
 
 /**
- * {@link RedisMetadataLoader} for The Spring Data Redis
+ * {@link RedisMetadataLoader} implementation for Spring Data Redis that reads all YAML files at
+ * {@value #SPRING_REDIS_METADATA_RESOURCE} from the classpath, parses each one with SnakeYAML
+ * into a {@link RedisMetadata} instance, and merges them into a single result.
+ *
+ * <p>Registered as a service provider via {@code META-INF/services/io.microsphere.redis.metadata.RedisMetadataLoader}.
+ *
+ * <h3>Example Usage</h3>
+ * <pre>{@code
+ *   // Invoked automatically by RedisMetadataLoader.loadAll():
+ *   SpringRedisMetadataLoader loader = new SpringRedisMetadataLoader();
+ *   RedisMetadata metadata = loader.load();
+ *   System.out.println(metadata.getVersion());
+ *   System.out.println(metadata.getMethods().size());
+ * }</pre>
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @see RedisMetadataLoader
@@ -35,8 +48,17 @@ import static io.microsphere.util.ClassLoaderUtils.getClassLoader;
  */
 public class SpringRedisMetadataLoader implements RedisMetadataLoader {
 
+    /**
+     * Classpath resource path of the Spring Data Redis method metadata YAML file.
+     */
     public static final String SPRING_REDIS_METADATA_RESOURCE = "META-INF/spring-data-redis-metadata.yaml";
 
+    /**
+     * Loads and merges all {@link RedisMetadata} instances found at
+     * {@value #SPRING_REDIS_METADATA_RESOURCE} on the classpath.
+     *
+     * @return merged non-null {@link RedisMetadata}
+     */
     @Override
     public RedisMetadata load() {
         ClassLoader classLoader = getClassLoader(getClass());

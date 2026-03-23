@@ -26,7 +26,19 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * An annotation enables {@link RedisContext}
+ * Meta-annotation that enables the {@link RedisContext} infrastructure bean and transitively
+ * enables {@link EnableRedisConfiguration}. {@link RedisContext} aggregates the core Redis
+ * configuration, interceptors, and the Spring Data Redis metadata repository into a single
+ * context object accessible via the application context.
+ *
+ * <h3>Example Usage</h3>
+ * <pre>{@code
+ *   @Configuration
+ *   @EnableRedisContext
+ *   public class MyAppConfig {
+ *       // RedisContext bean is automatically registered along with RedisConfiguration
+ *   }
+ * }</pre>
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0

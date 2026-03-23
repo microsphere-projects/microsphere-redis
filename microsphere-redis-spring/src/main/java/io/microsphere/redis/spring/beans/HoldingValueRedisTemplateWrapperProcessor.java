@@ -22,7 +22,20 @@ import io.microsphere.redis.spring.serializer.HoldingValueRedisSerializerWrapper
 import static io.microsphere.redis.spring.serializer.HoldingValueRedisSerializerWrapper.wrap;
 
 /**
- * The {@link WrapperProcessor} of {@link RedisTemplateWrapper} that holds the value
+ * {@link WrapperProcessor} for {@link RedisTemplateWrapper} that installs
+ * {@link HoldingValueRedisSerializerWrapper}s on the key, value, hash-key, and hash-value
+ * serializers of the template so that original Java objects and their serialized byte arrays
+ * are kept in the thread-local {@link io.microsphere.redis.util.ValueHolder} during command
+ * execution.
+ *
+ * <h3>Example Usage</h3>
+ * <pre>{@code
+ *   // Registered automatically via WrapperProcessors; can be applied manually in tests:
+ *   HoldingValueRedisTemplateWrapperProcessor processor = new HoldingValueRedisTemplateWrapperProcessor();
+ *   RedisTemplateWrapper<String, Object> wrapper = ...;
+ *   wrapper = processor.process(wrapper);
+ *   // The wrapper's serializers now record raw bytes in ValueHolder during serialization
+ * }</pre>
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @see HoldingValueRedisSerializerWrapper
@@ -30,6 +43,13 @@ import static io.microsphere.redis.spring.serializer.HoldingValueRedisSerializer
  */
 public class HoldingValueRedisTemplateWrapperProcessor implements WrapperProcessor<RedisTemplateWrapper> {
 
+    /**
+     * Wraps all serializers of the given {@link RedisTemplateWrapper} with
+     * {@link HoldingValueRedisSerializerWrapper} instances and returns the (unmodified) wrapper.
+     *
+     * @param wrapper the {@link RedisTemplateWrapper} whose serializers will be wrapped
+     * @return the same {@code wrapper} instance after serializer wrapping
+     */
     @Override
     public RedisTemplateWrapper process(RedisTemplateWrapper wrapper) {
         wrap(wrapper);

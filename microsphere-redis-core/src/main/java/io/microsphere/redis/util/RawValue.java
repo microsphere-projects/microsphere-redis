@@ -21,7 +21,21 @@ import java.util.Arrays;
 import static io.microsphere.util.ArrayUtils.arrayEquals;
 
 /**
- * The Redis Raw Value stores on the byte array
+ * Immutable class that wraps a raw Redis value stored as a {@code byte[]} array.
+ * Used internally by {@link ValueHolder} to maintain bidirectional mappings between
+ * Java objects and their serialized byte representations.
+ *
+ * <h3>Example Usage</h3>
+ * <pre>{@code
+ *   byte[] bytes = "hello".getBytes(StandardCharsets.UTF_8);
+ *
+ *   // Create via factory method
+ *   RawValue rawValue = RawValue.of(bytes);
+ *   System.out.println(rawValue.getData().length); // 5
+ *
+ *   // Create via constructor
+ *   RawValue rawValue2 = new RawValue(bytes);
+ * }</pre>
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
@@ -56,6 +70,12 @@ public class RawValue {
         return Arrays.hashCode(data);
     }
 
+    /**
+     * Factory method to create a {@link RawValue} from a byte array.
+     *
+     * @param bytes the raw bytes; may be {@code null} if the value was not serializable
+     * @return a new {@link RawValue} wrapping the given bytes
+     */
     public static RawValue of(byte[] bytes) {
         return new RawValue(bytes);
     }

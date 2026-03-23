@@ -44,7 +44,30 @@ import static io.microsphere.spring.core.env.EnvironmentUtils.asConfigurableEnvi
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 /**
- * Redis Interceptor {@link ImportBeanDefinitionRegistrar}
+ * {@link ImportBeanDefinitionRegistrar} implementation that processes the attributes of
+ * {@link EnableRedisInterceptor} and registers the appropriate interceptor infrastructure beans:
+ * <ul>
+ *   <li>{@link io.microsphere.redis.spring.beans.RedisTemplateWrapperBeanPostProcessor} when
+ *       specific {@link org.springframework.data.redis.core.RedisTemplate} bean names are specified</li>
+ *   <li>{@link io.microsphere.redis.spring.beans.RedisConnectionFactoryProxyBeanPostProcessor} when
+ *       no template bean names are provided (intercepts all connections)</li>
+ *   <li>{@link io.microsphere.redis.spring.beans.WrapperProcessors} for wrapper chain management</li>
+ *   <li>{@link io.microsphere.redis.spring.interceptor.EventPublishingRedisCommandInterceptor} when
+ *       {@code exposeCommandEvent = true}</li>
+ * </ul>
+ *
+ * <h3>Example Usage</h3>
+ * <pre>{@code
+ *   // Triggered automatically by @EnableRedisInterceptor.
+ *   // Direct usage in tests:
+ *   RedisInterceptorBeanDefinitionRegistrar registrar = new RedisInterceptorBeanDefinitionRegistrar();
+ *   registrar.setEnvironment(environment);
+ *   registrar.registerBeanDefinitions(
+ *       Set.of("redisTemplate"), // wrapRedisTemplateBeanNames
+ *       true,                    // exposedCommandEvent
+ *       registry
+ *   );
+ * }</pre>
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @see EnableRedisInterceptor
@@ -73,6 +96,16 @@ class RedisInterceptorBeanDefinitionRegistrar implements ImportBeanDefinitionReg
         registerBeanDefinitions(wrapRedisTemplateBeanNames, exposeCommandEvent, registry);
     }
 
+    /**
+     * Registers the interceptor infrastructure beans based on resolved template bean names and the
+     * command-event exposure flag.
+     *
+     * @param wrappedRedisTemplateBeanNames the resolved set of {@link org.springframework.data.redis.core.RedisTemplate}
+     *                                      bean names to wrap; may be empty
+     * @param exposedCommandEvent           {@code true} to register the
+     *                                      {@link io.microsphere.redis.spring.interceptor.EventPublishingRedisCommandInterceptor}
+     * @param registry                      the Spring bean-definition registry to register beans into
+     */
     public void registerBeanDefinitions(Set<String> wrappedRedisTemplateBeanNames, boolean exposedCommandEvent, BeanDefinitionRegistry registry) {
 
         if (isEmpty(wrappedRedisTemplateBeanNames)) {
