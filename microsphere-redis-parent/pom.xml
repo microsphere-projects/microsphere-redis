@@ -21,7 +21,7 @@
     <properties>
         <spring-cloud-context.version>1.0.1.RELEASE</spring-cloud-context.version>
         <!-- BOM versions -->
-        <microsphere-spring-boot.version>0.2.5</microsphere-spring-boot.version>
+        <microsphere-spring-boot.version>0.2.7</microsphere-spring-boot.version>
         <junit.version>6.0.1</junit.version>
     </properties>
 
