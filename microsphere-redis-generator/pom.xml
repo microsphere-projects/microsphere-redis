@@ -31,6 +31,12 @@
             <optional>true</optional>
         </dependency>
 
+        <dependency>
+            <groupId>io.github.microsphere-projects</groupId>
+            <artifactId>microsphere-lang-model</artifactId>
+            <optional>true</optional>
+        </dependency>
+
         <!-- Microsphere Redis Core -->
         <dependency>
             <groupId>io.github.microsphere-projects</groupId>
