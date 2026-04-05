@@ -420,7 +420,7 @@ public class RedisMethodContext<T> {
         return getParameters()[index];
     }
 
-    @NonNull
+    @Nullable
     public RedisConfiguration getRedisConfiguration() {
         return redisContext.getRedisConfiguration();
     }

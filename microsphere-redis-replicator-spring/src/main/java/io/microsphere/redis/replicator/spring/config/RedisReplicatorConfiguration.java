@@ -172,7 +172,7 @@ public class RedisReplicatorConfiguration implements ApplicationListener<RedisCo
      * @param environment {@link Environment}
      * @return If the configuration is not found, return {@link #REDIS_REPLICATOR_DEFAULT_DOMAINS 默认域}
      */
-    @NonNull
+    Nullable
     public List<String> getDomains(Environment environment) {
         return unmodifiableList(environment.getProperty(REDIS_REPLICATOR_DOMAINS_PROPERTY_NAME, List.class, REDIS_REPLICATOR_DEFAULT_DOMAINS));
     }
@@ -188,7 +188,7 @@ public class RedisReplicatorConfiguration implements ApplicationListener<RedisCo
      * @param domain      The specified Domain is derived from{@link #getDomains(Environment)}
      * @return If no configuration is found, an empty list is returned
      */
-    @NonNull
+    Nullable
     public List<String> getDomainRedisTemplateBeanNames(Environment environment, String domain) {
         String propertyName = getDomainRedisTemplateBeanNamesPropertyName(domain);
         return unmodifiableList(environment.getProperty(propertyName, List.class, emptyList()));
@@ -214,7 +214,7 @@ public class RedisReplicatorConfiguration implements ApplicationListener<RedisCo
         return sourceBeanDomains.getOrDefault(sourceBeanName, getDomains());
     }
 
-    @NonNull
+    Nullable
     public RedisContext getRedisContext() {
         RedisContext redisContext = this.redisContext;
         if (redisContext == null) {
@@ -225,7 +225,7 @@ public class RedisReplicatorConfiguration implements ApplicationListener<RedisCo
         return redisContext;
     }
 
-    @NonNull
+    Nullable
     public RedisConfiguration getRedisConfiguration() {
         return getRedisContext().getRedisConfiguration();
     }

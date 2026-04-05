@@ -103,7 +103,7 @@ public class DynamicRedisConnectionFactory implements RedisConnectionFactory, Sm
         this.defaultRedisConnectionFactory = getDefaultRedisConnectionFactory();
     }
 
-    @NonNull
+    @Nullable
     protected RedisConnectionFactory determineTargetRedisConnectionFactory() {
         String targetBeanName = getTargetBeanName();
         if (isBlank(targetBeanName)) {

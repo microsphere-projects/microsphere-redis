@@ -109,7 +109,7 @@ public class RedisContext implements SmartInitializingSingleton, ApplicationCont
      *
      * @return non-null {@link RedisConfiguration}
      */
-    @NonNull
+    @Nullable
     public RedisConfiguration getRedisConfiguration() {
         RedisConfiguration redisConfiguration = this.redisConfiguration;
         if (redisConfiguration == null) {

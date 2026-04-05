@@ -175,7 +175,7 @@ public class RedisCommandEvent extends ApplicationEvent {
      *
      * @return
      */
-    public @NonNull Method getMethod() {
+    public @Nullable Method getMethod() {
         return method;
     }
 
@@ -260,7 +260,7 @@ public class RedisCommandEvent extends ApplicationEvent {
     /**
      * @return Event source Application name
      */
-    public @NonNull String getApplicationName() {
+    public @Nullable String getApplicationName() {
         return applicationName;
     }
 
