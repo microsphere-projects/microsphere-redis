@@ -39,6 +39,7 @@ import static io.microsphere.redis.util.RedisCommandUtils.getRedisCommands;
 import static io.microsphere.redis.util.RedisCommandUtils.getRedisWriteCommands;
 import static io.microsphere.text.FormatUtils.format;
 import static java.util.Locale.ENGLISH;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -83,43 +84,45 @@ class SpringRedisMetadataLoaderTest {
 
     @Test
     void testUnknown() {
-        Method[] methods = RedisCommands.class.getMethods();
-        Set<String> redisCommands = getRedisCommands();
-        Set<String> redisWriteCommands = getRedisWriteCommands();
-        StringBuilder supported = new StringBuilder();
-        StringBuilder unsupported = new StringBuilder();
+        assertDoesNotThrow(() -> {
+            Method[] methods = RedisCommands.class.getMethods();
+            Set<String> redisCommands = getRedisCommands();
+            Set<String> redisWriteCommands = getRedisWriteCommands();
+            StringBuilder supported = new StringBuilder();
+            StringBuilder unsupported = new StringBuilder();
 
-        Set<String> supportedCommands = new HashSet<>();
-        Set<String> unsupportedCommands = new HashSet<>(redisCommands);
+            Set<String> supportedCommands = new HashSet<>();
+            Set<String> unsupportedCommands = new HashSet<>(redisCommands);
 
-        Set<Method> supportedMethods = new HashSet<>(ofList(methods));
-        Set<Method> unsupportedMethods = new HashSet<>(ofList(methods));
+            Set<Method> supportedMethods = new HashSet<>(ofList(methods));
+            Set<Method> unsupportedMethods = new HashSet<>(ofList(methods));
 
-        for (Method method : methods) {
-            String name = method.getName().toUpperCase(ENGLISH);
-            if (redisCommands.contains(name)) {
-                unsupportedMethods.remove(method);
-            } else {
-                supportedMethods.remove(method);
+            for (Method method : methods) {
+                String name = method.getName().toUpperCase(ENGLISH);
+                if (redisCommands.contains(name)) {
+                    unsupportedMethods.remove(method);
+                } else {
+                    supportedMethods.remove(method);
+                }
             }
-        }
 
-        for (Method supportedMethod : supportedMethods) {
-            String command = supportedMethod.getName().toUpperCase(ENGLISH);
-            supported.append(LINE_SEPARATOR);
-            supported.append(format("{} , command : {} , default : {}", buildMethodId(supportedMethod), command,
-                    redisWriteCommands.contains(command),
-                    supportedMethod.isDefault()));
-            supportedCommands.add(command);
-            unsupportedCommands.remove(command);
-        }
+            for (Method supportedMethod : supportedMethods) {
+                String command = supportedMethod.getName().toUpperCase(ENGLISH);
+                supported.append(LINE_SEPARATOR);
+                supported.append(format("{} , command : {} , default : {}", buildMethodId(supportedMethod), command,
+                        redisWriteCommands.contains(command),
+                        supportedMethod.isDefault()));
+                supportedCommands.add(command);
+                unsupportedCommands.remove(command);
+            }
 
-        for (Method unsupportedMethod : unsupportedMethods) {
-            unsupported.append(LINE_SEPARATOR);
-            unsupported.append(format("{} , default : {}", buildMethodId(unsupportedMethod), unsupportedMethod.isDefault()));
-        }
+            for (Method unsupportedMethod : unsupportedMethods) {
+                unsupported.append(LINE_SEPARATOR);
+                unsupported.append(format("{} , default : {}", buildMethodId(unsupportedMethod), unsupportedMethod.isDefault()));
+            }
 
-        logger.trace("Supported Methods : {}", supported);
-        logger.trace("Unsupported Methods : {}", unsupported);
+            logger.trace("Supported Methods : {}", supported);
+            logger.trace("Unsupported Methods : {}", unsupported);
+        });
     }
 }
