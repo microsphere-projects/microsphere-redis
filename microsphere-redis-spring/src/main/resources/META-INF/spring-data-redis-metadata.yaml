@@ -1,4 +1,4 @@
-version: 3.5.6
+version: 3.5.10
 methods:
 - index: 498782566
   interfaceName: org.springframework.data.redis.connection.RedisHyperLogLogCommands
