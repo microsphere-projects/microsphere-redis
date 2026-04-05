@@ -175,7 +175,7 @@ public class RedisCommandEvent extends ApplicationEvent {
      *
      * @return
      */
-    @Nullable
+    @Nonnull
     public Method getMethod() {
         return method;
     }
@@ -187,6 +187,7 @@ public class RedisCommandEvent extends ApplicationEvent {
      *     <li>"org.springframework.data.redis.connection.RedisHashCommands"</li>
      * </ul>
      */
+    @Nonnull
     public String getInterfaceName() {
         String interfaceName = this.interfaceName;
         if (interfaceName == null) {
@@ -207,6 +208,7 @@ public class RedisCommandEvent extends ApplicationEvent {
      *
      * @return method name, e.g. {@code "set"} or {@code "get"}
      */
+    @Nonnull
     public String getMethodName() {
         return method.getName();
     }
@@ -216,6 +218,7 @@ public class RedisCommandEvent extends ApplicationEvent {
      *
      * @return array of parameter type classes; never {@code null}
      */
+    @Nonnull
     public Class<?>[] getParameterTypes() {
         Class<?>[] parameterTypes = this.parameterTypes;
         if (parameterTypes == null) {
@@ -263,7 +266,7 @@ public class RedisCommandEvent extends ApplicationEvent {
     /**
      * @return Event source Application name
      */
-    @Nullable
+    @Nonnull
     public String getApplicationName() {
         return applicationName;
     }
