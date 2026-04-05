@@ -31,7 +31,6 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.lang.NonNull;
 
 import java.util.List;
 import java.util.Set;

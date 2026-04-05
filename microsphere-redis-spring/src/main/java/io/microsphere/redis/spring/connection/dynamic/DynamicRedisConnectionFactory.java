@@ -11,7 +11,6 @@ import org.springframework.data.redis.connection.RedisClusterConnection;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisSentinelConnection;
-import org.springframework.lang.NonNull;
 
 import java.util.HashMap;
 import java.util.Map;

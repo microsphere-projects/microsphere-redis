@@ -3,7 +3,6 @@ package io.microsphere.redis.spring.event;
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
 import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.event.SmartApplicationListener;
 
