@@ -71,6 +71,7 @@ import static io.microsphere.util.ArrayUtils.EMPTY_STRING_ARRAY;
 import static io.microsphere.util.ArrayUtils.forEach;
 import static io.microsphere.util.IterableUtils.forEach;
 import static io.microsphere.util.StringUtils.EMPTY_STRING;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -183,16 +184,18 @@ class SpringRedisMetadataRepositoryTest {
 
     @Test
     void testCacheMethodInfoWithNull() {
-        cacheMethodInfo(null, null);
+        assertDoesNotThrow(() -> cacheMethodInfo(null, null));
     }
 
     @Test
     void testInitRedisConnectionInterface() {
-        Method method = findMethod(String.class, "toUpperCase");
-        initRedisConnectionInterface(method);
+        assertDoesNotThrow(() -> {
+            Method method = findMethod(String.class, "toUpperCase");
+            initRedisConnectionInterface(method);
 
-        Method method1 = findMethod(RedisCommandsExt.class, "set", byte[].class);
-        initRedisConnectionInterface(method1);
+            Method method1 = findMethod(RedisCommandsExt.class, "set", byte[].class);
+            initRedisConnectionInterface(method1);
+        });
     }
 
     @Test
@@ -205,9 +208,11 @@ class SpringRedisMetadataRepositoryTest {
 
     @Test
     void testCache() {
-        Map<String, Object> map = newHashMap();
-        cache(map, "key", "value");
-        cache(map, "key", "value");
+        assertDoesNotThrow(() -> {
+            Map<String, Object> map = newHashMap();
+            cache(map, "key", "value");
+            cache(map, "key", "value");
+        });
     }
 
     void assertGetRedisCommandInterfaceClass(String interfaceName) {
