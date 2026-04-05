@@ -1,7 +1,7 @@
 package io.microsphere.redis.spring.interceptor;
 
+import io.microsphere.annotation.Nullable;
 import org.springframework.core.Ordered;
-import org.springframework.lang.Nullable;
 
 import java.lang.reflect.Method;
 import java.util.Optional;
