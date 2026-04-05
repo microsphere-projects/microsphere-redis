@@ -16,6 +16,7 @@
  */
 package io.microsphere.redis.spring.context;
 
+import io.microsphere.annotation.Nullable;
 import io.microsphere.logging.Logger;
 import io.microsphere.redis.spring.config.RedisConfiguration;
 import io.microsphere.redis.spring.interceptor.RedisCommandInterceptor;
@@ -31,7 +32,6 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.lang.NonNull;
 
 import java.util.List;
 import java.util.Set;
@@ -110,7 +110,7 @@ public class RedisContext implements SmartInitializingSingleton, ApplicationCont
      *
      * @return non-null {@link RedisConfiguration}
      */
-    @NonNull
+    @Nullable
     public RedisConfiguration getRedisConfiguration() {
         RedisConfiguration redisConfiguration = this.redisConfiguration;
         if (redisConfiguration == null) {
