@@ -171,7 +171,7 @@ public class RedisReplicatorConfiguration implements ApplicationListener<RedisCo
      * Get the configured service domain list
      *
      * @param environment {@link Environment}
-     * @return If the configuration is not found, return {@link #REDIS_REPLICATOR_DEFAULT_DOMAINS 默认域}
+     * @return If the configuration is not found, return {@link #REDIS_REPLICATOR_DEFAULT_DOMAINS default domains}
      */
     @Nonnull
     public List<String> getDomains(Environment environment) {
