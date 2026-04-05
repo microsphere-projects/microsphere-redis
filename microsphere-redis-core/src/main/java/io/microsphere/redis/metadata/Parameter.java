@@ -72,7 +72,8 @@ public class Parameter {
      *
      * @return the raw value bytes, or {@code null} if not yet serialized
      */
-    public @Nullable byte[] getRawValue() {
+    @Nullable
+    public byte[] getRawValue() {
         return rawValue;
     }
 
