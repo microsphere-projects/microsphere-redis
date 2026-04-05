@@ -25,7 +25,6 @@ import io.microsphere.redis.spring.context.RedisContext;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.lang.NonNull;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -421,7 +420,7 @@ public class RedisMethodContext<T> {
         return getParameters()[index];
     }
 
-    @NonNull
+    @Nullable
     public RedisConfiguration getRedisConfiguration() {
         return redisContext.getRedisConfiguration();
     }

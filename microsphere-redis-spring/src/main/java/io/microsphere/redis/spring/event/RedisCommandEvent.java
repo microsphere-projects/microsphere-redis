@@ -1,6 +1,7 @@
 package io.microsphere.redis.spring.event;
 
 import io.microsphere.annotation.Nonnull;
+import io.microsphere.annotation.Nullable;
 import io.microsphere.redis.spring.interceptor.RedisMethodContext;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.data.redis.connection.RedisCommands;
@@ -17,8 +18,6 @@ import org.springframework.data.redis.connection.RedisSetCommands;
 import org.springframework.data.redis.connection.RedisStringCommands;
 import org.springframework.data.redis.connection.RedisTxCommands;
 import org.springframework.data.redis.connection.RedisZSetCommands;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -176,7 +175,8 @@ public class RedisCommandEvent extends ApplicationEvent {
      *
      * @return
      */
-    public @NonNull Method getMethod() {
+    @Nonnull
+    public Method getMethod() {
         return method;
     }
 
@@ -187,6 +187,7 @@ public class RedisCommandEvent extends ApplicationEvent {
      *     <li>"org.springframework.data.redis.connection.RedisHashCommands"</li>
      * </ul>
      */
+    @Nonnull
     public String getInterfaceName() {
         String interfaceName = this.interfaceName;
         if (interfaceName == null) {
@@ -207,6 +208,7 @@ public class RedisCommandEvent extends ApplicationEvent {
      *
      * @return method name, e.g. {@code "set"} or {@code "get"}
      */
+    @Nonnull
     public String getMethodName() {
         return method.getName();
     }
@@ -216,6 +218,7 @@ public class RedisCommandEvent extends ApplicationEvent {
      *
      * @return array of parameter type classes; never {@code null}
      */
+    @Nonnull
     public Class<?>[] getParameterTypes() {
         Class<?>[] parameterTypes = this.parameterTypes;
         if (parameterTypes == null) {
@@ -244,7 +247,8 @@ public class RedisCommandEvent extends ApplicationEvent {
      *
      * @return the argument array; may be {@code null} for commands with no parameters
      */
-    public @Nullable Object[] getArgs() {
+    @Nullable
+    public Object[] getArgs() {
         return this.args;
     }
 
@@ -254,14 +258,16 @@ public class RedisCommandEvent extends ApplicationEvent {
      * @param index the zero-based argument index
      * @return the argument value at {@code index}; may be {@code null}
      */
-    public @Nullable Object getArg(int index) {
+    @Nullable
+    public Object getArg(int index) {
         return this.args[index];
     }
 
     /**
      * @return Event source Application name
      */
-    public @NonNull String getApplicationName() {
+    @Nonnull
+    public String getApplicationName() {
         return applicationName;
     }
 
@@ -270,7 +276,8 @@ public class RedisCommandEvent extends ApplicationEvent {
      *
      * @return Source Bean name
      */
-    public @Nullable String getSourceBeanName() {
+    @Nullable
+    public String getSourceBeanName() {
         return this.sourceBeanName;
     }
 
