@@ -139,5 +139,6 @@ public class KafkaRedisReplicatorConfiguration implements EnvironmentAware, Init
 
     @Override
     public void destroy() throws Exception {
+        this.logger.trace("The KafkaRedisReplicatorConfiguration is destroying...");
     }
 }
