@@ -33,6 +33,7 @@ import org.springframework.test.context.ContextConfiguration;
 import java.lang.reflect.Method;
 
 import static io.microsphere.redis.spring.context.RedisContext.BEAN_NAME;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 /**
  * {@link RedisMethodInterceptor} Test
@@ -73,18 +74,18 @@ class RedisMethodInterceptorTest extends AbstractRedisTest {
     }
 
     @Test
-    void testBeforeExecute() throws Throwable {
-        this.interceptor.beforeExecute(this.context);
+    void testBeforeExecute() {
+        assertDoesNotThrow(() -> this.interceptor.beforeExecute(this.context));
     }
 
     @Test
-    void testAfterExecute() throws Throwable {
-        this.interceptor.afterExecute(this.context, null, null);
+    void testAfterExecute() {
+        assertDoesNotThrow(() -> this.interceptor.afterExecute(this.context, null, null));
     }
 
     @Test
     void testHandleError() {
-        this.interceptor.handleError(this.context, true, null, null, null);
+        assertDoesNotThrow(() -> this.interceptor.handleError(this.context, true, null, null, null));
     }
 
     static class RedisMethodInterceptorImpl implements RedisMethodInterceptor {
