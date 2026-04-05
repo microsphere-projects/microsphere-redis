@@ -27,6 +27,7 @@ import static io.microsphere.redis.replicator.spring.kafka.producer.KafkaProduce
 import static io.microsphere.redis.replicator.spring.kafka.producer.KafkaProducerRedisReplicatorConfiguration.KAFKA_PRODUCER_KEY_PREFIX_PROPERTY_NAME;
 import static io.microsphere.redis.replicator.spring.kafka.producer.KafkaProducerRedisReplicatorConfiguration.KAFKA_PRODUCER_PROPERTY_NAME_PREFIX;
 import static io.microsphere.spring.test.util.SpringTestUtils.testInSpringContainer;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -65,8 +66,10 @@ class KafkaProducerRedisReplicatorConfigurationTest {
     }
 
     @Test
-    void testDestroyOnNotInitialized() throws Exception {
-        KafkaProducerRedisReplicatorConfiguration configuration = new KafkaProducerRedisReplicatorConfiguration();
-        configuration.destroy();
+    void testDestroyOnNotInitialized() {
+        assertDoesNotThrow(() -> {
+            KafkaProducerRedisReplicatorConfiguration configuration = new KafkaProducerRedisReplicatorConfiguration();
+            configuration.destroy();
+        });
     }
 }

@@ -32,6 +32,12 @@
             <optional>true</optional>
         </dependency>
 
+        <dependency>
+            <groupId>io.github.microsphere-projects</groupId>
+            <artifactId>microsphere-lang-model</artifactId>
+            <optional>true</optional>
+        </dependency>
+
         <!-- Microsphere Redis Core -->
         <dependency>
             <groupId>io.github.microsphere-projects</groupId>
@@ -81,7 +87,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>3.6.2</version>
+                <version>3.6.3</version>
                 <goals>
                     <goal>exec</goal>
                 </goals>

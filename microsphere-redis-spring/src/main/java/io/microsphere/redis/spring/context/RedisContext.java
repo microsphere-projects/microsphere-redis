@@ -16,6 +16,7 @@
  */
 package io.microsphere.redis.spring.context;
 
+import io.microsphere.annotation.Nonnull;
 import io.microsphere.logging.Logger;
 import io.microsphere.redis.spring.config.RedisConfiguration;
 import io.microsphere.redis.spring.interceptor.RedisCommandInterceptor;
@@ -31,7 +32,6 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.lang.NonNull;
 
 import java.util.List;
 import java.util.Set;
@@ -46,7 +46,29 @@ import static io.microsphere.spring.beans.factory.BeanFactoryUtils.asConfigurabl
 import static io.microsphere.spring.context.ApplicationContextUtils.asConfigurableApplicationContext;
 
 /**
- * Redis Context
+ * Central Spring bean that aggregates all Redis infrastructure components for the Microsphere
+ * Redis extension, including:
+ * <ul>
+ *   <li>{@link RedisConfiguration} – environment-backed Redis settings</li>
+ *   <li>Discovered {@link RedisConnectionInterceptor} and {@link RedisCommandInterceptor} lists</li>
+ *   <li>Resolved bean names for all {@link RedisTemplate} and
+ *       {@link org.springframework.data.redis.connection.RedisConnectionFactory} beans</li>
+ * </ul>
+ *
+ * <h3>Example Usage</h3>
+ * <pre>{@code
+ *   // Retrieve the RedisContext from a BeanFactory / ApplicationContext
+ *   RedisContext redisContext = RedisContext.get(applicationContext);
+ *
+ *   // Check whether interception is currently active
+ *   boolean enabled = redisContext.isEnabled();
+ *
+ *   // Get the RedisConfiguration
+ *   RedisConfiguration config = redisContext.getRedisConfiguration();
+ *
+ *   // Find all interceptors
+ *   List<RedisCommandInterceptor> commandInterceptors = redisContext.getRedisCommandInterceptors();
+ * }</pre>
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
@@ -82,7 +104,13 @@ public class RedisContext implements SmartInitializingSingleton, ApplicationCont
         this.redisCommandInterceptors = findRedisCommandInterceptors(beanFactory);
     }
 
-    @NonNull
+    /**
+     * Returns the {@link RedisConfiguration} bean, resolving it lazily from the
+     * {@link org.springframework.beans.factory.BeanFactory} on first access.
+     *
+     * @return non-null {@link RedisConfiguration}
+     */
+    @Nonnull
     public RedisConfiguration getRedisConfiguration() {
         RedisConfiguration redisConfiguration = this.redisConfiguration;
         if (redisConfiguration == null) {
@@ -108,54 +136,124 @@ public class RedisContext implements SmartInitializingSingleton, ApplicationCont
         this.classLoader = classLoader;
     }
 
+    /**
+     * Returns the {@link ConfigurableListableBeanFactory} associated with this context.
+     *
+     * @return the bean factory; never {@code null}
+     */
     public ConfigurableListableBeanFactory getBeanFactory() {
         return beanFactory;
     }
 
+    /**
+     * Returns the {@link ConfigurableApplicationContext} associated with this context.
+     *
+     * @return the application context; never {@code null}
+     */
     public ConfigurableApplicationContext getApplicationContext() {
         return context;
     }
 
+    /**
+     * Returns the {@link ClassLoader} injected via {@link BeanClassLoaderAware}.
+     *
+     * @return the class loader used for dynamic proxy creation; never {@code null}
+     */
     public ClassLoader getClassLoader() {
         return classLoader;
     }
 
+    /**
+     * Returns the {@link ConfigurableEnvironment} from the underlying {@link RedisConfiguration}.
+     *
+     * @return the environment; never {@code null}
+     */
     public ConfigurableEnvironment getEnvironment() {
         return getRedisConfiguration().getEnvironment();
     }
 
+    /**
+     * Returns {@code true} when the Redis interceptor infrastructure is globally enabled
+     * (controlled by the property {@code microsphere.redis.enabled}).
+     *
+     * @return {@code true} if interception is currently enabled
+     */
     public boolean isEnabled() {
         return getRedisConfiguration().isEnabled();
     }
 
+    /**
+     * Finds and returns the {@link RedisTemplate} bean with the given name from the application context.
+     *
+     * @param redisTemplateBeanName the Spring bean name of the desired {@link RedisTemplate}
+     * @return the {@link RedisTemplate}, or {@code null} if not found
+     */
     public RedisTemplate<?, ?> getRedisTemplate(String redisTemplateBeanName) {
         return findRedisTemplate(context, redisTemplateBeanName);
     }
 
+    /**
+     * Returns the set of Spring bean names for all {@link RedisTemplate} beans discovered in the context.
+     *
+     * @return bean names; may be empty but never {@code null}
+     */
     public Set<String> getRedisTemplateBeanNames() {
         return redisTemplateBeanNames;
     }
 
+    /**
+     * Returns the set of Spring bean names for all
+     * {@link org.springframework.data.redis.connection.RedisConnectionFactory} beans discovered in the context.
+     *
+     * @return bean names; may be empty but never {@code null}
+     */
     public Set<String> getRedisConnectionFactoryBeanNames() {
         return redisConnectionFactoryBeanNames;
     }
 
+    /**
+     * Returns {@code true} if {@link io.microsphere.redis.spring.event.RedisCommandEvent} publishing
+     * is enabled (controlled by {@link RedisConfiguration#isCommandEventExposed()}).
+     *
+     * @return {@code true} if Redis command events should be published to the application context
+     */
     public boolean isCommandEventExposed() {
         return getRedisConfiguration().isCommandEventExposed();
     }
 
+    /**
+     * Returns the application name from the underlying {@link RedisConfiguration}.
+     *
+     * @return the application name; never {@code null}
+     */
     public String getApplicationName() {
         return getRedisConfiguration().getApplicationName();
     }
 
+    /**
+     * Returns the ordered list of {@link RedisConnectionInterceptor} beans registered in the context.
+     *
+     * @return list of connection interceptors; may be empty but never {@code null}
+     */
     public List<RedisConnectionInterceptor> getRedisConnectionInterceptors() {
         return redisConnectionInterceptors;
     }
 
+    /**
+     * Returns the ordered list of {@link RedisCommandInterceptor} beans registered in the context.
+     *
+     * @return list of command interceptors; may be empty but never {@code null}
+     */
     public List<RedisCommandInterceptor> getRedisCommandInterceptors() {
         return redisCommandInterceptors;
     }
 
+    /**
+     * Retrieves the {@link RedisContext} bean from the given {@link BeanFactory}.
+     *
+     * @param beanFactory the Spring bean factory
+     * @return the {@link RedisContext} singleton; never {@code null}
+     */
     public static RedisContext get(BeanFactory beanFactory) {
         return beanFactory.getBean(RedisContext.class);
     }

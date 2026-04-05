@@ -17,6 +17,7 @@
 package io.microsphere.redis.replicator.spring.config;
 
 import io.microsphere.annotation.ConfigurationProperty;
+import io.microsphere.annotation.Nonnull;
 import io.microsphere.logging.Logger;
 import io.microsphere.redis.spring.config.RedisConfiguration;
 import io.microsphere.redis.spring.context.RedisContext;
@@ -27,7 +28,6 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
-import org.springframework.lang.NonNull;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -37,6 +37,7 @@ import java.util.Set;
 
 import static io.microsphere.annotation.ConfigurationProperty.APPLICATION_SOURCE;
 import static io.microsphere.collection.Lists.ofList;
+import static io.microsphere.constants.PropertyConstants.ENABLED_PROPERTY_NAME;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.getBoolean;
 import static java.lang.Boolean.parseBoolean;
@@ -71,7 +72,7 @@ public class RedisReplicatorConfiguration implements ApplicationListener<RedisCo
             defaultValue = DEFAULT_ENABLED_PROPERTY_VALUE,
             source = APPLICATION_SOURCE
     )
-    public static final String REDIS_REPLICATOR_ENABLED_PROPERTY_NAME = REDIS_REPLICATOR_PROPERTY_NAME_PREFIX + "enabled";
+    public static final String REDIS_REPLICATOR_ENABLED_PROPERTY_NAME = REDIS_REPLICATOR_PROPERTY_NAME_PREFIX + ENABLED_PROPERTY_NAME;
 
     public static final String REDIS_REPLICATOR_CONSUMER_PROPERTY_NAME_PREFIX = REDIS_REPLICATOR_PROPERTY_NAME_PREFIX + "consumer.";
 
@@ -87,7 +88,7 @@ public class RedisReplicatorConfiguration implements ApplicationListener<RedisCo
             defaultValue = DEFAULT_REDIS_REPLICATOR_CONSUMER_ENABLED_PROPERTY_VALUE,
             source = APPLICATION_SOURCE
     )
-    public static final String REDIS_REPLICATOR_CONSUMER_ENABLED_PROPERTY_NAME = REDIS_REPLICATOR_CONSUMER_PROPERTY_NAME_PREFIX + "enabled";
+    public static final String REDIS_REPLICATOR_CONSUMER_ENABLED_PROPERTY_NAME = REDIS_REPLICATOR_CONSUMER_PROPERTY_NAME_PREFIX + ENABLED_PROPERTY_NAME;
 
     public static final String REDIS_REPLICATOR_DEFAULT_DOMAIN = "default";
 
@@ -171,9 +172,9 @@ public class RedisReplicatorConfiguration implements ApplicationListener<RedisCo
      * Get the configured service domain list
      *
      * @param environment {@link Environment}
-     * @return If the configuration is not found, return {@link #REDIS_REPLICATOR_DEFAULT_DOMAINS 默认域}
+     * @return If the configuration is not found, return {@link #REDIS_REPLICATOR_DEFAULT_DOMAINS default domains}
      */
-    @NonNull
+    @Nonnull
     public List<String> getDomains(Environment environment) {
         return unmodifiableList(environment.getProperty(REDIS_REPLICATOR_DOMAINS_PROPERTY_NAME, List.class, REDIS_REPLICATOR_DEFAULT_DOMAINS));
     }
@@ -189,7 +190,7 @@ public class RedisReplicatorConfiguration implements ApplicationListener<RedisCo
      * @param domain      The specified Domain is derived from{@link #getDomains(Environment)}
      * @return If no configuration is found, an empty list is returned
      */
-    @NonNull
+    @Nonnull
     public List<String> getDomainRedisTemplateBeanNames(Environment environment, String domain) {
         String propertyName = getDomainRedisTemplateBeanNamesPropertyName(domain);
         return unmodifiableList(environment.getProperty(propertyName, List.class, emptyList()));
@@ -215,7 +216,7 @@ public class RedisReplicatorConfiguration implements ApplicationListener<RedisCo
         return sourceBeanDomains.getOrDefault(sourceBeanName, getDomains());
     }
 
-    @NonNull
+    @Nonnull
     public RedisContext getRedisContext() {
         RedisContext redisContext = this.redisContext;
         if (redisContext == null) {
@@ -226,17 +227,17 @@ public class RedisReplicatorConfiguration implements ApplicationListener<RedisCo
         return redisContext;
     }
 
-    @NonNull
+    @Nonnull
     public RedisConfiguration getRedisConfiguration() {
         return getRedisContext().getRedisConfiguration();
     }
 
     public static boolean isRedisReplicatorEnabled(Environment environment) {
-        return getBoolean(environment, REDIS_REPLICATOR_ENABLED_PROPERTY_NAME, DEFAULT_ENABLED, "Replicator", "enabled");
+        return getBoolean(environment, REDIS_REPLICATOR_ENABLED_PROPERTY_NAME, DEFAULT_ENABLED, "Replicator", ENABLED_PROPERTY_NAME);
     }
 
     public static boolean isRedisReplicatorConsumerEnabled(Environment environment) {
-        return getBoolean(environment, REDIS_REPLICATOR_CONSUMER_ENABLED_PROPERTY_NAME, DEFAULT_REDIS_REPLICATOR_CONSUMER_ENABLED, "Replicator Consumer", "enabled");
+        return getBoolean(environment, REDIS_REPLICATOR_CONSUMER_ENABLED_PROPERTY_NAME, DEFAULT_REDIS_REPLICATOR_CONSUMER_ENABLED, "Replicator Consumer", ENABLED_PROPERTY_NAME);
     }
 
     public static RedisReplicatorConfiguration get(BeanFactory beanFactory) {

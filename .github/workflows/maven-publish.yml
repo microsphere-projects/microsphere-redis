@@ -16,13 +16,20 @@ on:
       revision:
         description: 'The version to publish for Spring Data Redis 2.1.x - 2.7.x'
         required: true
-        default: '1.0.0-SNAPSHOT'
+        default: '${major}.${minor}.${patch}'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     if: ${{ inputs.revision }}
     steps:
+      - name: Validate version format
+        run: |
+          if ! echo "${{ inputs.revision }}" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "Error: version '${{ inputs.revision }}' does not match the required pattern major.minor.patch"
+            exit 1
+          fi
+
       - name: Docker Setup Compose
         uses: docker/setup-compose-action@v1.2.0
         with:
@@ -63,3 +70,71 @@ jobs:
       - name: Stop Docker Compose
         if: always()
         run: docker compose -f "docker/test-services.yml" down
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Create Tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git rev-parse "${{ inputs.revision }}" >/dev/null 2>&1; then
+            echo "Tag ${{ inputs.revision }} already exists, skipping."
+          else
+            git tag ${{ inputs.revision }}
+            git push origin ${{ inputs.revision }}
+          fi
+
+      - name: Create Release
+        run: |
+          if gh release view "v${{ inputs.revision }}" >/dev/null 2>&1; then
+            echo "Release v${{ inputs.revision }} already exists, skipping."
+          else
+            gh release create v${{ inputs.revision }} \
+              --title "v${{ inputs.revision }}" \
+              --generate-notes \
+              --latest
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Increment patch version
+        run: |
+          CURRENT="${{ inputs.revision }}"
+          MAJOR=$(echo "$CURRENT" | cut -d. -f1)
+          MINOR=$(echo "$CURRENT" | cut -d. -f2)
+          PATCH=$(echo "$CURRENT" | cut -d. -f3)
+          NEXT_PATCH=$((PATCH + 1))
+          NEXT_VERSION="${MAJOR}.${MINOR}.${NEXT_PATCH}-SNAPSHOT"
+          sed -i "s|^\( *\)<revision>[^<]*</revision>|\1<revision>${NEXT_VERSION}</revision>|" pom.xml
+          echo "Bumped version from ${CURRENT} to ${NEXT_VERSION}"
+
+      - name: Commit and push next version
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add pom.xml
+          git diff --cached --quiet && echo "No changes to commit" || \
+            git commit -m "chore: bump version to next patch after publishing ${{ inputs.revision }}" && git push
+
+      - name: Merge release-1.x into dev-1.x
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if ! git checkout dev-1.x; then
+            echo "::error::Branch 'dev-1.x' does not exist. Skipping merge."
+            exit 1
+          fi
+          if ! git merge --no-ff origin/release-1.x -m "chore: merge release-1.x into dev-1.x [skip ci]"; then
+            echo "::error::Merge conflict detected when merging release-1.x into dev-1.x. Manual intervention required."
+            exit 1
+          fi
+          git push origin dev-1.x

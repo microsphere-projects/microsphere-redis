@@ -1,6 +1,7 @@
 package io.microsphere.redis.spring.event;
 
 import io.microsphere.annotation.Nonnull;
+import io.microsphere.annotation.Nullable;
 import io.microsphere.redis.spring.interceptor.RedisMethodContext;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.data.redis.connection.RedisCommands;
@@ -17,8 +18,6 @@ import org.springframework.data.redis.connection.RedisSetCommands;
 import org.springframework.data.redis.connection.RedisStringCommands;
 import org.springframework.data.redis.connection.RedisTxCommands;
 import org.springframework.data.redis.connection.RedisZSetCommands;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -34,12 +33,30 @@ import static io.microsphere.util.ArrayUtils.arrayToString;
 
 
 /**
- * {@link RedisCommands Redis command} event
- * The supported commands：
- * <ul>
- *     <li>RedisStringCommands</li>
- *     <li>RedisHashCommands</li>
- * </ul>
+ * Spring {@link ApplicationEvent} that captures a single Redis command invocation together with
+ * its method, arguments, source bean name, and application name.  Published by
+ * {@link io.microsphere.redis.spring.interceptor.EventPublishingRedisCommandInterceptor} after
+ * each intercepted Redis command.
+ *
+ * <h3>Example Usage</h3>
+ * <pre>{@code
+ *   // Build from a RedisMethodContext inside an interceptor:
+ *   RedisCommandEvent event = new RedisCommandEvent(redisMethodContext);
+ *
+ *   // Build via the fluent Builder:
+ *   Method method = RedisStringCommands.class.getMethod("set", byte[].class, byte[].class);
+ *   RedisCommandEvent event = RedisCommandEvent.Builder
+ *           .source(redisConnectionFactory)
+ *           .applicationName("my-app")
+ *           .sourceBeanName("redisTemplate")
+ *           .method(method)
+ *           .args(key, value)
+ *           .build();
+ *
+ *   System.out.println(event.getMethodName());    // "set"
+ *   System.out.println(event.getApplicationName()); // "my-app"
+ *   System.out.println(event.getParameterCount()); // 2
+ * }</pre>
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @see RedisCommands
@@ -86,6 +103,11 @@ public class RedisCommandEvent extends ApplicationEvent {
         this.args = args;
     }
 
+    /**
+     * Creates a {@link RedisCommandEvent} from the given {@link RedisMethodContext}.
+     *
+     * @param redisMethodContext the execution context of the intercepted Redis method
+     */
     public RedisCommandEvent(@Nonnull RedisMethodContext redisMethodContext) {
         this(redisMethodContext, redisMethodContext.getApplicationName(), redisMethodContext.getSourceBeanName(), redisMethodContext.getMethod(), redisMethodContext.getArgs());
     }
@@ -153,7 +175,8 @@ public class RedisCommandEvent extends ApplicationEvent {
      *
      * @return
      */
-    public @NonNull Method getMethod() {
+    @Nonnull
+    public Method getMethod() {
         return method;
     }
 
@@ -164,6 +187,7 @@ public class RedisCommandEvent extends ApplicationEvent {
      *     <li>"org.springframework.data.redis.connection.RedisHashCommands"</li>
      * </ul>
      */
+    @Nonnull
     public String getInterfaceName() {
         String interfaceName = this.interfaceName;
         if (interfaceName == null) {
@@ -179,10 +203,22 @@ public class RedisCommandEvent extends ApplicationEvent {
         return className;
     }
 
+    /**
+     * Returns the simple name of the intercepted Redis command method.
+     *
+     * @return method name, e.g. {@code "set"} or {@code "get"}
+     */
+    @Nonnull
     public String getMethodName() {
         return method.getName();
     }
 
+    /**
+     * Returns the parameter types of the intercepted method, lazily cached from the {@link Method} reflection data.
+     *
+     * @return array of parameter type classes; never {@code null}
+     */
+    @Nonnull
     public Class<?>[] getParameterTypes() {
         Class<?>[] parameterTypes = this.parameterTypes;
         if (parameterTypes == null) {
@@ -192,6 +228,11 @@ public class RedisCommandEvent extends ApplicationEvent {
         return parameterTypes;
     }
 
+    /**
+     * Returns the number of parameters of the intercepted Redis command method, lazily cached.
+     *
+     * @return parameter count (≥ 0)
+     */
     public int getParameterCount() {
         int parameterCount = this.parameterCount;
         if (parameterCount == -1) {
@@ -201,18 +242,32 @@ public class RedisCommandEvent extends ApplicationEvent {
         return parameterCount;
     }
 
-    public @Nullable Object[] getArgs() {
+    /**
+     * Returns the actual arguments passed to the intercepted Redis command.
+     *
+     * @return the argument array; may be {@code null} for commands with no parameters
+     */
+    @Nullable
+    public Object[] getArgs() {
         return this.args;
     }
 
-    public @Nullable Object getArg(int index) {
+    /**
+     * Returns the argument at the specified zero-based position.
+     *
+     * @param index the zero-based argument index
+     * @return the argument value at {@code index}; may be {@code null}
+     */
+    @Nullable
+    public Object getArg(int index) {
         return this.args[index];
     }
 
     /**
      * @return Event source Application name
      */
-    public @NonNull String getApplicationName() {
+    @Nonnull
+    public String getApplicationName() {
         return applicationName;
     }
 
@@ -221,14 +276,25 @@ public class RedisCommandEvent extends ApplicationEvent {
      *
      * @return Source Bean name
      */
-    public @Nullable String getSourceBeanName() {
+    @Nullable
+    public String getSourceBeanName() {
         return this.sourceBeanName;
     }
 
+    /**
+     * Sets the serialization version used when this event is serialized (e.g. for messaging).
+     *
+     * @param serializationVersion the version byte; see {@link io.microsphere.redis.spring.serializer.RedisCommandEventSerializer}
+     */
     public void setSerializationVersion(byte serializationVersion) {
         this.serializationVersion = serializationVersion;
     }
 
+    /**
+     * Returns the serialization version of this event.
+     *
+     * @return the version byte
+     */
     public byte getSerializationVersion() {
         return serializationVersion;
     }

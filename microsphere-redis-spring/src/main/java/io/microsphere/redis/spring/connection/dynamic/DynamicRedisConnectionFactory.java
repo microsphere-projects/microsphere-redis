@@ -1,5 +1,6 @@
 package io.microsphere.redis.spring.connection.dynamic;
 
+import io.microsphere.annotation.Nonnull;
 import io.microsphere.logging.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanNameAware;
@@ -11,7 +12,6 @@ import org.springframework.data.redis.connection.RedisClusterConnection;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisSentinelConnection;
-import org.springframework.lang.NonNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -104,7 +104,7 @@ public class DynamicRedisConnectionFactory implements RedisConnectionFactory, Sm
         this.defaultRedisConnectionFactory = getDefaultRedisConnectionFactory();
     }
 
-    @NonNull
+    @Nonnull
     protected RedisConnectionFactory determineTargetRedisConnectionFactory() {
         String targetBeanName = getTargetBeanName();
         if (isBlank(targetBeanName)) {

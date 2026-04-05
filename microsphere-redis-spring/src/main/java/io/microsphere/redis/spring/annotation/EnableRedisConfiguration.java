@@ -26,7 +26,20 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * An annotation enables {@link RedisConfiguration}
+ * Meta-annotation that enables the {@link RedisConfiguration} Spring bean, which exposes
+ * Redis-related configuration properties. Placing this annotation (or a composed annotation
+ * that carries it) on a {@code @Configuration} class triggers the registration of
+ * {@link RedisConfiguration} and, when the Spring Cloud Environment is present, also
+ * registers a listener that propagates remote configuration-change events.
+ *
+ * <h3>Example Usage</h3>
+ * <pre>{@code
+ *   @Configuration
+ *   @EnableRedisConfiguration
+ *   public class MyAppConfig {
+ *       // RedisConfiguration bean is automatically registered
+ *   }
+ * }</pre>
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
