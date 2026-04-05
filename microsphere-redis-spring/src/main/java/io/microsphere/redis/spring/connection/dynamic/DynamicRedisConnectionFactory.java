@@ -1,5 +1,6 @@
 package io.microsphere.redis.spring.connection.dynamic;
 
+import io.microsphere.annotation.Nullable;
 import io.microsphere.logging.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanNameAware;
