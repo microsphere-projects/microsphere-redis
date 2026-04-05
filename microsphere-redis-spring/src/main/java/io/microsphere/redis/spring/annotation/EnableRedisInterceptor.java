@@ -30,7 +30,36 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Enable Redis Interceptor
+ * Meta-annotation that activates the Redis interceptor infrastructure, enabling transparent
+ * interception of all Redis commands executed through Spring Data Redis.  Transitively enables
+ * {@link EnableRedisContext} (and therefore {@link EnableRedisConfiguration}).
+ *
+ * <p>Depending on the {@link #wrapRedisTemplates()} attribute the interceptor registers:
+ * <ul>
+ *   <li>a {@link io.microsphere.redis.spring.beans.RedisTemplateWrapperBeanPostProcessor} when specific
+ *       {@link RedisTemplate} bean names are provided, or</li>
+ *   <li>a {@link io.microsphere.redis.spring.beans.RedisConnectionFactoryProxyBeanPostProcessor} to proxy
+ *       all {@link org.springframework.data.redis.connection.RedisConnectionFactory} beans when no
+ *       templates are named.</li>
+ * </ul>
+ *
+ * <h3>Example Usage</h3>
+ * <pre>{@code
+ *   // Intercept all RedisTemplate beans and publish RedisCommandEvents
+ *   @Configuration
+ *   @EnableRedisInterceptor(wrapRedisTemplates = "*", exposeCommandEvent = true)
+ *   public class MyRedisConfig { }
+ *
+ *   // Intercept only a specific RedisTemplate bean
+ *   @Configuration
+ *   @EnableRedisInterceptor(wrapRedisTemplates = "myRedisTemplate")
+ *   public class MyRedisConfig { }
+ *
+ *   // Use a Spring property placeholder for the template bean names
+ *   @Configuration
+ *   @EnableRedisInterceptor(wrapRedisTemplates = "${microsphere.redis.wrapped-redis-templates}")
+ *   public class MyRedisConfig { }
+ * }</pre>
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @see RedisInterceptorBeanDefinitionRegistrar

@@ -26,8 +26,26 @@ import org.springframework.lang.Nullable;
 import static io.microsphere.redis.util.ValueHolder.get;
 
 /**
- * {@link ValueHolder} {@link RedisSerializer} Wrapper
+ * {@link RedisSerializer} decorator that transparently caches the bidirectional mapping
+ * between Java objects and their serialized byte arrays in the thread-local
+ * {@link ValueHolder}, so that the interceptor layer can later look up the original object
+ * given the raw bytes and vice versa.
  *
+ * <h3>Example Usage</h3>
+ * <pre>{@code
+ *   // Wrap an existing serializer
+ *   RedisSerializer<String> original = RedisSerializer.string();
+ *   RedisSerializer<String> wrapped  = HoldingValueRedisSerializerWrapper.wrap(original);
+ *
+ *   // Serialization caches the mapping
+ *   byte[] bytes = wrapped.serialize("hello");
+ *   String back  = (String) ValueHolder.get().getValue(bytes); // "hello"
+ *
+ *   // Wrap all serializers on a RedisTemplate at once
+ *   HoldingValueRedisSerializerWrapper.wrap(redisTemplate);
+ * }</pre>
+ *
+ * @param <T> the type handled by the delegate serializer
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
@@ -35,6 +53,11 @@ public class HoldingValueRedisSerializerWrapper<T> implements RedisSerializer<T>
 
     private final RedisSerializer<T> delegate;
 
+    /**
+     * Creates a wrapper around the given delegate serializer.
+     *
+     * @param delegate the actual {@link RedisSerializer} to delegate serialization work to
+     */
     public HoldingValueRedisSerializerWrapper(RedisSerializer<T> delegate) {
         this.delegate = delegate;
     }
@@ -79,6 +102,14 @@ public class HoldingValueRedisSerializerWrapper<T> implements RedisSerializer<T>
         return delegate;
     }
 
+    /**
+     * Wraps the given {@link RedisSerializer} with a {@link HoldingValueRedisSerializerWrapper},
+     * unless it is already wrapped or is {@code null}.
+     *
+     * @param <T>             the serializer target type
+     * @param redisSerializer the serializer to wrap; may be {@code null}
+     * @return the wrapped serializer, or {@code redisSerializer} if already wrapped or {@code null}
+     */
     public static <T> RedisSerializer<T> wrap(RedisSerializer<T> redisSerializer) {
         if (redisSerializer == null || redisSerializer instanceof HoldingValueRedisSerializerWrapper) {
             return redisSerializer;
@@ -86,6 +117,12 @@ public class HoldingValueRedisSerializerWrapper<T> implements RedisSerializer<T>
         return new HoldingValueRedisSerializerWrapper<>(redisSerializer);
     }
 
+    /**
+     * Wraps all serializers (default, key, value, hash-key, hash-value) on the given
+     * {@link RedisTemplate} with {@link HoldingValueRedisSerializerWrapper} instances.
+     *
+     * @param redisTemplate the template whose serializers should be wrapped
+     */
     public static void wrap(RedisTemplate redisTemplate) {
         redisTemplate.setDefaultSerializer(wrap(redisTemplate.getDefaultSerializer()));
         redisTemplate.setKeySerializer(wrap(redisTemplate.getKeySerializer()));

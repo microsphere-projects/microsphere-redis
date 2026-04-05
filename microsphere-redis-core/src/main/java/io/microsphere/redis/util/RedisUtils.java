@@ -33,7 +33,30 @@ import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.util.ClassLoaderUtils.getDefaultClassLoader;
 
 /**
- * The utilities class for Redis
+ * Core utility class for Redis resource loading. Provides helpers that locate classpath
+ * resources by name, open their {@link InputStream}s, and convert them to arbitrary
+ * target objects via a caller-supplied {@link ThrowableFunction}.
+ *
+ * <h3>Example Usage</h3>
+ * <pre>{@code
+ *   // Load a single classpath resource and parse it as a String
+ *   String content = RedisUtils.loadResource(
+ *       "META-INF/redis-commands",
+ *       inputStream -> IOUtils.copyToString(inputStream)
+ *   );
+ *
+ *   // Load all classpath resources with the same name and collect their lines
+ *   List<String> allLines = RedisUtils.loadResources(
+ *       "META-INF/redis-commands",
+ *       inputStreams -> {
+ *           List<String> lines = new ArrayList<>();
+ *           for (InputStream is : inputStreams) {
+ *               lines.addAll(Arrays.asList(IOUtils.copyToString(is).split("\n")));
+ *           }
+ *           return lines;
+ *       }
+ *   );
+ * }</pre>
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @see RedisCommandUtils
@@ -43,21 +66,64 @@ public abstract class RedisUtils {
 
     private static final Logger logger = getLogger(RedisUtils.class);
 
+    /**
+     * The default {@link ClassLoader} used for resource lookups (usually the thread-context or application class loader).
+     */
     public static final ClassLoader CLASS_LOADER = getDefaultClassLoader();
 
+    /**
+     * Loads a single classpath resource using the {@linkplain #CLASS_LOADER default class loader},
+     * converts its {@link InputStream} to a target object via {@code inputStreamToTarget}, and returns it.
+     *
+     * @param <T>                 the target type
+     * @param resourceName        the classpath resource path (e.g. {@code "META-INF/redis-commands"})
+     * @param inputStreamToTarget function that converts the resource stream to {@code T}
+     * @return the converted result
+     */
     public static <T> T loadResource(String resourceName, ThrowableFunction<InputStream, T> inputStreamToTarget) {
         return loadResource(CLASS_LOADER, resourceName, inputStreamToTarget);
     }
 
+    /**
+     * Loads a single classpath resource using the specified {@link ClassLoader},
+     * converts its {@link InputStream} to a target object via {@code inputStreamToTarget}, and returns it.
+     *
+     * @param <T>                 the target type
+     * @param classLoader         the class loader to use for resource lookup
+     * @param resourceName        the classpath resource path
+     * @param inputStreamToTarget function that converts the resource stream to {@code T}
+     * @return the converted result
+     */
     public static <T> T loadResource(ClassLoader classLoader, String resourceName, ThrowableFunction<InputStream, T> inputStreamToTarget) {
         URL resource = classLoader.getResource(resourceName);
         return toTarget(resource, inputStreamToTarget);
     }
 
+    /**
+     * Loads all classpath resources with the given name using the {@linkplain #CLASS_LOADER default class loader},
+     * passes the list of their {@link InputStream}s to {@code inputStreamsToTarget}, and returns the result.
+     * All streams are closed after the function returns.
+     *
+     * @param <T>                    the target type
+     * @param resourceName           the classpath resource path
+     * @param inputStreamsToTarget   function that converts a list of resource streams to {@code T}
+     * @return the converted result
+     */
     public static <T> T loadResources(String resourceName, ThrowableFunction<List<InputStream>, T> inputStreamsToTarget) {
         return loadResources(CLASS_LOADER, resourceName, inputStreamsToTarget);
     }
 
+    /**
+     * Loads all classpath resources with the given name using the specified {@link ClassLoader},
+     * passes the list of their {@link InputStream}s to {@code inputStreamsToTarget}, and returns the result.
+     * All streams are closed after the function returns.
+     *
+     * @param <T>                    the target type
+     * @param classLoader            the class loader to use for resource lookup
+     * @param resourceName           the classpath resource path
+     * @param inputStreamsToTarget   function that converts a list of resource streams to {@code T}
+     * @return the converted result
+     */
     public static <T> T loadResources(ClassLoader classLoader, String resourceName,
                                       ThrowableFunction<List<InputStream>, T> inputStreamsToTarget) {
         return execute(() -> {

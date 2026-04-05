@@ -22,7 +22,26 @@ import io.microsphere.annotation.Nonnull;
 import static io.microsphere.util.ServiceLoaderUtils.loadServices;
 
 /**
- * The loader class of {@link RedisMetadata}
+ * SPI interface for loading {@link RedisMetadata}. Implementations are discovered via
+ * {@link java.util.ServiceLoader} from the classpath and contribute individual
+ * {@link RedisMetadata} instances that are merged together by {@link #loadAll()}.
+ *
+ * <h3>Example Usage</h3>
+ * <pre>{@code
+ *   // Load all available RedisMetadata from all registered loaders on the classpath
+ *   RedisMetadata allMetadata = RedisMetadataLoader.loadAll();
+ *   System.out.println(allMetadata.getVersion());
+ *   System.out.println(allMetadata.getMethods().size());
+ *
+ *   // Implement a custom loader (registered via META-INF/services)
+ *   public class MyRedisMetadataLoader implements RedisMetadataLoader {
+ *       public RedisMetadata load() {
+ *           RedisMetadata metadata = new RedisMetadata();
+ *           metadata.setVersion("1.0.0");
+ *           return metadata;
+ *       }
+ *   }
+ * }</pre>
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @see RedisMetadata
@@ -31,17 +50,19 @@ import static io.microsphere.util.ServiceLoaderUtils.loadServices;
 public interface RedisMetadataLoader {
 
     /**
-     * Load {@link RedisMetadata}
+     * Loads the {@link RedisMetadata} provided by this particular implementation.
      *
-     * @return {@link RedisMetadata}
+     * @return non-null {@link RedisMetadata} instance
      */
     @Nonnull
     RedisMetadata load();
 
     /**
-     * Load all {@link RedisMetadata}
+     * Discovers all {@link RedisMetadataLoader} implementations via {@link java.util.ServiceLoader},
+     * invokes each loader's {@link #load()} method, and merges the results into a single
+     * {@link RedisMetadata} instance.
      *
-     * @return non-null
+     * @return merged non-null {@link RedisMetadata} containing data from all registered loaders
      */
     @Nonnull
     static RedisMetadata loadAll() {
