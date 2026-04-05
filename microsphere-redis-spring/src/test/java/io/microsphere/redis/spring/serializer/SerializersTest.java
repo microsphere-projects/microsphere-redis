@@ -43,6 +43,7 @@ import static io.microsphere.redis.spring.serializer.SortParametersSerializer.SO
 import static io.microsphere.redis.spring.serializer.WeightsSerializer.WEIGHTS_SERIALIZER;
 import static io.microsphere.util.ArrayUtils.EMPTY_BYTE_ARRAY;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -271,8 +272,10 @@ class SerializersTest {
 
     @Test
     void testRegister() {
-        register(String.class, DEFAULT_SERIALIZER);
-        register(String.class, STRING_SERIALIZER);
-        register(String.class, STRING_SERIALIZER);
+        assertDoesNotThrow(() -> {
+            register(String.class, DEFAULT_SERIALIZER);
+            register(String.class, STRING_SERIALIZER);
+            register(String.class, STRING_SERIALIZER);
+        });
     }
 }
