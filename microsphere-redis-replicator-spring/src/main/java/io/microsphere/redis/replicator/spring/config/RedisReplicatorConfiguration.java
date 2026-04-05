@@ -37,6 +37,7 @@ import java.util.Set;
 
 import static io.microsphere.annotation.ConfigurationProperty.APPLICATION_SOURCE;
 import static io.microsphere.collection.Lists.ofList;
+import static io.microsphere.constants.PropertyConstants.ENABLED_PROPERTY_NAME;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.getBoolean;
 import static java.lang.Boolean.parseBoolean;
@@ -71,7 +72,7 @@ public class RedisReplicatorConfiguration implements ApplicationListener<RedisCo
             defaultValue = DEFAULT_ENABLED_PROPERTY_VALUE,
             source = APPLICATION_SOURCE
     )
-    public static final String REDIS_REPLICATOR_ENABLED_PROPERTY_NAME = REDIS_REPLICATOR_PROPERTY_NAME_PREFIX + "enabled";
+    public static final String REDIS_REPLICATOR_ENABLED_PROPERTY_NAME = REDIS_REPLICATOR_PROPERTY_NAME_PREFIX + ENABLED_PROPERTY_NAME;
 
     public static final String REDIS_REPLICATOR_CONSUMER_PROPERTY_NAME_PREFIX = REDIS_REPLICATOR_PROPERTY_NAME_PREFIX + "consumer.";
 
@@ -87,7 +88,7 @@ public class RedisReplicatorConfiguration implements ApplicationListener<RedisCo
             defaultValue = DEFAULT_REDIS_REPLICATOR_CONSUMER_ENABLED_PROPERTY_VALUE,
             source = APPLICATION_SOURCE
     )
-    public static final String REDIS_REPLICATOR_CONSUMER_ENABLED_PROPERTY_NAME = REDIS_REPLICATOR_CONSUMER_PROPERTY_NAME_PREFIX + "enabled";
+    public static final String REDIS_REPLICATOR_CONSUMER_ENABLED_PROPERTY_NAME = REDIS_REPLICATOR_CONSUMER_PROPERTY_NAME_PREFIX + ENABLED_PROPERTY_NAME;
 
     public static final String REDIS_REPLICATOR_DEFAULT_DOMAIN = "default";
 
@@ -232,11 +233,11 @@ public class RedisReplicatorConfiguration implements ApplicationListener<RedisCo
     }
 
     public static boolean isRedisReplicatorEnabled(Environment environment) {
-        return getBoolean(environment, REDIS_REPLICATOR_ENABLED_PROPERTY_NAME, DEFAULT_ENABLED, "Replicator", "enabled");
+        return getBoolean(environment, REDIS_REPLICATOR_ENABLED_PROPERTY_NAME, DEFAULT_ENABLED, "Replicator", ENABLED_PROPERTY_NAME);
     }
 
     public static boolean isRedisReplicatorConsumerEnabled(Environment environment) {
-        return getBoolean(environment, REDIS_REPLICATOR_CONSUMER_ENABLED_PROPERTY_NAME, DEFAULT_REDIS_REPLICATOR_CONSUMER_ENABLED, "Replicator Consumer", "enabled");
+        return getBoolean(environment, REDIS_REPLICATOR_CONSUMER_ENABLED_PROPERTY_NAME, DEFAULT_REDIS_REPLICATOR_CONSUMER_ENABLED, "Replicator Consumer", ENABLED_PROPERTY_NAME);
     }
 
     public static RedisReplicatorConfiguration get(BeanFactory beanFactory) {
