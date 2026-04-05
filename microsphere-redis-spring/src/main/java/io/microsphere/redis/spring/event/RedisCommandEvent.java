@@ -175,7 +175,8 @@ public class RedisCommandEvent extends ApplicationEvent {
      *
      * @return
      */
-    public @Nullable Method getMethod() {
+    @Nullable
+    public Method getMethod() {
         return method;
     }
 
@@ -243,7 +244,8 @@ public class RedisCommandEvent extends ApplicationEvent {
      *
      * @return the argument array; may be {@code null} for commands with no parameters
      */
-    public @Nullable Object[] getArgs() {
+    @Nullable
+    public Object[] getArgs() {
         return this.args;
     }
 
@@ -253,14 +255,16 @@ public class RedisCommandEvent extends ApplicationEvent {
      * @param index the zero-based argument index
      * @return the argument value at {@code index}; may be {@code null}
      */
-    public @Nullable Object getArg(int index) {
+    @Nullable
+    public Object getArg(int index) {
         return this.args[index];
     }
 
     /**
      * @return Event source Application name
      */
-    public @Nullable String getApplicationName() {
+    @Nullable
+    public String getApplicationName() {
         return applicationName;
     }
 
@@ -269,7 +273,8 @@ public class RedisCommandEvent extends ApplicationEvent {
      *
      * @return Source Bean name
      */
-    public @Nullable String getSourceBeanName() {
+    @Nullable
+    public String getSourceBeanName() {
         return this.sourceBeanName;
     }
 
