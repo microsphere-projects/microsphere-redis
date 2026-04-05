@@ -17,7 +17,7 @@
 package io.microsphere.redis.replicator.spring.config;
 
 import io.microsphere.annotation.ConfigurationProperty;
-import io.microsphere.annotation.Nullable;
+import io.microsphere.annotation.Nonnull;
 import io.microsphere.logging.Logger;
 import io.microsphere.redis.spring.config.RedisConfiguration;
 import io.microsphere.redis.spring.context.RedisContext;
@@ -171,9 +171,9 @@ public class RedisReplicatorConfiguration implements ApplicationListener<RedisCo
      * Get the configured service domain list
      *
      * @param environment {@link Environment}
-     * @return If the configuration is not found, return {@link #REDIS_REPLICATOR_DEFAULT_DOMAINS 默认域}
+     * @return If the configuration is not found, return {@link #REDIS_REPLICATOR_DEFAULT_DOMAINS default domains}
      */
-    @Nullable
+    @Nonnull
     public List<String> getDomains(Environment environment) {
         return unmodifiableList(environment.getProperty(REDIS_REPLICATOR_DOMAINS_PROPERTY_NAME, List.class, REDIS_REPLICATOR_DEFAULT_DOMAINS));
     }
@@ -189,7 +189,7 @@ public class RedisReplicatorConfiguration implements ApplicationListener<RedisCo
      * @param domain      The specified Domain is derived from{@link #getDomains(Environment)}
      * @return If no configuration is found, an empty list is returned
      */
-    @Nullable
+    @Nonnull
     public List<String> getDomainRedisTemplateBeanNames(Environment environment, String domain) {
         String propertyName = getDomainRedisTemplateBeanNamesPropertyName(domain);
         return unmodifiableList(environment.getProperty(propertyName, List.class, emptyList()));
@@ -215,7 +215,7 @@ public class RedisReplicatorConfiguration implements ApplicationListener<RedisCo
         return sourceBeanDomains.getOrDefault(sourceBeanName, getDomains());
     }
 
-    @Nullable
+    @Nonnull
     public RedisContext getRedisContext() {
         RedisContext redisContext = this.redisContext;
         if (redisContext == null) {
@@ -226,7 +226,7 @@ public class RedisReplicatorConfiguration implements ApplicationListener<RedisCo
         return redisContext;
     }
 
-    @Nullable
+    @Nonnull
     public RedisConfiguration getRedisConfiguration() {
         return getRedisContext().getRedisConfiguration();
     }
