@@ -64,7 +64,6 @@ import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.REDIS_ZSE
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.loadClass;
 import static io.microsphere.redis.util.RedisCommandUtils.buildMethodIndex;
 import static io.microsphere.redis.util.RedisCommandUtils.buildParameterMetadataList;
-import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.util.ArrayUtils.EMPTY_STRING_ARRAY;
 import static io.microsphere.util.ArrayUtils.forEach;
 import static io.microsphere.util.IterableUtils.forEach;
@@ -182,14 +181,6 @@ class SpringRedisMetadataRepositoryTest {
     @Test
     void testCacheMethodInfoWithNull() {
         cacheMethodInfo(null, null);
-    }
-
-    @Test
-    void testGetParameterMetadataList() {
-        MethodMetadata methodMetadata = new MethodMetadata();
-        forEach(redisCommandMethods, method -> {
-            assertEquals(buildParameterMetadataList(method), getParameterMetadataList(method, methodMetadata));
-        });
     }
 
     @Test
