@@ -20,10 +20,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java: [ '8' , '17' , '21' , '25' ]
-        maven-profile-spring-boot: [ 'spring-boot-2.1' , 'spring-boot-2.2' , 'spring-boot-2.3' ,
-                                     'spring-boot-2.4' , 'spring-boot-2.5' , 'spring-boot-2.6' ,
-                                     'spring-boot-2.7' ]
+        java: [ '8', '11' , '17' , '21' , '25' ]
+        maven-profile-spring-cloud: [ 'spring-cloud-hoxton' , 'spring-cloud-2020' , 'spring-cloud-2021' ]
     steps:
       - name: Docker Setup Compose
         uses: docker/setup-compose-action@v1.2.0
