@@ -21,7 +21,7 @@
     <properties>
         <spring-cloud-context.version>1.0.1.RELEASE</spring-cloud-context.version>
         <!-- BOM versions -->
-        <microsphere-spring-boot.version>0.2.10</microsphere-spring-boot.version>
+        <microsphere-spring-cloud.version>0.2.10</microsphere-spring-cloud.version>
     </properties>
 
     <dependencyManagement>
@@ -38,8 +38,8 @@
             <!-- Microsphere Spring Boot Dependencies -->
             <dependency>
                 <groupId>io.github.microsphere-projects</groupId>
-                <artifactId>microsphere-spring-boot-dependencies</artifactId>
-                <version>${microsphere-spring-boot.version}</version>
+                <artifactId>microsphere-spring-cloud-dependencies</artifactId>
+                <version>${microsphere-spring-cloud.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -47,13 +47,5 @@
         </dependencies>
 
     </dependencyManagement>
-
-    <repositories>
-        <repository>
-            <id>spring-milestone</id>
-            <name>Spring Portfolio Milestone Repository</name>
-            <url>https://repo.spring.io/milestone</url>
-        </repository>
-    </repositories>
 
 </project>
