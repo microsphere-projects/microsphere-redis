@@ -232,6 +232,8 @@ public abstract class SpringRedisMetadataRepository {
         }
 
         initRedisCommandBindings();
+
+        initRedisConnectionInterfaces();
     }
 
     private static void initRedisCommandBindings() {
