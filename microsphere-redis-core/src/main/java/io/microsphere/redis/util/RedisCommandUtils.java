@@ -113,7 +113,6 @@ public abstract class RedisCommandUtils implements Utils {
 
     @Nonnull
     @Immutable
-
     private static Set<String> redisWriteCommands = loadResource(REDIS_WRITE_COMMANDS_RESOURCE, LOAD_REDIS_COMMANDS_FUNCTION);
 
     /**
