@@ -27,7 +27,7 @@
 
         <dependencies>
 
-            <!-- Microsphere Spring Boot Dependencies -->
+            <!-- Microsphere Spring Cloud Dependencies -->
             <dependency>
                 <groupId>io.github.microsphere-projects</groupId>
                 <artifactId>microsphere-spring-cloud-dependencies</artifactId>
