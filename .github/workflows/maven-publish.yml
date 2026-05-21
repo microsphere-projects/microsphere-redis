@@ -49,6 +49,9 @@ jobs:
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
 
+      - name: Run Docker Compose
+        run: docker compose -f "docker/test-services.yml" up -d
+
       - name: Publish package
         run: ./mvnw
           --batch-mode
