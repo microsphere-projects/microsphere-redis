@@ -27,4 +27,29 @@
 
 For additional details, refer to the [Full Changelog](#).
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.1.3...0.1.4
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.1.3...0.1.4## v0.1.5
+
+# Release Notes - Version 0.1.5
+
+## Build and Workflow Enhancements
+- Added Docker Compose step before publishing the package for streamlined deployment. (#98bcd9e)
+- Integrated OSSRH credentials into the Maven publish workflow for secure releases. (#5197848)
+- Standardized Java setup and Maven configurations in CI for consistency. (#d00c6d4)
+
+## Dependency Updates
+- Upgraded `microsphere-spring-cloud` parent to version 0.1.12. (#7bc9363)
+
+## Documentation
+- Updated README to reflect new branch names and versioning conventions. (#5c15351)
+
+## Test Improvements
+- Simplified dependencies by adding test-specific libraries and removing redundant `logback` tests. (#e5210cd)
+
+## Other Changes
+- Prepared the project for future versions by bumping to the next patch post publishing 0.1.4. (#d2f226b)
+
+---
+
+Thank you for your contributions!
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.1.4...0.1.5
