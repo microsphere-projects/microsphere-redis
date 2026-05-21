@@ -36,4 +36,25 @@
 
 For a full history of changes, please refer to the [changelog](https://example.com/changelog).
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.2.3...0.2.4
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.2.3...0.2.4## v0.2.5
+
+# Release Notes - Version 0.2.5
+
+## New Features
+- Added `microsphere-java-test` module.  
+- Added Docker Compose step to the publish workflow.  
+- Integrated OSSRH credentials into the Maven publish workflow.  
+
+## Dependency Updates
+- Upgraded parent and Spring Cloud versions to `0.2.12`.  
+
+## Test Improvements
+- Removed redundant test logback configuration files.  
+
+## Build and Workflow Enhancements
+- Adjusted GitHub Actions workflows for Java/Maven.  
+- Bumped README branch versions to `0.2.5/0.1.5`.  
+
+---
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.2.4...0.2.5
