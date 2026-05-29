@@ -36,7 +36,6 @@ public class StopWatchRedisConnectionInterceptor implements RedisConnectionInter
         context.start();
     }
 
-
     @Override
     public void afterExecute(RedisMethodContext<RedisConnection> context, Object result, Throwable failure) throws Throwable {
         context.stop();

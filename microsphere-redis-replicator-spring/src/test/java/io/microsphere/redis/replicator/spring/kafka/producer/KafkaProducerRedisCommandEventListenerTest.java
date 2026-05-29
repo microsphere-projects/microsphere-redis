@@ -17,7 +17,6 @@
 
 package io.microsphere.redis.replicator.spring.kafka.producer;
 
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.kafka.support.SendResult;

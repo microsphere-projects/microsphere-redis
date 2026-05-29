@@ -17,7 +17,6 @@
 
 package io.microsphere.redis.replicator.spring.event;
 
-
 import io.microsphere.redis.spring.event.RedisCommandEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

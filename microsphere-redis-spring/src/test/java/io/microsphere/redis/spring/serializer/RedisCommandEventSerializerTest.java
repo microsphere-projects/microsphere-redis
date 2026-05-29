@@ -28,7 +28,6 @@ import static io.microsphere.redis.spring.serializer.RedisCommandEventSerializer
 import static io.microsphere.redis.spring.serializer.RedisCommandEventSerializer.VERSION_V1;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
 /**
  * {@link RedisCommandEventSerializer} Test
  *

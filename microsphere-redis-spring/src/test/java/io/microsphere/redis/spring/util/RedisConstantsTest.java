@@ -17,7 +17,6 @@
 
 package io.microsphere.redis.spring.util;
 
-
 import org.junit.jupiter.api.Test;
 
 import static io.microsphere.collection.Sets.ofSet;
