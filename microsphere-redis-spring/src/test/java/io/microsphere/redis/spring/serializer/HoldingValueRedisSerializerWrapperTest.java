@@ -17,7 +17,6 @@
 
 package io.microsphere.redis.spring.serializer;
 
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.redis.core.RedisTemplate;

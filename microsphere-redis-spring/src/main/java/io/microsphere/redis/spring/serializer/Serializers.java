@@ -294,7 +294,7 @@ public abstract class Serializers {
      */
     private static void initializeSimpleSerializers() {
 
-        // boolean or Boolean type 
+        // boolean or Boolean type
         register(boolean.class, BOOLEAN_SERIALIZER);
         register(Boolean.class, BOOLEAN_SERIALIZER);
 
@@ -302,19 +302,19 @@ public abstract class Serializers {
         register(short.class, SHORT_SERIALIZER);
         register(Short.class, SHORT_SERIALIZER);
 
-        // int or Integer type 
+        // int or Integer type
         register(int.class, INTEGER_SERIALIZER);
         register(Integer.class, INTEGER_SERIALIZER);
 
-        // long or Long type 
+        // long or Long type
         register(long.class, LONG_SERIALIZER);
         register(Long.class, LONG_SERIALIZER);
 
-        // double or Double type 
+        // double or Double type
         register(double.class, DOUBLE_SERIALIZER);
         register(Double.class, DOUBLE_SERIALIZER);
 
-        // String type 
+        // String type
         register(String.class, STRING_SERIALIZER);
     }
 
@@ -323,25 +323,25 @@ public abstract class Serializers {
      */
     private static void initializeCollectionTypeSerializers() {
 
-        // Iterable type 
+        // Iterable type
         register(Iterable.class, DEFAULT_SERIALIZER);
 
-        // Iterator type 
+        // Iterator type
         register(Iterator.class, DEFAULT_SERIALIZER);
 
-        // Collection type 
+        // Collection type
         register(Collection.class, DEFAULT_SERIALIZER);
 
-        // List type 
+        // List type
         register(List.class, DEFAULT_SERIALIZER);
 
-        // Set type 
+        // Set type
         register(Set.class, DEFAULT_SERIALIZER);
 
-        // Map type 
+        // Map type
         register(Map.class, DEFAULT_SERIALIZER);
 
-        // Queue type 
+        // Queue type
         register(Queue.class, DEFAULT_SERIALIZER);
     }
 
@@ -350,13 +350,13 @@ public abstract class Serializers {
      */
     private static void initializeArrayTypeSerializers() {
 
-        // byte[] type 
+        // byte[] type
         register(byte[].class, BYTE_ARRAY_SERIALIZER);
 
-        // int[] type 
+        // int[] type
         register(int[].class, DEFAULT_SERIALIZER);
 
-        // byte[][] type 
+        // byte[][] type
         register(byte[][].class, DEFAULT_SERIALIZER);
     }
 
@@ -372,19 +372,19 @@ public abstract class Serializers {
      */
     private static void initializeSpringDataRedisSerializers() {
 
-        // org.springframework.data.redis.core.types.Expiration type 
+        // org.springframework.data.redis.core.types.Expiration type
         register(Expiration.class, EXPIRATION_SERIALIZER);
 
-        // org.springframework.data.redis.connection.SortParameters type 
+        // org.springframework.data.redis.connection.SortParameters type
         register(SortParameters.class, SORT_PARAMETERS_SERIALIZER);
 
-        // org.springframework.data.redis.connection.RedisListCommands.Position type 
+        // org.springframework.data.redis.connection.RedisListCommands.Position type
         register(Position.class, new EnumSerializer(Position.class));
 
-        // org.springframework.data.redis.connection.RedisStringCommands.SetOption type 
+        // org.springframework.data.redis.connection.RedisStringCommands.SetOption type
         register(SetOption.class, new EnumSerializer(SetOption.class));
 
-        // org.springframework.data.redis.connection.RedisZSetCommands.Range type 
+        // org.springframework.data.redis.connection.RedisZSetCommands.Range type
         register(RedisZSetCommands.Range.class, REDIS_ZSET_COMMANDS_RANGE_SERIALIZER);
 
         // org.springframework.data.domain.Range
@@ -393,16 +393,16 @@ public abstract class Serializers {
         // org.springframework.data.redis.connection.zset.Aggregate
         register(Aggregate.class, new EnumSerializer(Aggregate.class));
 
-        // org.springframework.data.redis.connection.zset.Weights type 
+        // org.springframework.data.redis.connection.zset.Weights type
         register(Weights.class, WEIGHTS_SERIALIZER);
 
-        // org.springframework.data.redis.connection.ReturnType type 
+        // org.springframework.data.redis.connection.ReturnType type
         register(ReturnType.class, new EnumSerializer(ReturnType.class));
 
-        // org.springframework.data.redis.connection.RedisGeoCommands.GeoLocation type 
+        // org.springframework.data.redis.connection.RedisGeoCommands.GeoLocation type
         register(GeoLocation.class, GEO_LOCATION_SERIALIZER);
 
-        // org.springframework.data.geo.Point type 
+        // org.springframework.data.geo.Point type
         register(Point.class, POINT_SERIALIZER);
     }
 

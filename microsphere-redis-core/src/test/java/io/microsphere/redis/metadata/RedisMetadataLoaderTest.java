@@ -17,7 +17,6 @@
 
 package io.microsphere.redis.metadata;
 
-
 import org.junit.jupiter.api.Test;
 
 import static io.microsphere.redis.metadata.RedisMetadataLoader.loadAll;

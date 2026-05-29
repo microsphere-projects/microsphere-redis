@@ -8,7 +8,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import static io.microsphere.redis.spring.beans.RedisConnectionFactoryProxyBeanPostProcessor.newProxyRedisConnection;
 import static io.microsphere.redis.spring.beans.RedisTemplateWrapper.configure;
 
-
 /**
  * A transparent {@link StringRedisTemplate} subclass that intercepts every Redis connection by wrapping
  * it in a JDK-proxy created by

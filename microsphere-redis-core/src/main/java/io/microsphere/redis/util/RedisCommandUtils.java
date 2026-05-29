@@ -17,7 +17,6 @@
 
 package io.microsphere.redis.util;
 
-
 import io.microsphere.annotation.Immutable;
 import io.microsphere.annotation.Nonnull;
 import io.microsphere.lang.function.ThrowableFunction;
