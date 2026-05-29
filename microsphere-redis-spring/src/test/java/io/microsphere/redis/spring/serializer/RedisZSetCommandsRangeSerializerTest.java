@@ -1,6 +1,5 @@
 package io.microsphere.redis.spring.serializer;
 
-
 import org.junit.jupiter.api.Test;
 import org.springframework.data.redis.connection.RedisZSetCommands;
 import org.springframework.data.redis.connection.RedisZSetCommands.Range.Boundary;
@@ -53,7 +52,6 @@ class RedisZSetCommandsRangeSerializerTest extends AbstractSerializerTest<RedisZ
         test(() -> range().gt(1).lt(2));
         test(() -> range().gt(1).lte(2));
     }
-
 
     @Test
     void testLt() {

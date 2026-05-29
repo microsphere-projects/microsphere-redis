@@ -17,7 +17,6 @@
 
 package io.microsphere.redis.replicator.spring;
 
-
 import io.microsphere.redis.replicator.spring.config.FullRedisReplicationConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

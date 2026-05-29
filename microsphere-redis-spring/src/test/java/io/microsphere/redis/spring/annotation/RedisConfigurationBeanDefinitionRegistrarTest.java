@@ -17,7 +17,6 @@
 
 package io.microsphere.redis.spring.annotation;
 
-
 import io.microsphere.redis.spring.config.RedisConfiguration;
 import io.microsphere.redis.spring.event.PropagatingRedisConfigurationPropertyChangedEventApplicationListener;
 import org.junit.jupiter.api.Test;

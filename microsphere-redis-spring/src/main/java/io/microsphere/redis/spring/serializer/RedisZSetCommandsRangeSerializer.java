@@ -11,7 +11,6 @@ import static io.microsphere.redis.spring.serializer.RangeSerializer.RANGE_SERIA
 import static org.springframework.data.redis.connection.RedisZSetCommands.Range.range;
 import static org.springframework.data.redis.connection.RedisZSetCommands.Range.unbounded;
 
-
 /**
  * {@link RedisZSetCommands.Range} {@link RedisSerializer} Class
  *

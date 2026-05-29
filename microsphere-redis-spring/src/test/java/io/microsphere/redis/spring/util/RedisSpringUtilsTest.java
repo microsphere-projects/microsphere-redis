@@ -17,7 +17,6 @@
 
 package io.microsphere.redis.spring.util;
 
-
 import io.microsphere.redis.spring.annotation.EnableRedisInterceptor;
 import io.microsphere.redis.spring.config.RedisConfig;
 import io.microsphere.redis.spring.config.RedisContextConfig;
