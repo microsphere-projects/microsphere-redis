@@ -20,7 +20,6 @@ import static io.microsphere.util.ArrayUtils.arrayToString;
 import static io.microsphere.util.StringUtils.substringAfter;
 import static org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG;
 
-
 /**
  * Kafka {@link RedisReplicatorConfiguration}
  *

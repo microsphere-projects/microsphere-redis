@@ -17,7 +17,6 @@
 
 package io.microsphere.redis.spring.context;
 
-
 import io.microsphere.redis.spring.AbstractRedisTest;
 import io.microsphere.redis.spring.config.RedisConfiguration;
 import io.microsphere.redis.spring.config.RedisContextConfig;

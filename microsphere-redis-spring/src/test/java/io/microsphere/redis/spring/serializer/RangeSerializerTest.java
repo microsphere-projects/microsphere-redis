@@ -17,7 +17,6 @@
 
 package io.microsphere.redis.spring.serializer;
 
-
 import org.springframework.data.domain.Range;
 import org.springframework.data.redis.serializer.RedisSerializer;
 

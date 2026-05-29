@@ -31,7 +31,6 @@ import static io.microsphere.redis.spring.serializer.RedisCommandEventSerializer
 import static io.microsphere.redis.spring.serializer.RedisCommandEventSerializer.VERSION_V1;
 import static io.microsphere.util.ArrayUtils.arrayToString;
 
-
 /**
  * Spring {@link ApplicationEvent} that captures a single Redis command invocation together with
  * its method, arguments, source bean name, and application name.  Published by

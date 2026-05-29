@@ -17,7 +17,6 @@
 
 package io.microsphere.redis.generator.metadata;
 
-
 import io.microsphere.logging.Logger;
 import io.microsphere.redis.generator.doclet.SpringDataRedisMetadataGenerationDoclet;
 

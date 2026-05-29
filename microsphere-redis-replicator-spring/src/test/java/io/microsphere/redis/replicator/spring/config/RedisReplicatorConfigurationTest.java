@@ -17,7 +17,6 @@
 
 package io.microsphere.redis.replicator.spring.config;
 
-
 import io.microsphere.redis.spring.config.RedisConfiguration;
 import io.microsphere.redis.spring.context.RedisContext;
 import io.microsphere.redis.spring.event.RedisConfigurationPropertyChangedEvent;

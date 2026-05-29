@@ -17,7 +17,6 @@
 
 package io.microsphere.redis.spring.event;
 
-
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationEvent;
 

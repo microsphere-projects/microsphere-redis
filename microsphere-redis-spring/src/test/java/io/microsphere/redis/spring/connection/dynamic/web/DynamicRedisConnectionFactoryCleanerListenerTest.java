@@ -17,7 +17,6 @@
 
 package io.microsphere.redis.spring.connection.dynamic.web;
 
-
 import org.junit.jupiter.api.Test;
 
 import static io.microsphere.redis.spring.connection.dynamic.DynamicRedisConnectionFactory.DEFAULT_REDIS_CONNECTION_FACTORY_BEAN_NAME;
