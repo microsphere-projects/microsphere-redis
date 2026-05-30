@@ -52,4 +52,25 @@ For additional details, refer to the [Full Changelog](#).
 
 Thank you for your contributions!
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.1.4...0.1.5
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.1.4...0.1.5## v0.1.6
+
+# Release Notes: Version 0.1.6
+
+## Dependency Updates
+- Updated parent BOM to latest version. 
+
+## Documentation
+- Updated README to reflect correct version numbers.
+
+## Code Cleanup
+- Removed trailing whitespace and duplicate blank lines across Java source files.
+
+## Other Changes
+- Advanced version to 0.1.6 following the 0.1.5 release. 
+- Merged updates and cleanup changes into the development branch. 
+
+---
+
+*Note: Full changelog excluded for brevity.*
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.1.5...0.1.6
