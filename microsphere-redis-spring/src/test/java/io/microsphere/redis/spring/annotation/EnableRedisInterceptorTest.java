@@ -18,7 +18,6 @@ package io.microsphere.redis.spring.annotation;
 
 import io.microsphere.redis.spring.AbstractRedisCommandEventTest;
 import io.microsphere.redis.spring.interceptor.LoggingRedisCommandInterceptor;
-import io.microsphere.redis.spring.interceptor.ThrowingExceptionRedisCommandInterceptor;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
