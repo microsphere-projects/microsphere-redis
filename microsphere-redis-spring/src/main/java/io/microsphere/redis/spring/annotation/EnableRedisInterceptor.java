@@ -19,7 +19,11 @@ package io.microsphere.redis.spring.annotation;
 import io.microsphere.redis.spring.beans.RedisTemplateWrapper;
 import io.microsphere.redis.spring.beans.StringRedisTemplateWrapper;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
+import io.microsphere.redis.spring.interceptor.RedisCommandInterceptor;
+import io.microsphere.redis.spring.interceptor.RedisConnectionInterceptor;
+import io.microsphere.redis.spring.interceptor.RedisMethodInterceptor;
 import io.microsphere.redis.spring.util.RedisConstants;
+import io.microsphere.spring.beans.BeanSource;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.RedisTemplate;
 
@@ -28,6 +32,9 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import static io.microsphere.spring.beans.BeanSource.BEAN_FACTORY;
+import static io.microsphere.spring.beans.BeanSource.SPRING_FACTORIES;
 
 /**
  * Meta-annotation that activates the Redis interceptor infrastructure, enabling transparent
@@ -93,5 +100,17 @@ public @interface EnableRedisInterceptor {
      * @return If {@link RedisCommandEvent} is required to be exposed, return <code>true</code>, or <code>false</code>
      */
     boolean exposeCommandEvent() default true;
+
+    /**
+     * The sources that will be used to register the beans of Interceptor, such as:
+     * <ul>
+     *     <li>{@link RedisMethodInterceptor}</li>
+     *     <li>{@link RedisCommandInterceptor}</li>
+     *     <li>{@link RedisConnectionInterceptor}</li>
+     * </ul>
+     *
+     * @return default is {@link BeanSource#BEAN_FACTORY} and {@link BeanSource#SPRING_FACTORIES}
+     */
+    BeanSource[] sources() default {BEAN_FACTORY, SPRING_FACTORIES};
 
 }
