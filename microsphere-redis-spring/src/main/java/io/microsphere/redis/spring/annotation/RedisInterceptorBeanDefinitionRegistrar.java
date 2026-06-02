@@ -21,14 +21,15 @@ import io.microsphere.redis.spring.beans.RedisConnectionFactoryProxyBeanPostProc
 import io.microsphere.redis.spring.beans.RedisTemplateWrapperBeanPostProcessor;
 import io.microsphere.redis.spring.beans.WrapperProcessors;
 import io.microsphere.redis.spring.interceptor.EventPublishingRedisCommandInterceptor;
+import io.microsphere.redis.spring.interceptor.RedisCommandInterceptor;
+import io.microsphere.redis.spring.interceptor.RedisConnectionInterceptor;
+import io.microsphere.redis.spring.interceptor.RedisMethodInterceptor;
+import io.microsphere.spring.beans.BeanSource;
+import io.microsphere.spring.context.annotation.BeanCapableImportCandidate;
+import io.microsphere.spring.core.annotation.ResolvablePlaceholderAnnotationAttributes;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
-import org.springframework.core.annotation.AnnotationAttributes;
-import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
 
 import java.util.Set;
@@ -36,11 +37,9 @@ import java.util.Set;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.interceptor.EventPublishingRedisCommandInterceptor.BEAN_NAME;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.getWrappedRedisTemplateBeanNames;
+import static io.microsphere.spring.beans.BeanSource.registerBeans;
 import static io.microsphere.spring.beans.factory.BeanFactoryUtils.asConfigurableBeanFactory;
-import static io.microsphere.spring.beans.factory.BeanFactoryUtils.asConfigurableListableBeanFactory;
 import static io.microsphere.spring.beans.factory.support.BeanRegistrar.registerBeanDefinition;
-import static io.microsphere.spring.core.annotation.AnnotationUtils.getAnnotationAttributes;
-import static io.microsphere.spring.core.env.EnvironmentUtils.asConfigurableEnvironment;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 /**
@@ -73,27 +72,22 @@ import static org.springframework.util.CollectionUtils.isEmpty;
  * @see EnableRedisInterceptor
  * @since 1.0.0
  */
-class RedisInterceptorBeanDefinitionRegistrar implements ImportBeanDefinitionRegistrar, EnvironmentAware {
-
-    private static Class<EnableRedisInterceptor> ENABLE_REDIS_INTERCEPTOR_CLASS = EnableRedisInterceptor.class;
+class RedisInterceptorBeanDefinitionRegistrar extends BeanCapableImportCandidate implements ImportBeanDefinitionRegistrar {
 
     private static final Logger logger = getLogger(RedisInterceptorBeanDefinitionRegistrar.class);
 
-    private ConfigurableEnvironment environment;
-
     @Override
-    public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-        AnnotationAttributes annotationAttributes = getAnnotationAttributes(importingClassMetadata, ENABLE_REDIS_INTERCEPTOR_CLASS);
-        String[] wrapRedisTemplates = annotationAttributes.getStringArray("wrapRedisTemplates");
-        boolean exposeCommandEvent = annotationAttributes.getBoolean("exposeCommandEvent");
+    public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
+        ResolvablePlaceholderAnnotationAttributes<EnableRedisInterceptor> attributes = getAnnotationAttributes(metadata, EnableRedisInterceptor.class);
+        String[] wrapRedisTemplates = attributes.getStringArray("wrapRedisTemplates");
+        boolean exposeCommandEvent = attributes.getBoolean("exposeCommandEvent");
+        BeanSource[] sources = (BeanSource[]) attributes.get("sources");
 
-        logger.trace("@EnableRedisInterceptor({}} annotated on the '{}'", annotationAttributes, importingClassMetadata);
+        logger.trace("@EnableRedisInterceptor({}} annotated on the '{}'", attributes, metadata);
 
-        ConfigurableListableBeanFactory beanFactory = asConfigurableListableBeanFactory(registry);
+        Set<String> wrapRedisTemplateBeanNames = getWrappedRedisTemplateBeanNames(this.beanFactory, this.environment, wrapRedisTemplates);
 
-        Set<String> wrapRedisTemplateBeanNames = getWrappedRedisTemplateBeanNames(beanFactory, this.environment, wrapRedisTemplates);
-
-        registerBeanDefinitions(wrapRedisTemplateBeanNames, exposeCommandEvent, registry);
+        registerBeanDefinitions(wrapRedisTemplateBeanNames, exposeCommandEvent, sources, registry);
     }
 
     /**
@@ -103,10 +97,12 @@ class RedisInterceptorBeanDefinitionRegistrar implements ImportBeanDefinitionReg
      * @param wrappedRedisTemplateBeanNames the resolved set of {@link org.springframework.data.redis.core.RedisTemplate}
      *                                      bean names to wrap; may be empty
      * @param exposedCommandEvent           {@code true} to register the
-     *                                      {@link io.microsphere.redis.spring.interceptor.EventPublishingRedisCommandInterceptor}
+     *                                      {@link EventPublishingRedisCommandInterceptor}
+     * @param sources                       the sources that will be used to register the beans of Interceptor
      * @param registry                      the Spring bean-definition registry to register beans into
      */
-    public void registerBeanDefinitions(Set<String> wrappedRedisTemplateBeanNames, boolean exposedCommandEvent, BeanDefinitionRegistry registry) {
+    public void registerBeanDefinitions(Set<String> wrappedRedisTemplateBeanNames, boolean exposedCommandEvent,
+                                        BeanSource[] sources, BeanDefinitionRegistry registry) {
 
         if (isEmpty(wrappedRedisTemplateBeanNames)) {
             addRedisConnectionFactoryProxyBeanPostProcessor(registry);
@@ -119,6 +115,8 @@ class RedisInterceptorBeanDefinitionRegistrar implements ImportBeanDefinitionReg
         if (exposedCommandEvent) {
             registerEventPublishingRedisCommendInterceptor(registry);
         }
+
+        registerInterceptors(sources);
     }
 
     private void registerRedisTemplateWrapperBeanPostProcessor(Set<String> wrappedRedisTemplateBeanNames, BeanDefinitionRegistry registry) {
@@ -130,16 +128,16 @@ class RedisInterceptorBeanDefinitionRegistrar implements ImportBeanDefinitionReg
         beanFactory.addBeanPostProcessor(new RedisConnectionFactoryProxyBeanPostProcessor(beanFactory));
     }
 
-    private void registerEventPublishingRedisCommendInterceptor(BeanDefinitionRegistry registry) {
-        registerBeanDefinition(registry, BEAN_NAME, EventPublishingRedisCommandInterceptor.class);
-    }
-
     private void registerWrapperProcessors(BeanDefinitionRegistry registry) {
         registerBeanDefinition(registry, WrapperProcessors.BEAN_NAME, WrapperProcessors.class);
     }
 
-    @Override
-    public void setEnvironment(Environment environment) {
-        this.environment = asConfigurableEnvironment(environment);
+    private void registerEventPublishingRedisCommendInterceptor(BeanDefinitionRegistry registry) {
+        registerBeanDefinition(registry, BEAN_NAME, EventPublishingRedisCommandInterceptor.class);
+    }
+
+    private void registerInterceptors(BeanSource[] sources) {
+        registerBeans(this.beanFactory, sources, RedisMethodInterceptor.class, RedisCommandInterceptor.class,
+                RedisConnectionInterceptor.class);
     }
 }
