@@ -17,7 +17,6 @@
 
 package io.microsphere.redis.util;
 
-
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;

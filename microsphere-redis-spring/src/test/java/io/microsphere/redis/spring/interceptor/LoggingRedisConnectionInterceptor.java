@@ -15,28 +15,36 @@
  * limitations under the License.
  */
 
-package io.microsphere.redis.spring.serializer;
+package io.microsphere.redis.spring.interceptor;
 
-import org.springframework.data.redis.serializer.RedisSerializer;
+import io.microsphere.logging.Logger;
+import org.springframework.data.redis.connection.RedisConnection;
 
-import static io.microsphere.redis.spring.serializer.ByteArraySerializer.BYTE_ARRAY_SERIALIZER;
+import static io.microsphere.logging.LoggerFactory.getLogger;
 
 /**
- * {@link ByteArraySerializer} Test
+ * {@link RedisConnectionInterceptor} for logging
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
- * @see ByteArraySerializer
+ * @see RedisConnectionInterceptor
  * @since 1.0.0
  */
-class ByteArraySerializerTest extends AbstractSerializerTest<byte[]> {
+public class LoggingRedisConnectionInterceptor implements RedisConnectionInterceptor {
+
+    private static final Logger logger = getLogger(LoggingRedisConnectionInterceptor.class);
 
     @Override
-    protected RedisSerializer<byte[]> getSerializer() {
-        return BYTE_ARRAY_SERIALIZER;
+    public void beforeExecute(RedisMethodContext context) throws Throwable {
+        logger.info("beforeExecute - context: {}", context);
     }
 
     @Override
-    protected byte[] getValue() {
-        return new byte[0];
+    public void afterExecute(RedisMethodContext<RedisConnection> context, Object result, Throwable failure) throws Throwable {
+        logger.info("afterExecute - context: {} , result: {}", context, result, failure);
+    }
+
+    @Override
+    public int getOrder() {
+        return 0;
     }
 }

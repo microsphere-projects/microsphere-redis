@@ -371,7 +371,7 @@ public abstract class SpringRedisCommandUtils {
      *
      * @param classNames the fully-qualified class names to load
      * @return array of loaded {@link Class} objects; elements may be {@code null} if the class
-     *         could not be found
+     * could not be found
      */
     public static Class<?>[] loadClasses(String... classNames) {
         int length = classNames.length;
