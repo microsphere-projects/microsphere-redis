@@ -1,2 +1,5 @@
 org.springframework.context.ApplicationContextInitializer=\
 io.microsphere.redis.spring.context.RedisInterceptorModuleInitializer
+
+io.microsphere.redis.spring.interceptor.RedisConnectionInterceptor=\
+io.microsphere.redis.spring.interceptor.StopWatchRedisConnectionInterceptor

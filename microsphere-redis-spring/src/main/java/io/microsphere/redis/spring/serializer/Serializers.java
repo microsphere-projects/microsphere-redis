@@ -214,7 +214,7 @@ public abstract class Serializers {
      *
      * @param parameter the parameter whose value should be serialized; may be {@code null}
      * @return the serialized bytes, or {@code null} if {@code parameter} is {@code null} or
-     *         serialization produced no output
+     * serialization produced no output
      */
     @Nullable
     public static byte[] serializeRawParameter(Parameter parameter) {
@@ -262,7 +262,7 @@ public abstract class Serializers {
      *
      * @param object the object to serialize; may be {@code null}
      * @return the serialized bytes, or {@code null} if {@code object} is {@code null} or
-     *         no serializer is found
+     * no serializer is found
      */
     @Nullable
     public static byte[] serialize(Object object) {
@@ -493,6 +493,7 @@ public abstract class Serializers {
     private static List<RedisSerializer> loadSerializers() {
         return loadFactories(RedisSerializer.class, classLoader);
     }
+
     static void register(Class<?> type, RedisSerializer<?> serializer) {
         String typeName = type.getName();
         doRegister(typeName, serializer);
