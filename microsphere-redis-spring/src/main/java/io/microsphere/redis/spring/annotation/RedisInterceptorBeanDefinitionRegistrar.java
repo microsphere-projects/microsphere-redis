@@ -32,6 +32,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.type.AnnotationMetadata;
 
+import java.util.Map;
 import java.util.Set;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
@@ -137,7 +138,9 @@ class RedisInterceptorBeanDefinitionRegistrar extends BeanCapableImportCandidate
     }
 
     private void registerInterceptors(BeanSource[] sources) {
-        registerBeans(this.beanFactory, sources, RedisMethodInterceptor.class, RedisCommandInterceptor.class,
+        Map<Class<?>, String> beanTypesAndNames = registerBeans(this.beanFactory, sources,
+                RedisCommandInterceptor.class,
                 RedisConnectionInterceptor.class);
+        logger.trace("Registered Redis interceptors , sources : {} , beans : {}", sources, beanTypesAndNames);
     }
 }

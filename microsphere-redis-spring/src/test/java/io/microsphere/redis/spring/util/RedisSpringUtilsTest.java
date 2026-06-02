@@ -47,6 +47,7 @@ import static io.microsphere.redis.spring.util.RedisSpringUtils.getRawRedisConne
 import static io.microsphere.redis.spring.util.RedisSpringUtils.getWrappedRedisTemplateBeanNames;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.isMicrosphereRedisCommandEventExposed;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.isMicrosphereRedisEnabled;
+import static io.microsphere.spring.beans.BeanSource.BEAN_FACTORY;
 import static io.microsphere.spring.test.util.SpringTestUtils.testInSpringContainer;
 import static io.microsphere.util.ArrayUtils.ofArray;
 import static java.util.Collections.emptySet;
@@ -69,7 +70,7 @@ import static org.springframework.util.StringUtils.arrayToCommaDelimitedString;
 @PropertySource(
         value = "classpath:/META-INF/test-redis.properties"
 )
-@EnableRedisInterceptor
+@EnableRedisInterceptor(sources = BEAN_FACTORY)
 class RedisSpringUtilsTest {
 
     private static final String[] REDIS_TEMPLATE_BEAN_NAMES = ofArray(

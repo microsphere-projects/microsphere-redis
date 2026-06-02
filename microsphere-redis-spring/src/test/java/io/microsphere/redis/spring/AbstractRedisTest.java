@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Disabled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -39,9 +38,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
-@SpringJUnitConfig
 @Disabled
-@Import(RedisConfig.class)
+@SpringJUnitConfig(classes = RedisConfig.class)
 public abstract class AbstractRedisTest {
 
     public static final Method SET_METHOD = findMethod(RedisConnection.class, "set", byte[].class, byte[].class);

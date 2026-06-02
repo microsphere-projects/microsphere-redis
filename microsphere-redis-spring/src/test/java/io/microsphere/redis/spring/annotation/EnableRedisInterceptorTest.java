@@ -18,10 +18,13 @@ package io.microsphere.redis.spring.annotation;
 
 import io.microsphere.redis.spring.AbstractRedisCommandEventTest;
 import io.microsphere.redis.spring.interceptor.LoggingRedisCommandInterceptor;
-import io.microsphere.redis.spring.interceptor.StopWatchRedisConnectionInterceptor;
 import io.microsphere.redis.spring.interceptor.ThrowingExceptionRedisCommandInterceptor;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
+
+import static io.microsphere.spring.beans.BeanSource.BEAN_FACTORY;
+import static io.microsphere.spring.beans.BeanSource.JAVA_SERVICE_PROVIDER;
+import static io.microsphere.spring.beans.BeanSource.SPRING_FACTORIES;
 
 /**
  * {@link EnableRedisInterceptor} Test
@@ -30,8 +33,6 @@ import org.springframework.test.context.TestPropertySource;
  * @since 1.0.0
  */
 @ContextConfiguration(classes = {
-        StopWatchRedisConnectionInterceptor.class,
-        ThrowingExceptionRedisCommandInterceptor.class,
         LoggingRedisCommandInterceptor.class,
         EnableRedisInterceptorTest.class
 })
@@ -42,6 +43,10 @@ import org.springframework.test.context.TestPropertySource;
 @EnableRedisInterceptor(wrapRedisTemplates = {
         "${microsphere.redis.wrapped-rest-templates}",
         " redisTemplate , stringRedisTemplate"
+}, sources = {
+        BEAN_FACTORY,
+        SPRING_FACTORIES,
+        JAVA_SERVICE_PROVIDER
 })
 class EnableRedisInterceptorTest extends AbstractRedisCommandEventTest {
 }
