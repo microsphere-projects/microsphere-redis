@@ -104,9 +104,9 @@ public abstract class RedisUtils {
      * passes the list of their {@link InputStream}s to {@code inputStreamsToTarget}, and returns the result.
      * All streams are closed after the function returns.
      *
-     * @param <T>                    the target type
-     * @param resourceName           the classpath resource path
-     * @param inputStreamsToTarget   function that converts a list of resource streams to {@code T}
+     * @param <T>                  the target type
+     * @param resourceName         the classpath resource path
+     * @param inputStreamsToTarget function that converts a list of resource streams to {@code T}
      * @return the converted result
      */
     public static <T> T loadResources(String resourceName, ThrowableFunction<List<InputStream>, T> inputStreamsToTarget) {
@@ -118,10 +118,10 @@ public abstract class RedisUtils {
      * passes the list of their {@link InputStream}s to {@code inputStreamsToTarget}, and returns the result.
      * All streams are closed after the function returns.
      *
-     * @param <T>                    the target type
-     * @param classLoader            the class loader to use for resource lookup
-     * @param resourceName           the classpath resource path
-     * @param inputStreamsToTarget   function that converts a list of resource streams to {@code T}
+     * @param <T>                  the target type
+     * @param classLoader          the class loader to use for resource lookup
+     * @param resourceName         the classpath resource path
+     * @param inputStreamsToTarget function that converts a list of resource streams to {@code T}
      * @return the converted result
      */
     public static <T> T loadResources(ClassLoader classLoader, String resourceName,

@@ -278,11 +278,11 @@ public abstract class RedisSpringUtils implements Utils {
      * Reads a boolean configuration property from the Spring {@link Environment}, logs the
      * resolved value, and returns it.
      *
-     * @param environment   the Spring environment
-     * @param propertyName  the property name to look up (e.g. {@code "microsphere.redis.enabled"})
-     * @param defaultValue  the value to use when the property is not set
-     * @param feature       a human-readable feature label used in the log message (e.g. {@code "Configuration"})
-     * @param statusIfTrue  the label used in the log message when the value is {@code true} (e.g. {@code "enabled"})
+     * @param environment  the Spring environment
+     * @param propertyName the property name to look up (e.g. {@code "microsphere.redis.enabled"})
+     * @param defaultValue the value to use when the property is not set
+     * @param feature      a human-readable feature label used in the log message (e.g. {@code "Configuration"})
+     * @param statusIfTrue the label used in the log message when the value is {@code true} (e.g. {@code "enabled"})
      * @return the resolved boolean value
      */
     public static boolean getBoolean(Environment environment, String propertyName, boolean defaultValue, String feature, String statusIfTrue) {
