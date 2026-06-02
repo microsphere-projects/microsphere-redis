@@ -17,7 +17,6 @@
 
 package io.microsphere.redis.spring.config;
 
-
 import io.microsphere.redis.spring.AbstractRedisTest;
 import io.microsphere.redis.spring.event.RedisConfigurationPropertyChangedEvent;
 import org.junit.jupiter.api.Test;

@@ -68,9 +68,9 @@ public class MethodInfo {
     /**
      * Constructs a {@link MethodInfo} from the given {@link Method}, {@link MethodMetadata}, and parameter metadata list.
      *
-     * @param method                 the reflected {@link Method}
-     * @param methodMetadata         the associated {@link MethodMetadata}
-     * @param parameterMetadataList  the list of {@link ParameterMetadata} for the method parameters
+     * @param method                the reflected {@link Method}
+     * @param methodMetadata        the associated {@link MethodMetadata}
+     * @param parameterMetadataList the list of {@link ParameterMetadata} for the method parameters
      */
     public MethodInfo(Method method, MethodMetadata methodMetadata, List<ParameterMetadata> parameterMetadataList) {
         this.id = buildMethodId(method);

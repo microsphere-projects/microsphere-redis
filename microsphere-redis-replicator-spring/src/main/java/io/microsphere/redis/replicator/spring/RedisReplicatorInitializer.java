@@ -86,7 +86,6 @@ public class RedisReplicatorInitializer implements RedisModuleInitializer {
             }
         }
 
-
     }
 
     @Override

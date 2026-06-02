@@ -17,7 +17,6 @@
 
 package io.microsphere.redis.replicator.spring.kafka;
 
-
 import io.microsphere.redis.replicator.spring.config.FullRedisReplicationConfig;
 import io.microsphere.redis.replicator.spring.kafka.consumer.KafkaConsumerRedisReplicatorConfiguration;
 import io.microsphere.redis.replicator.spring.kafka.producer.KafkaProducerRedisCommandEventListener;
