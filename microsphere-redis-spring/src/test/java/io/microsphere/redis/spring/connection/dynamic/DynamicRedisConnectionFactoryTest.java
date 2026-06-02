@@ -17,7 +17,6 @@
 
 package io.microsphere.redis.spring.connection.dynamic;
 
-
 import io.microsphere.redis.spring.AbstractRedisTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,7 +55,6 @@ class DynamicRedisConnectionFactoryTest extends AbstractRedisTest {
     private static final String REDIS_CONNECTION_FACTORY_BEAN_NAME = "redisConnectionFactory";
 
     private static final String MOCK_REDIS_CONNECTION_FACTORY_BEAN_NAME = "mockRedisConnectionFactory";
-
 
     @Bean
     @Primary

@@ -17,7 +17,6 @@
 
 package io.microsphere.redis.metadata;
 
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

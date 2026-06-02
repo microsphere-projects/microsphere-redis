@@ -1,6 +1,5 @@
 package io.microsphere.redis.spring.serializer;
 
-
 import org.junit.jupiter.api.Test;
 import org.springframework.data.redis.connection.RedisZSetCommands;
 import org.springframework.data.redis.connection.RedisZSetCommands.Range.Boundary;

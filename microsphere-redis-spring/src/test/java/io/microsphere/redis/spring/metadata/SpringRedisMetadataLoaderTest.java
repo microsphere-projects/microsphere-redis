@@ -17,7 +17,6 @@
 
 package io.microsphere.redis.spring.metadata;
 
-
 import io.microsphere.logging.Logger;
 import io.microsphere.redis.metadata.MethodMetadata;
 import io.microsphere.redis.metadata.RedisMetadata;

@@ -16,7 +16,6 @@ import static io.microsphere.redis.spring.util.RedisSpringUtils.getRawRedisConne
 import static io.microsphere.reflect.AccessibleObjectUtils.trySetAccessible;
 import static org.springframework.util.ReflectionUtils.invokeMethod;
 
-
 /**
  * Redis Command Replicator
  *

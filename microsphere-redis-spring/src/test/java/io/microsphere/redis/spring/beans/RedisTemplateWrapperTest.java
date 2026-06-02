@@ -17,7 +17,6 @@
 
 package io.microsphere.redis.spring.beans;
 
-
 import io.microsphere.redis.spring.config.RedisContextConfig;
 import io.microsphere.redis.spring.context.RedisContext;
 import org.junit.jupiter.api.BeforeEach;
