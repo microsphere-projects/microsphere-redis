@@ -57,4 +57,21 @@ For a full history of changes, please refer to the [changelog](https://example.c
 
 ---
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.2.4...0.2.5
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.2.4...0.2.5## v0.2.6
+
+# Release Notes - Version 0.2.6
+
+## Build and Workflow Enhancements
+- Merged `main` into `release` branches to ensure alignment. [#skip ci]
+
+## Documentations
+- Updated `README` with new version references. [6d6a291]
+
+## Other Changes
+- Cleaned up Java source code by removing duplicate line separators and trailing whitespace. [#45]
+
+---
+
+**Note:** This release focuses on minor housekeeping and alignment tasks.
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.2.5...0.2.6
