@@ -73,4 +73,29 @@ Thank you for your contributions!
 
 *Note: Full changelog excluded for brevity.*
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.1.5...0.1.6
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.1.5...0.1.6## v0.1.7
+
+# Release Notes for v0.1.7
+
+## New Features
+- Added support for configurable interceptor sources and registration. (#653ee3d)
+
+## Bug Fixes
+- Fixed Javadoc formatting issues. (#d7be93e)
+
+## Dependency Updates
+- Upgraded `microsphere-spring-cloud` to version 0.1.15. (#48a7822)
+
+## Test Improvements
+- Introduced `LoggingRedisConnectionInterceptor` for testing purposes. (#e490a7a)
+- Added test for interceptor mapping. (#d7be93e)
+
+## Build and Workflow Enhancements
+- Merged `release-1.x` into `dev-1.x`. (#caf0ae7)
+- Bumped version to the next patch after publishing 0.1.6. (#650fc38)
+
+---
+
+**Note**: For a full list of changes, refer to the commit history.
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.1.6...0.1.7
