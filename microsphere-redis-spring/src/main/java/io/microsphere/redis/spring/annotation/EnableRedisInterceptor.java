@@ -21,7 +21,6 @@ import io.microsphere.redis.spring.beans.StringRedisTemplateWrapper;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
 import io.microsphere.redis.spring.interceptor.RedisCommandInterceptor;
 import io.microsphere.redis.spring.interceptor.RedisConnectionInterceptor;
-import io.microsphere.redis.spring.interceptor.RedisMethodInterceptor;
 import io.microsphere.redis.spring.util.RedisConstants;
 import io.microsphere.spring.beans.BeanSource;
 import org.springframework.context.annotation.Import;
@@ -104,7 +103,6 @@ public @interface EnableRedisInterceptor {
     /**
      * The sources that will be used to register the beans of Interceptor, such as:
      * <ul>
-     *     <li>{@link RedisMethodInterceptor}</li>
      *     <li>{@link RedisCommandInterceptor}</li>
      *     <li>{@link RedisConnectionInterceptor}</li>
      * </ul>
