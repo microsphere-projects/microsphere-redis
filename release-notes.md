@@ -74,4 +74,29 @@ For a full history of changes, please refer to the [changelog](https://example.c
 
 **Note:** This release focuses on minor housekeeping and alignment tasks.
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.2.5...0.2.6
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.2.5...0.2.6## v0.2.7
+
+# Release Notes: Version 0.2.7
+
+## New Features
+- **Configurable Interceptor Sources**: Added support for configurable Redis interceptor bean sources. ([fc1151a](#))
+
+## Bug Fixes
+- Removed unused imports in Redis interceptor files, improving code cleanliness. ([a4f1abe](#))
+
+## Documentation
+- Updated README with the latest version references. ([d135c11](#))
+
+## Test Improvements
+- Enabled test interceptor and normalized Javadoc spacing. ([2959548](#))  
+- Refactored Redis interceptor registration tests for better maintainability. ([6fb2dd7](#))
+
+## Build and Workflow Enhancements
+- Bumped parent version to `0.2.15`. ([d135c11](#))  
+- Prepared for next development iteration by bumping patch version. ([c579d33](#))  
+
+---
+
+**Note**: Internal chore commits and merges excluded.
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.2.6...0.2.7
