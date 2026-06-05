@@ -98,4 +98,20 @@ Thank you for your contributions!
 
 **Note**: For a full list of changes, refer to the commit history.
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.1.6...0.1.7
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.1.6...0.1.7## v0.1.8
+
+# Release Notes - Version 0.1.8  
+
+## Dependency Updates  
+- Upgraded `microsphere-spring-cloud` to version **0.1.16**.  
+
+## Documentation  
+- Updated README to reflect bumped branch versions.  
+
+## Build and Workflow Enhancements  
+- Merged `release-1.x` into `dev-1.x` for consistency.  
+
+## Other Changes  
+- Bumped version to prepare for the next patch after publishing 0.1.7.  
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.1.7...0.1.8
