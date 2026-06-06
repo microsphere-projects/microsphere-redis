@@ -47,13 +47,6 @@
             <artifactId>microsphere-spring-test</artifactId>
         </dependency>
 
-        <!-- Mockito Core -->
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <optional>true</optional>
-        </dependency>
-
         <!-- Lettuce -->
         <dependency>
             <groupId>io.lettuce</groupId>
