@@ -18,13 +18,13 @@
 package io.microsphere.redis.spring.util;
 
 import io.microsphere.redis.spring.annotation.EnableRedisInterceptor;
-import io.microsphere.redis.spring.config.RedisConfig;
 import io.microsphere.redis.spring.config.RedisContextConfig;
 import io.microsphere.redis.spring.interceptor.EventPublishingRedisCommandInterceptor;
 import io.microsphere.redis.spring.interceptor.LoggingRedisCommandInterceptor;
 import io.microsphere.redis.spring.interceptor.RedisCommandInterceptor;
 import io.microsphere.redis.spring.interceptor.RedisConnectionInterceptor;
 import io.microsphere.redis.spring.interceptor.StopWatchRedisConnectionInterceptor;
+import io.microsphere.redis.spring.test.config.RedisConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;

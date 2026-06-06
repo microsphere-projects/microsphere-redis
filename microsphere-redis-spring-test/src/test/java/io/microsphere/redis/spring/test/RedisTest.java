@@ -15,31 +15,25 @@
  * limitations under the License.
  */
 
-package io.microsphere.redis.spring.config;
+package io.microsphere.redis.spring.test;
 
-import io.microsphere.redis.spring.context.RedisContext;
-import io.microsphere.redis.spring.test.config.RedisConfig;
-import org.springframework.context.annotation.Bean;
+import org.junit.jupiter.api.Test;
 
-import static io.microsphere.redis.spring.context.RedisContext.BEAN_NAME;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * The configuration class for testing RedisContext
+ * {@link AbstractRedisTest} Test
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
- * @see RedisContext
- * @see RedisConfiguration
+ * @see AbstractRedisTest
  * @since 1.0.0
  */
-public class RedisContextConfig extends RedisConfig {
+class RedisTest extends AbstractRedisTest {
 
-    @Bean(BEAN_NAME)
-    public static RedisContext redisContext() {
-        return new RedisContext();
-    }
-
-    @Bean(RedisConfiguration.BEAN_NAME)
-    public static RedisConfiguration redisConfiguration() {
-        return new RedisConfiguration();
+    @Test
+    void test() {
+        assertNotNull(super.redisTemplate);
+        assertNotNull(super.stringRedisTemplate);
+        assertNotNull(super.context);
     }
 }

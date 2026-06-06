@@ -17,7 +17,7 @@
 
 package io.microsphere.redis.spring.connection.dynamic;
 
-import io.microsphere.redis.spring.AbstractRedisTest;
+import io.microsphere.redis.spring.test.AbstractRedisTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

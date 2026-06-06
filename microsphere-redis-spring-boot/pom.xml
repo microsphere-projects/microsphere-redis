@@ -62,19 +62,6 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- Byte Buddy-->
-        <dependency>
-            <groupId>net.bytebuddy</groupId>
-            <artifactId>byte-buddy</artifactId>
-            <optional>true</optional>
-        </dependency>
-
-        <!-- Yaml -->
-        <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-        </dependency>
-
         <!-- Testing -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -96,6 +83,7 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Microsphere Spring Test -->
         <dependency>
             <groupId>io.github.microsphere-projects</groupId>
             <artifactId>microsphere-spring-test</artifactId>

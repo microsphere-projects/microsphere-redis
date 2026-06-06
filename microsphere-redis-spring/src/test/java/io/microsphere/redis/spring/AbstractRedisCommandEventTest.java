@@ -18,6 +18,7 @@ package io.microsphere.redis.spring;
 
 import io.microsphere.redis.spring.context.RedisContext;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
+import io.microsphere.redis.spring.test.AbstractRedisTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;

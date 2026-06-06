@@ -17,8 +17,8 @@
 
 package io.microsphere.redis.spring.beans;
 
-import io.microsphere.redis.spring.AbstractRedisTest;
 import io.microsphere.redis.spring.config.RedisContextConfig;
+import io.microsphere.redis.spring.test.AbstractRedisTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;

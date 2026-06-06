@@ -1,1 +1,1 @@
-io.microsphere.mybatis.spring.boot.autoconfigure.RedisAutoConfiguration
+io.microsphere.redis.spring.boot.autoconfigure.RedisAutoConfiguration

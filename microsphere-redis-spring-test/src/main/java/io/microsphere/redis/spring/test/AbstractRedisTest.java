@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.microsphere.redis.spring;
+package io.microsphere.redis.spring.test;
 
-import io.microsphere.redis.spring.config.RedisConfig;
+import io.microsphere.redis.spring.test.config.RedisConfig;
 import org.junit.jupiter.api.Disabled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
