@@ -52,7 +52,7 @@
     </scm>
 
     <properties>
-        <revision>0.2.8-SNAPSHOT</revision>
+        <revision>0.2.9-SNAPSHOT</revision>
         <java.version>17</java.version>
     </properties>
 
@@ -63,6 +63,8 @@
         <module>microsphere-redis-generator</module>
         <module>microsphere-redis-spring</module>
         <module>microsphere-redis-replicator-spring</module>
+        <module>microsphere-redis-spring-boot</module>
+        <module>microsphere-redis-spring-cloud</module>
     </modules>
 
 </project>

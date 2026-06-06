@@ -99,4 +99,19 @@ For a full history of changes, please refer to the [changelog](https://example.c
 
 **Note**: Internal chore commits and merges excluded.
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.2.6...0.2.7
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.2.6...0.2.7## v0.2.8
+
+# Release Notes for v0.2.8
+
+## Dependency Updates
+- Upgraded Microsphere parent and documentation dependencies to version `0.2.16`. ([c731f80](#))
+
+## Other Changes
+- Version bumped to `0.2.8` post publishing `0.2.7`. ([5c17d85](#))  
+- Merged `main` into `release` and vice versa. ([2ff097b](#), [3632411](#))  
+
+---
+
+**Note:** This release primarily includes dependency updates and preparatory version bumps.
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.2.7...0.2.8
