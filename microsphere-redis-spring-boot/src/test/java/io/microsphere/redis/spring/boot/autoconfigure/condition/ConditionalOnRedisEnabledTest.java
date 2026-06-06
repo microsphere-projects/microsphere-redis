@@ -17,10 +17,13 @@
 
 package io.microsphere.redis.spring.boot.autoconfigure.condition;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import static io.microsphere.spring.beans.BeanUtils.isBeanPresent;
 import static io.microsphere.spring.test.util.SpringTestUtils.testInSpringContainer;
@@ -28,34 +31,39 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * {@link ConditionalOnMyBatisEnabled} Test
+ * {@link ConditionalOnRedisEnabled} Test
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
- * @see ConditionalOnMyBatisEnabled
+ * @see ConditionalOnRedisEnabled
  * @since 1.0.0
  */
-@SpringBootTest(
-        classes = ConditionalOnMyBatisEnabledTest.EnabledConfig.class,
-        properties = "microsphere.mybatis.enabled = false"
-)
-class ConditionalOnMyBatisEnabledTest {
+class ConditionalOnRedisEnabledTest {
 
-    @Autowired
-    private ObjectProvider<EnabledConfig> enabledConfigProvider;
+    @Nested
+    @SpringJUnitConfig
+    @TestPropertySource(
+            properties = "microsphere.redis.enabled = false"
+    )
+    @Import(Config.class)
+    class DisabledTest {
 
-    @Test
-    void testDisabled() {
-        assertNull(enabledConfigProvider.getIfAvailable());
+        @Autowired
+        private ObjectProvider<Config> enabledConfigProvider;
+
+        @Test
+        void testDisabled() {
+            assertNull(enabledConfigProvider.getIfAvailable());
+        }
     }
 
     @Test
     void testEnabled() {
         testInSpringContainer(context -> {
-            assertTrue(isBeanPresent(context, EnabledConfig.class));
-        }, EnabledConfig.class);
+            assertTrue(isBeanPresent(context, Config.class));
+        }, Config.class);
     }
 
-    @ConditionalOnMyBatisEnabled
-    static class EnabledConfig {
+    @ConditionalOnRedisEnabled
+    static class Config {
     }
 }
