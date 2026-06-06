@@ -15,31 +15,55 @@
  * limitations under the License.
  */
 
-package io.microsphere.redis.spring.annotation;
+package io.microsphere.redis.spring.boot.autoconfigure.condition;
 
-import io.microsphere.redis.spring.config.RedisConfiguration;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-import static io.microsphere.redis.spring.config.RedisConfiguration.BEAN_NAME;
 import static io.microsphere.spring.beans.BeanUtils.isBeanPresent;
 import static io.microsphere.spring.test.util.SpringTestUtils.testInSpringContainer;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * {@link RedisConfigurationBeanDefinitionRegistrar} Test
+ * {@link ConditionalOnRedisAvailable} Test
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
- * @see RedisConfigurationBeanDefinitionRegistrar
+ * @see ConditionalOnRedisAvailable
  * @since 1.0.0
  */
-@EnableRedisConfiguration
-class RedisConfigurationBeanDefinitionRegistrarTest {
+public class ConditionalOnRedisAvailableTest {
+
+    @Nested
+    @SpringJUnitConfig
+    @TestPropertySource(
+            properties = "microsphere.redis.enabled = false"
+    )
+    @Import(Config.class)
+    class DisabledTest {
+
+        @Autowired
+        private ObjectProvider<Config> enabledConfigProvider;
+
+        @Test
+        void testDisabled() {
+            assertNull(enabledConfigProvider.getIfAvailable());
+        }
+    }
 
     @Test
-    void test() {
+    void testEnabled() {
         testInSpringContainer(context -> {
-            assertTrue(isBeanPresent(context, RedisConfiguration.class));
-            assertTrue(isBeanPresent(context, BEAN_NAME, RedisConfiguration.class));
-        }, RedisConfigurationBeanDefinitionRegistrarTest.class);
+            assertTrue(isBeanPresent(context, Config.class));
+        }, Config.class);
+    }
+
+    @ConditionalOnRedisAvailable
+    static class Config {
     }
 }

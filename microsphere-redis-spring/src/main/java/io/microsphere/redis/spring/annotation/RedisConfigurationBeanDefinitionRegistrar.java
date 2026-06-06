@@ -17,22 +17,18 @@
 package io.microsphere.redis.spring.annotation;
 
 import io.microsphere.redis.spring.config.RedisConfiguration;
-import io.microsphere.redis.spring.event.PropagatingRedisConfigurationPropertyChangedEventApplicationListener;
-import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.type.AnnotationMetadata;
 
 import static io.microsphere.redis.spring.config.RedisConfiguration.BEAN_NAME;
-import static io.microsphere.redis.spring.event.PropagatingRedisConfigurationPropertyChangedEventApplicationListener.supports;
 import static io.microsphere.redis.spring.metadata.SpringRedisMetadataRepository.init;
 import static io.microsphere.spring.beans.factory.support.BeanRegistrar.registerBeanDefinition;
 
 /**
  * {@link ImportBeanDefinitionRegistrar} implementation that programmatically registers the
- * {@link RedisConfiguration} bean and, when the Spring Cloud Environment is available,
- * also registers the {@link PropagatingRedisConfigurationPropertyChangedEventApplicationListener}.
+ * {@link RedisConfiguration} bean.
  * This registrar is triggered by the {@link EnableRedisConfiguration} annotation via
  * its {@link Import} meta-annotation.
  *
@@ -49,13 +45,11 @@ import static io.microsphere.spring.beans.factory.support.BeanRegistrar.register
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
-class RedisConfigurationBeanDefinitionRegistrar implements ImportBeanDefinitionRegistrar, BeanClassLoaderAware {
+class RedisConfigurationBeanDefinitionRegistrar implements ImportBeanDefinitionRegistrar {
 
     static {
         init();
     }
-
-    private ClassLoader classLoader;
 
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
@@ -63,28 +57,15 @@ class RedisConfigurationBeanDefinitionRegistrar implements ImportBeanDefinitionR
     }
 
     /**
-     * Registers {@link RedisConfiguration} and, when a compatible Spring Cloud Environment is on the
-     * classpath, the {@link PropagatingRedisConfigurationPropertyChangedEventApplicationListener}.
+     * Registers {@link RedisConfiguration}.
      *
      * @param registry the Spring bean-definition registry to register beans into
      */
     public void registerBeanDefinitions(BeanDefinitionRegistry registry) {
         registerRedisConfiguration(registry);
-        registerApplicationListeners(registry);
     }
 
     private void registerRedisConfiguration(BeanDefinitionRegistry registry) {
         registerBeanDefinition(registry, BEAN_NAME, RedisConfiguration.class);
-    }
-
-    void registerApplicationListeners(BeanDefinitionRegistry registry) {
-        if (supports(this.classLoader)) {
-            registerBeanDefinition(registry, PropagatingRedisConfigurationPropertyChangedEventApplicationListener.class);
-        }
-    }
-
-    @Override
-    public void setBeanClassLoader(ClassLoader classLoader) {
-        this.classLoader = classLoader;
     }
 }

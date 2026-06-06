@@ -17,6 +17,7 @@
 
 package io.microsphere.redis.spring.cloud.autoconfigure;
 
+import io.microsphere.redis.spring.test.AbstractRedisTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,7 +28,7 @@ import org.springframework.cloud.client.actuator.NamedFeature;
 
 import java.util.List;
 
-import static io.microsphere.redis.spring.cloud.autoconfigure.MyBatisCloudAutoConfiguration.FeaturesConfiguration.MYBATIS_FEATURES_BEAN_NAME;
+import static io.microsphere.redis.spring.cloud.autoconfigure.RedisCloudAutoConfiguration.FeaturesConfiguration.REDIS_FEATURES_BEAN_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -41,10 +42,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         RedisCloudAutoConfigurationTest.class
 })
 @EnableAutoConfiguration
-class RedisCloudAutoConfigurationTest {
+class RedisCloudAutoConfigurationTest extends AbstractRedisTest {
 
     @Autowired
-    @Qualifier(MYBATIS_FEATURES_BEAN_NAME)
+    @Qualifier(REDIS_FEATURES_BEAN_NAME)
     private HasFeatures hasFeatures;
 
     @Test
