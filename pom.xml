@@ -63,6 +63,8 @@
         <module>microsphere-redis-generator</module>
         <module>microsphere-redis-spring</module>
         <module>microsphere-redis-replicator-spring</module>
+        <module>microsphere-redis-spring-boot</module>
+        <module>microsphere-redis-spring-cloud</module>
     </modules>
 
 </project>
