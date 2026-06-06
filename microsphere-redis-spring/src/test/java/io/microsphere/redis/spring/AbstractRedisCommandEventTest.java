@@ -25,8 +25,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.data.redis.RedisSystemException;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.serializer.RedisSerializer;
 
 import java.util.HashMap;
@@ -164,11 +162,5 @@ public abstract class AbstractRedisCommandEventTest extends AbstractRedisTest {
         Object value = this.valueSerializer.deserialize(valueBytes);
 
         this.data.put(key, value);
-    }
-
-    void assertSet(RedisTemplate redisTemplate, String key, String value) {
-        ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
-        valueOperations.set(key, value);
-        assertEquals(value, valueOperations.get(key));
     }
 }

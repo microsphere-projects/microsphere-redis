@@ -51,7 +51,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 })
 @TestPropertySource(
         properties = {
-                "spring.application.name=test-service"
+                "spring.application.name=test-service",
+                "microsphere.redis.enabled=false"
         }
 )
 class RedisConfigurationTest extends AbstractRedisTest {

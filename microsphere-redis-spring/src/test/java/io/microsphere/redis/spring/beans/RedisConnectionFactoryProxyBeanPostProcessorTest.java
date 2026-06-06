@@ -26,6 +26,7 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 
 import java.lang.reflect.Proxy;
 import java.util.Map;
@@ -49,6 +50,9 @@ import static org.junit.jupiter.api.Assertions.assertSame;
                 RedisConnectionFactoryProxyBeanPostProcessor.class,
                 RedisConnectionFactoryProxyBeanPostProcessorTest.class
         }
+)
+@TestPropertySource(
+        properties = "microsphere.redis.enabled=false"
 )
 class RedisConnectionFactoryProxyBeanPostProcessorTest extends AbstractRedisTest {
 

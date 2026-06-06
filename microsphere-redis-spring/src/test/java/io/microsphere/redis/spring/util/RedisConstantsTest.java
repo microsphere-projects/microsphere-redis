@@ -63,7 +63,7 @@ class RedisConstantsTest {
         assertEquals("spring.application.name", SPRING_APPLICATION_NAME_PROPERTY_NAME);
         assertEquals("microsphere.redis.", MICROSPHERE_REDIS_PROPERTY_NAME_PREFIX);
         assertEquals("microsphere.redis.enabled", MICROSPHERE_REDIS_ENABLED_PROPERTY_NAME);
-        assertFalse(DEFAULT_MICROSPHERE_REDIS_ENABLED);
+        assertTrue(DEFAULT_MICROSPHERE_REDIS_ENABLED);
         assertEquals("microsphere.redis.command-event.", MICROSPHERE_REDIS_COMMAND_EVENT_PROPERTY_NAME_PREFIX);
         assertEquals("true", DEFAULT_MICROSPHERE_REDIS_COMMAND_EVENT_EXPOSED_PROPERTY_VALUE);
         assertEquals("microsphere.redis.command-event.exposed", MICROSPHERE_REDIS_COMMAND_EVENT_EXPOSED_PROPERTY_NAME);

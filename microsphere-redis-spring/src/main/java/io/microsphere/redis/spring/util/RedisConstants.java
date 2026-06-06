@@ -26,7 +26,6 @@ import java.util.Set;
 import static io.microsphere.annotation.ConfigurationProperty.APPLICATION_SOURCE;
 import static io.microsphere.annotation.ConfigurationProperty.SYSTEM_PROPERTIES_SOURCE;
 import static io.microsphere.collection.Sets.ofSet;
-import static java.lang.Boolean.getBoolean;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.System.getProperty;
 
@@ -80,12 +79,14 @@ public interface RedisConstants {
      */
     String MICROSPHERE_REDIS_PROPERTY_NAME_PREFIX = "microsphere.redis.";
 
+    String DEFAULT_MICROSPHERE_REDIS_ENABLED_PROPERTY_VALUE = "true";
+
     /**
      * The property name of Microsphere Redis enabled in Spring.
      */
     @ConfigurationProperty(
             type = boolean.class,
-            defaultValue = "false",
+            defaultValue = DEFAULT_MICROSPHERE_REDIS_ENABLED_PROPERTY_VALUE,
             source = APPLICATION_SOURCE
     )
     String MICROSPHERE_REDIS_ENABLED_PROPERTY_NAME = MICROSPHERE_REDIS_PROPERTY_NAME_PREFIX + "enabled";
@@ -93,7 +94,7 @@ public interface RedisConstants {
     /**
      * The default value of Microsphere Redis enabled.
      */
-    boolean DEFAULT_MICROSPHERE_REDIS_ENABLED = getBoolean(MICROSPHERE_REDIS_ENABLED_PROPERTY_NAME);
+    boolean DEFAULT_MICROSPHERE_REDIS_ENABLED = parseBoolean(DEFAULT_MICROSPHERE_REDIS_ENABLED_PROPERTY_VALUE);
 
     /**
      * The property name prefix of {@link RedisCommandEvent} exposed in Spring.

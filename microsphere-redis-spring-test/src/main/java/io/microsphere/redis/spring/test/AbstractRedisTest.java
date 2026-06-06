@@ -18,12 +18,14 @@ package io.microsphere.redis.spring.test;
 
 import io.microsphere.redis.spring.test.config.RedisConfig;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.lang.reflect.Method;
@@ -31,6 +33,8 @@ import java.lang.reflect.Method;
 import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.util.ArrayUtils.ofArray;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Abstract Redis Test
@@ -58,4 +62,18 @@ public abstract class AbstractRedisTest {
 
     @Autowired
     protected ConfigurableApplicationContext context;
+
+    protected void assertRedisTemplateSet(String key, String value) {
+        assertSet(this.redisTemplate, key, value);
+    }
+
+    protected void assertStringRedisTemplateSet(String key, String value) {
+        assertSet(redisTemplate, key, value);
+    }
+
+    public static void assertSet(RedisTemplate redisTemplate, String key, String value) {
+        ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
+        valueOperations.set(key, value);
+        assertEquals(value, valueOperations.get(key));
+    }
 }

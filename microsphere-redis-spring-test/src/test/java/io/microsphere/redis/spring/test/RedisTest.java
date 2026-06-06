@@ -35,5 +35,9 @@ class RedisTest extends AbstractRedisTest {
         assertNotNull(super.redisTemplate);
         assertNotNull(super.stringRedisTemplate);
         assertNotNull(super.context);
+
+        assertRedisTemplateSet("a", "1");
+        assertStringRedisTemplateSet("b", "2");
+        assertStringRedisTemplateSet("c", "3");
     }
 }
