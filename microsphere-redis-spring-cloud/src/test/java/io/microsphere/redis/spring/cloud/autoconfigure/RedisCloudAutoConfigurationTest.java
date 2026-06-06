@@ -51,6 +51,6 @@ class RedisCloudAutoConfigurationTest extends AbstractRedisTest {
     @Test
     void test() {
         List<NamedFeature> namedFeatures = hasFeatures.getNamedFeatures();
-        assertEquals(2, namedFeatures.size());
+        assertEquals(4, namedFeatures.size());
     }
 }
