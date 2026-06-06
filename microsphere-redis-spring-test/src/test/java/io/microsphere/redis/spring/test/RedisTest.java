@@ -15,31 +15,29 @@
  * limitations under the License.
  */
 
-package io.microsphere.redis.spring.annotation;
+package io.microsphere.redis.spring.test;
 
-import io.microsphere.redis.spring.config.RedisConfiguration;
 import org.junit.jupiter.api.Test;
 
-import static io.microsphere.redis.spring.config.RedisConfiguration.BEAN_NAME;
-import static io.microsphere.spring.beans.BeanUtils.isBeanPresent;
-import static io.microsphere.spring.test.util.SpringTestUtils.testInSpringContainer;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * {@link RedisConfigurationBeanDefinitionRegistrar} Test
+ * {@link AbstractRedisTest} Test
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
- * @see RedisConfigurationBeanDefinitionRegistrar
+ * @see AbstractRedisTest
  * @since 1.0.0
  */
-@EnableRedisConfiguration
-class RedisConfigurationBeanDefinitionRegistrarTest {
+class RedisTest extends AbstractRedisTest {
 
     @Test
     void test() {
-        testInSpringContainer(context -> {
-            assertTrue(isBeanPresent(context, RedisConfiguration.class));
-            assertTrue(isBeanPresent(context, BEAN_NAME, RedisConfiguration.class));
-        }, RedisConfigurationBeanDefinitionRegistrarTest.class);
+        assertNotNull(super.redisTemplate);
+        assertNotNull(super.stringRedisTemplate);
+        assertNotNull(super.context);
+
+        assertRedisTemplateSet("a", "1");
+        assertStringRedisTemplateSet("b", "2");
+        assertStringRedisTemplateSet("c", "3");
     }
 }

@@ -16,9 +16,9 @@
  */
 package io.microsphere.redis.spring.annotation;
 
-import io.microsphere.redis.spring.AbstractRedisTest;
 import io.microsphere.redis.spring.config.RedisConfiguration;
 import io.microsphere.redis.spring.context.RedisContext;
+import io.microsphere.redis.spring.test.AbstractRedisTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

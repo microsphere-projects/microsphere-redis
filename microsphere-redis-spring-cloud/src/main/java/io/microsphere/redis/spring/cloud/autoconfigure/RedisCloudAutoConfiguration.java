@@ -17,13 +17,11 @@
 
 package io.microsphere.redis.spring.cloud.autoconfigure;
 
-import io.microsphere.redis.executor.ExecutorFilter;
-import io.microsphere.redis.executor.ExecutorInterceptor;
-import io.microsphere.redis.spring.boot.autoconfigure.condition.ConditionalOnMyBatisEnabled;
+import io.microsphere.redis.spring.boot.autoconfigure.condition.ConditionalOnRedisAvailable;
+import io.microsphere.redis.spring.cloud.event.PropagatingRedisConfigurationPropertyChangedEventApplicationListener;
+import io.microsphere.redis.spring.interceptor.RedisCommandInterceptor;
+import io.microsphere.redis.spring.interceptor.RedisConnectionInterceptor;
 import io.microsphere.spring.cloud.client.condition.ConditionalOnFeaturesEnabled;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.mybatis.spring.SqlSessionFactoryBean;
-import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.cloud.client.actuator.HasFeatures;
@@ -31,14 +29,16 @@ import org.springframework.cloud.client.actuator.NamedFeature;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.util.List;
 import java.util.Set;
 
 import static io.microsphere.collection.ListUtils.newArrayList;
 import static io.microsphere.collection.SetUtils.of;
-import static io.microsphere.constants.SymbolConstants.DOT;
-import static io.microsphere.redis.constants.PropertyConstants.MICROSPHERE_MYBATIS_PROPERTY_NAME_PREFIX;
+import static io.microsphere.redis.spring.util.RedisConstants.MICROSPHERE_REDIS_PROPERTY_NAME_PREFIX;
 import static io.microsphere.spring.beans.BeanUtils.isBeanPresent;
 import static java.util.Collections.emptyList;
 
@@ -57,26 +57,19 @@ import static java.util.Collections.emptyList;
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @see Configuration
- * @see org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration
+ * @see org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
  * @since 1.0.0
  */
-@ConditionalOnMyBatisEnabled
+@ConditionalOnRedisAvailable
 @AutoConfigureAfter(name = {
-        "org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration"
+        "org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration"
 })
-@Import(MyBatisCloudAutoConfiguration.FeaturesConfiguration.class)
+@Import(value = {
+        RedisCloudAutoConfiguration.FeaturesConfiguration.class,
+        PropagatingRedisConfigurationPropertyChangedEventApplicationListener.class
+})
 public class RedisCloudAutoConfiguration {
 
-    /**
-     * Inner {@link Configuration} that registers the {@link HasFeatures} bean when
-     * Spring Cloud features reporting is enabled.
-     *
-     * <h3>Example Usage</h3>
-     * <pre>{@code
-     *   // When @ConditionalOnFeaturesEnabled is satisfied, the "myBatisFeatures" bean is
-     *   // automatically created and exposed to the Spring Cloud actuator feature endpoint.
-     * }</pre>
-     */
     @ConditionalOnFeaturesEnabled
     public static class FeaturesConfiguration {
 
@@ -88,34 +81,20 @@ public class RedisCloudAutoConfiguration {
         public final static String REDIS_FEATURES_BEAN_NAME = "redisFeatures";
 
         private static Set<Class<?>> typeFeatures = of(
-                org.apache.ibatis.session.Configuration.class,
-                SqlSessionFactory.class,
-                SqlSessionFactoryBean.class,
-                SqlSessionTemplate.class,
-                ExecutorFilter.class,
-                ExecutorInterceptor.class
+                RedisTemplate.class,
+                StringRedisTemplate.class,
+                RedisConnectionFactory.class,
+                RedisCommandInterceptor.class,
+                RedisConnectionInterceptor.class
         );
 
-        /**
-         * Create a {@link HasFeatures} bean that exposes the active MyBatis components as named features
-         * for the Spring Cloud actuator features endpoint.
-         *
-         * <h3>Example Usage</h3>
-         * <pre>{@code
-         *   // Accessed via the Spring Cloud actuator features endpoint at /actuator/features.
-         *   // Each present bean type is reported as a named feature:
-         *   //   "microsphere.mybatis.SqlSessionFactory" -> SqlSessionFactory.class
-         * }</pre>
-         *
-         * @param beanFactory the {@link ListableBeanFactory} used to check which beans are present
-         * @return a {@link HasFeatures} with one {@link NamedFeature} per present MyBatis component type
-         */
         @Bean(name = REDIS_FEATURES_BEAN_NAME)
         public HasFeatures redisFeatures(ListableBeanFactory beanFactory) {
             List<NamedFeature> namedFeatures = newArrayList(typeFeatures.size());
             for (Class<?> type : typeFeatures) {
+
                 if (isBeanPresent(beanFactory, type)) {
-                    String name = MICROSPHERE_MYBATIS_PROPERTY_NAME_PREFIX + DOT + type.getSimpleName();
+                    String name = MICROSPHERE_REDIS_PROPERTY_NAME_PREFIX + type.getSimpleName();
                     namedFeatures.add(new NamedFeature(name, type));
                 }
             }

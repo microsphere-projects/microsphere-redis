@@ -1,1 +1,1 @@
-io.microsphere.mybatis.spring.cloud.autoconfigure.RedisCloudAutoConfiguration
+io.microsphere.redis.spring.cloud.autoconfigure.RedisCloudAutoConfiguration
