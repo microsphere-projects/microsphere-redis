@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-package io.microsphere.redis.spring.event;
+package io.microsphere.redis.spring.cloud.event;
 
-import io.microsphere.redis.spring.config.RedisContextConfig;
+import io.microsphere.redis.spring.annotation.EnableRedisConfiguration;
+import io.microsphere.redis.spring.event.RedisConfigurationPropertyChangedEvent;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
@@ -28,13 +29,9 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import java.util.Set;
 
 import static io.microsphere.collection.Sets.ofSet;
-import static io.microsphere.redis.spring.event.PropagatingRedisConfigurationPropertyChangedEventApplicationListener.supports;
 import static io.microsphere.redis.spring.util.RedisConstants.MICROSPHERE_REDIS_COMMAND_EVENT_EXPOSED_PROPERTY_NAME;
 import static io.microsphere.redis.spring.util.RedisConstants.MICROSPHERE_REDIS_ENABLED_PROPERTY_NAME;
-import static io.microsphere.util.ClassLoaderUtils.getDefaultClassLoader;
-import static java.lang.ClassLoader.getSystemClassLoader;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -48,11 +45,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 @SpringJUnitConfig(
         classes = {
-                RedisContextConfig.class,
                 PropagatingRedisConfigurationPropertyChangedEventApplicationListener.class,
                 PropagatingRedisConfigurationPropertyChangedEventApplicationListenerTest.class
         }
 )
+@EnableRedisConfiguration
 class PropagatingRedisConfigurationPropertyChangedEventApplicationListenerTest {
 
     @Autowired
@@ -60,18 +57,6 @@ class PropagatingRedisConfigurationPropertyChangedEventApplicationListenerTest {
 
     @Autowired
     private ConfigurableApplicationContext context;
-
-    @Test
-    void testSupports() {
-        assertTrue(supports(getDefaultClassLoader()));
-        assertFalse(supports(getSystemClassLoader().getParent()));
-    }
-
-    @Test
-    void testSupportsEventType() {
-        assertTrue(listener.supportsEventType(EnvironmentChangeEvent.class));
-        assertFalse(listener.supportsEventType(RedisConfigurationPropertyChangedEvent.class));
-    }
 
     @Test
     void testOnApplicationEvent() {

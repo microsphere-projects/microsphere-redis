@@ -53,13 +53,6 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- Spring Cloud Context -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-context</artifactId>
-            <optional>true</optional>
-        </dependency>
-
         <!-- Yaml -->
         <dependency>
             <groupId>org.yaml</groupId>

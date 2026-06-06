@@ -43,7 +43,6 @@ import static io.microsphere.redis.spring.util.RedisConstants.SPRING_APPLICATION
 import static io.microsphere.redis.spring.util.RedisConstants.STRING_REDIS_TEMPLATE_BEAN_NAME;
 import static io.microsphere.redis.spring.util.RedisConstants.WRAPPED_REDIS_TEMPLATE_BEAN_NAMES_PROPERTY_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
