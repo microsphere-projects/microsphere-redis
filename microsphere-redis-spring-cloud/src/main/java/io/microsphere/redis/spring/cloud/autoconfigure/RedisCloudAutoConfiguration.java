@@ -21,7 +21,7 @@ import io.microsphere.redis.spring.boot.autoconfigure.condition.ConditionalOnRed
 import io.microsphere.redis.spring.cloud.event.PropagatingRedisConfigurationPropertyChangedEventApplicationListener;
 import io.microsphere.redis.spring.interceptor.RedisCommandInterceptor;
 import io.microsphere.redis.spring.interceptor.RedisConnectionInterceptor;
-import io.microsphere.spring.cloud.client.condition.ConditionalOnFeaturesEnabled;
+import io.microsphere.spring.cloud.client.condition.ConditionalOnFeaturesAvailable;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.cloud.client.actuator.HasFeatures;
@@ -70,7 +70,7 @@ import static java.util.Collections.emptyList;
 })
 public class RedisCloudAutoConfiguration {
 
-    @ConditionalOnFeaturesEnabled
+    @ConditionalOnFeaturesAvailable
     public static class FeaturesConfiguration {
 
         /**
