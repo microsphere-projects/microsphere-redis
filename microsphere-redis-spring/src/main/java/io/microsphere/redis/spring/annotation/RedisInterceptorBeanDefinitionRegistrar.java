@@ -16,7 +16,6 @@
  */
 package io.microsphere.redis.spring.annotation;
 
-import io.microsphere.logging.Logger;
 import io.microsphere.redis.spring.beans.RedisConnectionFactoryProxyBeanPostProcessor;
 import io.microsphere.redis.spring.beans.RedisTemplateWrapperBeanPostProcessor;
 import io.microsphere.redis.spring.beans.WrapperProcessors;
@@ -35,7 +34,6 @@ import org.springframework.core.type.AnnotationMetadata;
 import java.util.Map;
 import java.util.Set;
 
-import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.interceptor.EventPublishingRedisCommandInterceptor.BEAN_NAME;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.getWrappedRedisTemplateBeanNames;
 import static io.microsphere.spring.beans.BeanSource.registerBeans;
@@ -74,9 +72,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
  * @since 1.0.0
  */
 class RedisInterceptorBeanDefinitionRegistrar extends AnnotatedBeanCapableImportBeanDefinitionRegistrar<EnableRedisInterceptor> {
-
-    private static final Logger logger = getLogger(RedisInterceptorBeanDefinitionRegistrar.class);
-
+    
     @Override
     protected void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry,
                                            BeanNameGenerator importBeanNameGenerator,
