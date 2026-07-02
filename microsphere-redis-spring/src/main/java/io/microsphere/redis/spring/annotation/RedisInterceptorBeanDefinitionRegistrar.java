@@ -19,7 +19,6 @@ package io.microsphere.redis.spring.annotation;
 import io.microsphere.redis.spring.beans.RedisConnectionFactoryProxyBeanPostProcessor;
 import io.microsphere.redis.spring.beans.RedisTemplateWrapperBeanPostProcessor;
 import io.microsphere.redis.spring.beans.WrapperProcessors;
-import io.microsphere.redis.spring.context.RedisInterceptorModuleInitializer;
 import io.microsphere.redis.spring.interceptor.EventPublishingRedisCommandInterceptor;
 import io.microsphere.redis.spring.interceptor.RedisCommandInterceptor;
 import io.microsphere.redis.spring.interceptor.RedisConnectionInterceptor;
