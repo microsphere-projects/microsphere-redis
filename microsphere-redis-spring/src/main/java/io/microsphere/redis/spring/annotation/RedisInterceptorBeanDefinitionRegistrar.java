@@ -37,6 +37,7 @@ import java.util.Set;
 
 import static io.microsphere.redis.spring.interceptor.EventPublishingRedisCommandInterceptor.BEAN_NAME;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.getWrappedRedisTemplateBeanNames;
+import static io.microsphere.redis.spring.util.RedisSpringUtils.isMicrosphereRedisInterceptorEnabled;
 import static io.microsphere.spring.beans.BeanSource.registerBeans;
 import static io.microsphere.spring.beans.factory.BeanFactoryUtils.asConfigurableBeanFactory;
 import static io.microsphere.spring.beans.factory.support.BeanRegistrar.registerBeanDefinition;
@@ -91,7 +92,7 @@ class RedisInterceptorBeanDefinitionRegistrar extends AnnotatedBeanCapableImport
 
     @Override
     protected boolean isEnabled(AnnotationMetadata metadata) {
-        return RedisInterceptorModuleInitializer.isEnabled(getEnvironment());
+        return isMicrosphereRedisInterceptorEnabled(getEnvironment());
     }
 
     /**
