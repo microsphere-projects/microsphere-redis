@@ -26,17 +26,13 @@ import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * {@link ConditionalOnRedisAvailable} is a Spring Boot condition annotation that checks
- * whether Redis is available for use in the application context.
+ * A composed condition annotation that checks whether Redis is available for use.
  * <p>
- * This annotation combines two conditions:
- * <ul>
- *   <li>{@link ConditionalOnRedisEnabled}: Checks if Redis is explicitly enabled via configuration.</li>
- *   <li>{@link org.springframework.boot.autoconfigure.condition.ConditionalOnClass}: Checks if the
- *       {@code org.springframework.data.redis.connection.RedisConnection} class is present on the classpath.</li>
- * </ul>
+ * This annotation combines {@link ConditionalOnRedisEnabled} and
+ * {@link org.springframework.boot.autoconfigure.condition.ConditionalOnClass} to ensure
+ * that Redis is explicitly enabled and the required Redis classes are present on the classpath.
  *
- * <h3>Example Usage:</h3>
+ * <h3>Usage Example</h3>
  * <pre>{@code
  * @Configuration
  * @ConditionalOnRedisAvailable
@@ -51,19 +47,18 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * }
  * }</pre>
  *
- * <p>In this example, the {@code RedisAutoConfiguration} class will only be loaded if:
- * <ol>
- *   <li>Redis is enabled in the application properties (e.g., {@code microsphere.redis.enabled=true}).</li>
- *   <li>The required Redis classes (like {@code RedisConnection}) are available on the classpath.</li>
- * </ol>
- *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
+ * @see ConditionalOnRedisEnabled
  * @since 1.0.0
  */
 @Target(TYPE)
 @Retention(RUNTIME)
 @Documented
 @ConditionalOnRedisEnabled
-@ConditionalOnClass(name = "org.springframework.data.redis.connection.RedisConnection")
+@ConditionalOnClass(name = {
+        "org.springframework.data.redis.connection.RedisConnection",      // Spring Data Redis API
+        "io.microsphere.redis.metadata.RedisMetadataLoader",              // Microsphere Redis Core API
+        "io.microsphere.redis.spring.interceptor.RedisMethodInterceptor", // Microsphere Redis Spring API
+})
 public @interface ConditionalOnRedisAvailable {
 }
