@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.microsphere.redis.spring.config;
+package io.microsphere.redis.spring.test.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.connection.RedisConnectionFactory;

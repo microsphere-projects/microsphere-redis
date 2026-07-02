@@ -18,6 +18,7 @@ package io.microsphere.redis.spring;
 
 import io.microsphere.redis.spring.context.RedisContext;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
+import io.microsphere.redis.spring.test.AbstractRedisTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -162,11 +163,5 @@ public abstract class AbstractRedisCommandEventTest extends AbstractRedisTest {
         Object value = this.valueSerializer.deserialize(valueBytes);
 
         this.data.put(key, value);
-    }
-
-    void assertSet(RedisTemplate redisTemplate, String key, String value) {
-        ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
-        valueOperations.set(key, value);
-        assertEquals(value, valueOperations.get(key));
     }
 }

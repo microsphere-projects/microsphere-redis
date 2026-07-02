@@ -35,7 +35,25 @@
 
             <dependency>
                 <groupId>io.github.microsphere-projects</groupId>
+                <artifactId>microsphere-redis-spring-test</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.microsphere-projects</groupId>
                 <artifactId>microsphere-redis-replicator-spring</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.microsphere-projects</groupId>
+                <artifactId>microsphere-redis-spring-boot</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.microsphere-projects</groupId>
+                <artifactId>microsphere-redis-spring-cloud</artifactId>
                 <version>${revision}</version>
             </dependency>
 

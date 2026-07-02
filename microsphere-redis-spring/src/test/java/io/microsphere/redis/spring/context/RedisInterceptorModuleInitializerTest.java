@@ -17,7 +17,6 @@
 package io.microsphere.redis.spring.context;
 
 import io.microsphere.redis.spring.AbstractRedisCommandEventTest;
-import io.microsphere.redis.spring.config.RedisConfig;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
@@ -28,10 +27,7 @@ import org.springframework.test.context.TestPropertySource;
  * @since 1.0.0
  */
 @ContextConfiguration(
-        classes = {
-                RedisInterceptorModuleInitializerTest.class,
-                RedisConfig.class
-        },
+        classes = RedisInterceptorModuleInitializerTest.class,
         initializers = RedisInitializer.class
 )
 @TestPropertySource(properties = {
