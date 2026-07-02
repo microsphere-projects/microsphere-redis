@@ -19,6 +19,7 @@ package io.microsphere.redis.spring.annotation;
 import io.microsphere.redis.spring.beans.RedisConnectionFactoryProxyBeanPostProcessor;
 import io.microsphere.redis.spring.beans.RedisTemplateWrapperBeanPostProcessor;
 import io.microsphere.redis.spring.beans.WrapperProcessors;
+import io.microsphere.redis.spring.context.RedisInterceptorModuleInitializer;
 import io.microsphere.redis.spring.interceptor.EventPublishingRedisCommandInterceptor;
 import io.microsphere.redis.spring.interceptor.RedisCommandInterceptor;
 import io.microsphere.redis.spring.interceptor.RedisConnectionInterceptor;
@@ -36,6 +37,7 @@ import java.util.Set;
 
 import static io.microsphere.redis.spring.interceptor.EventPublishingRedisCommandInterceptor.BEAN_NAME;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.getWrappedRedisTemplateBeanNames;
+import static io.microsphere.redis.spring.util.RedisSpringUtils.isMicrosphereRedisInterceptorEnabled;
 import static io.microsphere.spring.beans.BeanSource.registerBeans;
 import static io.microsphere.spring.beans.factory.BeanFactoryUtils.asConfigurableBeanFactory;
 import static io.microsphere.spring.beans.factory.support.BeanRegistrar.registerBeanDefinition;
@@ -72,7 +74,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
  * @since 1.0.0
  */
 class RedisInterceptorBeanDefinitionRegistrar extends AnnotatedBeanCapableImportBeanDefinitionRegistrar<EnableRedisInterceptor> {
-    
+
     @Override
     protected void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry,
                                            BeanNameGenerator importBeanNameGenerator,
@@ -86,6 +88,11 @@ class RedisInterceptorBeanDefinitionRegistrar extends AnnotatedBeanCapableImport
         Set<String> wrapRedisTemplateBeanNames = getWrappedRedisTemplateBeanNames(this.beanFactory, this.environment, wrapRedisTemplates);
 
         registerBeanDefinitions(wrapRedisTemplateBeanNames, exposeCommandEvent, sources, registry);
+    }
+
+    @Override
+    protected boolean isEnabled(AnnotationMetadata metadata) {
+        return isMicrosphereRedisInterceptorEnabled(getEnvironment());
     }
 
     /**
