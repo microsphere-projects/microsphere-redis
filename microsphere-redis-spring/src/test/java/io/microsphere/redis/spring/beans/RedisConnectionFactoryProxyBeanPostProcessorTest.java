@@ -17,15 +17,17 @@
 
 package io.microsphere.redis.spring.beans;
 
-import io.microsphere.redis.spring.AbstractRedisTest;
 import io.microsphere.redis.spring.config.RedisContextConfig;
+import io.microsphere.redis.spring.test.AbstractRedisTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 
 import java.lang.reflect.Proxy;
 import java.util.Map;
@@ -50,6 +52,9 @@ import static org.junit.jupiter.api.Assertions.assertSame;
                 RedisConnectionFactoryProxyBeanPostProcessorTest.class
         }
 )
+@TestPropertySource(
+        properties = "microsphere.redis.enabled=false"
+)
 class RedisConnectionFactoryProxyBeanPostProcessorTest extends AbstractRedisTest {
 
     @Autowired
@@ -71,7 +76,7 @@ class RedisConnectionFactoryProxyBeanPostProcessorTest extends AbstractRedisTest
         assertNotEquals(this.redisConnectionFactory, rawRedisConnectionFactory);
 
         DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
-        registerBean(beanFactory, beanName, this.redisConnectionFactory);
+        registerBean((BeanDefinitionRegistry) beanFactory, beanName, this.redisConnectionFactory);
         beanFactory.preInstantiateSingletons();
         rawRedisConnectionFactory = getRawRedisConnectionFactory(beanFactory, beanName);
         assertSame(this.redisConnectionFactory, rawRedisConnectionFactory);

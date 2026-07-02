@@ -114,4 +114,33 @@ Thank you for your contributions!
 ## Other Changes  
 - Bumped version to prepare for the next patch after publishing 0.1.7.  
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.1.7...0.1.8
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.1.7...0.1.8## v0.1.9
+
+# Release Notes for Version 0.1.9
+
+## New Features
+- Added Redis Spring Boot/Cloud integration modules. ([0f283b3](#))
+
+## Bug Fixes
+- Fixed bean registration type in proxy BPP test. ([57eea67](#))
+
+## Documentation
+- Updated version numbers in `README.md`. ([ba4130c](#))
+
+## Dependency Updates
+- Bumped `microsphere-spring-cloud` dependency to version 0.1.21. ([851c638](#))
+
+## Code Cleanup
+- Trimmed stale Redis feature metadata. ([9330814](#))
+- Removed generator module from reactor. ([a8ffe9b](#))
+- Cleaned up unused imports. ([3341585](#))
+
+## Other Changes
+- Merged `release-1.x` into `dev-1.x`. ([d9adc82](#))
+- Bumped version to next patch after publishing 0.1.8. ([e93620a](#))
+
+---
+
+**Note**: For a detailed commit history, refer to the full changelog.
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.1.8...0.1.9

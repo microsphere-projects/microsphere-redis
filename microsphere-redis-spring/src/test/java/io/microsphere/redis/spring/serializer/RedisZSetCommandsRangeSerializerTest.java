@@ -53,7 +53,6 @@ class RedisZSetCommandsRangeSerializerTest extends AbstractSerializerTest<RedisZ
         test(() -> range().gt(1).lte(2));
     }
 
-
     @Test
     void testLt() {
         test(() -> range().lt(2));

@@ -18,6 +18,7 @@
 package io.microsphere.redis.spring.config;
 
 import io.microsphere.redis.spring.context.RedisContext;
+import io.microsphere.redis.spring.test.config.RedisConfig;
 import org.springframework.context.annotation.Bean;
 
 import static io.microsphere.redis.spring.context.RedisContext.BEAN_NAME;

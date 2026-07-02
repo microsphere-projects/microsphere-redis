@@ -18,13 +18,14 @@
 package io.microsphere.redis.spring.util;
 
 import io.microsphere.redis.spring.annotation.EnableRedisInterceptor;
-import io.microsphere.redis.spring.config.RedisConfig;
 import io.microsphere.redis.spring.config.RedisContextConfig;
 import io.microsphere.redis.spring.interceptor.EventPublishingRedisCommandInterceptor;
 import io.microsphere.redis.spring.interceptor.LoggingRedisCommandInterceptor;
 import io.microsphere.redis.spring.interceptor.RedisCommandInterceptor;
 import io.microsphere.redis.spring.interceptor.RedisConnectionInterceptor;
 import io.microsphere.redis.spring.interceptor.StopWatchRedisConnectionInterceptor;
+import io.microsphere.redis.spring.test.config.RedisConfig;
+import io.microsphere.spring.config.context.annotation.DefaultPropertiesPropertySource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -47,6 +48,7 @@ import static io.microsphere.redis.spring.util.RedisSpringUtils.getRawRedisConne
 import static io.microsphere.redis.spring.util.RedisSpringUtils.getWrappedRedisTemplateBeanNames;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.isMicrosphereRedisCommandEventExposed;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.isMicrosphereRedisEnabled;
+import static io.microsphere.spring.beans.BeanSource.BEAN_FACTORY;
 import static io.microsphere.spring.test.util.SpringTestUtils.testInSpringContainer;
 import static io.microsphere.util.ArrayUtils.ofArray;
 import static java.util.Collections.emptySet;
@@ -66,10 +68,11 @@ import static org.springframework.util.StringUtils.arrayToCommaDelimitedString;
  * @see RedisSpringUtils
  * @since 1.0.0
  */
-@PropertySource(
-        value = "classpath:/META-INF/test-redis.properties"
-)
-@EnableRedisInterceptor
+@PropertySource(value = {
+        "classpath:/META-INF/test-redis.properties",
+})
+@DefaultPropertiesPropertySource(properties = "microsphere.redis.enabled=false")
+@EnableRedisInterceptor(sources = BEAN_FACTORY)
 class RedisSpringUtilsTest {
 
     private static final String[] REDIS_TEMPLATE_BEAN_NAMES = ofArray(
@@ -101,10 +104,9 @@ class RedisSpringUtilsTest {
 
     @Test
     void testIsMicrosphereRedisEnabled() {
-        assertFalse(isMicrosphereRedisEnabled(this.environment));
-
-        this.environment.setProperty("microsphere.redis.enabled", "true");
         assertTrue(isMicrosphereRedisEnabled(this.environment));
+        this.environment.setProperty("microsphere.redis.enabled", "false");
+        assertFalse(isMicrosphereRedisEnabled(this.environment));
     }
 
     @Test

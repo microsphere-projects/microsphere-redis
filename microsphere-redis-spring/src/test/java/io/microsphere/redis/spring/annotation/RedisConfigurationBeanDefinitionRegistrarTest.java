@@ -18,14 +18,11 @@
 package io.microsphere.redis.spring.annotation;
 
 import io.microsphere.redis.spring.config.RedisConfiguration;
-import io.microsphere.redis.spring.event.PropagatingRedisConfigurationPropertyChangedEventApplicationListener;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 
 import static io.microsphere.redis.spring.config.RedisConfiguration.BEAN_NAME;
 import static io.microsphere.spring.beans.BeanUtils.isBeanPresent;
 import static io.microsphere.spring.test.util.SpringTestUtils.testInSpringContainer;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -43,20 +40,6 @@ class RedisConfigurationBeanDefinitionRegistrarTest {
         testInSpringContainer(context -> {
             assertTrue(isBeanPresent(context, RedisConfiguration.class));
             assertTrue(isBeanPresent(context, BEAN_NAME, RedisConfiguration.class));
-            assertTrue(isBeanPresent(context, PropagatingRedisConfigurationPropertyChangedEventApplicationListener.class));
         }, RedisConfigurationBeanDefinitionRegistrarTest.class);
-    }
-
-    @Test
-    void testRegisterApplicationListeners() {
-        RedisConfigurationBeanDefinitionRegistrar registrar = new RedisConfigurationBeanDefinitionRegistrar();
-        ClassLoader classLoader = ClassLoader.getSystemClassLoader().getParent();
-        registrar.setBeanClassLoader(classLoader);
-        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
-        registrar.registerApplicationListeners(beanFactory);
-
-        beanFactory.freezeConfiguration();
-        beanFactory.preInstantiateSingletons();
-        assertFalse(isBeanPresent(beanFactory, PropagatingRedisConfigurationPropertyChangedEventApplicationListener.class));
     }
 }

@@ -6,7 +6,7 @@
     <parent>
         <groupId>io.github.microsphere-projects</groupId>
         <artifactId>microsphere-spring-cloud-parent</artifactId>
-        <version>0.1.16</version>
+        <version>0.1.21</version>
     </parent>
 
     <groupId>io.github.microsphere-projects</groupId>
@@ -52,7 +52,7 @@
     </scm>
 
     <properties>
-        <revision>0.1.9-SNAPSHOT</revision>
+        <revision>0.1.10-SNAPSHOT</revision>
     </properties>
 
     <modules>
@@ -60,7 +60,10 @@
         <module>microsphere-redis-dependencies</module>
         <module>microsphere-redis-core</module>
         <module>microsphere-redis-spring</module>
+        <module>microsphere-redis-spring-test</module>
         <module>microsphere-redis-replicator-spring</module>
+        <module>microsphere-redis-spring-boot</module>
+        <module>microsphere-redis-spring-cloud</module>
     </modules>
 
     <profiles>

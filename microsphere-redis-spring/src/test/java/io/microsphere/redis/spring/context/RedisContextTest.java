@@ -17,13 +17,14 @@
 
 package io.microsphere.redis.spring.context;
 
-import io.microsphere.redis.spring.AbstractRedisTest;
 import io.microsphere.redis.spring.config.RedisConfiguration;
 import io.microsphere.redis.spring.config.RedisContextConfig;
+import io.microsphere.redis.spring.test.AbstractRedisTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 
 import static io.microsphere.collection.Sets.ofSet;
 import static io.microsphere.redis.spring.context.RedisContext.get;
@@ -44,6 +45,9 @@ import static org.junit.jupiter.api.Assertions.assertSame;
         RedisContextTest.class,
         RedisContextConfig.class
 })
+@TestPropertySource(
+        properties = "microsphere.redis.enabled=false"
+)
 class RedisContextTest extends AbstractRedisTest {
 
     @Autowired
