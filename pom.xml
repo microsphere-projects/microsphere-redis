@@ -59,7 +59,6 @@
         <module>microsphere-redis-parent</module>
         <module>microsphere-redis-dependencies</module>
         <module>microsphere-redis-core</module>
-        <module>microsphere-redis-generator</module>
         <module>microsphere-redis-spring</module>
         <module>microsphere-redis-spring-test</module>
         <module>microsphere-redis-replicator-spring</module>
