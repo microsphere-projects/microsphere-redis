@@ -20,10 +20,13 @@ import io.microsphere.redis.spring.context.RedisContext;
 import org.springframework.context.annotation.Import;
 
 import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Meta-annotation that enables the {@link RedisContext} infrastructure bean and transitively
@@ -43,9 +46,10 @@ import java.lang.annotation.Target;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
-@Target({ElementType.TYPE, ElementType.ANNOTATION_TYPE})
-@Retention(RetentionPolicy.RUNTIME)
+@Target({TYPE, ANNOTATION_TYPE})
+@Retention(RUNTIME)
 @Documented
+@Inherited
 @Import(RedisContextBeanDefinitionRegistrar.class)
 @EnableRedisConfiguration
 public @interface EnableRedisContext {

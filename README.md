@@ -62,8 +62,8 @@ pom.xml:
 
 | **Branches** | **Purpose**                                     | **Latest Version** |
 |--------------|-------------------------------------------------|--------------------|
-| **main**     | Compatible with Spring Data Redis 3.0.0 - 3.5.x | `0.2.9`            |
-| **1.x**      | Compatible with Spring Data Redis 2.1.0 - 2.7.x | `0.1.9`            |
+| **main**     | Compatible with Spring Data Redis 3.0.0 - 3.5.x | `0.2.10`           |
+| **1.x**      | Compatible with Spring Data Redis 2.1.0 - 2.7.x | `0.1.10`           |
 
 Then add the specific modules you need:
 
@@ -144,8 +144,12 @@ We welcome your contributions! Please read [Code of Conduct](./CODE_OF_CONDUCT.m
 
 ### JavaDoc
 
+- [microsphere-redis-core](https://javadoc.io/doc/io.github.microsphere-projects/microsphere-redis-core)
 - [microsphere-redis-spring](https://javadoc.io/doc/io.github.microsphere-projects/microsphere-redis-spring)
+- [microsphere-redis-spring-test](https://javadoc.io/doc/io.github.microsphere-projects/microsphere-redis-spring-test)
 - [microsphere-redis-replicator-spring](https://javadoc.io/doc/io.github.microsphere-projects/microsphere-redis-replicator-spring)
+- [microsphere-redis-spring-boot](https://javadoc.io/doc/io.github.microsphere-projects/microsphere-redis-spring-boot)
+- [microsphere-redis-spring-cloud](https://javadoc.io/doc/io.github.microsphere-projects/microsphere-redis-spring-cloud)
 
 ## License
 

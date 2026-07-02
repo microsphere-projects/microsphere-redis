@@ -143,4 +143,31 @@ Thank you for your contributions!
 
 **Note**: For a detailed commit history, refer to the full changelog.
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.1.8...0.1.9
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.1.8...0.1.9## v0.1.10
+
+# Release Notes for Version 0.1.10
+
+## New Features
+- Added support for enabling/disabling Redis interceptors via a shared toggle mechanism. (#6193096, #8449137, #3106a71)
+- Introduced `EnableRedisContext` and `EnableRedisConfiguration` annotations as inheritable. (#846788e, #0d872c8)
+
+## Bug Fixes
+- Ensured the Redis interceptor flag is honored during registration. (#fc93e70)
+
+## Documentation
+- Updated README with the latest version matrix. (#fab01f2) 
+- Improved JavaDocs for `ConditionalOnRedisAvailable` and README links. (#5c74941, #9bbd542)
+
+## Test Improvements
+- Added unit test for Redis interceptor enablement flag. (#455c1d3)
+
+## Other Changes
+- Refactored Redis interceptor registrar and initializer base class for clarity and maintainability. (#15b4253, #2a037ff)
+- Merged `release-1.x` changes into `dev-1.x`. (#70d7c8d)
+- Updated version to 0.1.10. (#c61722d)
+
+---
+
+**Full Changelog**: [0.1.9...0.1.10](https://github.com/mercyblitz/example-repo/compare/0.1.9...0.1.10)
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.1.9...0.1.10

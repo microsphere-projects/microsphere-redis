@@ -48,6 +48,7 @@ import static io.microsphere.redis.spring.util.RedisSpringUtils.getRawRedisConne
 import static io.microsphere.redis.spring.util.RedisSpringUtils.getWrappedRedisTemplateBeanNames;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.isMicrosphereRedisCommandEventExposed;
 import static io.microsphere.redis.spring.util.RedisSpringUtils.isMicrosphereRedisEnabled;
+import static io.microsphere.redis.spring.util.RedisSpringUtils.isMicrosphereRedisInterceptorEnabled;
 import static io.microsphere.spring.beans.BeanSource.BEAN_FACTORY;
 import static io.microsphere.spring.test.util.SpringTestUtils.testInSpringContainer;
 import static io.microsphere.util.ArrayUtils.ofArray;
@@ -115,6 +116,14 @@ class RedisSpringUtilsTest {
 
         this.environment.setProperty("microsphere.redis.command-event.exposed", "false");
         assertFalse(isMicrosphereRedisCommandEventExposed(this.environment));
+    }
+
+    @Test
+    void testIsMicrosphereRedisInterceptorEnabled() {
+        assertTrue(isMicrosphereRedisInterceptorEnabled(this.environment));
+
+        this.environment.setProperty("microsphere.redis.interceptor.enabled", "false");
+        assertFalse(isMicrosphereRedisInterceptorEnabled(this.environment));
     }
 
     @Test
