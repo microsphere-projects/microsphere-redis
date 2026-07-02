@@ -19,7 +19,6 @@ package io.microsphere.redis.spring.boot.autoconfigure.condition;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 
 import java.lang.annotation.Documented;
-import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
