@@ -130,7 +130,7 @@ public abstract class RedisSpringUtils implements Utils {
         return getBoolean(environment, MICROSPHERE_REDIS_COMMAND_EVENT_EXPOSED_PROPERTY_NAME,
                 DEFAULT_MICROSPHERE_REDIS_COMMAND_EVENT_EXPOSED, "Command Event", "exposed");
     }
-    
+
     /**
      * Test Microsphere Redis Interceptor enabled or not.
      *
