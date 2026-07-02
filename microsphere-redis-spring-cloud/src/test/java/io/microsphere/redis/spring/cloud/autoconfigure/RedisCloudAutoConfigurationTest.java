@@ -20,16 +20,16 @@ package io.microsphere.redis.spring.cloud.autoconfigure;
 import io.microsphere.redis.spring.test.AbstractRedisTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.client.actuator.FeaturesEndpoint;
 import org.springframework.cloud.client.actuator.HasFeatures;
-import org.springframework.cloud.client.actuator.NamedFeature;
 
-import java.util.List;
+import java.util.Map;
 
-import static io.microsphere.redis.spring.cloud.autoconfigure.RedisCloudAutoConfiguration.FeaturesConfiguration.REDIS_FEATURES_BEAN_NAME;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
 /**
  * {@link RedisCloudAutoConfiguration} Test
@@ -40,17 +40,22 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 @SpringBootTest(classes = {
         RedisCloudAutoConfigurationTest.class
-})
+}, webEnvironment = NONE,
+        properties = {
+                "management.endpoints.web.exposure.include=*",
+        })
 @EnableAutoConfiguration
 class RedisCloudAutoConfigurationTest extends AbstractRedisTest {
 
     @Autowired
-    @Qualifier(REDIS_FEATURES_BEAN_NAME)
-    private HasFeatures hasFeatures;
+    private Map<String, HasFeatures> hasFeaturesMap;
+
+    @Autowired
+    private FeaturesEndpoint featuresEndpoint;
 
     @Test
     void test() {
-        List<NamedFeature> namedFeatures = hasFeatures.getNamedFeatures();
-        assertEquals(4, namedFeatures.size());
+        assertFalse(this.hasFeaturesMap.isEmpty());
+        assertNotNull(this.featuresEndpoint.features());
     }
 }

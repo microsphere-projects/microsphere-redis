@@ -21,7 +21,6 @@ import io.microsphere.redis.spring.util.RedisConstants;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 import java.lang.annotation.Documented;
-import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
@@ -70,7 +69,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(TYPE)
 @Retention(RUNTIME)
 @Documented
-@Inherited
 @ConditionalOnRedisEnabled
 @ConditionalOnProperty(name = MICROSPHERE_REDIS_INTERCEPTOR_ENABLED_PROPERTY_NAME, matchIfMissing = true)
 public @interface ConditionalOnRedisInterceptorEnabled {

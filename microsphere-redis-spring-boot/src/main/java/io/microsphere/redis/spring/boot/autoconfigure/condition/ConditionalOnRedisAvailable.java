@@ -64,7 +64,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(TYPE)
 @Retention(RUNTIME)
 @Documented
-@Inherited
 @ConditionalOnRedisEnabled
 @ConditionalOnClass(name = "org.springframework.data.redis.connection.RedisConnection")
 public @interface ConditionalOnRedisAvailable {
