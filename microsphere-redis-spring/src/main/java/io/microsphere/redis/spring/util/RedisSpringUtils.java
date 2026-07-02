@@ -46,9 +46,11 @@ import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.util.RedisConstants.ALL_WRAPPED_REDIS_TEMPLATE_BEAN_NAMES;
 import static io.microsphere.redis.spring.util.RedisConstants.DEFAULT_MICROSPHERE_REDIS_COMMAND_EVENT_EXPOSED;
 import static io.microsphere.redis.spring.util.RedisConstants.DEFAULT_MICROSPHERE_REDIS_ENABLED;
+import static io.microsphere.redis.spring.util.RedisConstants.DEFAULT_MICROSPHERE_REDIS_INTERCEPTOR_ENABLED;
 import static io.microsphere.redis.spring.util.RedisConstants.DEFAULT_SPRING_APPLICATION_NAME_PROPERTY_VALUE;
 import static io.microsphere.redis.spring.util.RedisConstants.MICROSPHERE_REDIS_COMMAND_EVENT_EXPOSED_PROPERTY_NAME;
 import static io.microsphere.redis.spring.util.RedisConstants.MICROSPHERE_REDIS_ENABLED_PROPERTY_NAME;
+import static io.microsphere.redis.spring.util.RedisConstants.MICROSPHERE_REDIS_INTERCEPTOR_ENABLED_PROPERTY_NAME;
 import static io.microsphere.redis.spring.util.RedisConstants.SPRING_APPLICATION_NAME_PROPERTY_NAME;
 import static io.microsphere.redis.spring.util.RedisConstants.WRAPPED_REDIS_TEMPLATE_BEAN_NAMES_PROPERTY_NAME;
 import static io.microsphere.spring.beans.BeanUtils.getBeanNames;
@@ -127,6 +129,17 @@ public abstract class RedisSpringUtils implements Utils {
     public static boolean isMicrosphereRedisCommandEventExposed(Environment environment) {
         return getBoolean(environment, MICROSPHERE_REDIS_COMMAND_EVENT_EXPOSED_PROPERTY_NAME,
                 DEFAULT_MICROSPHERE_REDIS_COMMAND_EVENT_EXPOSED, "Command Event", "exposed");
+    }
+
+    /**
+     * Test Microsphere Redis Interceptor enabled or not.
+     *
+     * @param environment {@link Environment}
+     * @return <code>true</code> if enabled , or <code>false</code>
+     */
+    public static boolean isMicrosphereRedisInterceptorEnabled(Environment environment) {
+        return getBoolean(environment, MICROSPHERE_REDIS_INTERCEPTOR_ENABLED_PROPERTY_NAME,
+                DEFAULT_MICROSPHERE_REDIS_INTERCEPTOR_ENABLED, "Interceptor", "enabled");
     }
 
     /**
