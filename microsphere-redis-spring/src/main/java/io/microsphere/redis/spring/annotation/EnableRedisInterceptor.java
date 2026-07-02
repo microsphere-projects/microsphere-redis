@@ -28,12 +28,16 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import static io.microsphere.spring.beans.BeanSource.BEAN_FACTORY;
 import static io.microsphere.spring.beans.BeanSource.SPRING_FACTORIES;
+import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Meta-annotation that activates the Redis interceptor infrastructure, enabling transparent
@@ -71,9 +75,10 @@ import static io.microsphere.spring.beans.BeanSource.SPRING_FACTORIES;
  * @see RedisInterceptorBeanDefinitionRegistrar
  * @since 1.0.0
  */
-@Target({ElementType.TYPE, ElementType.ANNOTATION_TYPE})
-@Retention(RetentionPolicy.RUNTIME)
+@Target({TYPE, ANNOTATION_TYPE})
+@Retention(RUNTIME)
 @Documented
+@Inherited
 @EnableRedisContext
 @Import(RedisInterceptorBeanDefinitionRegistrar.class)
 public @interface EnableRedisInterceptor {
