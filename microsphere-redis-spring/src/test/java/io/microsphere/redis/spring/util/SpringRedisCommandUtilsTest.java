@@ -18,11 +18,11 @@
 package io.microsphere.redis.spring.util;
 
 import io.microsphere.redis.metadata.ParameterMetadata;
-import io.microsphere.redis.spring.config.RedisConfig;
 import io.microsphere.redis.spring.config.RedisContextConfig;
 import io.microsphere.redis.spring.context.RedisContext;
 import io.microsphere.redis.spring.event.RedisCommandEvent;
 import io.microsphere.redis.spring.interceptor.RedisMethodContext;
+import io.microsphere.redis.spring.test.config.RedisConfig;
 import io.microsphere.redis.util.RawValue;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.redis.connection.DefaultStringRedisConnection;
@@ -62,10 +62,10 @@ import org.springframework.data.redis.connection.StringRedisConnection;
 
 import java.lang.reflect.Method;
 
-import static io.microsphere.redis.spring.AbstractRedisTest.SET_METHOD;
-import static io.microsphere.redis.spring.AbstractRedisTest.SET_METHOD_ARGS;
-import static io.microsphere.redis.spring.AbstractRedisTest.SOURCE_BEAN_NAME_FOR_REDIS_TEMPLATE;
 import static io.microsphere.redis.spring.context.RedisContext.get;
+import static io.microsphere.redis.spring.test.AbstractRedisTest.SET_METHOD;
+import static io.microsphere.redis.spring.test.AbstractRedisTest.SET_METHOD_ARGS;
+import static io.microsphere.redis.spring.test.AbstractRedisTest.SOURCE_BEAN_NAME_FOR_REDIS_TEMPLATE;
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.REACTIVE_COMMANDS_INTERFACE_NAME_PREFIX;
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.REDIS_COMMANDS_EXECUTE_METHOD;
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.REDIS_COMMANDS_INTERFACE_NAME;

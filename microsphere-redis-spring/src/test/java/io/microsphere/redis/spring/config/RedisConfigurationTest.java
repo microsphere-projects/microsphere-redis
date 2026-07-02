@@ -17,8 +17,8 @@
 
 package io.microsphere.redis.spring.config;
 
-import io.microsphere.redis.spring.AbstractRedisTest;
 import io.microsphere.redis.spring.event.RedisConfigurationPropertyChangedEvent;
+import io.microsphere.redis.spring.test.AbstractRedisTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -51,7 +51,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 })
 @TestPropertySource(
         properties = {
-                "spring.application.name=test-service"
+                "spring.application.name=test-service",
+                "microsphere.redis.enabled=false"
         }
 )
 class RedisConfigurationTest extends AbstractRedisTest {
