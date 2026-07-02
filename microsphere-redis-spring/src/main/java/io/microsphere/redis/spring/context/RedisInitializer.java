@@ -1,6 +1,7 @@
 package io.microsphere.redis.spring.context;
 
 import io.microsphere.logging.Logger;
+import io.microsphere.spring.context.ConfigurableApplicationContextInitializer;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ApplicationContextInitializer;
@@ -42,7 +43,7 @@ import static org.springframework.core.io.support.SpringFactoriesLoader.loadFact
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @since 1.0.0
  */
-public class RedisInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+public class RedisInitializer extends ConfigurableApplicationContextInitializer {
 
     static {
         init();
@@ -51,28 +52,26 @@ public class RedisInitializer implements ApplicationContextInitializer<Configura
     private static final Logger logger = getLogger(RedisInitializer.class);
 
     @Override
-    public void initialize(ConfigurableApplicationContext context) {
-        if (supports(context)) {
-            ClassLoader classLoader = context.getClassLoader();
-            // Load RedisModuleInitializer list
-            List<RedisModuleInitializer> redisModuleInitializers = loadFactories(RedisModuleInitializer.class, classLoader);
-            // Sort RedisModuleInitializer list
-            sort(redisModuleInitializers);
-            ConfigurableListableBeanFactory beanFactory = context.getBeanFactory();
-            BeanDefinitionRegistry registry = (BeanDefinitionRegistry) beanFactory;
-            for (RedisModuleInitializer redisModuleInitializer : redisModuleInitializers) {
-                boolean supports = redisModuleInitializer.supports(context, registry);
-                logger.trace("ApplicationContext[id : '{}'] {} support to initialize RedisModuleInitializer[class : {} , order : {}]",
-                        context.getId(), supports ? "does" : "does not", redisModuleInitializer.getClass(), redisModuleInitializer.getOrder());
-                if (supports) {
-                    redisModuleInitializer.initialize(context, registry);
-                }
+    protected void initialize(ConfigurableApplicationContext context, ConfigurableEnvironment environment) {
+        ClassLoader classLoader = context.getClassLoader();
+        // Load RedisModuleInitializer list
+        List<RedisModuleInitializer> redisModuleInitializers = loadFactories(RedisModuleInitializer.class, classLoader);
+        // Sort RedisModuleInitializer list
+        sort(redisModuleInitializers);
+        ConfigurableListableBeanFactory beanFactory = context.getBeanFactory();
+        BeanDefinitionRegistry registry = (BeanDefinitionRegistry) beanFactory;
+        for (RedisModuleInitializer redisModuleInitializer : redisModuleInitializers) {
+            boolean supports = redisModuleInitializer.supports(context, registry);
+            logger.trace("ApplicationContext[id : '{}'] {} support to initialize RedisModuleInitializer[class : {} , order : {}]",
+                    context.getId(), supports ? "does" : "does not", redisModuleInitializer.getClass(), redisModuleInitializer.getOrder());
+            if (supports) {
+                redisModuleInitializer.initialize(context, registry);
             }
         }
     }
 
-    private boolean supports(ConfigurableApplicationContext context) {
-        ConfigurableEnvironment environment = context.getEnvironment();
+    @Override
+    protected boolean isEnabled(ConfigurableApplicationContext context, ConfigurableEnvironment environment) {
         if (!isMicrosphereRedisEnabled(environment)) {
             return false;
         }
