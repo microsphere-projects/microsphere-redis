@@ -1,2 +1,0 @@
-org.springframework.context.ApplicationContextInitializer=\
-io.microsphere.redis.spring.context.RedisInitializer

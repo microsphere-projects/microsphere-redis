@@ -19,28 +19,9 @@ package io.microsphere.redis.spring.cloud.autoconfigure;
 
 import io.microsphere.redis.spring.boot.autoconfigure.condition.ConditionalOnRedisAvailable;
 import io.microsphere.redis.spring.cloud.event.PropagatingRedisConfigurationPropertyChangedEventApplicationListener;
-import io.microsphere.redis.spring.interceptor.RedisCommandInterceptor;
-import io.microsphere.redis.spring.interceptor.RedisConnectionInterceptor;
-import io.microsphere.spring.cloud.client.condition.ConditionalOnFeaturesAvailable;
-import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.cloud.client.actuator.HasFeatures;
-import org.springframework.cloud.client.actuator.NamedFeature;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
-
-import java.util.List;
-import java.util.Set;
-
-import static io.microsphere.collection.ListUtils.newArrayList;
-import static io.microsphere.collection.SetUtils.of;
-import static io.microsphere.redis.spring.util.RedisConstants.MICROSPHERE_REDIS_PROPERTY_NAME_PREFIX;
-import static io.microsphere.spring.beans.BeanUtils.isBeanPresent;
-import static java.util.Collections.emptyList;
 
 /**
  * The Auto-{@link Configuration} for MyBatis Spring Cloud
@@ -65,40 +46,7 @@ import static java.util.Collections.emptyList;
         "org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration"
 })
 @Import(value = {
-        RedisCloudAutoConfiguration.FeaturesConfiguration.class,
         PropagatingRedisConfigurationPropertyChangedEventApplicationListener.class
 })
 public class RedisCloudAutoConfiguration {
-
-    @ConditionalOnFeaturesAvailable
-    public static class FeaturesConfiguration {
-
-        /**
-         * The bean name of {@link HasFeatures}
-         *
-         * @see #redisFeatures(ListableBeanFactory)
-         */
-        public final static String REDIS_FEATURES_BEAN_NAME = "redisFeatures";
-
-        private static Set<Class<?>> typeFeatures = of(
-                RedisTemplate.class,
-                StringRedisTemplate.class,
-                RedisConnectionFactory.class,
-                RedisCommandInterceptor.class,
-                RedisConnectionInterceptor.class
-        );
-
-        @Bean(name = REDIS_FEATURES_BEAN_NAME)
-        public HasFeatures redisFeatures(ListableBeanFactory beanFactory) {
-            List<NamedFeature> namedFeatures = newArrayList(typeFeatures.size());
-            for (Class<?> type : typeFeatures) {
-
-                if (isBeanPresent(beanFactory, type)) {
-                    String name = MICROSPHERE_REDIS_PROPERTY_NAME_PREFIX + type.getSimpleName();
-                    namedFeatures.add(new NamedFeature(name, type));
-                }
-            }
-            return new HasFeatures(emptyList(), namedFeatures);
-        }
-    }
 }
