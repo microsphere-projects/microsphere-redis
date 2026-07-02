@@ -144,8 +144,12 @@ We welcome your contributions! Please read [Code of Conduct](./CODE_OF_CONDUCT.m
 
 ### JavaDoc
 
+- [microsphere-redis-core](https://javadoc.io/doc/io.github.microsphere-projects/microsphere-redis-core)
 - [microsphere-redis-spring](https://javadoc.io/doc/io.github.microsphere-projects/microsphere-redis-spring)
+- [microsphere-redis-spring-test](https://javadoc.io/doc/io.github.microsphere-projects/microsphere-redis-spring-test)
 - [microsphere-redis-replicator-spring](https://javadoc.io/doc/io.github.microsphere-projects/microsphere-redis-replicator-spring)
+- [microsphere-redis-spring-boot](https://javadoc.io/doc/io.github.microsphere-projects/microsphere-redis-spring-boot)
+- [microsphere-redis-spring-cloud](https://javadoc.io/doc/io.github.microsphere-projects/microsphere-redis-spring-cloud)
 
 ## License
 
