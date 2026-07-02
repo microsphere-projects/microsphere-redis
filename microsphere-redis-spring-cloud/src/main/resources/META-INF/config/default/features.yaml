@@ -8,8 +8,6 @@ microsphere:
             - org.springframework.data.redis.core.StringRedisTemplate
             - org.springframework.data.redis.core.ReactiveRedisTemplate
             - org.springframework.data.redis.core.ReactiveStringRedisTemplate
-            - org.springframework.data.redis.connection.RedisConnectionFactory
-            - org.springframework.data.redis.connection.ReactiveRedisConnectionFactory
             - org.springframework.data.redis.connection.RedisConfiguration
             - org.springframework.data.redis.cache.RedisCacheManager
             - org.springframework.data.redis.cache.RedisCacheConfiguration
@@ -19,10 +17,6 @@ microsphere:
             - org.springframework.boot.autoconfigure.data.redis.ClientResourcesBuilderCustomizer
             - org.springframework.boot.autoconfigure.data.redis.JedisClientConfigurationBuilderCustomizer
             - org.springframework.boot.autoconfigure.data.redis.LettuceClientConfigurationBuilderCustomizer
-            ## Spring Boot 3.4+
-            - org.springframework.boot.autoconfigure.data.redis.LettuceClientOptionsBuilderCustomizer
-            ## Spring Boot 3.1+
-            - org.springframework.boot.autoconfigure.data.redis.RedisConnectionDetails
           microsphere-redis-spring:
             - io.microsphere.redis.spring.config.RedisConfiguration
             - io.microsphere.redis.spring.context.RedisContext
@@ -50,7 +44,6 @@ microsphere:
             RedisZSetCommandsRangeSerializer: io.microsphere.redis.spring.serializer.RedisZSetCommandsRangeSerializer
             ShortSerializer: io.microsphere.redis.spring.serializer.ShortSerializer
             SortParametersSerializer: io.microsphere.redis.spring.serializer.SortParametersSerializer
-            WeightsSerializer: io.microsphere.redis.spring.serializer.WeightsSerializer
           microsphere-redis-spring-boot:
             ConditionalOnRedisAvailable: io.microsphere.redis.spring.boot.autoconfigure.condition.ConditionalOnRedisAvailable
             ConditionalOnRedisEnabled: io.microsphere.redis.spring.boot.autoconfigure.condition.ConditionalOnRedisEnabled
