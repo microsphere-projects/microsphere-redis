@@ -19,6 +19,7 @@ package io.microsphere.redis.spring.annotation;
 import io.microsphere.redis.spring.beans.RedisConnectionFactoryProxyBeanPostProcessor;
 import io.microsphere.redis.spring.beans.RedisTemplateWrapperBeanPostProcessor;
 import io.microsphere.redis.spring.beans.WrapperProcessors;
+import io.microsphere.redis.spring.context.RedisInterceptorModuleInitializer;
 import io.microsphere.redis.spring.interceptor.EventPublishingRedisCommandInterceptor;
 import io.microsphere.redis.spring.interceptor.RedisCommandInterceptor;
 import io.microsphere.redis.spring.interceptor.RedisConnectionInterceptor;
@@ -86,6 +87,11 @@ class RedisInterceptorBeanDefinitionRegistrar extends AnnotatedBeanCapableImport
         Set<String> wrapRedisTemplateBeanNames = getWrappedRedisTemplateBeanNames(this.beanFactory, this.environment, wrapRedisTemplates);
 
         registerBeanDefinitions(wrapRedisTemplateBeanNames, exposeCommandEvent, sources, registry);
+    }
+
+    @Override
+    protected boolean isEnabled(AnnotationMetadata metadata) {
+        return RedisInterceptorModuleInitializer.isEnabled(getEnvironment());
     }
 
     /**

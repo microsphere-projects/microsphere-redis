@@ -6,6 +6,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotatedBeanDefinitionReader;
 import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.Environment;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.redis.spring.util.RedisConstants.DEFAULT_MICROSPHERE_REDIS_INTERCEPTOR_ENABLED;
@@ -62,10 +63,10 @@ public class RedisInterceptorModuleInitializer implements RedisModuleInitializer
     /**
      * Return {@code true} if the Redis interceptor is enabled, otherwise {@code false}.
      *
-     * @param environment the {@link ConfigurableEnvironment} to use
+     * @param environment the {@link Environment} to use
      * @return {@code true} if the Redis interceptor is enabled, otherwise {@code false}
      */
-    public static boolean isEnabled(ConfigurableEnvironment environment) {
+    public static boolean isEnabled(Environment environment) {
         String propertyName = MICROSPHERE_REDIS_INTERCEPTOR_ENABLED_PROPERTY_NAME;
         boolean enabled = environment.getProperty(propertyName, boolean.class, DEFAULT_MICROSPHERE_REDIS_INTERCEPTOR_ENABLED);
         logger.trace("Microsphere Redis Interceptor is '{}'", enabled ? "Enabled" : "Disabled");
