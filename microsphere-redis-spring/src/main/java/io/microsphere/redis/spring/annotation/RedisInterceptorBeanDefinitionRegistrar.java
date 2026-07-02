@@ -24,10 +24,11 @@ import io.microsphere.redis.spring.interceptor.EventPublishingRedisCommandInterc
 import io.microsphere.redis.spring.interceptor.RedisCommandInterceptor;
 import io.microsphere.redis.spring.interceptor.RedisConnectionInterceptor;
 import io.microsphere.spring.beans.BeanSource;
-import io.microsphere.spring.context.annotation.BeanCapableImportCandidate;
+import io.microsphere.spring.context.annotation.AnnotatedBeanCapableImportBeanDefinitionRegistrar;
 import io.microsphere.spring.core.annotation.ResolvablePlaceholderAnnotationAttributes;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.BeanNameGenerator;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.type.AnnotationMetadata;
 
@@ -72,13 +73,14 @@ import static org.springframework.util.CollectionUtils.isEmpty;
  * @see EnableRedisInterceptor
  * @since 1.0.0
  */
-class RedisInterceptorBeanDefinitionRegistrar extends BeanCapableImportCandidate implements ImportBeanDefinitionRegistrar {
+class RedisInterceptorBeanDefinitionRegistrar extends AnnotatedBeanCapableImportBeanDefinitionRegistrar<EnableRedisInterceptor> {
 
     private static final Logger logger = getLogger(RedisInterceptorBeanDefinitionRegistrar.class);
 
     @Override
-    public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
-        ResolvablePlaceholderAnnotationAttributes<EnableRedisInterceptor> attributes = getAnnotationAttributes(metadata, EnableRedisInterceptor.class);
+    protected void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry,
+                                           BeanNameGenerator importBeanNameGenerator,
+                                           ResolvablePlaceholderAnnotationAttributes<EnableRedisInterceptor> attributes) {
         String[] wrapRedisTemplates = attributes.getStringArray("wrapRedisTemplates");
         boolean exposeCommandEvent = attributes.getBoolean("exposeCommandEvent");
         BeanSource[] sources = (BeanSource[]) attributes.get("sources");
@@ -101,8 +103,8 @@ class RedisInterceptorBeanDefinitionRegistrar extends BeanCapableImportCandidate
      * @param sources                       the sources that will be used to register the beans of Interceptor
      * @param registry                      the Spring bean-definition registry to register beans into
      */
-    public void registerBeanDefinitions(Set<String> wrappedRedisTemplateBeanNames, boolean exposedCommandEvent,
-                                        BeanSource[] sources, BeanDefinitionRegistry registry) {
+    protected void registerBeanDefinitions(Set<String> wrappedRedisTemplateBeanNames, boolean exposedCommandEvent,
+                                           BeanSource[] sources, BeanDefinitionRegistry registry) {
 
         if (isEmpty(wrappedRedisTemplateBeanNames)) {
             addRedisConnectionFactoryProxyBeanPostProcessor(registry);
