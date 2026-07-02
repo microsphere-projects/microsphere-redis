@@ -43,10 +43,7 @@ public class RedisInterceptorModuleInitializer implements RedisModuleInitializer
     @Override
     public boolean supports(ConfigurableApplicationContext context, BeanDefinitionRegistry registry) {
         ConfigurableEnvironment environment = context.getEnvironment();
-        String propertyName = MICROSPHERE_REDIS_INTERCEPTOR_ENABLED_PROPERTY_NAME;
-        boolean enabled = environment.getProperty(propertyName, boolean.class, DEFAULT_MICROSPHERE_REDIS_INTERCEPTOR_ENABLED);
-        logger.trace("Microsphere Redis Interceptor is '{}'", enabled ? "Enabled" : "Disabled");
-        return enabled;
+        return isEnabled(environment);
     }
 
     @Override
@@ -60,6 +57,19 @@ public class RedisInterceptorModuleInitializer implements RedisModuleInitializer
     @Override
     public int getOrder() {
         return HIGHEST_PRECEDENCE;
+    }
+
+    /**
+     * Return {@code true} if the Redis interceptor is enabled, otherwise {@code false}.
+     *
+     * @param environment the {@link ConfigurableEnvironment} to use
+     * @return {@code true} if the Redis interceptor is enabled, otherwise {@code false}
+     */
+    public static boolean isEnabled(ConfigurableEnvironment environment) {
+        String propertyName = MICROSPHERE_REDIS_INTERCEPTOR_ENABLED_PROPERTY_NAME;
+        boolean enabled = environment.getProperty(propertyName, boolean.class, DEFAULT_MICROSPHERE_REDIS_INTERCEPTOR_ENABLED);
+        logger.trace("Microsphere Redis Interceptor is '{}'", enabled ? "Enabled" : "Disabled");
+        return enabled;
     }
 
     @EnableRedisInterceptor(wrapRedisTemplates = DEFAULT_WRAP_REDIS_TEMPLATE_PLACEHOLDER)
