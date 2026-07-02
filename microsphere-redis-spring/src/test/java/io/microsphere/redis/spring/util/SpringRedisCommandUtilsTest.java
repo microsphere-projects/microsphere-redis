@@ -62,10 +62,10 @@ import org.springframework.data.redis.connection.StringRedisConnection;
 
 import java.lang.reflect.Method;
 
+import static io.microsphere.redis.spring.context.RedisContext.get;
 import static io.microsphere.redis.spring.test.AbstractRedisTest.SET_METHOD;
 import static io.microsphere.redis.spring.test.AbstractRedisTest.SET_METHOD_ARGS;
 import static io.microsphere.redis.spring.test.AbstractRedisTest.SOURCE_BEAN_NAME_FOR_REDIS_TEMPLATE;
-import static io.microsphere.redis.spring.context.RedisContext.get;
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.REACTIVE_COMMANDS_INTERFACE_NAME_PREFIX;
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.REDIS_COMMANDS_EXECUTE_METHOD;
 import static io.microsphere.redis.spring.util.SpringRedisCommandUtils.REDIS_COMMANDS_INTERFACE_NAME;
