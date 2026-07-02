@@ -64,6 +64,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Documented
 @ConditionalOnRedisEnabled
-@ConditionalOnClass(name = "org.springframework.data.redis.connection.RedisConnection")
+@ConditionalOnClass(name = {
+        "org.springframework.data.redis.connection.RedisConnection",      // Spring Data Redis API
+        "io.microsphere.redis.metadata.RedisMetadataLoader",              // Microsphere Redis Core API
+        "io.microsphere.redis.spring.interceptor.RedisMethodInterceptor", // Microsphere Redis Spring API
+})
 public @interface ConditionalOnRedisAvailable {
 }
