@@ -114,4 +114,34 @@ For a full history of changes, please refer to the [changelog](https://example.c
 
 **Note:** This release primarily includes dependency updates and preparatory version bumps.
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.2.7...0.2.8
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.2.7...0.2.8## v0.2.9
+
+# Release Notes for Version 0.2.9
+
+## 🚀 New Features
+- **Redis Support**:  
+  - Added Redis Spring Boot and Spring Cloud modules.  
+  - Introduced a Redis Cloud listener and refactored auto-configuration.  
+  - Added `microsphere-redis-spring-test` module for Redis testing.  
+  - Enabled Redis by default and updated related tests and POMs.  
+  - Replaced MyBatis tests with Redis equivalents.  
+  - Externalized Redis feature metadata to YAML for easier configuration.  
+
+## 🐞 Bug Fixes
+- Fixed bean registration test casting issue.  
+
+## 📚 Documentation Updates
+- Updated README to include new modules and versions.  
+
+## 🔧 Dependency Updates
+- Upgraded Spring Cloud parent to version `0.2.21`.  
+
+## 🧪 Test Improvements
+- Updated expected feature count in tests to reflect Redis changes.  
+
+## ⚙️ Build and Workflow Enhancements
+- Removed optional Mockito dependency to streamline dependencies.  
+
+---
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.2.8...0.2.9
