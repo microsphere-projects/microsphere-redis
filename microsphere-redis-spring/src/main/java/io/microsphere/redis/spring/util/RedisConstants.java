@@ -147,7 +147,7 @@ public interface RedisConstants {
     String DEFAULT_WRAPPED_REDIS_TEMPLATE_BEAN_NAMES_PROPERTY_VALUE = "*";
 
     /**
-     * Wrapped {@link RedisTemplate} list of Spring Bean names : "microsphere.redis.wrapped-redis-templates"
+     * The property name of the wrapped {@link RedisTemplate} list of Spring Bean names : "microsphere.redis.wrapped-redis-templates"
      */
     @ConfigurationProperty(
             type = String[].class,
