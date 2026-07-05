@@ -66,7 +66,7 @@ public interface RedisConstants {
     String DEFAULT_SPRING_APPLICATION_NAME_PROPERTY_VALUE = "application";
 
     /**
-     * The property name of Spring Application Name.
+     * The property name of Spring Application Name : "spring.application.name"
      */
     @ConfigurationProperty(
             defaultValue = DEFAULT_SPRING_APPLICATION_NAME_PROPERTY_VALUE,
@@ -82,7 +82,7 @@ public interface RedisConstants {
     String DEFAULT_MICROSPHERE_REDIS_ENABLED_PROPERTY_VALUE = "true";
 
     /**
-     * The property name of Microsphere Redis enabled in Spring.
+     * The property name of Microsphere Redis enabled in Spring : "microsphere.redis.enabled"
      */
     @ConfigurationProperty(
             type = boolean.class,
@@ -107,7 +107,7 @@ public interface RedisConstants {
     String DEFAULT_MICROSPHERE_REDIS_COMMAND_EVENT_EXPOSED_PROPERTY_VALUE = "true";
 
     /**
-     * The property name of {@link RedisCommandEvent} exposed in Spring.
+     * The property name of {@link RedisCommandEvent} exposed in Spring : "microsphere.redis.command-event.exposed"
      */
     @ConfigurationProperty(
             type = boolean.class,
@@ -127,7 +127,7 @@ public interface RedisConstants {
     String DEFAULT_MICROSPHERE_REDIS_FAIL_FAST_ENABLED_PROPERTY_VALUE = "true";
 
     /**
-     * The property name of Microsphere Redis fail-fast enabled.
+     * The property name of Microsphere Redis fail-fast enabled : "microsphere.redis.fail-fast"
      */
     @ConfigurationProperty(
             type = boolean.class,
@@ -147,7 +147,7 @@ public interface RedisConstants {
     String DEFAULT_WRAPPED_REDIS_TEMPLATE_BEAN_NAMES_PROPERTY_VALUE = "*";
 
     /**
-     * Wrapped {@link RedisTemplate} list of Spring Bean names.
+     * Wrapped {@link RedisTemplate} list of Spring Bean names : "microsphere.redis.wrapped-redis-templates"
      */
     @ConfigurationProperty(
             type = String[].class,
@@ -172,7 +172,7 @@ public interface RedisConstants {
     String DEFAULT_MICROSPHERE_REDIS_INTERCEPTOR_ENABLED_PROPERTY_VALUE = "true";
 
     /**
-     * The property name of Redis Interceptor enabled in Spring.
+     * The property name of Redis Interceptor enabled in Spring : "microsphere.redis.interceptor.enabled"
      */
     @ConfigurationProperty(
             type = boolean.class,
