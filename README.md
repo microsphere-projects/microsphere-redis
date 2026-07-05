@@ -65,8 +65,8 @@ pom.xml:
 
 | **Branches** | **Purpose**                                     | **Latest Version** |
 |--------------|-------------------------------------------------|--------------------|
-| **main**     | Compatible with Spring Data Redis 3.0.0 - 3.5.x | `0.2.10`           |
-| **1.x**      | Compatible with Spring Data Redis 2.1.0 - 2.7.x | `0.1.10`           |
+| **main**     | Compatible with Spring Data Redis 3.0.0 - 3.5.x | `0.2.11`           |
+| **1.x**      | Compatible with Spring Data Redis 2.1.0 - 2.7.x | `0.1.11`           |
 
 Then add the specific modules you need:
 
