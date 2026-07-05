@@ -32,7 +32,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * {@link org.springframework.boot.autoconfigure.condition.ConditionalOnClass} to ensure
  * that Redis is explicitly enabled and the required Redis classes are present on the classpath.
  *
- * <h3>Usage Example</h3>
+ * <h3>Example Usage</h3>
  * <pre>{@code
  * @Configuration
  * @ConditionalOnRedisAvailable
