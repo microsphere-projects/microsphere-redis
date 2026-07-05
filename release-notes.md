@@ -144,4 +144,37 @@ For a full history of changes, please refer to the [changelog](https://example.c
 
 ---
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.2.8...0.2.9
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.2.8...0.2.9## v0.2.10
+
+# Release Notes - Version 0.2.10
+
+## New Features
+- Introduced shared Redis interceptor enablement checks for streamlined configuration. ([#458070a](#))
+- Added `RedisSpringUtils` helper for managing Redis interceptor toggles. ([#e2ee381](#))
+- Enabled inheritance for Redis-related annotations: `EnableRedisInterceptor`, `EnableRedisConfiguration`, and Redis context annotations. ([#f898b78](#), [#88c5c0f](#), [#ac6cafc](#))
+
+## Bug Fixes
+- Removed unused imports and loggers to improve code cleanliness. ([#3e23bf3](#), [#9eff240](#), [#56a5ffd](#))
+- Ensured Redis support classes are properly required for related configurations. ([#91a0ec1](#))
+
+## Test Improvements
+- Added specific test cases to validate Redis interceptor toggle functionality. ([#cede24b](#))
+
+## Documentation
+- Updated README with revised branch version matrix information. ([#c05f76e](#))
+- Improved Javadoc comments for `ConditionalOnRedisAvailable` annotation. ([#a58fc82](#))
+
+## Build and Workflow Enhancements
+- Routine merges between `main` and `release` branches. ([#9a4f575](#), [#cb0c6bc](#), [#ea249e8](#))
+- Bumped version to prepare for the next patch release. ([#a1de953](#))
+
+## Other Changes
+- Refactored base classes for Redis initializers and registrars to improve modularity. ([#4e8a7ae](#), [#1ca6383](#))
+- Cleaned up redundant whitespace in `RedisSpringUtils`. ([#173f529](#))
+- Added gating for Redis interceptor registrar based on configuration. ([#692e99d](#))
+
+---
+
+**Note**: For the complete list of changes, refer to the [Full Changelog](#).
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.2.9...0.2.10
