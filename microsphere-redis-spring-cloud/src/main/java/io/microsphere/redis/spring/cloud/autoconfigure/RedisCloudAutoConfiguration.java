@@ -44,10 +44,10 @@ import org.springframework.context.annotation.Import;
  */
 @ConditionalOnRedisAvailable
 @ConditionalOnClass(name = {
-        "org.springframework.cloud.context.environment.EnvironmentChangeEvent"
+        "org.springframework.cloud.context.environment.EnvironmentChangeEvent"         // Spring Cloud Context API
 })
 @AutoConfigureAfter(name = {
-        "org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration"
+        "org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration"     // Spring Boot [2.0, 4.0)
 })
 @Import(value = {
         PropagatingRedisConfigurationPropertyChangedEventApplicationListener.class
