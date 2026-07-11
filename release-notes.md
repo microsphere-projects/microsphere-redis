@@ -205,4 +205,18 @@ For a full history of changes, please refer to the [changelog](https://example.c
 
 ---
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.2.10...0.2.11
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.2.10...0.2.11## v0.2.12
+
+# Release Notes - Version 0.2.12
+
+## Dependency Updates
+- Bumped `microsphere-spring-cloud` to version 0.2.24.
+
+## Documentation
+- Updated README to reflect the correct branch version numbers.
+
+## Build and Workflow Enhancements
+- Merged `main` into `release` and `release` into `main` to synchronize branches. [skip ci]
+- Bumped version to prepare for the next patch release after 0.2.11.
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.2.11...0.2.12
