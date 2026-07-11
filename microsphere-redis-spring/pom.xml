@@ -20,25 +20,6 @@
 
     <dependencies>
 
-        <!-- Servlet API -->
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <optional>true</optional>
-        </dependency>
-
-        <!-- Microsphere -->
-        <dependency>
-            <groupId>io.github.microsphere-projects</groupId>
-            <artifactId>microsphere-redis-core</artifactId>
-            <version>${revision}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.github.microsphere-projects</groupId>
-            <artifactId>microsphere-spring-context</artifactId>
-        </dependency>
-
         <!-- Microsphere Annotation Processor -->
         <dependency>
             <groupId>io.github.microsphere-projects</groupId>
@@ -46,10 +27,31 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- Redis -->
+        <!-- Microsphere Redis Core -->
+        <dependency>
+            <groupId>io.github.microsphere-projects</groupId>
+            <artifactId>microsphere-redis-core</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <!-- Microsphere Spring Context -->
+        <dependency>
+            <groupId>io.github.microsphere-projects</groupId>
+            <artifactId>microsphere-spring-context</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Spring Data Redis -->
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-redis</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Servlet API -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
             <optional>true</optional>
         </dependency>
 
@@ -66,6 +68,7 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Spring Test -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
@@ -77,6 +80,13 @@
             <groupId>io.github.microsphere-projects</groupId>
             <artifactId>microsphere-redis-spring-test</artifactId>
             <version>${revision}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Microsphere Spring Test -->
+        <dependency>
+            <groupId>io.github.microsphere-projects</groupId>
+            <artifactId>microsphere-spring-test</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -94,6 +104,7 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Commons Pool -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-pool2</artifactId>

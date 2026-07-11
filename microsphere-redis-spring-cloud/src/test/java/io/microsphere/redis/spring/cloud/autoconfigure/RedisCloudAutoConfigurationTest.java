@@ -17,18 +17,17 @@
 
 package io.microsphere.redis.spring.cloud.autoconfigure;
 
-import io.microsphere.redis.spring.test.AbstractRedisTest;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+
+import io.microsphere.redis.metadata.RedisMetadataLoader;
+import io.microsphere.redis.spring.cloud.event.PropagatingRedisConfigurationPropertyChangedEventApplicationListener;
+import io.microsphere.redis.spring.interceptor.RedisMethodInterceptor;
+import io.microsphere.spring.boot.test.AutoConfigurationTest;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.client.actuator.FeaturesEndpoint;
-import org.springframework.cloud.client.actuator.HasFeatures;
+import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
+import org.springframework.data.redis.connection.RedisConnection;
 
-import java.util.Map;
+import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
 /**
@@ -38,24 +37,29 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
  * @see RedisCloudAutoConfiguration
  * @since 1.0.0
  */
-@SpringBootTest(classes = {
-        RedisCloudAutoConfigurationTest.class
-}, webEnvironment = NONE,
-        properties = {
-                "management.endpoints.web.exposure.include=*",
-        })
-@EnableAutoConfiguration
-class RedisCloudAutoConfigurationTest extends AbstractRedisTest {
+@SpringBootTest(
+        classes = {
+                RedisCloudAutoConfigurationTest.class
+        },
+        webEnvironment = NONE
+)
+class RedisCloudAutoConfigurationTest extends AutoConfigurationTest<RedisCloudAutoConfiguration> {
 
-    @Autowired
-    private Map<String, HasFeatures> hasFeaturesMap;
+    @Override
+    protected void configureAutoConfiguredClasses(Set<Class<?>> autoConfiguredClasses) {
+        autoConfiguredClasses.add(PropagatingRedisConfigurationPropertyChangedEventApplicationListener.class);
+    }
 
-    @Autowired
-    private FeaturesEndpoint featuresEndpoint;
+    @Override
+    protected void configureGlobalDisabledPropertyValues(Set<String> globalDisabledPropertyValues) {
+        globalDisabledPropertyValues.add("microsphere.redis.enabled=false");
+    }
 
-    @Test
-    void test() {
-        assertFalse(this.hasFeaturesMap.isEmpty());
-        assertNotNull(this.featuresEndpoint.features());
+    @Override
+    protected void configureGlobalMissingClasses(Set<Class<?>> globalMissingClasses) {
+        globalMissingClasses.add(RedisConnection.class);
+        globalMissingClasses.add(RedisMetadataLoader.class);
+        globalMissingClasses.add(RedisMethodInterceptor.class);
+        globalMissingClasses.add(EnvironmentChangeEvent.class);
     }
 }

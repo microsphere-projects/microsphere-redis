@@ -22,6 +22,13 @@
 
     <dependencies>
 
+        <!-- Microsphere Annotation Processor -->
+        <dependency>
+            <groupId>io.github.microsphere-projects</groupId>
+            <artifactId>microsphere-annotation-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
         <!-- Microsphere Redis -->
         <dependency>
             <groupId>io.github.microsphere-projects</groupId>
@@ -29,20 +36,21 @@
             <version>${revision}</version>
         </dependency>
 
-        <!-- Microsphere Spring Cloud -->
+        <!-- Microsphere Spring Cloud Commons -->
         <dependency>
             <groupId>io.github.microsphere-projects</groupId>
             <artifactId>microsphere-spring-cloud-commons</artifactId>
+            <optional>true</optional>
         </dependency>
 
-        <!-- Redis -->
+        <!-- Spring Data Redis -->
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-redis</artifactId>
             <optional>true</optional>
         </dependency>
 
-        <!-- Spring Cloud -->
+        <!-- Spring Cloud Dependencies -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-commons</artifactId>
@@ -55,7 +63,7 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- Spring Boot -->
+        <!-- Spring Boot Dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -74,6 +82,12 @@
             <optional>true</optional>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
         <!-- Testing -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -81,17 +95,10 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Spring Testing -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
         <!-- Spring Boot Testing -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-test</artifactId>
+            <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -103,6 +110,13 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Microsphere Spring Boot Test -->
+        <dependency>
+            <groupId>io.github.microsphere-projects</groupId>
+            <artifactId>microsphere-spring-boot-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <!-- Lettuce -->
         <dependency>
             <groupId>io.lettuce</groupId>
@@ -110,6 +124,7 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Commons Pool -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-pool2</artifactId>
