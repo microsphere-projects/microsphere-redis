@@ -170,4 +170,30 @@ Thank you for your contributions!
 
 **Full Changelog**: [0.1.9...0.1.10](https://github.com/mercyblitz/example-repo/compare/0.1.9...0.1.10)
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.1.9...0.1.10
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.1.9...0.1.10## v0.1.11
+
+# Release Notes for Version 0.1.11
+
+## New Features
+- Guard Redis cloud auto-configuration with classpath check. ([05ccf9d](#))
+
+## Bug Fixes
+- Correct versions in README branch table. ([6dce652](#))
+- Update README version matrix for accuracy. ([a915c58](#))
+- Clarify Javadocs for Redis wrapped template property and Redis-related configurations. ([4d94e68](#), [8c4518d](#), [3460e79](#))
+
+## Dependency Updates
+- Bump Microsphere Spring Cloud to version 0.1.23. ([29a1e3c](#))
+- Refine Maven dependencies across Redis Spring modules. ([c8687fd](#))
+
+## Test Improvements
+- Improve tests for Redis cloud auto-configuration. ([8fa5149](#))
+
+## Other Changes
+- Merge `release-1.x` into `dev-1.x`. ([55bd321](#))
+- Update README branch version numbers. ([4e0856a](#))
+- Bump version to prepare for next patch. ([2d39583](#))
+
+---
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.1.10...0.1.11
