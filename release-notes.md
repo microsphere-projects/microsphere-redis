@@ -177,4 +177,32 @@ For a full history of changes, please refer to the [changelog](https://example.c
 
 **Note**: For the complete list of changes, refer to the [Full Changelog](#).
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.2.9...0.2.10
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.2.9...0.2.10## v0.2.11
+
+# Release Notes - Version 0.2.11
+
+## New Features
+- **Redis Cloud Auto-Configuration**: Added classpath-based guard for Redis cloud auto-configuration. (#9a3a0a8)
+
+## Bug Fixes
+- **RedisConstants Javadocs**: Clarified RedisConstants property Javadoc descriptions for improved readability. (#0a26f1e)
+
+## Documentation
+- Updated README to reflect branch version corrections. (#b48da05, #d8493db, #0652e82)  
+- Polished Javadoc headings for better consistency and clarity. (#931d86c)
+
+## Dependency Updates
+- **Spring Cloud Parent**: Bumped to version `0.2.23`. (#5e62ce1)  
+- Marked `microsphere-java-core` as an optional dependency in the project. (#644568e)  
+- Aligned Redis module POM dependencies for consistency. (#947e5a1)
+
+## Test Improvements
+- Updated Redis Cloud tests to align with Boot 4 support. (#d73be3e)
+
+## Build and Workflow Enhancements
+- **Merges**: Multiple workflow improvements with branch merges and synchronization across branches. ([#bfeead2](#), [#af3016e](#), [#c1336b1](#), [#7882af0](#), [#4beee2e](#), [#1b85773](#), [#c701d4e](#), [#961f8f5](#))  
+- Post-release version bump to prepare for future development. (#8a8a2b7)
+
+---
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.2.10...0.2.11
