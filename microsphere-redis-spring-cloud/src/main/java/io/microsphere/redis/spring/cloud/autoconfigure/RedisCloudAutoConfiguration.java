@@ -20,6 +20,7 @@ package io.microsphere.redis.spring.cloud.autoconfigure;
 import io.microsphere.redis.spring.boot.autoconfigure.condition.ConditionalOnRedisAvailable;
 import io.microsphere.redis.spring.cloud.event.PropagatingRedisConfigurationPropertyChangedEventApplicationListener;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
@@ -42,8 +43,11 @@ import org.springframework.context.annotation.Import;
  * @since 1.0.0
  */
 @ConditionalOnRedisAvailable
+@ConditionalOnClass(name = {
+        "org.springframework.cloud.context.environment.EnvironmentChangeEvent"         // Spring Cloud Context API
+})
 @AutoConfigureAfter(name = {
-        "org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration"
+        "org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration"     // Spring Boot [2.0, 4.0)
 })
 @Import(value = {
         PropagatingRedisConfigurationPropertyChangedEventApplicationListener.class
