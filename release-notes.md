@@ -214,4 +214,18 @@ Thank you for your contributions!
 
 **Note**: No new features, bug fixes, or test changes in this release.
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.1.11...0.1.12
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.1.11...0.1.12## v0.1.13
+
+_Release notes generation failed. Raw commits since 0.1.12:_
+
+```
+8c5a2de Update README.md
+96542d6 Merge pull request #65 from mercyblitz/dev-1.x
+38bcf29 Fix Boundary reflective instantiation call
+1cdbf67 Merge branch 'dev-1.x' of https://github.com/mercyblitz/microsphere-redis into dev-1.x
+23479f0 Bump microsphere-spring-cloud to 0.1.25
+d20a699 chore: merge release-1.x into dev-1.x [skip ci]
+4258d3a chore: bump version to next patch after publishing 0.1.12
+```
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.1.12...0.1.13
