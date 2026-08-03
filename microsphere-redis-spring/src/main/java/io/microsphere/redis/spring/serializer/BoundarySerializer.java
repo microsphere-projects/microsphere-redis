@@ -111,6 +111,6 @@ public class BoundarySerializer extends AbstractSerializer<Boundary> {
 
     static Boundary newBoundary(Object value, boolean including) {
         Constructor<Boundary> constructor = findConstructor(Boundary.class, Object.class, boolean.class);
-        return newInstance(constructor, value, including);
+        return newInstance(true, constructor, value, including);
     }
 }
