@@ -219,4 +219,18 @@ For a full history of changes, please refer to the [changelog](https://example.c
 - Merged `main` into `release` and `release` into `main` to synchronize branches. [skip ci]
 - Bumped version to prepare for the next patch release after 0.2.11.
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.2.11...0.2.12
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.2.11...0.2.12## v0.2.13
+
+_Release notes generation failed. Raw commits since 0.2.12:_
+
+```
+361a1a1 Update README.md
+4488bd6 chore: merge main into release [skip ci]
+72940ab Fix Boundary reflective instantiation
+e6e2cdd chore: merge main into release [skip ci]
+a589479 Bump microsphere-spring-cloud to 0.2.25
+755bbd2 chore: merge release into main [skip ci]
+a77b79f chore: bump version to next patch after publishing 0.2.12
+```
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.2.12...0.2.13
