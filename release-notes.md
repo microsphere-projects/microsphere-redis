@@ -228,4 +228,17 @@ d20a699 chore: merge release-1.x into dev-1.x [skip ci]
 4258d3a chore: bump version to next patch after publishing 0.1.12
 ```
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.1.12...0.1.13
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.1.12...0.1.13## v0.1.14
+
+_Release notes generation failed. Raw commits since 0.1.13:_
+
+```
+f2cc88f Merge pull request #67 from mercyblitz/dev-1.x
+94bbd39 Update README.md
+197817b Bump spring cloud parent to 0.1.26
+12fe4e7 Add workflow to sync branches from upstream repository
+6a654a0 chore: merge release-1.x into dev-1.x [skip ci]
+dd4d634 chore: bump version to next patch after publishing 0.1.13
+```
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.1.13...0.1.14
