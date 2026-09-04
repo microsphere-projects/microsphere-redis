@@ -233,4 +233,20 @@ a589479 Bump microsphere-spring-cloud to 0.2.25
 a77b79f chore: bump version to next patch after publishing 0.2.12
 ```
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.2.12...0.2.13
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.2.12...0.2.13## v0.2.14
+
+_Release notes generation failed. Raw commits since 0.2.13:_
+
+```
+3508528 Update version numbers in README.md
+7a7a2bc chore: merge main into release [skip ci]
+ab247e5 Merge branch 'main' of https://github.com/microsphere-projects/microsphere-redis
+7910235 Bump microsphere-spring-cloud to 0.2.26
+bdb27ec chore: merge main into release [skip ci]
+689313a Merge pull request #66 from microsphere-projects/dependabot/maven/org.apache.maven-apache-maven-3.9.16
+644a7e6 Bump org.apache.maven:apache-maven from 3.9.15 to 3.9.16
+59deb10 chore: merge release into main [skip ci]
+014d8ca chore: bump version to next patch after publishing 0.2.13
+```
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-redis/compare/0.2.13...0.2.14
