@@ -135,6 +135,14 @@ We welcome your contributions! Please read [Code of Conduct](./CODE_OF_CONDUCT.m
 
 ## Documentation
 
+### Guides
+
+- Documentation Index: [docs/README.md](docs/README.md) · [中文](docs/zh/README.md)
+- User Guide: [docs/user-guide/README.md](docs/user-guide/README.md) · [中文](docs/user-guide/zh/README.md)
+  (current 0.2.x in [`docs/user-guide/current/`](docs/user-guide/current/), legacy 1.x in [`docs/user-guide/1.x/`](docs/user-guide/1.x/))
+- Developer Guide: [docs/developer-guide/README.md](docs/developer-guide/README.md) · [中文](docs/developer-guide/zh/README.md)
+  (architecture, source analysis, design patterns and flows for every Maven module)
+
 ### User Guide
 
 [DeepWiki Host](https://deepwiki.com/microsphere-projects/microsphere-redis)
