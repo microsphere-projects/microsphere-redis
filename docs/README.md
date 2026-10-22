@@ -41,6 +41,13 @@ docs/
     │   └── ...                  # Same module files, zh/ included
     └── 1.x/                     # Developer Guide for the `release-1.x` branch
         └── ...
+└── diff/                        # Tag-to-tag source diff
+    └── source/                  # Module-level source comparison (English, default)
+        ├── main-diff-0.2.14-vs-0.1.14.md   # src/main comparison, latest two tags
+        ├── test-diff-0.2.14-vs-0.1.14.md   # src/test comparison, latest two tags
+        └── zh/                             # 同名中文对比文档
+            ├── main-diff-0.2.14-vs-0.1.14.md
+            └── test-diff-0.2.14-vs-0.1.14.md
 ```
 
 ## Which Document Do I Need?
@@ -61,6 +68,17 @@ For **contributors and maintainers** who study or extend the framework. It conta
 - Design patterns applied in the implementation
 - Mermaid flowcharts for complex flows (command interception, event publishing, replication pipeline…)
 - Mermaid diagrams of inter-module dependencies
+
+### [Source Diff](./diff/source/)
+
+For **maintainers** who want to understand how the two release lines diverge. Each document compares
+`src/main` or `src/test` **module by module** between the latest two tags (`0.2.14` vs `0.1.14`), while
+**excluding** the expected Java 8 vs Java 17 syntax and Java EE vs Jakarta EE API differences, and
+explaining the remaining differences (API compatibility, functional needs, upstream Spring Data Redis
+changes):
+
+- [`main-diff-0.2.14-vs-0.1.14.md`](./diff/source/main-diff-0.2.14-vs-0.1.14.md) — `src/main` comparison (中文：[`zh/`](./diff/source/zh/main-diff-0.2.14-vs-0.1.14.md))
+- [`test-diff-0.2.14-vs-0.1.14.md`](./diff/source/test-diff-0.2.14-vs-0.1.14.md) — `src/test` comparison (中文：[`zh/`](./diff/source/zh/test-diff-0.2.14-vs-0.1.14.md))
 
 ## Maven Modules at a Glance
 
